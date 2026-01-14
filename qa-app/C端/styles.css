@@ -1,0 +1,96 @@
+/* 问答APP 通用样式 */
+
+/* 基础重置 */
+* {
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* 隐藏滚动条 */
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* 标签激活状态 */
+.tab-active {
+    color: #D93A3A;
+    border-bottom: 2px solid #D93A3A;
+    font-weight: 600;
+}
+
+/* 底部导航激活状态 */
+.bottom-nav-active {
+    color: #D93A3A;
+}
+
+/* 问题类型标签 */
+.question-type-reward {
+    background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+}
+
+.question-type-free {
+    background: linear-gradient(135deg, #4CAF50, #8BC34A);
+}
+
+.question-type-targeted {
+    background: linear-gradient(135deg, #2196F3, #03A9F4);
+}
+
+/* 回答标签激活状态 */
+.answer-tab-active {
+    color: #D93A3A;
+    border-bottom: 2px solid #D93A3A;
+}
+
+/* 类型卡片激活状态 */
+.type-card.active {
+    border-color: #D93A3A;
+    background: #FEF2F2;
+}
+
+.type-card.active .type-icon {
+    color: #D93A3A;
+}
+
+/* 紧急消息优先级 */
+.urgent-high {
+    border-left: 4px solid #EF4444;
+}
+
+.urgent-medium {
+    border-left: 4px solid #F59E0B;
+}
+
+.urgent-low {
+    border-left: 4px solid #3B82F6;
+}
+
+/* 链接样式重置 */
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* 按钮基础样式 */
+button {
+    cursor: pointer;
+    border: none;
+    background: none;
+}
+
+/* 输入框基础样式 */
+input, textarea {
+    outline: none;
+}
+
+input:focus, textarea:focus {
+    border-color: #D93A3A;
+}

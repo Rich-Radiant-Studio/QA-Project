@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>问答首页</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-100 min-h-screen pb-16">
+    <!-- 顶部搜索栏 -->
+    <div class="bg-white sticky top-0 z-50 shadow-sm">
+        <div class="flex items-center px-3 py-2 gap-2">
+            <!-- 搜索框 -->
+            <a href="搜索页.html" class="flex-1 flex items-center bg-gray-100 rounded-full px-3 py-2">
+                <i class="fas fa-search text-gray-400 text-sm"></i>
+                <span class="flex-1 ml-2 text-sm text-gray-400">搜索问题、话题或用户</span>
+            </a>
+            <!-- 搜索按钮 -->
+            <a href="搜索页.html" class="px-3 py-2 text-red-500 text-sm font-medium">搜索</a>
+            <!-- 紧急消息按钮 -->
+            <a href="紧急消息页.html" class="relative p-2">
+                <i class="fas fa-bell text-gray-600 text-lg"></i>
+                <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            </a>
+            <!-- 发布按钮 -->
+            <a href="发布问题页.html" class="bg-red-500 text-white px-3 py-1.5 rounded-full text-sm font-medium">
+                <i class="fas fa-plus mr-1"></i>发布
+            </a>
+        </div>
+    </div>
+
+    <!-- 标签栏 -->
+    <div class="bg-white sticky top-14 z-40 border-b border-gray-100">
+        <div class="flex items-center overflow-x-auto hide-scrollbar">
+            <div class="flex px-2 py-2 gap-1">
+                <button class="tab-item tab-active px-4 py-2 text-sm whitespace-nowrap" onclick="switchTab(this)">推荐</button>
+                <button class="tab-item px-4 py-2 text-sm text-gray-600 whitespace-nowrap" onclick="switchTab(this)">热榜</button>
+                <button class="tab-item px-4 py-2 text-sm text-gray-600 whitespace-nowrap" onclick="switchTab(this)">同城</button>
+                <button class="tab-item px-4 py-2 text-sm text-gray-600 whitespace-nowrap" onclick="switchTab(this)">国家</button>
+                <button class="tab-item px-4 py-2 text-sm text-gray-600 whitespace-nowrap" onclick="switchTab(this)">行业</button>
+                <button class="tab-item px-4 py-2 text-sm text-gray-600 whitespace-nowrap" onclick="switchTab(this)">个人</button>
+                <button class="tab-item px-4 py-2 text-sm text-gray-600 whitespace-nowrap" onclick="switchTab(this)">职场</button>
+                <button class="tab-item px-4 py-2 text-sm text-gray-600 whitespace-nowrap" onclick="switchTab(this)">教育</button>
+            </div>
+            <button class="px-3 py-2 border-l border-gray-100 bg-white">
+                <i class="fas fa-bars text-gray-500"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 问题卡片列表 -->
+    <div class="px-3 py-3 space-y-3">
+        <!-- 卡片1 - 悬赏问题 -->
+        <a href="问题详情页.html" class="block bg-white rounded-xl shadow-sm overflow-hidden">
+            <!-- 发布人信息 -->
+            <div class="flex items-center px-4 pt-4 pb-2">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=user1" class="w-10 h-10 rounded-full">
+                <div class="ml-3 flex-1">
+                    <div class="flex items-center">
+                        <span class="font-medium text-sm">张三丰</span>
+                        <span class="question-type-reward text-white text-xs px-2 py-0.5 rounded-full ml-2">悬赏 $50</span>
+                    </div>
+                    <span class="text-xs text-gray-400">2小时前</span>
+                </div>
+                <button class="text-gray-400 text-sm">
+                    <i class="fas fa-ellipsis-h"></i>
+                </button>
+            </div>
+            <!-- 问题内容 -->
+            <div class="px-4 pb-3">
+                <h3 class="text-base font-medium text-gray-900 leading-relaxed">如何在三个月内从零基础学会Python编程？有没有系统的学习路线推荐？</h3>
+            </div>
+            <!-- 图片 -->
+            <div class="px-4 pb-3">
+                <img src="https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=600&h=300&fit=crop" class="w-full h-40 object-cover rounded-lg">
+            </div>
+            <!-- 已解决/未解决 PK进度条 -->
+            <div class="px-4 pb-3">
+                <div class="flex items-center justify-between text-xs mb-1">
+                    <span class="text-red-500 font-medium">已解决 65%</span>
+                    <span class="text-blue-500 font-medium">未解决 35%</span>
+                </div>
+                <div class="relative flex h-3 rounded-full overflow-visible bg-gray-100">
+                    <div class="bg-red-500 h-full rounded-l-full" style="width: 65%"></div>
+                    <div class="bg-blue-500 h-full rounded-r-full" style="width: 35%"></div>
+                </div>
+            </div>
+            <!-- 操作按钮 -->
+            <div class="flex items-center justify-between px-4 py-3 border-t border-gray-50">
+                <div class="flex items-center gap-4">
+                    <button class="flex items-center text-gray-500 text-sm" onclick="toggleLike(this)">
+                        <i class="far fa-thumbs-up mr-1"></i>
+                        <span>128</span>
+                    </button>
+                    <button class="flex items-center text-gray-500 text-sm" onclick="toggleDislike(this)">
+                        <i class="far fa-thumbs-down mr-1"></i>
+                        <span>12</span>
+                    </button>
+                    <button class="flex items-center text-gray-500 text-sm">
+                        <i class="far fa-comment mr-1"></i>
+                        <span>56</span>
+                    </button>
+                    <button class="flex items-center text-gray-500 text-sm">
+                        <i class="fas fa-share mr-1"></i>
+                        <span>转发</span>
+                    </button>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button class="text-gray-500 text-sm px-2 py-1 border border-gray-200 rounded-full">
+                        <i class="fas fa-users mr-1"></i>群聊
+                    </button>
+                    <button class="bg-red-500 text-white text-sm px-3 py-1 rounded-full">
+                        <i class="fas fa-pen mr-1"></i>回答
+                    </button>
+                </div>
+            </div>
+        </a>
+
+        <!-- 卡片2 - 免费问题 -->
+        <a href="问题详情页.html" class="block bg-white rounded-xl shadow-sm overflow-hidden">
+            <div class="flex items-center px-4 pt-4 pb-2">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=user2" class="w-10 h-10 rounded-full">
+                <div class="ml-3 flex-1">
+                    <div class="flex items-center">
+                        <span class="font-medium text-sm">李小龙</span>
+                        <span class="question-type-free text-white text-xs px-2 py-0.5 rounded-full ml-2">免费</span>
+                    </div>
+                    <span class="text-xs text-gray-400">5小时前</span>
+                </div>
+                <button class="text-gray-400 text-sm"><i class="fas fa-ellipsis-h"></i></button>
+            </div>
+            <div class="px-4 pb-3">
+                <h3 class="text-base font-medium text-gray-900 leading-relaxed">第一次养猫需要准备什么？有哪些新手容易踩的坑？</h3>
+            </div>
+            <div class="px-4 pb-3 flex gap-2">
+                <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=200&h=200&fit=crop" class="w-28 h-28 object-cover rounded-lg">
+                <img src="https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=200&h=200&fit=crop" class="w-28 h-28 object-cover rounded-lg">
+                <img src="https://images.unsplash.com/photo-1495360010541-f48722b34f7d?w=200&h=200&fit=crop" class="w-28 h-28 object-cover rounded-lg">
+            </div>
+            <!-- 已解决/未解决 PK进度条 -->
+            <div class="px-4 pb-3">
+                <div class="flex items-center justify-between text-xs mb-1">
+                    <span class="text-red-500 font-medium">已解决 80%</span>
+                    <span class="text-blue-500 font-medium">未解决 20%</span>
+                </div>
+                <div class="relative flex h-3 rounded-full overflow-visible bg-gray-100">
+                    <div class="bg-red-500 h-full rounded-l-full" style="width: 80%"></div>
+                    <div class="bg-blue-500 h-full rounded-r-full" style="width: 20%"></div>
+                </div>
+            </div>
+            <div class="flex items-center justify-between px-4 py-3 border-t border-gray-50">
+                <div class="flex items-center gap-4">
+                    <button class="flex items-center text-gray-500 text-sm" onclick="toggleLike(this)">
+                        <i class="far fa-thumbs-up mr-1"></i><span>256</span>
+                    </button>
+                    <button class="flex items-center text-gray-500 text-sm" onclick="toggleDislike(this)">
+                        <i class="far fa-thumbs-down mr-1"></i><span>8</span>
+                    </button>
+                    <button class="flex items-center text-gray-500 text-sm">
+                        <i class="far fa-comment mr-1"></i><span>89</span>
+                    </button>
+                    <button class="flex items-center text-gray-500 text-sm">
+                        <i class="fas fa-share mr-1"></i><span>转发</span>
+                    </button>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button class="text-gray-500 text-sm px-2 py-1 border border-gray-200 rounded-full">
+                        <i class="fas fa-users mr-1"></i>群聊
+                    </button>
+                    <button class="bg-red-500 text-white text-sm px-3 py-1 rounded-full">
+                        <i class="fas fa-pen mr-1"></i>回答
+                    </button>
+                </div>
+            </div>
+        </a>
+
+        <!-- 卡片3 - 定向问题 -->
+        <a href="问题详情页.html" class="block bg-white rounded-xl shadow-sm overflow-hidden">
+            <div class="flex items-center px-4 pt-4 pb-2">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=user3" class="w-10 h-10 rounded-full">
+                <div class="ml-3 flex-1">
+                    <div class="flex items-center">
+                        <span class="font-medium text-sm">王医生</span>
+                        <i class="fas fa-check-circle text-blue-500 text-xs ml-1"></i>
+                        <span class="question-type-targeted text-white text-xs px-2 py-0.5 rounded-full ml-2">定向</span>
+                    </div>
+                    <span class="text-xs text-gray-400">昨天 18:30</span>
+                </div>
+                <button class="text-gray-400 text-sm"><i class="fas fa-ellipsis-h"></i></button>
+            </div>
+            <div class="px-4 pb-3">
+                <h3 class="text-base font-medium text-gray-900 leading-relaxed">长期失眠应该怎么调理？吃褪黑素有用吗？求专业医生解答</h3>
+            </div>
+            <!-- 已解决/未解决 PK进度条 -->
+            <div class="px-4 pb-3">
+                <div class="flex items-center justify-between text-xs mb-1">
+                    <span class="text-red-500 font-medium">已解决 45%</span>
+                    <span class="text-blue-500 font-medium">未解决 55%</span>
+                </div>
+                <div class="relative flex h-3 rounded-full overflow-visible bg-gray-100">
+                    <div class="bg-red-500 h-full rounded-l-full" style="width: 45%"></div>
+                    <div class="bg-blue-500 h-full rounded-r-full" style="width: 55%"></div>
+                </div>
+            </div>
+            <div class="flex items-center justify-between px-4 py-3 border-t border-gray-50">
+                <div class="flex items-center gap-4">
+                    <button class="flex items-center text-gray-500 text-sm" onclick="toggleLike(this)">
+                        <i class="far fa-thumbs-up mr-1"></i><span>512</span>
+                    </button>
+                    <button class="flex items-center text-gray-500 text-sm" onclick="toggleDislike(this)">
+                        <i class="far fa-thumbs-down mr-1"></i><span>5</span>
+                    </button>
+                    <button class="flex items-center text-gray-500 text-sm">
+                        <i class="far fa-comment mr-1"></i><span>234</span>
+                    </button>
+                    <button class="flex items-center text-gray-500 text-sm">
+                        <i class="fas fa-share mr-1"></i><span>转发</span>
+                    </button>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button class="text-gray-500 text-sm px-2 py-1 border border-gray-200 rounded-full">
+                        <i class="fas fa-users mr-1"></i>群聊
+                    </button>
+                    <button class="bg-red-500 text-white text-sm px-3 py-1 rounded-full">
+                        <i class="fas fa-pen mr-1"></i>回答
+                    </button>
+                </div>
+            </div>
+        </a>
+
+        <!-- 卡片4 -->
+        <a href="问题详情页.html" class="block bg-white rounded-xl shadow-sm overflow-hidden">
+            <div class="flex items-center px-4 pt-4 pb-2">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=user4" class="w-10 h-10 rounded-full">
+                <div class="ml-3 flex-1">
+                    <div class="flex items-center">
+                        <span class="font-medium text-sm">程序员小明</span>
+                        <span class="question-type-reward text-white text-xs px-2 py-0.5 rounded-full ml-2">悬赏 $100</span>
+                    </div>
+                    <span class="text-xs text-gray-400">3小时前</span>
+                </div>
+                <button class="text-gray-400 text-sm"><i class="fas fa-ellipsis-h"></i></button>
+            </div>
+            <div class="px-4 pb-3">
+                <h3 class="text-base font-medium text-gray-900 leading-relaxed">35岁程序员如何规划职业发展？是继续技术深耕还是转管理？</h3>
+            </div>
+            <div class="px-4 pb-3">
+                <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&h=300&fit=crop" class="w-full h-40 object-cover rounded-lg">
+            </div>
+            <!-- 已解决/未解决 PK进度条 -->
+            <div class="px-4 pb-3">
+                <div class="flex items-center justify-between text-xs mb-1">
+                    <span class="text-red-500 font-medium">已解决 30%</span>
+                    <span class="text-blue-500 font-medium">未解决 70%</span>
+                </div>
+                <div class="relative flex h-3 rounded-full overflow-visible bg-gray-100">
+                    <div class="bg-red-500 h-full rounded-l-full" style="width: 30%"></div>
+                    <div class="bg-blue-500 h-full rounded-r-full" style="width: 70%"></div>
+                </div>
+            </div>
+            <div class="flex items-center justify-between px-4 py-3 border-t border-gray-50">
+                <div class="flex items-center gap-4">
+                    <button class="flex items-center text-gray-500 text-sm" onclick="toggleLike(this)">
+                        <i class="far fa-thumbs-up mr-1"></i><span>1.2k</span>
+                    </button>
+                    <button class="flex items-center text-gray-500 text-sm" onclick="toggleDislike(this)">
+                        <i class="far fa-thumbs-down mr-1"></i><span>23</span>
+                    </button>
+                    <button class="flex items-center text-gray-500 text-sm">
+                        <i class="far fa-comment mr-1"></i><span>456</span>
+                    </button>
+                    <button class="flex items-center text-gray-500 text-sm">
+                        <i class="fas fa-share mr-1"></i><span>转发</span>
+                    </button>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button class="text-gray-500 text-sm px-2 py-1 border border-gray-200 rounded-full">
+                        <i class="fas fa-users mr-1"></i>群聊
+                    </button>
+                    <button class="bg-red-500 text-white text-sm px-3 py-1 rounded-full">
+                        <i class="fas fa-pen mr-1"></i>回答
+                    </button>
+                </div>
+            </div>
+        </a>
+
+        <!-- 卡片5 -->
+        <a href="问题详情页.html" class="block bg-white rounded-xl shadow-sm overflow-hidden">
+            <div class="flex items-center px-4 pt-4 pb-2">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=user5" class="w-10 h-10 rounded-full">
+                <div class="ml-3 flex-1">
+                    <div class="flex items-center">
+                        <span class="font-medium text-sm">美食达人</span>
+                        <span class="question-type-free text-white text-xs px-2 py-0.5 rounded-full ml-2">免费</span>
+                    </div>
+                    <span class="text-xs text-gray-400">6小时前</span>
+                </div>
+                <button class="text-gray-400 text-sm"><i class="fas fa-ellipsis-h"></i></button>
+            </div>
+            <div class="px-4 pb-3">
+                <h3 class="text-base font-medium text-gray-900 leading-relaxed">有什么简单又好吃的家常菜推荐？最好是新手也能做的那种</h3>
+            </div>
+            <div class="px-4 pb-3 flex gap-2">
+                <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&h=200&fit=crop" class="w-28 h-28 object-cover rounded-lg">
+                <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=200&h=200&fit=crop" class="w-28 h-28 object-cover rounded-lg">
+            </div>
+            <!-- 已解决/未解决 PK进度条 -->
+            <div class="px-4 pb-3">
+                <div class="flex items-center justify-between text-xs mb-1">
+                    <span class="text-red-500 font-medium">已解决 92%</span>
+                    <span class="text-blue-500 font-medium">未解决 8%</span>
+                </div>
+                <div class="relative flex h-3 rounded-full overflow-visible bg-gray-100">
+                    <div class="bg-red-500 h-full rounded-l-full" style="width: 92%"></div>
+                    <div class="bg-blue-500 h-full rounded-r-full" style="width: 8%"></div>
+                </div>
+            </div>
+            <div class="flex items-center justify-between px-4 py-3 border-t border-gray-50">
+                <div class="flex items-center gap-4">
+                    <button class="flex items-center text-gray-500 text-sm" onclick="toggleLike(this)">
+                        <i class="far fa-thumbs-up mr-1"></i><span>368</span>
+                    </button>
+                    <button class="flex items-center text-gray-500 text-sm" onclick="toggleDislike(this)">
+                        <i class="far fa-thumbs-down mr-1"></i><span>6</span>
+                    </button>
+                    <button class="flex items-center text-gray-500 text-sm">
+                        <i class="far fa-comment mr-1"></i><span>127</span>
+                    </button>
+                    <button class="flex items-center text-gray-500 text-sm">
+                        <i class="fas fa-share mr-1"></i><span>转发</span>
+                    </button>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button class="text-gray-500 text-sm px-2 py-1 border border-gray-200 rounded-full">
+                        <i class="fas fa-users mr-1"></i>群聊
+                    </button>
+                    <button class="bg-red-500 text-white text-sm px-3 py-1 rounded-full">
+                        <i class="fas fa-pen mr-1"></i>回答
+                    </button>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <!-- 底部导航 -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
+        <div class="flex items-center justify-around py-2">
+            <a href="首页.html" class="flex flex-col items-center py-1 px-4 bottom-nav-active">
+                <i class="fas fa-home text-lg"></i>
+                <span class="text-xs mt-1">首页</span>
+            </a>
+            <a href="关注页.html" class="flex flex-col items-center py-1 px-4 text-gray-500">
+                <i class="fas fa-heart text-lg"></i>
+                <span class="text-xs mt-1">关注</span>
+            </a>
+            <a href="发布问题页.html" class="flex flex-col items-center py-1 px-4 text-gray-500 relative -top-3">
+                <div class="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center shadow-lg">
+                    <i class="fas fa-plus text-white text-xl"></i>
+                </div>
+                <span class="text-xs mt-1">发布</span>
+            </a>
+            <a href="紧急消息页.html" class="flex flex-col items-center py-1 px-4 text-gray-500 relative">
+                <i class="fas fa-exclamation-triangle text-lg"></i>
+                <span class="absolute -top-1 right-2 bg-red-500 text-white text-xs px-1.5 rounded-full">3</span>
+                <span class="text-xs mt-1">紧急消息</span>
+            </a>
+            <a href="个人中心页.html" class="flex flex-col items-center py-1 px-4 text-gray-500">
+                <i class="fas fa-user text-lg"></i>
+                <span class="text-xs mt-1">我的</span>
+            </a>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

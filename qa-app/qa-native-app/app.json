@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "问答APP",
+    "slug": "qa-native-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#ef4444"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.qa.app"
+    },
+    "android": {
+      "package": "com.qa.app"
+    },
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}

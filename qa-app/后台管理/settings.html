@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统设置 - 问答APP后台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen">
+        <aside class="w-64 bg-gray-900 text-white flex-shrink-0">
+            <div class="p-4 border-b border-gray-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center"><i class="fas fa-question-circle text-xl"></i></div>
+                    <span class="ml-3 font-bold text-lg">问答管理后台</span>
+                </div>
+            </div>
+            <nav class="p-4">
+                <ul class="space-y-2">
+                    <li><a href="index.html" class="nav-item flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800"><i class="fas fa-tachometer-alt w-5"></i><span class="ml-3">数据概览</span></a></li>
+                    <li><a href="users.html" class="nav-item flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800"><i class="fas fa-users w-5"></i><span class="ml-3">用户管理</span></a></li>
+                    <li><a href="questions.html" class="nav-item flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800"><i class="fas fa-question w-5"></i><span class="ml-3">问题管理</span></a></li>
+                    <li><a href="answers.html" class="nav-item flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800"><i class="fas fa-comment-dots w-5"></i><span class="ml-3">回答管理</span></a></li>
+                    <li><a href="topics.html" class="nav-item flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800"><i class="fas fa-hashtag w-5"></i><span class="ml-3">话题管理</span></a></li>
+                    <li><a href="messages.html" class="nav-item flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800"><i class="fas fa-bell w-5"></i><span class="ml-3">消息管理</span></a></li>
+                    <li><a href="finance.html" class="nav-item flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800"><i class="fas fa-wallet w-5"></i><span class="ml-3">财务管理</span></a></li>
+                    <li><a href="reports.html" class="nav-item flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800"><i class="fas fa-flag w-5"></i><span class="ml-3">举报管理</span></a></li>
+                    <li><a href="settings.html" class="nav-item active flex items-center px-4 py-3 rounded-lg"><i class="fas fa-cog w-5"></i><span class="ml-3">系统设置</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <header class="bg-white shadow-sm px-6 py-4 flex items-center justify-between">
+                <h1 class="text-xl font-bold text-gray-800">系统设置</h1>
+                <div class="flex items-center gap-4">
+                    <button class="relative p-2 text-gray-500"><i class="fas fa-bell text-xl"></i><span class="absolute top-0 right-0 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">5</span></button>
+                    <div class="flex items-center gap-3">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=admin" class="w-10 h-10 rounded-full">
+                        <div><div class="text-sm font-medium">管理员</div><div class="text-xs text-gray-500">超级管理员</div></div>
+                    </div>
+                </div>
+            </header>
+
+            <main class="flex-1 overflow-y-auto p-6">
+                <div class="grid grid-cols-3 gap-6">
+                    <!-- 基础设置 -->
+                    <div class="col-span-2 space-y-6">
+                        <!-- 网站设置 -->
+                        <div class="bg-white rounded-xl shadow-sm">
+                            <div class="px-6 py-4 border-b border-gray-100">
+                                <h2 class="font-bold">网站设置</h2>
+                            </div>
+                            <div class="p-6 space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">网站名称</label>
+                                    <input type="text" class="form-input" value="问答APP">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">网站描述</label>
+                                    <textarea class="form-input" rows="2">专业的问答社区，分享知识，解决问题</textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">网站Logo</label>
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-16 h-16 bg-red-500 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-question-circle text-white text-2xl"></i>
+                                        </div>
+                                        <button class="btn btn-secondary">更换Logo</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 悬赏设置 -->
+                        <div class="bg-white rounded-xl shadow-sm">
+                            <div class="px-6 py-4 border-b border-gray-100">
+                                <h2 class="font-bold">悬赏设置</h2>
+                            </div>
+                            <div class="p-6 space-y-4">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">最低悬赏金额</label>
+                                        <div class="flex items-center">
+                                            <span class="text-gray-500 mr-2">$</span>
+                                            <input type="number" class="form-input" value="10">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">最高悬赏金额</label>
+                                        <div class="flex items-center">
+                                            <span class="text-gray-500 mr-2">$</span>
+                                            <input type="number" class="form-input" value="10000">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">悬赏有效期（天）</label>
+                                        <input type="number" class="form-input" value="7">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">平台抽成比例</label>
+                                        <div class="flex items-center">
+                                            <input type="number" class="form-input" value="10">
+                                            <span class="text-gray-500 ml-2">%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 提现设置 -->
+                        <div class="bg-white rounded-xl shadow-sm">
+                            <div class="px-6 py-4 border-b border-gray-100">
+                                <h2 class="font-bold">提现设置</h2>
+                            </div>
+                            <div class="p-6 space-y-4">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">最低提现金额</label>
+                                        <div class="flex items-center">
+                                            <span class="text-gray-500 mr-2">$</span>
+                                            <input type="number" class="form-input" value="50">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">单次最高提现</label>
+                                        <div class="flex items-center">
+                                            <span class="text-gray-500 mr-2">$</span>
+                                            <input type="number" class="form-input" value="5000">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">提现方式</label>
+                                    <div class="flex items-center gap-4">
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="mr-2" checked>
+                                            <span class="text-sm">银行卡</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="mr-2" checked>
+                                            <span class="text-sm">支付宝</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="mr-2" checked>
+                                            <span class="text-sm">微信</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 内容审核 -->
+                        <div class="bg-white rounded-xl shadow-sm">
+                            <div class="px-6 py-4 border-b border-gray-100">
+                                <h2 class="font-bold">内容审核</h2>
+                            </div>
+                            <div class="p-6 space-y-4">
+                                <div class="flex items-center justify-between py-2">
+                                    <div>
+                                        <div class="font-medium text-sm">问题发布审核</div>
+                                        <div class="text-xs text-gray-500">开启后，新发布的问题需要审核后才能显示</div>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between py-2">
+                                    <div>
+                                        <div class="font-medium text-sm">回答发布审核</div>
+                                        <div class="text-xs text-gray-500">开启后，新发布的回答需要审核后才能显示</div>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between py-2">
+                                    <div>
+                                        <div class="font-medium text-sm">敏感词过滤</div>
+                                        <div class="text-xs text-gray-500">自动过滤包含敏感词的内容</div>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer" checked>
+                                        <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between py-2">
+                                    <div>
+                                        <div class="font-medium text-sm">图片审核</div>
+                                        <div class="text-xs text-gray-500">自动审核上传的图片内容</div>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer" checked>
+                                        <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end">
+                            <button class="btn btn-primary" onclick="saveSettings()">
+                                <i class="fas fa-save mr-2"></i>保存设置
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 右侧快捷操作 -->
+                    <div class="space-y-6">
+                        <!-- 系统信息 -->
+                        <div class="bg-white rounded-xl shadow-sm">
+                            <div class="px-6 py-4 border-b border-gray-100">
+                                <h2 class="font-bold">系统信息</h2>
+                            </div>
+                            <div class="p-4 space-y-3">
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-gray-500">系统版本</span>
+                                    <span>v2.1.0</span>
+                                </div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-gray-500">服务器状态</span>
+                                    <span class="text-green-500"><i class="fas fa-circle text-xs mr-1"></i>正常</span>
+                                </div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-gray-500">数据库状态</span>
+                                    <span class="text-green-500"><i class="fas fa-circle text-xs mr-1"></i>正常</span>
+                                </div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-gray-500">缓存状态</span>
+                                    <span class="text-green-500"><i class="fas fa-circle text-xs mr-1"></i>正常</span>
+                                </div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-gray-500">最后更新</span>
+                                    <span>2024-01-10</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 快捷操作 -->
+                        <div class="bg-white rounded-xl shadow-sm">
+                            <div class="px-6 py-4 border-b border-gray-100">
+                                <h2 class="font-bold">快捷操作</h2>
+                            </div>
+                            <div class="p-4 space-y-2">
+                                <button class="w-full btn btn-secondary justify-start">
+                                    <i class="fas fa-sync-alt mr-2"></i>清除缓存
+                                </button>
+                                <button class="w-full btn btn-secondary justify-start">
+                                    <i class="fas fa-database mr-2"></i>备份数据
+                                </button>
+                                <button class="w-full btn btn-secondary justify-start">
+                                    <i class="fas fa-file-alt mr-2"></i>查看日志
+                                </button>
+                                <button class="w-full btn btn-secondary justify-start">
+                                    <i class="fas fa-shield-alt mr-2"></i>安全检测
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 管理员列表 -->
+                        <div class="bg-white rounded-xl shadow-sm">
+                            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                                <h2 class="font-bold">管理员</h2>
+                                <button class="text-red-500 text-sm">+ 添加</button>
+                            </div>
+                            <div class="divide-y divide-gray-100">
+                                <div class="p-4 flex items-center">
+                                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=admin" class="w-10 h-10 rounded-full">
+                                    <div class="ml-3 flex-1">
+                                        <div class="font-medium text-sm">超级管理员</div>
+                                        <div class="text-xs text-gray-400">admin@example.com</div>
+                                    </div>
+                                    <span class="px-2 py-1 bg-red-100 text-red-600 text-xs rounded">超管</span>
+                                </div>
+                                <div class="p-4 flex items-center">
+                                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=admin2" class="w-10 h-10 rounded-full">
+                                    <div class="ml-3 flex-1">
+                                        <div class="font-medium text-sm">内容审核员</div>
+                                        <div class="text-xs text-gray-400">reviewer@example.com</div>
+                                    </div>
+                                    <span class="px-2 py-1 bg-blue-100 text-blue-600 text-xs rounded">审核</span>
+                                </div>
+                                <div class="p-4 flex items-center">
+                                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=admin3" class="w-10 h-10 rounded-full">
+                                    <div class="ml-3 flex-1">
+                                        <div class="font-medium text-sm">财务管理员</div>
+                                        <div class="text-xs text-gray-400">finance@example.com</div>
+                                    </div>
+                                    <span class="px-2 py-1 bg-green-100 text-green-600 text-xs rounded">财务</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script src="admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>紧急消息</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-100 min-h-screen pb-16">
+    <!-- 顶部导航 -->
+    <div class="bg-white sticky top-0 z-50 shadow-sm">
+        <div class="flex items-center justify-between px-4 py-3">
+            <span class="font-bold text-lg">紧急消息</span>
+            <div class="flex items-center gap-3">
+                <button class="text-gray-600 text-sm">全部已读</button>
+                <button class="text-gray-600"><i class="fas fa-cog"></i></button>
+            </div>
+        </div>
+        <!-- 标签栏 -->
+        <div class="flex border-b border-gray-100">
+            <button class="tab-item tab-active flex-1 py-3 text-sm" onclick="switchTab(this)">全部</button>
+            <button class="tab-item flex-1 py-3 text-sm text-gray-500" onclick="switchTab(this)">回复我的</button>
+            <button class="tab-item flex-1 py-3 text-sm text-gray-500" onclick="switchTab(this)">@我的</button>
+            <button class="tab-item flex-1 py-3 text-sm text-gray-500" onclick="switchTab(this)">系统</button>
+        </div>
+    </div>
+
+    <!-- 紧急程度筛选 -->
+    <div class="bg-white mt-2 px-4 py-3">
+        <div class="flex items-center gap-2">
+            <button class="px-3 py-1.5 bg-red-500 text-white rounded-full text-xs">全部</button>
+            <button class="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-full text-xs flex items-center">
+                <span class="w-2 h-2 bg-red-500 rounded-full mr-1"></span>紧急
+            </button>
+            <button class="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-full text-xs flex items-center">
+                <span class="w-2 h-2 bg-yellow-500 rounded-full mr-1"></span>重要
+            </button>
+            <button class="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-full text-xs flex items-center">
+                <span class="w-2 h-2 bg-blue-500 rounded-full mr-1"></span>普通
+            </button>
+        </div>
+    </div>
+
+    <!-- 消息列表 -->
+    <div class="mt-2 space-y-2">
+        <!-- 紧急消息1 - 高优先级 -->
+        <div class="bg-white urgent-high">
+            <div class="px-4 py-3">
+                <div class="flex items-start">
+                    <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-exclamation text-red-500"></i>
+                    </div>
+                    <div class="ml-3 flex-1">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <span class="font-medium text-sm">悬赏问题即将过期</span>
+                                <span class="ml-2 px-1.5 py-0.5 bg-red-500 text-white text-xs rounded">紧急</span>
+                            </div>
+                            <span class="text-xs text-gray-400">5分钟前</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">您发布的悬赏问题「如何在三个月内从零基础学会Python编程？」将在2小时后过期，目前有3个待采纳回答。</p>
+                        <div class="flex items-center gap-2 mt-2">
+                            <a href="问题详情页.html" class="px-3 py-1 bg-red-500 text-white rounded-full text-xs">立即处理</a>
+                            <button class="px-3 py-1 border border-gray-300 text-gray-600 rounded-full text-xs">延长时间</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 紧急消息2 - 高优先级 -->
+        <div class="bg-white urgent-high">
+            <div class="px-4 py-3">
+                <div class="flex items-start">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=msg1" class="w-10 h-10 rounded-full flex-shrink-0">
+                    <div class="ml-3 flex-1">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <span class="font-medium text-sm">Python老司机</span>
+                                <i class="fas fa-check-circle text-blue-500 text-xs ml-1"></i>
+                                <span class="ml-2 px-1.5 py-0.5 bg-red-500 text-white text-xs rounded">紧急</span>
+                            </div>
+                            <span class="text-xs text-gray-400">10分钟前</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">回答了您的悬赏问题，并请求您尽快采纳：「作为一个从零开始学Python的过来人，我来分享一下我的经验...」</p>
+                        <div class="flex items-center gap-2 mt-2">
+                            <a href="问题详情页.html" class="px-3 py-1 bg-red-500 text-white rounded-full text-xs">查看回答</a>
+                            <button class="px-3 py-1 border border-gray-300 text-gray-600 rounded-full text-xs">采纳</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 消息3 - 中优先级 -->
+        <div class="bg-white urgent-medium">
+            <div class="px-4 py-3">
+                <div class="flex items-start">
+                    <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-bell text-yellow-500"></i>
+                    </div>
+                    <div class="ml-3 flex-1">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <span class="font-medium text-sm">账户余额提醒</span>
+                                <span class="ml-2 px-1.5 py-0.5 bg-yellow-500 text-white text-xs rounded">重要</span>
+                            </div>
+                            <span class="text-xs text-gray-400">30分钟前</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">您的账户余额不足 $20，可能影响悬赏问题的发布。建议及时充值。</p>
+                        <div class="flex items-center gap-2 mt-2">
+                            <button class="px-3 py-1 bg-yellow-500 text-white rounded-full text-xs">立即充值</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 消息4 - 普通 -->
+        <div class="bg-white urgent-low">
+            <div class="px-4 py-3">
+                <div class="flex items-start">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=msg2" class="w-10 h-10 rounded-full flex-shrink-0">
+                    <div class="ml-3 flex-1">
+                        <div class="flex items-center justify-between">
+                            <span class="font-medium text-sm">数据分析师小王</span>
+                            <span class="text-xs text-gray-400">1小时前</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">回复了您的评论：「谢谢分享！我也是文科转行的，你的建议很有帮助~」</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 消息5 - 普通 -->
+        <div class="bg-white urgent-low">
+            <div class="px-4 py-3">
+                <div class="flex items-start">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=msg3" class="w-10 h-10 rounded-full flex-shrink-0">
+                    <div class="ml-3 flex-1">
+                        <div class="flex items-center justify-between">
+                            <span class="font-medium text-sm">编程新手</span>
+                            <span class="text-xs text-gray-400">2小时前</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">赞了您的回答：「如何在三个月内从零基础学会Python编程？」</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 消息6 - 系统消息 -->
+        <div class="bg-white">
+            <div class="px-4 py-3">
+                <div class="flex items-start">
+                    <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-cog text-gray-500"></i>
+                    </div>
+                    <div class="ml-3 flex-1">
+                        <div class="flex items-center justify-between">
+                            <span class="font-medium text-sm">系统通知</span>
+                            <span class="text-xs text-gray-400">3小时前</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">您关注的话题「#Python学习」有5个新问题，点击查看。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 消息7 -->
+        <div class="bg-white">
+            <div class="px-4 py-3">
+                <div class="flex items-start">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=msg4" class="w-10 h-10 rounded-full flex-shrink-0">
+                    <div class="ml-3 flex-1">
+                        <div class="flex items-center justify-between">
+                            <span class="font-medium text-sm">美食达人</span>
+                            <span class="text-xs text-gray-400">5小时前</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">关注了您</p>
+                        <button class="mt-2 px-3 py-1 border border-red-500 text-red-500 rounded-full text-xs">回关</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 消息8 -->
+        <div class="bg-white">
+            <div class="px-4 py-3">
+                <div class="flex items-start">
+                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-check text-green-500"></i>
+                    </div>
+                    <div class="ml-3 flex-1">
+                        <div class="flex items-center justify-between">
+                            <span class="font-medium text-sm">回答被采纳</span>
+                            <span class="text-xs text-gray-400">昨天</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1">恭喜！您在问题「第一次养猫需要准备什么？」的回答被采纳，获得 $20 奖励。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部导航 -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
+        <div class="flex items-center justify-around py-2">
+            <a href="首页.html" class="flex flex-col items-center py-1 px-4 text-gray-500">
+                <i class="fas fa-home text-lg"></i>
+                <span class="text-xs mt-1">首页</span>
+            </a>
+            <a href="关注页.html" class="flex flex-col items-center py-1 px-4 text-gray-500">
+                <i class="fas fa-heart text-lg"></i>
+                <span class="text-xs mt-1">关注</span>
+            </a>
+            <a href="发布问题页.html" class="flex flex-col items-center py-1 px-4 text-gray-500 relative -top-3">
+                <div class="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center shadow-lg">
+                    <i class="fas fa-plus text-white text-xl"></i>
+                </div>
+                <span class="text-xs mt-1">发布</span>
+            </a>
+            <a href="紧急消息页.html" class="flex flex-col items-center py-1 px-4 bottom-nav-active relative">
+                <i class="fas fa-exclamation-triangle text-lg"></i>
+                <span class="absolute -top-1 right-2 bg-red-500 text-white text-xs px-1.5 rounded-full">3</span>
+                <span class="text-xs mt-1">紧急消息</span>
+            </a>
+            <a href="个人中心页.html" class="flex flex-col items-center py-1 px-4 text-gray-500">
+                <i class="fas fa-user text-lg"></i>
+                <span class="text-xs mt-1">我的</span>
+            </a>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

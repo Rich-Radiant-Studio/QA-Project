@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>个人中心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-100 min-h-screen pb-16">
+    <!-- 顶部背景 -->
+    <div class="bg-gradient-to-b from-red-500 to-red-400 pt-10 pb-20 px-4 relative">
+        <div class="absolute top-4 right-4 flex items-center gap-4">
+            <button class="text-white"><i class="fas fa-share-alt"></i></button>
+            <button class="text-white"><i class="fas fa-cog"></i></button>
+        </div>
+    </div>
+
+    <!-- 用户信息卡片 -->
+    <div class="bg-white mx-4 -mt-16 rounded-xl shadow-sm relative z-10">
+        <div class="px-4 pt-4 pb-3">
+            <div class="flex items-start">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=myuser" class="w-20 h-20 rounded-full border-4 border-white shadow-lg -mt-12">
+                <div class="ml-4 flex-1 pt-2">
+                    <div class="flex items-center">
+                        <span class="font-bold text-lg">张三丰</span>
+                        <i class="fas fa-check-circle text-blue-500 ml-1"></i>
+                        <span class="ml-2 px-2 py-0.5 bg-yellow-100 text-yellow-600 text-xs rounded">Lv.5</span>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-1">ID: 12345678</p>
+                </div>
+                <button class="px-3 py-1 border border-gray-300 rounded-full text-sm text-gray-600">编辑资料</button>
+            </div>
+            <p class="text-sm text-gray-600 mt-3">热爱学习，乐于分享。专注Python、数据分析领域。</p>
+            <div class="flex items-center gap-4 mt-3 text-sm text-gray-500">
+                <span><i class="fas fa-map-marker-alt mr-1"></i>北京</span>
+                <span><i class="fas fa-briefcase mr-1"></i>数据分析师</span>
+            </div>
+        </div>
+
+        <!-- 数据统计 -->
+        <div class="flex items-center justify-around py-4 border-t border-gray-100">
+            <div class="text-center">
+                <div class="font-bold text-lg">128</div>
+                <div class="text-xs text-gray-500">关注</div>
+            </div>
+            <div class="text-center">
+                <div class="font-bold text-lg">1.2k</div>
+                <div class="text-xs text-gray-500">粉丝</div>
+            </div>
+            <div class="text-center">
+                <div class="font-bold text-lg">56</div>
+                <div class="text-xs text-gray-500">提问</div>
+            </div>
+            <div class="text-center">
+                <div class="font-bold text-lg">234</div>
+                <div class="text-xs text-gray-500">回答</div>
+            </div>
+            <div class="text-center">
+                <div class="font-bold text-lg">8.9k</div>
+                <div class="text-xs text-gray-500">获赞</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 钱包卡片 -->
+    <div class="bg-white mx-4 mt-3 rounded-xl shadow-sm">
+        <div class="flex items-center justify-between px-4 py-4">
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-wallet text-yellow-500"></i>
+                </div>
+                <div class="ml-3">
+                    <div class="text-sm text-gray-500">我的钱包</div>
+                    <div class="font-bold text-lg">$256.50</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button class="px-3 py-1.5 bg-red-500 text-white rounded-full text-sm">充值</button>
+                <button class="px-3 py-1.5 border border-gray-300 text-gray-600 rounded-full text-sm">提现</button>
+            </div>
+        </div>
+        <div class="flex items-center justify-around py-3 border-t border-gray-100">
+            <div class="text-center">
+                <div class="text-sm font-medium">$150.00</div>
+                <div class="text-xs text-gray-400">悬赏支出</div>
+            </div>
+            <div class="text-center">
+                <div class="text-sm font-medium text-green-500">$320.00</div>
+                <div class="text-xs text-gray-400">回答收入</div>
+            </div>
+            <div class="text-center">
+                <div class="text-sm font-medium">12</div>
+                <div class="text-xs text-gray-400">待采纳</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 功能菜单 -->
+    <div class="bg-white mx-4 mt-3 rounded-xl shadow-sm divide-y divide-gray-100">
+        <div class="flex items-center justify-between px-4 py-3">
+            <div class="flex items-center">
+                <i class="fas fa-star text-yellow-500 w-6"></i>
+                <span class="ml-3 text-sm">我的收藏</span>
+            </div>
+            <div class="flex items-center text-gray-400">
+                <span class="text-sm">89</span>
+                <i class="fas fa-chevron-right ml-2 text-xs"></i>
+            </div>
+        </div>
+        <div class="flex items-center justify-between px-4 py-3">
+            <div class="flex items-center">
+                <i class="fas fa-history text-blue-500 w-6"></i>
+                <span class="ml-3 text-sm">浏览历史</span>
+            </div>
+            <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+        </div>
+        <div class="flex items-center justify-between px-4 py-3">
+            <div class="flex items-center">
+                <i class="fas fa-file-alt text-green-500 w-6"></i>
+                <span class="ml-3 text-sm">我的草稿</span>
+            </div>
+            <div class="flex items-center text-gray-400">
+                <span class="text-sm">3</span>
+                <i class="fas fa-chevron-right ml-2 text-xs"></i>
+            </div>
+        </div>
+        <div class="flex items-center justify-between px-4 py-3">
+            <div class="flex items-center">
+                <i class="fas fa-users text-purple-500 w-6"></i>
+                <span class="ml-3 text-sm">我的群聊</span>
+            </div>
+            <div class="flex items-center text-gray-400">
+                <span class="text-sm">5</span>
+                <i class="fas fa-chevron-right ml-2 text-xs"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- 我的内容 -->
+    <div class="bg-white mx-4 mt-3 rounded-xl shadow-sm">
+        <div class="flex border-b border-gray-100">
+            <button class="tab-item tab-active flex-1 py-3 text-sm" onclick="switchTab(this)">我的提问</button>
+            <button class="tab-item flex-1 py-3 text-sm text-gray-500" onclick="switchTab(this)">我的回答</button>
+            <button class="tab-item flex-1 py-3 text-sm text-gray-500" onclick="switchTab(this)">获得赞同</button>
+        </div>
+
+        <!-- 提问列表 -->
+        <div class="divide-y divide-gray-100">
+            <a href="问题详情页.html" class="block px-4 py-3">
+                <div class="flex items-center mb-1">
+                    <span class="px-2 py-0.5 bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs rounded-full">悬赏 $50</span>
+                    <span class="ml-2 text-xs text-gray-400">2小时前</span>
+                </div>
+                <h4 class="text-sm font-medium">如何在三个月内从零基础学会Python编程？</h4>
+                <div class="flex items-center gap-4 mt-2 text-xs text-gray-400">
+                    <span><i class="far fa-eye mr-1"></i>1.2k</span>
+                    <span><i class="far fa-comment mr-1"></i>56</span>
+                    <span><i class="far fa-thumbs-up mr-1"></i>128</span>
+                </div>
+            </a>
+            <a href="问题详情页.html" class="block px-4 py-3">
+                <div class="flex items-center mb-1">
+                    <span class="px-2 py-0.5 bg-gradient-to-r from-green-500 to-teal-500 text-white text-xs rounded-full">免费</span>
+                    <span class="ml-2 text-xs text-green-500">已解决</span>
+                    <span class="ml-2 text-xs text-gray-400">昨天</span>
+                </div>
+                <h4 class="text-sm font-medium">第一次养猫需要准备什么？</h4>
+                <div class="flex items-center gap-4 mt-2 text-xs text-gray-400">
+                    <span><i class="far fa-eye mr-1"></i>2.5k</span>
+                    <span><i class="far fa-comment mr-1"></i>89</span>
+                    <span><i class="far fa-thumbs-up mr-1"></i>256</span>
+                </div>
+            </a>
+            <a href="问题详情页.html" class="block px-4 py-3">
+                <div class="flex items-center mb-1">
+                    <span class="px-2 py-0.5 bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs rounded-full">悬赏 $100</span>
+                    <span class="ml-2 text-xs text-gray-400">3天前</span>
+                </div>
+                <h4 class="text-sm font-medium">35岁程序员如何规划职业发展？</h4>
+                <div class="flex items-center gap-4 mt-2 text-xs text-gray-400">
+                    <span><i class="far fa-eye mr-1"></i>5.6k</span>
+                    <span><i class="far fa-comment mr-1"></i>456</span>
+                    <span><i class="far fa-thumbs-up mr-1"></i>1.2k</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="py-3 text-center border-t border-gray-100">
+            <button class="text-red-500 text-sm">查看全部 <i class="fas fa-chevron-right ml-1"></i></button>
+        </div>
+    </div>
+
+    <!-- 更多设置 -->
+    <div class="bg-white mx-4 mt-3 rounded-xl shadow-sm divide-y divide-gray-100">
+        <div class="flex items-center justify-between px-4 py-3">
+            <div class="flex items-center">
+                <i class="fas fa-shield-alt text-gray-500 w-6"></i>
+                <span class="ml-3 text-sm">账号与安全</span>
+            </div>
+            <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+        </div>
+        <div class="flex items-center justify-between px-4 py-3">
+            <div class="flex items-center">
+                <i class="fas fa-bell text-gray-500 w-6"></i>
+                <span class="ml-3 text-sm">消息通知</span>
+            </div>
+            <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+        </div>
+        <div class="flex items-center justify-between px-4 py-3">
+            <div class="flex items-center">
+                <i class="fas fa-lock text-gray-500 w-6"></i>
+                <span class="ml-3 text-sm">隐私设置</span>
+            </div>
+            <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+        </div>
+        <div class="flex items-center justify-between px-4 py-3">
+            <div class="flex items-center">
+                <i class="fas fa-question-circle text-gray-500 w-6"></i>
+                <span class="ml-3 text-sm">帮助与反馈</span>
+            </div>
+            <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+        </div>
+        <div class="flex items-center justify-between px-4 py-3">
+            <div class="flex items-center">
+                <i class="fas fa-info-circle text-gray-500 w-6"></i>
+                <span class="ml-3 text-sm">关于我们</span>
+            </div>
+            <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+        </div>
+    </div>
+
+    <div class="h-6"></div>
+
+    <!-- 底部导航 -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
+        <div class="flex items-center justify-around py-2">
+            <a href="首页.html" class="flex flex-col items-center py-1 px-4 text-gray-500">
+                <i class="fas fa-home text-lg"></i>
+                <span class="text-xs mt-1">首页</span>
+            </a>
+            <a href="关注页.html" class="flex flex-col items-center py-1 px-4 text-gray-500">
+                <i class="fas fa-heart text-lg"></i>
+                <span class="text-xs mt-1">关注</span>
+            </a>
+            <a href="发布问题页.html" class="flex flex-col items-center py-1 px-4 text-gray-500 relative -top-3">
+                <div class="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center shadow-lg">
+                    <i class="fas fa-plus text-white text-xl"></i>
+                </div>
+                <span class="text-xs mt-1">发布</span>
+            </a>
+            <a href="紧急消息页.html" class="flex flex-col items-center py-1 px-4 text-gray-500 relative">
+                <i class="fas fa-exclamation-triangle text-lg"></i>
+                <span class="absolute -top-1 right-2 bg-red-500 text-white text-xs px-1.5 rounded-full">3</span>
+                <span class="text-xs mt-1">紧急消息</span>
+            </a>
+            <a href="个人中心页.html" class="flex flex-col items-center py-1 px-4 bottom-nav-active">
+                <i class="fas fa-user text-lg"></i>
+                <span class="text-xs mt-1">我的</span>
+            </a>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
