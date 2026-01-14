@@ -25,7 +25,7 @@ function MainTabs() {
           if (route.name === '首页') iconName = focused ? 'home' : 'home-outline';
           else if (route.name === '关注') iconName = focused ? 'heart' : 'heart-outline';
           else if (route.name === '发布') iconName = focused ? 'add-circle' : 'add-circle-outline';
-          else if (route.name === '消息') iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
+          else if (route.name === '紧急消息') iconName = focused ? 'warning' : 'warning-outline';
           else if (route.name === '我的') iconName = focused ? 'person' : 'person-outline';
           return <Ionicons name={iconName} size={size} color={color} />;
         },
@@ -37,7 +37,7 @@ function MainTabs() {
       <Tab.Screen name="首页" component={HomeScreen} />
       <Tab.Screen name="关注" component={FollowScreen} />
       <Tab.Screen name="发布" component={PublishScreen} />
-      <Tab.Screen name="消息" component={MessagesScreen} />
+      <Tab.Screen name="紧急消息" component={MessagesScreen} options={{ tabBarBadge: 3 }} />
       <Tab.Screen name="我的" component={ProfileScreen} />
     </Tab.Navigator>
   );
