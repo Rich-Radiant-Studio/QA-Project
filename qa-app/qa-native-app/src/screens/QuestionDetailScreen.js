@@ -66,6 +66,7 @@ export default function QuestionDetailScreen({ navigation }) {
             </View>
             <View style={styles.voteButtons}>
               <TouchableOpacity style={styles.voteSolvedBtn}><Ionicons name="checkmark-circle" size={16} color="#ef4444" /><Text style={styles.voteSolvedText}>已解决</Text></TouchableOpacity>
+              <View style={{ flex: 1 }} />
               <TouchableOpacity style={styles.voteUnsolvedBtn}><Ionicons name="close-circle" size={16} color="#3b82f6" /><Text style={styles.voteUnsolvedText}>未解决</Text></TouchableOpacity>
             </View>
           </View>
@@ -170,7 +171,7 @@ const styles = StyleSheet.create({
   pkBar: { flexDirection: 'row', height: 6, borderRadius: 3, overflow: 'hidden', backgroundColor: '#f3f4f6' },
   pkSolvedBar: { backgroundColor: '#ef4444', height: '100%' },
   pkUnsolvedBar: { backgroundColor: '#3b82f6', height: '100%' },
-  voteButtons: { flexDirection: 'row', justifyContent: 'center', gap: 16, marginTop: 12 },
+  voteButtons: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 12 },
   voteSolvedBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fef2f2', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 16, gap: 6 },
   voteSolvedText: { fontSize: 13, color: '#ef4444' },
   voteUnsolvedBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#eff6ff', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 16, gap: 6 },

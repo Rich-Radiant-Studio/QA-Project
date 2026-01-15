@@ -25,8 +25,11 @@ export default function FollowScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+          <Ionicons name="arrow-back" size={22} color="#4b5563" />
+        </TouchableOpacity>
         <Text style={styles.headerTitle}>关注</Text>
-        <TouchableOpacity><Ionicons name="search" size={22} color="#4b5563" /></TouchableOpacity>
+        <TouchableOpacity style={styles.searchBtn}><Ionicons name="search" size={22} color="#4b5563" /></TouchableOpacity>
       </View>
 
       <View style={styles.tabBar}>
@@ -156,8 +159,10 @@ export default function FollowScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f3f4f6' },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fff', paddingHorizontal: 16, paddingVertical: 12 },
-  headerTitle: { fontSize: 18, fontWeight: 'bold', color: '#1f2937' },
+  header: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', paddingHorizontal: 16, paddingVertical: 12 },
+  backBtn: { position: 'absolute', left: 16, zIndex: 1 },
+  headerTitle: { flex: 1, fontSize: 18, fontWeight: 'bold', color: '#1f2937', textAlign: 'center' },
+  searchBtn: { position: 'absolute', right: 16, zIndex: 1 },
   tabBar: { flexDirection: 'row', backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
   tabItem: { flex: 1, alignItems: 'center', paddingVertical: 12, position: 'relative' },
   tabText: { fontSize: 14, color: '#6b7280' },

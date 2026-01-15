@@ -35,7 +35,7 @@ export default function MessagesScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>紧急消息</Text>
+        <Text style={styles.headerTitle}>消息</Text>
         <View style={styles.headerRight}>
           <TouchableOpacity><Text style={styles.markAllRead}>全部已读</Text></TouchableOpacity>
           <TouchableOpacity style={{ marginLeft: 12 }}><Ionicons name="settings-outline" size={22} color="#4b5563" /></TouchableOpacity>
