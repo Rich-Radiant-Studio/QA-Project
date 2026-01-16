@@ -13,6 +13,7 @@ import MessagesScreen from './src/screens/MessagesScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import QuestionDetailScreen from './src/screens/QuestionDetailScreen';
 import FollowScreen from './src/screens/FollowScreen';
+import HotListScreen from './src/screens/HotListScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -135,7 +136,6 @@ function MainTabs({ showEmergencyModal }) {
           if (route.name === '首页') iconName = focused ? 'home' : 'home-outline';
           else if (route.name === '发布') iconName = focused ? 'add-circle' : 'add-circle-outline';
           else if (route.name === '紧急求助？') iconName = focused ? 'warning' : 'warning-outline';
-          else if (route.name === '消息') iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
           else if (route.name === '我的') iconName = focused ? 'person' : 'person-outline';
           return <Ionicons name={iconName} size={size} color={color} />;
         },
@@ -156,7 +156,6 @@ function MainTabs({ showEmergencyModal }) {
           },
         }}
       />
-      <Tab.Screen name="消息" component={MessagesScreen} options={{ tabBarBadge: 3 }} />
       <Tab.Screen name="我的" component={ProfileScreen} />
     </Tab.Navigator>
   );
@@ -185,6 +184,8 @@ export default function App() {
         <Stack.Screen name="Search" component={SearchScreen} />
         <Stack.Screen name="QuestionDetail" component={QuestionDetailScreen} />
         <Stack.Screen name="Follow" component={FollowScreen} />
+        <Stack.Screen name="HotList" component={HotListScreen} />
+        <Stack.Screen name="Messages" component={MessagesScreen} />
       </Stack.Navigator>
       <EmergencyModal
         visible={emergencyModalVisible}

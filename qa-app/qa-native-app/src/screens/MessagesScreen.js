@@ -21,7 +21,7 @@ const messages = [
   { id: 8, type: 'system', urgency: null, icon: 'checkmark-circle', iconBg: '#dcfce7', iconColor: '#22c55e', title: '回答被采纳', content: '恭喜！您在问题「第一次养猫需要准备什么？」的回答被采纳，获得 $20 奖励。', time: '昨天' },
 ];
 
-export default function MessagesScreen() {
+export default function MessagesScreen({ navigation }) {
   const [activeTab, setActiveTab] = useState('全部');
   const [activeFilter, setActiveFilter] = useState('all');
 
@@ -35,6 +35,9 @@ export default function MessagesScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+          <Ionicons name="arrow-back" size={22} color="#4b5563" />
+        </TouchableOpacity>
         <Text style={styles.headerTitle}>消息</Text>
         <View style={styles.headerRight}>
           <TouchableOpacity><Text style={styles.markAllRead}>全部已读</Text></TouchableOpacity>
@@ -111,8 +114,9 @@ export default function MessagesScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f3f4f6' },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fff', paddingHorizontal: 16, paddingVertical: 12 },
-  headerTitle: { fontSize: 18, fontWeight: 'bold', color: '#1f2937' },
+  header: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', paddingHorizontal: 16, paddingVertical: 12 },
+  backBtn: { marginRight: 12 },
+  headerTitle: { flex: 1, fontSize: 18, fontWeight: 'bold', color: '#1f2937' },
   headerRight: { flexDirection: 'row', alignItems: 'center' },
   markAllRead: { fontSize: 13, color: '#6b7280' },
   tabBar: { flexDirection: 'row', backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },

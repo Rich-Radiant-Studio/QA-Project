@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, SafeAreaView, Modal, Dimensions } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, SafeAreaView, Modal, Dimensions, TextInput, FlatList } from 'react-native';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -28,6 +28,9 @@ export default function HomeScreen({ navigation }) {
   const [showRegionModal, setShowRegionModal] = useState(false);
   const [showActionModal, setShowActionModal] = useState(false);
   const [showChannelModal, setShowChannelModal] = useState(false);
+  const [showSocialModal, setShowSocialModal] = useState(false);
+  const [socialPlatform, setSocialPlatform] = useState('');
+  const [socialSearchText, setSocialSearchText] = useState('');
   const [selectedQuestion, setSelectedQuestion] = useState(null);
   const [regionStep, setRegionStep] = useState(0);
   const [selectedRegion, setSelectedRegion] = useState({ country: '', city: '', state: '', district: '' });
@@ -48,6 +51,39 @@ export default function HomeScreen({ navigation }) {
     '行业问题': ['互联网', '金融', '制造业', '医疗健康', '教育培训', '房地产', '餐饮服务'],
     '个人问题': ['职业发展', '情感生活', '健康养生', '理财投资', '学习成长', '家庭关系']
   };
+
+  // 社交平台用户数据
+  const socialUsers = {
+    twitter: [
+      { id: 1, name: 'Python大神', handle: '@python_master', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=tw1', followers: '12.5万' },
+      { id: 2, name: '技术博主', handle: '@tech_blogger', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=tw2', followers: '8.3万' },
+      { id: 3, name: '编程达人', handle: '@code_expert', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=tw3', followers: '5.6万' },
+      { id: 4, name: '数据分析师', handle: '@data_analyst', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=tw4', followers: '3.2万' },
+    ],
+    facebook: [
+      { id: 1, name: 'Python学习群', handle: 'Python Learning', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=fb1', followers: '25万' },
+      { id: 2, name: '程序员社区', handle: 'Dev Community', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=fb2', followers: '18万' },
+      { id: 3, name: '技术问答', handle: 'Tech Q&A', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=fb3', followers: '9.8万' },
+      { id: 4, name: '编程入门', handle: 'Coding Beginner', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=fb4', followers: '6.5万' },
+    ]
+  };
+
+  const openSocialModal = (platform) => {
+    setSocialPlatform(platform);
+    setSocialSearchText('');
+    setShowActionModal(false);
+    setShowSocialModal(true);
+  };
+
+  const sendSocialMessage = (user) => {
+    alert(`已向 ${user.name} 发送私信，邀请回答问题：${selectedQuestion?.title?.substring(0, 30)}...`);
+    setShowSocialModal(false);
+  };
+
+  const filteredSocialUsers = socialUsers[socialPlatform]?.filter(user => 
+    user.name.toLowerCase().includes(socialSearchText.toLowerCase()) ||
+    user.handle.toLowerCase().includes(socialSearchText.toLowerCase())
+  ) || [];
 
   const toggleLike = (id) => setLikedItems(prev => ({ ...prev, [id]: !prev[id] }));
   const formatNumber = (num) => num >= 1000 ? (num / 1000).toFixed(1) + 'k' : num;
@@ -124,7 +160,7 @@ export default function HomeScreen({ navigation }) {
           <Ionicons name="search" size={16} color="#9ca3af" />
           <Text style={styles.searchPlaceholder}>搜索问题、话题或用户</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.notifyBtn} onPress={() => navigation.navigate('Main', { screen: '消息' })}>
+        <TouchableOpacity style={styles.notifyBtn} onPress={() => navigation.navigate('Messages')}>
           <Ionicons name="notifications-outline" size={22} color="#4b5563" />
           <View style={styles.badge} />
         </TouchableOpacity>
@@ -140,6 +176,8 @@ export default function HomeScreen({ navigation }) {
               onPress={() => {
                 if (tab === '关注') {
                   navigation.navigate('Follow');
+                } else if (tab === '热榜') {
+                  navigation.navigate('HotList');
                 } else {
                   setActiveTab(tab);
                 }
@@ -287,13 +325,13 @@ export default function HomeScreen({ navigation }) {
               <Ionicons name="bookmark-outline" size={22} color="#1f2937" />
               <Text style={styles.actionItemText}>收藏问题</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionItem}>
+            <TouchableOpacity style={styles.actionItem} onPress={() => openSocialModal('twitter')}>
               <FontAwesome5 name="twitter" size={20} color="#1DA1F2" />
-              <Text style={styles.actionItemText}>@{selectedQuestion?.author}（推特）</Text>
+              <Text style={styles.actionItemText}>@推特</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionItem}>
+            <TouchableOpacity style={styles.actionItem} onPress={() => openSocialModal('facebook')}>
               <FontAwesome5 name="facebook" size={20} color="#4267B2" />
-              <Text style={styles.actionItemText}>@{selectedQuestion?.author}（Facebook）</Text>
+              <Text style={styles.actionItemText}>@Facebook</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.actionItem, styles.reportItem]}>
               <Ionicons name="flag-outline" size={22} color="#ef4444" />
@@ -333,8 +371,13 @@ export default function HomeScreen({ navigation }) {
                       if (isEditMode && idx !== 0) {
                         removeChannel(channel);
                       } else if (!isEditMode) {
-                        setActiveTab(channel);
-                        setShowChannelModal(false);
+                        if (channel === '热榜') {
+                          setShowChannelModal(false);
+                          navigation.navigate('HotList');
+                        } else {
+                          setActiveTab(channel);
+                          setShowChannelModal(false);
+                        }
                       }
                     }}
                   >
@@ -462,6 +505,63 @@ export default function HomeScreen({ navigation }) {
           </View>
         </View>
       </Modal>
+
+      {/* 社交平台用户选择弹窗 */}
+      <Modal visible={showSocialModal} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={styles.socialModal}>
+            <View style={styles.socialHeader}>
+              <TouchableOpacity onPress={() => setShowSocialModal(false)}>
+                <Ionicons name="arrow-back" size={24} color="#1f2937" />
+              </TouchableOpacity>
+              <View style={styles.socialTitleRow}>
+                {socialPlatform === 'twitter' ? (
+                  <FontAwesome5 name="twitter" size={20} color="#1DA1F2" />
+                ) : (
+                  <FontAwesome5 name="facebook" size={20} color="#4267B2" />
+                )}
+                <Text style={styles.socialTitle}>
+                  {socialPlatform === 'twitter' ? '推特用户' : 'Facebook用户'}
+                </Text>
+              </View>
+              <View style={{ width: 24 }} />
+            </View>
+            
+            <View style={styles.socialSearchBar}>
+              <Ionicons name="search" size={18} color="#9ca3af" />
+              <TextInput
+                style={styles.socialSearchInput}
+                placeholder="搜索用户..."
+                value={socialSearchText}
+                onChangeText={setSocialSearchText}
+              />
+            </View>
+
+            <Text style={styles.socialRecommendTitle}>推荐用户</Text>
+            
+            <FlatList
+              data={filteredSocialUsers}
+              keyExtractor={item => item.id.toString()}
+              renderItem={({ item }) => (
+                <TouchableOpacity style={styles.socialUserItem} onPress={() => sendSocialMessage(item)}>
+                  <Image source={{ uri: item.avatar }} style={styles.socialUserAvatar} />
+                  <View style={styles.socialUserInfo}>
+                    <Text style={styles.socialUserName}>{item.name}</Text>
+                    <Text style={styles.socialUserHandle}>{item.handle}</Text>
+                  </View>
+                  <View style={styles.socialUserMeta}>
+                    <Text style={styles.socialUserFollowers}>{item.followers} 粉丝</Text>
+                    <TouchableOpacity style={styles.inviteBtn} onPress={() => sendSocialMessage(item)}>
+                      <Text style={styles.inviteBtnText}>邀请回答</Text>
+                    </TouchableOpacity>
+                  </View>
+                </TouchableOpacity>
+              )}
+              style={styles.socialUserList}
+            />
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -578,4 +678,22 @@ const styles = StyleSheet.create({
   comboCancelText: { fontSize: 14, color: '#6b7280' },
   comboConfirmBtn: { flex: 1, backgroundColor: '#ef4444', paddingVertical: 10, borderRadius: 8, alignItems: 'center' },
   comboConfirmText: { fontSize: 14, color: '#fff', fontWeight: '500' },
+  // Social Modal styles
+  socialModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '80%', paddingBottom: 30 },
+  socialHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
+  socialTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  socialTitle: { fontSize: 16, fontWeight: '600', color: '#1f2937' },
+  socialSearchBar: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f3f4f6', marginHorizontal: 16, marginVertical: 12, paddingHorizontal: 12, paddingVertical: 10, borderRadius: 20 },
+  socialSearchInput: { flex: 1, marginLeft: 8, fontSize: 14 },
+  socialRecommendTitle: { fontSize: 14, fontWeight: '500', color: '#6b7280', marginHorizontal: 16, marginBottom: 8 },
+  socialUserList: { maxHeight: 400 },
+  socialUserItem: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#f9fafb' },
+  socialUserAvatar: { width: 48, height: 48, borderRadius: 24 },
+  socialUserInfo: { flex: 1, marginLeft: 12 },
+  socialUserName: { fontSize: 15, fontWeight: '500', color: '#1f2937' },
+  socialUserHandle: { fontSize: 13, color: '#9ca3af', marginTop: 2 },
+  socialUserMeta: { alignItems: 'flex-end' },
+  socialUserFollowers: { fontSize: 12, color: '#9ca3af', marginBottom: 6 },
+  inviteBtn: { backgroundColor: '#ef4444', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 14 },
+  inviteBtnText: { fontSize: 12, color: '#fff', fontWeight: '500' },
 });
