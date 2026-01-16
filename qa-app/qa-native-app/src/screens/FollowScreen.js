@@ -1,26 +1,70 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, SafeAreaView } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, SafeAreaView, Alert, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const tabs = ['动态', '用户', '话题'];
+const tabs = ['问题', '用户', '话题'];
 
+// 关注的用户数据
 const followedUsers = [
-  { id: 1, name: 'Python老司机', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=follow1', gradient: ['#ef4444', '#f97316'] },
-  { id: 2, name: '王医生', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=follow2', gradient: ['#3b82f6', '#a855f7'] },
-  { id: 3, name: '美食达人', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=follow3', gradient: ['#22c55e', '#14b8a6'] },
-  { id: 4, name: '程序员小明', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=follow4', gradient: null },
-  { id: 5, name: '设计师小李', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=follow5', gradient: null },
+  { id: 1, name: 'Python老司机', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=follow1', title: '资深Python开发 · 10年经验', followers: '12.5万', questions: 156, answers: 892, isFollowed: true },
+  { id: 2, name: '王医生', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=follow2', title: '三甲医院主治医师', followers: '8.3万', questions: 89, answers: 567, isFollowed: true, verified: true },
+  { id: 3, name: '美食达人', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=follow3', title: '美食博主 · 探店达人', followers: '25万', questions: 234, answers: 1205, isFollowed: true },
+  { id: 4, name: '程序员小明', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=follow4', title: '全栈开发工程师', followers: '5.6万', questions: 78, answers: 423, isFollowed: true },
+  { id: 5, name: '设计师小李', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=follow5', title: 'UI/UX设计师', followers: '3.2万', questions: 45, answers: 189, isFollowed: true },
 ];
 
-const dynamics = [
-  { id: 1, type: 'answer', user: 'Python老司机', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=follow1', verified: true, time: '30分钟前', questionType: 'reward', reward: 50, question: '如何在三个月内从零基础学会Python编程？', answer: '作为一个从零开始学Python的过来人，我来分享一下我的经验：如果每天能保证2-3小时的学习时间，3个月完全可以入门...', likes: 256, comments: 23 },
-  { id: 2, type: 'question', user: '王医生', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=follow2', verified: true, time: '1小时前', questionType: 'free', question: '作为医生，如何平衡工作和生活？有没有同行分享一下经验？', solvedPercent: 25, likes: 89, comments: 12 },
-  { id: 3, type: 'topic', user: '美食达人', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=follow3', time: '2小时前', topic: '#家常菜谱', topicFollowers: '12.5万', topicQuestions: '8.6万' },
-  { id: 4, type: 'like', user: '程序员小明', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=follow4', time: '3小时前', question: '35岁程序员如何规划职业发展？', answerFrom: '技术大牛', answerPreview: '我觉得35岁不是终点，而是新的起点。关键是要保持学习的心态，同时也要考虑管理方向的发展...' },
+// 推荐用户数据
+const recommendUsers = [
+  { id: 101, name: '数据分析师小王', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=rec1', title: '数据分析师 · 3年经验', followers: '2.1万', questions: 34, answers: 156, isFollowed: false },
+  { id: 102, name: '前端大神', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=rec2', title: '前端架构师', followers: '18万', questions: 123, answers: 789, isFollowed: false, verified: true },
+  { id: 103, name: '产品经理老张', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=rec3', title: '产品总监 · 8年经验', followers: '6.8万', questions: 67, answers: 345, isFollowed: false },
+];
+
+// 关注用户的问题数据
+const followedQuestions = [
+  { id: 1, author: 'Python老司机', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=follow1', verified: true, time: '30分钟前', type: 'reward', reward: 50, title: '如何在三个月内从零基础学会Python编程？有没有系统的学习路线推荐？', likes: 256, comments: 23, solvedPercent: 65 },
+  { id: 2, author: '王医生', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=follow2', verified: true, time: '1小时前', type: 'free', title: '作为医生，如何平衡工作和生活？有没有同行分享一下经验？', likes: 89, comments: 12, solvedPercent: 25 },
+  { id: 3, author: '美食达人', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=follow3', time: '2小时前', type: 'free', title: '有什么简单又好吃的家常菜推荐？最好是新手也能做的那种', likes: 368, comments: 45, solvedPercent: 92 },
+  { id: 4, author: '程序员小明', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=follow4', time: '3小时前', type: 'reward', reward: 100, title: '35岁程序员如何规划职业发展？是继续技术深耕还是转管理？', likes: 1200, comments: 456, solvedPercent: 30 },
+];
+
+// 关注的话题数据
+const followedTopics = [
+  { id: 1, name: '#Python学习', icon: 'code-slash', color: '#3b82f6', followers: '25.6万', questions: '12.3万', description: '分享Python学习经验和技巧' },
+  { id: 2, name: '#家常菜谱', icon: 'restaurant', color: '#f97316', followers: '18.9万', questions: '8.6万', description: '美味家常菜做法分享' },
+  { id: 3, name: '#职业发展', icon: 'briefcase', color: '#8b5cf6', followers: '32.1万', questions: '15.8万', description: '职场经验与职业规划' },
+  { id: 4, name: '#健康养生', icon: 'fitness', color: '#22c55e', followers: '45.2万', questions: '21.3万', description: '健康生活方式分享' },
+  { id: 5, name: '#数码科技', icon: 'phone-portrait', color: '#06b6d4', followers: '28.7万', questions: '13.5万', description: '数码产品评测与讨论' },
 ];
 
 export default function FollowScreen({ navigation }) {
-  const [activeTab, setActiveTab] = useState('动态');
+  const [activeTab, setActiveTab] = useState('问题');
+  const [likedItems, setLikedItems] = useState({});
+  const [userFollowState, setUserFollowState] = useState({});
+  const [topicFollowState, setTopicFollowState] = useState({});
+  const [searchText, setSearchText] = useState('');
+
+  const toggleLike = (id) => {
+    setLikedItems(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const toggleFollowUser = (userId) => {
+    setUserFollowState(prev => ({ ...prev, [userId]: !prev[userId] }));
+  };
+
+  const toggleFollowTopic = (topicId) => {
+    setTopicFollowState(prev => ({ ...prev, [topicId]: !prev[topicId] }));
+  };
+
+  const formatNumber = (num) => num >= 1000 ? (num / 1000).toFixed(1) + 'k' : num;
+
+  // 过滤用户
+  const filteredFollowedUsers = followedUsers.filter(user => 
+    user.name.toLowerCase().includes(searchText.toLowerCase())
+  );
+  const filteredRecommendUsers = recommendUsers.filter(user => 
+    user.name.toLowerCase().includes(searchText.toLowerCase())
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -29,7 +73,7 @@ export default function FollowScreen({ navigation }) {
           <Ionicons name="arrow-back" size={22} color="#4b5563" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>关注</Text>
-        <TouchableOpacity style={styles.searchBtn}><Ionicons name="search" size={22} color="#4b5563" /></TouchableOpacity>
+        <View style={{ width: 22 }} />
       </View>
 
       <View style={styles.tabBar}>
@@ -42,114 +86,154 @@ export default function FollowScreen({ navigation }) {
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* 关注的用户横向滚动 */}
-        <View style={styles.usersSection}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.usersScroll}>
-            {followedUsers.map(user => (
-              <TouchableOpacity key={user.id} style={styles.userItem}>
-                <View style={[styles.avatarRing, user.gradient ? { borderColor: user.gradient[0] } : { borderColor: '#e5e7eb' }]}>
-                  <Image source={{ uri: user.avatar }} style={styles.userAvatar} />
+        {/* 问题列表 */}
+        <View style={{ display: activeTab === '问题' ? 'flex' : 'none' }}>
+          {followedQuestions.map(item => (
+            <TouchableOpacity key={item.id} style={styles.questionCard} onPress={() => navigation.navigate('QuestionDetail', { id: item.id })}>
+              <View style={styles.questionHeader}>
+                <Image source={{ uri: item.avatar }} style={styles.questionAvatar} />
+                <View style={styles.questionAuthorInfo}>
+                  <View style={styles.authorNameRow}>
+                    <Text style={styles.authorName}>{item.author}</Text>
+                    {item.verified && <Ionicons name="checkmark-circle" size={14} color="#3b82f6" />}
+                  </View>
+                  <Text style={styles.questionTime}>{item.time}</Text>
                 </View>
-                <Text style={styles.userName} numberOfLines={1}>{user.name}</Text>
-              </TouchableOpacity>
-            ))}
-            <TouchableOpacity style={styles.userItem}>
-              <View style={styles.addUserBtn}><Ionicons name="add" size={24} color="#9ca3af" /></View>
-              <Text style={styles.addUserText}>发现更多</Text>
+                <View style={[styles.typeTag, { backgroundColor: item.type === 'reward' ? '#ef4444' : '#22c55e' }]}>
+                  <Text style={styles.typeTagText}>{item.type === 'reward' ? `悬赏 $${item.reward}` : '免费'}</Text>
+                </View>
+              </View>
+              <Text style={styles.questionTitle}>{item.title}</Text>
+              <View style={styles.pkSection}>
+                <View style={styles.pkBar}>
+                  <View style={[styles.pkSolvedBar, { width: `${item.solvedPercent}%` }]} />
+                  <View style={[styles.pkUnsolvedBar, { width: `${100 - item.solvedPercent}%` }]} />
+                </View>
+                <View style={styles.pkLabels}>
+                  <Text style={styles.pkSolved}>已解决 {item.solvedPercent}%</Text>
+                  <Text style={styles.pkUnsolved}>未解决 {100 - item.solvedPercent}%</Text>
+                </View>
+              </View>
+              <View style={styles.questionFooter}>
+                <View style={styles.questionStats}>
+                  <TouchableOpacity style={styles.statBtn} onPress={() => toggleLike(item.id)}>
+                    <Ionicons name={likedItems[item.id] ? "thumbs-up" : "thumbs-up-outline"} size={16} color={likedItems[item.id] ? "#ef4444" : "#6b7280"} />
+                    <Text style={[styles.statText, likedItems[item.id] && { color: '#ef4444' }]}>{formatNumber(item.likes + (likedItems[item.id] ? 1 : 0))}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.statBtn}>
+                    <Ionicons name="chatbubble-outline" size={16} color="#6b7280" />
+                    <Text style={styles.statText}>{item.comments}</Text>
+                  </TouchableOpacity>
+                </View>
+                <TouchableOpacity style={styles.answerBtn} onPress={() => navigation.navigate('QuestionDetail', { id: item.id, openAnswerModal: true })}>
+                  <Ionicons name="create-outline" size={14} color="#fff" />
+                  <Text style={styles.answerBtnText}>回答</Text>
+                </TouchableOpacity>
+              </View>
             </TouchableOpacity>
-          </ScrollView>
+          ))}
         </View>
 
-        {/* 动态列表 */}
-        {dynamics.map(item => (
-          <TouchableOpacity key={item.id} style={styles.dynamicCard} onPress={() => item.type !== 'topic' && navigation.navigate('QuestionDetail')}>
-            <View style={styles.dynamicHeader}>
-              <Image source={{ uri: item.avatar }} style={styles.dynamicAvatar} />
-              <View style={styles.dynamicInfo}>
-                <View style={styles.dynamicNameRow}>
-                  <Text style={styles.dynamicName}>{item.user}</Text>
-                  {item.verified && <Ionicons name="checkmark-circle" size={14} color="#3b82f6" />}
-                </View>
-                <Text style={styles.dynamicAction}>
-                  {item.type === 'answer' && '回答了问题'}
-                  {item.type === 'question' && '提出了问题'}
-                  {item.type === 'topic' && '关注了话题'}
-                  {item.type === 'like' && '赞同了回答'}
-                  {' · '}{item.time}
-                </Text>
-              </View>
-              <TouchableOpacity><Ionicons name="ellipsis-horizontal" size={18} color="#9ca3af" /></TouchableOpacity>
+        {/* 用户列表 */}
+        <View style={{ display: activeTab === '用户' ? 'flex' : 'none' }}>
+          {/* 搜索框 */}
+          <View style={styles.searchSection}>
+            <View style={styles.searchBar}>
+              <Ionicons name="search" size={18} color="#9ca3af" />
+              <TextInput
+                style={styles.searchInput}
+                placeholder="搜索用户..."
+                value={searchText}
+                onChangeText={setSearchText}
+              />
+              {searchText.length > 0 && (
+                <TouchableOpacity onPress={() => setSearchText('')}>
+                  <Ionicons name="close-circle" size={18} color="#9ca3af" />
+                </TouchableOpacity>
+              )}
             </View>
+          </View>
 
-            {item.type === 'answer' && (
-              <View style={styles.answerContent}>
-                <View style={styles.questionBox}>
-                  <View style={[styles.typeTag, { backgroundColor: item.questionType === 'reward' ? '#ef4444' : '#22c55e' }]}>
-                    <Text style={styles.typeTagText}>{item.questionType === 'reward' ? `悬赏 $${item.reward}` : '免费'}</Text>
+          {/* 已关注用户 */}
+          <View style={styles.userSection}>
+            <Text style={styles.sectionTitle}>已关注 ({filteredFollowedUsers.length})</Text>
+            {filteredFollowedUsers.map(user => (
+              <TouchableOpacity key={user.id} style={styles.userCard}>
+                <Image source={{ uri: user.avatar }} style={styles.userAvatar} />
+                <View style={styles.userInfo}>
+                  <View style={styles.userNameRow}>
+                    <Text style={styles.userName}>{user.name}</Text>
+                    {user.verified && <Ionicons name="checkmark-circle" size={14} color="#3b82f6" />}
                   </View>
-                  <Text style={styles.questionText} numberOfLines={1}>{item.question}</Text>
+                  <Text style={styles.userTitle}>{user.title}</Text>
+                  <Text style={styles.userStats}>{user.followers} 粉丝 · {user.questions} 问题 · {user.answers} 回答</Text>
                 </View>
-                <Text style={styles.answerText} numberOfLines={3}>{item.answer}</Text>
-                <View style={styles.dynamicFooter}>
-                  <View style={styles.dynamicStats}>
-                    <TouchableOpacity style={styles.statBtn}><Ionicons name="thumbs-up-outline" size={16} color="#6b7280" /><Text style={styles.statText}>{item.likes}</Text></TouchableOpacity>
-                    <TouchableOpacity style={styles.statBtn}><Ionicons name="chatbubble-outline" size={16} color="#6b7280" /><Text style={styles.statText}>{item.comments}</Text></TouchableOpacity>
-                  </View>
-                  <Text style={styles.viewMore}>查看完整回答</Text>
-                </View>
-              </View>
-            )}
+                <TouchableOpacity 
+                  style={[styles.followBtn, (userFollowState[user.id] === false) && styles.followBtnInactive]}
+                  onPress={() => toggleFollowUser(user.id)}
+                >
+                  <Text style={[styles.followBtnText, (userFollowState[user.id] === false) && styles.followBtnTextInactive]}>
+                    {userFollowState[user.id] === false ? '+ 关注' : '已关注'}
+                  </Text>
+                </TouchableOpacity>
+              </TouchableOpacity>
+            ))}
+          </View>
 
-            {item.type === 'question' && (
-              <View style={styles.questionContent}>
-                <View style={[styles.typeTag, { backgroundColor: '#22c55e', marginBottom: 8 }]}>
-                  <Text style={styles.typeTagText}>免费</Text>
-                </View>
-                <Text style={styles.questionTitle}>{item.question}</Text>
-                <View style={styles.pkSection}>
-                  <View style={styles.pkLabels}>
-                    <Text style={styles.pkSolved}>已解决 {item.solvedPercent}%</Text>
-                    <Text style={styles.pkUnsolved}>未解决 {100 - item.solvedPercent}%</Text>
+          {/* 推荐用户 */}
+          <View style={styles.userSection}>
+            <Text style={styles.sectionTitle}>推荐关注</Text>
+            {filteredRecommendUsers.map(user => (
+              <TouchableOpacity key={user.id} style={styles.userCard}>
+                <Image source={{ uri: user.avatar }} style={styles.userAvatar} />
+                <View style={styles.userInfo}>
+                  <View style={styles.userNameRow}>
+                    <Text style={styles.userName}>{user.name}</Text>
+                    {user.verified && <Ionicons name="checkmark-circle" size={14} color="#3b82f6" />}
                   </View>
-                  <View style={styles.pkBar}>
-                    <View style={[styles.pkSolvedBar, { width: `${item.solvedPercent}%` }]} />
-                    <View style={[styles.pkUnsolvedBar, { width: `${100 - item.solvedPercent}%` }]} />
-                  </View>
+                  <Text style={styles.userTitle}>{user.title}</Text>
+                  <Text style={styles.userStats}>{user.followers} 粉丝 · {user.questions} 问题 · {user.answers} 回答</Text>
                 </View>
-                <View style={styles.dynamicFooter}>
-                  <View style={styles.dynamicStats}>
-                    <TouchableOpacity style={styles.statBtn}><Ionicons name="thumbs-up-outline" size={16} color="#6b7280" /><Text style={styles.statText}>{item.likes}</Text></TouchableOpacity>
-                    <TouchableOpacity style={styles.statBtn}><Ionicons name="chatbubble-outline" size={16} color="#6b7280" /><Text style={styles.statText}>{item.comments}</Text></TouchableOpacity>
-                  </View>
-                  <TouchableOpacity style={styles.answerBtn}><Ionicons name="create-outline" size={14} color="#fff" /><Text style={styles.answerBtnText}>回答</Text></TouchableOpacity>
-                </View>
-              </View>
-            )}
+                <TouchableOpacity 
+                  style={[styles.followBtn, userFollowState[user.id] && styles.followBtnActive]}
+                  onPress={() => toggleFollowUser(user.id)}
+                >
+                  <Text style={[styles.followBtnText, userFollowState[user.id] && styles.followBtnTextActive]}>
+                    {userFollowState[user.id] ? '已关注' : '+ 关注'}
+                  </Text>
+                </TouchableOpacity>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
 
-            {item.type === 'topic' && (
-              <View style={styles.topicContent}>
-                <View style={styles.topicBox}>
-                  <View style={styles.topicIcon}><Ionicons name="restaurant" size={24} color="#f97316" /></View>
-                  <View style={styles.topicInfo}>
-                    <Text style={styles.topicName}>{item.topic}</Text>
-                    <Text style={styles.topicStats}>{item.topicFollowers} 关注 · {item.topicQuestions} 问题</Text>
-                  </View>
-                  <TouchableOpacity style={styles.followBtn}><Text style={styles.followBtnText}>+ 关注</Text></TouchableOpacity>
+        {/* 话题列表 */}
+        <View style={{ display: activeTab === '话题' ? 'flex' : 'none' }}>
+          <View style={styles.topicSection}>
+            <Text style={styles.sectionTitle}>已关注话题 ({followedTopics.length})</Text>
+            {followedTopics.map(topic => (
+              <TouchableOpacity key={topic.id} style={styles.topicCard}>
+                <View style={[styles.topicIcon, { backgroundColor: topic.color + '20' }]}>
+                  <Ionicons name={topic.icon} size={24} color={topic.color} />
                 </View>
-              </View>
-            )}
+                <View style={styles.topicInfo}>
+                  <Text style={styles.topicName}>{topic.name}</Text>
+                  <Text style={styles.topicDesc}>{topic.description}</Text>
+                  <Text style={styles.topicStats}>{topic.followers} 关注 · {topic.questions} 问题</Text>
+                </View>
+                <TouchableOpacity 
+                  style={[styles.followBtn, (topicFollowState[topic.id] === false) && styles.followBtnInactive]}
+                  onPress={() => toggleFollowTopic(topic.id)}
+                >
+                  <Text style={[styles.followBtnText, (topicFollowState[topic.id] === false) && styles.followBtnTextInactive]}>
+                    {topicFollowState[topic.id] === false ? '+ 关注' : '已关注'}
+                  </Text>
+                </TouchableOpacity>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
 
-            {item.type === 'like' && (
-              <View style={styles.likeContent}>
-                <View style={styles.likeBox}>
-                  <Text style={styles.likeQuestion}>{item.question}</Text>
-                  <Text style={styles.likeAnswer} numberOfLines={2}>{item.answerPreview}</Text>
-                </View>
-                <Text style={styles.answerFrom}>来自 <Text style={styles.answerFromName}>{item.answerFrom}</Text> 的回答</Text>
-              </View>
-            )}
-          </TouchableOpacity>
-        ))}
         <View style={{ height: 20 }} />
       </ScrollView>
     </SafeAreaView>
@@ -159,65 +243,65 @@ export default function FollowScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f3f4f6' },
-  header: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', paddingHorizontal: 16, paddingVertical: 12 },
-  backBtn: { position: 'absolute', left: 16, zIndex: 1 },
-  headerTitle: { flex: 1, fontSize: 18, fontWeight: 'bold', color: '#1f2937', textAlign: 'center' },
-  searchBtn: { position: 'absolute', right: 16, zIndex: 1 },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#fff', paddingHorizontal: 16, paddingVertical: 12 },
+  backBtn: { padding: 4 },
+  headerTitle: { fontSize: 18, fontWeight: 'bold', color: '#1f2937' },
   tabBar: { flexDirection: 'row', backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
   tabItem: { flex: 1, alignItems: 'center', paddingVertical: 12, position: 'relative' },
   tabText: { fontSize: 14, color: '#6b7280' },
   tabTextActive: { color: '#ef4444', fontWeight: '600' },
   tabIndicator: { position: 'absolute', bottom: 0, width: 30, height: 2, backgroundColor: '#ef4444', borderRadius: 1 },
   content: { flex: 1 },
-  usersSection: { backgroundColor: '#fff', marginTop: 8, paddingVertical: 12 },
-  usersScroll: { paddingHorizontal: 16, gap: 16 },
-  userItem: { alignItems: 'center', width: 60 },
-  avatarRing: { width: 56, height: 56, borderRadius: 28, borderWidth: 2, padding: 2 },
-  userAvatar: { width: '100%', height: '100%', borderRadius: 26 },
-  userName: { fontSize: 11, color: '#4b5563', marginTop: 4, textAlign: 'center' },
-  addUserBtn: { width: 56, height: 56, borderRadius: 28, borderWidth: 2, borderStyle: 'dashed', borderColor: '#d1d5db', justifyContent: 'center', alignItems: 'center' },
-  addUserText: { fontSize: 11, color: '#9ca3af', marginTop: 4 },
-  dynamicCard: { backgroundColor: '#fff', marginTop: 8 },
-  dynamicHeader: { flexDirection: 'row', alignItems: 'center', padding: 12, paddingBottom: 8 },
-  dynamicAvatar: { width: 40, height: 40, borderRadius: 20 },
-  dynamicInfo: { flex: 1, marginLeft: 10 },
-  dynamicNameRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  dynamicName: { fontSize: 14, fontWeight: '500', color: '#1f2937' },
-  dynamicAction: { fontSize: 12, color: '#9ca3af', marginTop: 2 },
-  answerContent: { paddingHorizontal: 12, paddingBottom: 12 },
-  questionBox: { backgroundColor: '#f9fafb', borderRadius: 8, padding: 10, marginBottom: 10, flexDirection: 'row', alignItems: 'center' },
-  typeTag: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10, marginRight: 8 },
+  // 问题卡片样式
+  questionCard: { backgroundColor: '#fff', marginTop: 8, padding: 12 },
+  questionHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
+  questionAvatar: { width: 40, height: 40, borderRadius: 20 },
+  questionAuthorInfo: { flex: 1, marginLeft: 10 },
+  authorNameRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  authorName: { fontSize: 14, fontWeight: '500', color: '#1f2937' },
+  questionTime: { fontSize: 12, color: '#9ca3af', marginTop: 2 },
+  typeTag: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
   typeTagText: { color: '#fff', fontSize: 11, fontWeight: '500' },
-  questionText: { flex: 1, fontSize: 13, color: '#1f2937', fontWeight: '500' },
-  answerText: { fontSize: 14, color: '#4b5563', lineHeight: 20 },
-  dynamicFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#f3f4f6' },
-  dynamicStats: { flexDirection: 'row', gap: 16 },
-  statBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  statText: { fontSize: 13, color: '#6b7280' },
-  viewMore: { fontSize: 13, color: '#ef4444' },
-  questionContent: { paddingHorizontal: 12, paddingBottom: 12 },
   questionTitle: { fontSize: 15, fontWeight: '500', color: '#1f2937', lineHeight: 22 },
   pkSection: { marginTop: 10 },
-  pkLabels: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
-  pkSolved: { fontSize: 11, color: '#ef4444', fontWeight: '500' },
-  pkUnsolved: { fontSize: 11, color: '#3b82f6', fontWeight: '500' },
-  pkBar: { flexDirection: 'row', height: 4, borderRadius: 2, overflow: 'hidden', backgroundColor: '#f3f4f6' },
+  pkBar: { flexDirection: 'row', height: 6, borderRadius: 3, overflow: 'hidden', backgroundColor: '#f3f4f6' },
   pkSolvedBar: { backgroundColor: '#ef4444', height: '100%' },
   pkUnsolvedBar: { backgroundColor: '#3b82f6', height: '100%' },
-  answerBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#ef4444', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 14, gap: 4 },
+  pkLabels: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 },
+  pkSolved: { fontSize: 11, color: '#ef4444', fontWeight: '500' },
+  pkUnsolved: { fontSize: 11, color: '#3b82f6', fontWeight: '500' },
+  questionFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#f3f4f6' },
+  questionStats: { flexDirection: 'row', gap: 16 },
+  statBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  statText: { fontSize: 13, color: '#6b7280' },
+  answerBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#ef4444', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 14, gap: 4 },
   answerBtnText: { fontSize: 12, color: '#fff', fontWeight: '500' },
-  topicContent: { paddingHorizontal: 12, paddingBottom: 12 },
-  topicBox: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f9fafb', borderRadius: 8, padding: 12 },
-  topicIcon: { width: 48, height: 48, borderRadius: 12, backgroundColor: '#fff7ed', justifyContent: 'center', alignItems: 'center' },
+  // 搜索框样式
+  searchSection: { backgroundColor: '#fff', padding: 12, marginTop: 8 },
+  searchBar: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f3f4f6', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 8 },
+  searchInput: { flex: 1, marginLeft: 8, fontSize: 14 },
+  // 用户列表样式
+  userSection: { backgroundColor: '#fff', marginTop: 8, padding: 12 },
+  sectionTitle: { fontSize: 14, fontWeight: '600', color: '#1f2937', marginBottom: 12 },
+  userCard: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
+  userAvatar: { width: 48, height: 48, borderRadius: 24 },
+  userInfo: { flex: 1, marginLeft: 12 },
+  userNameRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  userName: { fontSize: 15, fontWeight: '500', color: '#1f2937' },
+  userTitle: { fontSize: 12, color: '#6b7280', marginTop: 2 },
+  userStats: { fontSize: 11, color: '#9ca3af', marginTop: 4 },
+  followBtn: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: 16, backgroundColor: '#fef2f2' },
+  followBtnText: { fontSize: 12, color: '#ef4444', fontWeight: '500' },
+  followBtnInactive: { backgroundColor: '#f3f4f6' },
+  followBtnTextInactive: { color: '#6b7280' },
+  followBtnActive: { backgroundColor: '#fef2f2' },
+  followBtnTextActive: { color: '#ef4444' },
+  // 话题列表样式
+  topicSection: { backgroundColor: '#fff', marginTop: 8, padding: 12 },
+  topicCard: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
+  topicIcon: { width: 48, height: 48, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
   topicInfo: { flex: 1, marginLeft: 12 },
-  topicName: { fontSize: 14, fontWeight: '500', color: '#1f2937' },
-  topicStats: { fontSize: 12, color: '#9ca3af', marginTop: 2 },
-  followBtn: { paddingHorizontal: 12, paddingVertical: 6, borderWidth: 1, borderColor: '#ef4444', borderRadius: 14 },
-  followBtnText: { fontSize: 12, color: '#ef4444' },
-  likeContent: { paddingHorizontal: 12, paddingBottom: 12 },
-  likeBox: { backgroundColor: '#f9fafb', borderRadius: 8, padding: 12 },
-  likeQuestion: { fontSize: 14, fontWeight: '500', color: '#1f2937', marginBottom: 6 },
-  likeAnswer: { fontSize: 13, color: '#6b7280', lineHeight: 18 },
-  answerFrom: { fontSize: 12, color: '#9ca3af', marginTop: 8 },
-  answerFromName: { color: '#ef4444' },
+  topicName: { fontSize: 15, fontWeight: '500', color: '#1f2937' },
+  topicDesc: { fontSize: 12, color: '#6b7280', marginTop: 2 },
+  topicStats: { fontSize: 11, color: '#9ca3af', marginTop: 4 },
 });

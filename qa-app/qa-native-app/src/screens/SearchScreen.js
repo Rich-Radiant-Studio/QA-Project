@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, SafeAreaView } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, SafeAreaView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 const searchHistory = ['Python学习', '养猫攻略', '职业规划', '数据分析'];
@@ -23,6 +23,29 @@ const hotTopics = [
 export default function SearchScreen({ navigation }) {
   const [query, setQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
+  const [history, setHistory] = useState(searchHistory);
+  const [hotList, setHotList] = useState(hotSearches);
+
+  const handleSearch = () => {
+    if (query.trim()) {
+      if (!history.includes(query)) {
+        setHistory([query, ...history.slice(0, 9)]);
+      }
+      navigation.navigate('QuestionDetail', { id: 1 });
+    }
+  };
+
+  const clearHistory = () => {
+    Alert.alert('清除历史', '确定要清除搜索历史吗？', [
+      { text: '取消', style: 'cancel' },
+      { text: '确定', onPress: () => setHistory([]) }
+    ]);
+  };
+
+  const refreshHotList = () => {
+    const shuffled = [...hotSearches].sort(() => Math.random() - 0.5);
+    setHotList(shuffled);
+  };
 
   const getRankStyle = (rank) => {
     if (rank === 1) return { backgroundColor: '#ef4444' };
@@ -53,38 +76,40 @@ export default function SearchScreen({ navigation }) {
             </TouchableOpacity>
           )}
         </View>
-        <TouchableOpacity style={styles.searchBtn}>
+        <TouchableOpacity style={styles.searchBtn} onPress={handleSearch}>
           <Text style={styles.searchBtnText}>搜索</Text>
         </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* 搜索历史 */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>搜索历史</Text>
-            <TouchableOpacity><Ionicons name="trash-outline" size={18} color="#9ca3af" /></TouchableOpacity>
+        {history.length > 0 && (
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>搜索历史</Text>
+              <TouchableOpacity onPress={clearHistory}><Ionicons name="trash-outline" size={18} color="#9ca3af" /></TouchableOpacity>
+            </View>
+            <View style={styles.tagList}>
+              {history.map((item, index) => (
+                <TouchableOpacity key={index} style={styles.historyTag} onPress={() => { setQuery(item); setIsSearching(true); }}>
+                  <Text style={styles.historyTagText}>{item}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
-          <View style={styles.tagList}>
-            {searchHistory.map((item, index) => (
-              <TouchableOpacity key={index} style={styles.historyTag} onPress={() => { setQuery(item); setIsSearching(true); }}>
-                <Text style={styles.historyTagText}>{item}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
+        )}
 
         {/* 热门搜索 */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>热门搜索</Text>
-            <TouchableOpacity style={styles.refreshBtn}>
+            <TouchableOpacity style={styles.refreshBtn} onPress={refreshHotList}>
               <Ionicons name="refresh" size={14} color="#9ca3af" />
               <Text style={styles.refreshText}>换一批</Text>
             </TouchableOpacity>
           </View>
-          {hotSearches.map((item) => (
-            <TouchableOpacity key={item.rank} style={styles.hotItem}>
+          {hotList.map((item) => (
+            <TouchableOpacity key={item.rank} style={styles.hotItem} onPress={() => { setQuery(item.text); navigation.navigate('QuestionDetail', { id: item.rank }); }}>
               <View style={[styles.rankBadge, getRankStyle(item.rank)]}>
                 <Text style={styles.rankText}>{item.rank}</Text>
               </View>
@@ -99,11 +124,11 @@ export default function SearchScreen({ navigation }) {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>热门话题</Text>
-            <TouchableOpacity><Text style={styles.moreText}>查看更多</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => Alert.alert('查看更多', '查看更多热门话题')}><Text style={styles.moreText}>查看更多</Text></TouchableOpacity>
           </View>
           <View style={styles.tagList}>
             {hotTopics.map((topic, index) => (
-              <TouchableOpacity key={index} style={[styles.topicTag, { backgroundColor: topic.bg }]}>
+              <TouchableOpacity key={index} style={[styles.topicTag, { backgroundColor: topic.bg }]} onPress={() => { setQuery(topic.name); navigation.navigate('QuestionDetail', { id: index + 1 }); }}>
                 <Text style={[styles.topicTagText, { color: topic.color }]}>{topic.name}</Text>
               </TouchableOpacity>
             ))}

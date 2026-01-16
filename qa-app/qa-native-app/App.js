@@ -14,6 +14,11 @@ import ProfileScreen from './src/screens/ProfileScreen';
 import QuestionDetailScreen from './src/screens/QuestionDetailScreen';
 import FollowScreen from './src/screens/FollowScreen';
 import HotListScreen from './src/screens/HotListScreen';
+import GroupChatScreen from './src/screens/GroupChatScreen';
+import AnswerDetailScreen from './src/screens/AnswerDetailScreen';
+import ActivityScreen from './src/screens/ActivityScreen';
+import LoginScreen from './src/screens/LoginScreen';
+import { AccountSecurityScreen, PrivacySettingsScreen, HelpFeedbackScreen, AboutScreen, EditProfileScreen, FansScreen, MyGroupsScreen } from './src/screens/SettingsScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -127,15 +132,16 @@ const modalStyles = StyleSheet.create({
   submitText: { color: '#fff', fontSize: 16, fontWeight: '600' },
 });
 
-function MainTabs({ showEmergencyModal }) {
+function MainTabs({ showEmergencyModal, onLogout }) {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
           if (route.name === '首页') iconName = focused ? 'home' : 'home-outline';
+          else if (route.name === '活动') iconName = focused ? 'gift' : 'gift-outline';
           else if (route.name === '发布') iconName = focused ? 'add-circle' : 'add-circle-outline';
-          else if (route.name === '紧急求助？') iconName = focused ? 'warning' : 'warning-outline';
+          else if (route.name === '紧急求助') iconName = focused ? 'warning' : 'warning-outline';
           else if (route.name === '我的') iconName = focused ? 'person' : 'person-outline';
           return <Ionicons name={iconName} size={size} color={color} />;
         },
@@ -145,9 +151,10 @@ function MainTabs({ showEmergencyModal }) {
       })}
     >
       <Tab.Screen name="首页" component={HomeScreen} />
+      <Tab.Screen name="活动" component={ActivityScreen} />
       <Tab.Screen name="发布" component={PublishScreen} />
       <Tab.Screen 
-        name="紧急求助？" 
+        name="紧急求助" 
         component={EmptyScreen}
         listeners={{
           tabPress: (e) => {
@@ -156,7 +163,9 @@ function MainTabs({ showEmergencyModal }) {
           },
         }}
       />
-      <Tab.Screen name="我的" component={ProfileScreen} />
+      <Tab.Screen name="我的">
+        {(props) => <ProfileScreen {...props} onLogout={onLogout} />}
+      </Tab.Screen>
     </Tab.Navigator>
   );
 }
@@ -168,24 +177,53 @@ function EmptyScreen() {
 
 export default function App() {
   const [emergencyModalVisible, setEmergencyModalVisible] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const handleEmergencySubmit = (data) => {
     console.log('紧急求助提交:', data);
     alert('求助已发送！附近的人将会收到您的求助信息。');
   };
 
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+  };
+
+  if (!isLoggedIn) {
+    return (
+      <>
+        <StatusBar style="dark" />
+        <LoginScreen onLogin={handleLogin} />
+      </>
+    );
+  }
+
   return (
     <NavigationContainer>
       <StatusBar style="dark" />
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Main">
-          {() => <MainTabs showEmergencyModal={() => setEmergencyModalVisible(true)} />}
+          {() => <MainTabs showEmergencyModal={() => setEmergencyModalVisible(true)} onLogout={handleLogout} />}
         </Stack.Screen>
         <Stack.Screen name="Search" component={SearchScreen} />
         <Stack.Screen name="QuestionDetail" component={QuestionDetailScreen} />
         <Stack.Screen name="Follow" component={FollowScreen} />
         <Stack.Screen name="HotList" component={HotListScreen} />
         <Stack.Screen name="Messages" component={MessagesScreen} />
+        <Stack.Screen name="GroupChat" component={GroupChatScreen} />
+        <Stack.Screen name="AnswerDetail" component={AnswerDetailScreen} />
+        <Stack.Screen name="Activity" component={ActivityScreen} />
+        {/* 设置相关页面 */}
+        <Stack.Screen name="AccountSecurity" component={AccountSecurityScreen} />
+        <Stack.Screen name="PrivacySettings" component={PrivacySettingsScreen} />
+        <Stack.Screen name="HelpFeedback" component={HelpFeedbackScreen} />
+        <Stack.Screen name="About" component={AboutScreen} />
+        <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+        <Stack.Screen name="Fans" component={FansScreen} />
+        <Stack.Screen name="MyGroups" component={MyGroupsScreen} />
       </Stack.Navigator>
       <EmergencyModal
         visible={emergencyModalVisible}

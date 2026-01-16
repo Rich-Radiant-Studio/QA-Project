@@ -5,11 +5,11 @@ import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 const { width: screenWidth } = Dimensions.get('window');
 
 const questions = [
-  { id: 1, title: '如何在三个月内从零基础学会Python编程？有没有系统的学习路线推荐？', type: 'reward', reward: 50, likes: 128, dislikes: 12, answers: 56, author: '张三丰', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user1', time: '2小时前', image: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=600&h=300&fit=crop', solvedPercent: 65, country: '中国', city: '北京' },
-  { id: 2, title: '第一次养猫需要准备什么？有哪些新手容易踩的坑？', type: 'free', likes: 256, dislikes: 8, answers: 89, author: '李小龙', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user2', time: '5小时前', images: ['https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=200&h=200&fit=crop', 'https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=200&h=200&fit=crop', 'https://images.unsplash.com/photo-1495360010541-f48722b34f7d?w=200&h=200&fit=crop'], solvedPercent: 80, country: '美国', city: '纽约' },
-  { id: 3, title: '长期失眠应该怎么调理？吃褪黑素有用吗？求专业医生解答', type: 'targeted', likes: 512, dislikes: 5, answers: 234, author: '王医生', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user3', time: '昨天 18:30', verified: true, solvedPercent: 45, country: '日本', city: '东京' },
-  { id: 4, title: '35岁程序员如何规划职业发展？是继续技术深耕还是转管理？', type: 'reward', reward: 100, likes: 1200, dislikes: 23, answers: 456, author: '程序员小明', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user4', time: '3小时前', image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&h=300&fit=crop', solvedPercent: 30, country: '中国', city: '上海' },
-  { id: 5, title: '有什么简单又好吃的家常菜推荐？最好是新手也能做的那种', type: 'free', likes: 368, dislikes: 6, answers: 127, author: '美食达人', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user5', time: '6小时前', images: ['https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&h=200&fit=crop', 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=200&h=200&fit=crop'], solvedPercent: 92, country: '英国', city: '伦敦' },
+  { id: 1, title: '如何在三个月内从零基础学会Python编程？有没有系统的学习路线推荐？', type: 'reward', reward: 50, likes: 128, dislikes: 12, answers: 56, shares: 34, bookmarks: 89, author: '张三丰', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user1', time: '2小时前', image: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=600&h=300&fit=crop', solvedPercent: 65, country: '中国', city: '北京' },
+  { id: 2, title: '第一次养猫需要准备什么？有哪些新手容易踩的坑？', type: 'free', likes: 256, dislikes: 8, answers: 89, shares: 56, bookmarks: 120, author: '李小龙', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user2', time: '5小时前', images: ['https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=200&h=200&fit=crop', 'https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=200&h=200&fit=crop', 'https://images.unsplash.com/photo-1495360010541-f48722b34f7d?w=200&h=200&fit=crop'], solvedPercent: 80, country: '美国', city: '纽约' },
+  { id: 3, title: '长期失眠应该怎么调理？吃褪黑素有用吗？求专业医生解答', type: 'targeted', likes: 512, dislikes: 5, answers: 234, shares: 78, bookmarks: 156, author: '王医生', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user3', time: '昨天 18:30', verified: true, solvedPercent: 45, country: '日本', city: '东京' },
+  { id: 4, title: '35岁程序员如何规划职业发展？是继续技术深耕还是转管理？', type: 'reward', reward: 100, likes: 1200, dislikes: 23, answers: 456, shares: 234, bookmarks: 567, author: '程序员小明', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user4', time: '3小时前', image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&h=300&fit=crop', solvedPercent: 30, country: '中国', city: '上海' },
+  { id: 5, title: '有什么简单又好吃的家常菜推荐？最好是新手也能做的那种', type: 'free', likes: 368, dislikes: 6, answers: 127, shares: 45, bookmarks: 98, author: '美食达人', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user5', time: '6小时前', images: ['https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&h=200&fit=crop', 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=200&h=200&fit=crop'], solvedPercent: 92, country: '英国', city: '伦敦' },
 ];
 
 const tabs = ['关注', '推荐', '热榜', '同城', '国家', '行业', '个人', '职场', '教育'];
@@ -25,6 +25,7 @@ const regionData = {
 export default function HomeScreen({ navigation }) {
   const [activeTab, setActiveTab] = useState('推荐');
   const [likedItems, setLikedItems] = useState({});
+  const [bookmarkedItems, setBookmarkedItems] = useState({});
   const [showRegionModal, setShowRegionModal] = useState(false);
   const [showActionModal, setShowActionModal] = useState(false);
   const [showChannelModal, setShowChannelModal] = useState(false);
@@ -43,6 +44,95 @@ export default function HomeScreen({ navigation }) {
     questionType: '', // 国家问题、行业问题、个人问题
     category: ''
   });
+  // 同城筛选状态
+  const [localCity, setLocalCity] = useState('北京');
+  const [localFilter, setLocalFilter] = useState('最新');
+  const [showCityModal, setShowCityModal] = useState(false);
+  const [showNearbyModal, setShowNearbyModal] = useState(false);
+  const [nearbyDistance, setNearbyDistance] = useState('3公里');
+  const [citySelectStep, setCitySelectStep] = useState(0); // 0:国家 1:州/省 2:市
+  const [selectedCityRegion, setSelectedCityRegion] = useState({ country: '中国', state: '北京市', city: '北京' });
+
+  // 同城地区数据
+  const cityRegionData = {
+    countries: ['中国', '美国', '日本', '英国', '韩国', '澳大利亚', '加拿大'],
+    states: {
+      '中国': ['北京市', '上海市', '广东省', '浙江省', '江苏省', '四川省', '湖北省', '陕西省'],
+      '美国': ['加利福尼亚州', '纽约州', '德克萨斯州', '佛罗里达州', '华盛顿州'],
+      '日本': ['东京都', '大阪府', '京都府', '北海道', '神奈川县'],
+      '英国': ['英格兰', '苏格兰', '威尔士', '北爱尔兰'],
+      '韩国': ['首尔特别市', '釜山广域市', '仁川广域市', '京畿道'],
+      '澳大利亚': ['新南威尔士州', '维多利亚州', '昆士兰州'],
+      '加拿大': ['安大略省', '魁北克省', '不列颠哥伦比亚省']
+    },
+    cities: {
+      '北京市': ['北京'],
+      '上海市': ['上海'],
+      '广东省': ['广州', '深圳', '东莞', '佛山', '珠海'],
+      '浙江省': ['杭州', '宁波', '温州', '嘉兴'],
+      '江苏省': ['南京', '苏州', '无锡', '常州'],
+      '四川省': ['成都', '绵阳', '德阳'],
+      '湖北省': ['武汉', '宜昌', '襄阳'],
+      '陕西省': ['西安', '咸阳', '宝鸡'],
+      '加利福尼亚州': ['洛杉矶', '旧金山', '圣地亚哥'],
+      '纽约州': ['纽约', '布法罗', '奥尔巴尼'],
+      '德克萨斯州': ['休斯顿', '达拉斯', '奥斯汀'],
+      '佛罗里达州': ['迈阿密', '奥兰多', '坦帕'],
+      '华盛顿州': ['西雅图', '塔科马'],
+      '东京都': ['东京'],
+      '大阪府': ['大阪'],
+      '京都府': ['京都'],
+      '北海道': ['札幌', '函馆'],
+      '神奈川县': ['横滨', '川崎'],
+      '英格兰': ['伦敦', '曼彻斯特', '伯明翰', '利物浦'],
+      '苏格兰': ['爱丁堡', '格拉斯哥'],
+      '威尔士': ['加的夫'],
+      '北爱尔兰': ['贝尔法斯特'],
+      '首尔特别市': ['首尔'],
+      '釜山广域市': ['釜山'],
+      '仁川广域市': ['仁川'],
+      '京畿道': ['水原', '城南'],
+      '新南威尔士州': ['悉尼', '纽卡斯尔'],
+      '维多利亚州': ['墨尔本'],
+      '昆士兰州': ['布里斯班', '黄金海岸'],
+      '安大略省': ['多伦多', '渥太华'],
+      '魁北克省': ['蒙特利尔', '魁北克城'],
+      '不列颠哥伦比亚省': ['温哥华', '维多利亚']
+    }
+  };
+
+  const getCitySelectOptions = () => {
+    if (citySelectStep === 0) return cityRegionData.countries;
+    if (citySelectStep === 1) return cityRegionData.states[selectedCityRegion.country] || [];
+    if (citySelectStep === 2) return cityRegionData.cities[selectedCityRegion.state] || [];
+    return [];
+  };
+
+  const getCitySelectTitle = () => ['选择国家', '选择州/省', '选择城市'][citySelectStep];
+
+  const selectCityRegion = (value) => {
+    if (citySelectStep === 0) {
+      setSelectedCityRegion({ ...selectedCityRegion, country: value, state: '', city: '' });
+      setCitySelectStep(1);
+    } else if (citySelectStep === 1) {
+      setSelectedCityRegion({ ...selectedCityRegion, state: value, city: '' });
+      setCitySelectStep(2);
+    } else {
+      setSelectedCityRegion({ ...selectedCityRegion, city: value });
+      setLocalCity(value);
+      setShowCityModal(false);
+      setCitySelectStep(0);
+    }
+  };
+
+  const closeCityModal = () => {
+    setShowCityModal(false);
+    setCitySelectStep(0);
+  };
+
+  // 紧急求助状态
+  const [showEmergencyModal, setShowEmergencyModal] = useState(false);
+  const [emergencyForm, setEmergencyForm] = useState({ title: '', description: '', location: '', contact: '' });
 
   // 问题类型和类别数据
   const questionTypes = ['国家问题', '行业问题', '个人问题'];
@@ -86,6 +176,7 @@ export default function HomeScreen({ navigation }) {
   ) || [];
 
   const toggleLike = (id) => setLikedItems(prev => ({ ...prev, [id]: !prev[id] }));
+  const toggleBookmark = (id) => setBookmarkedItems(prev => ({ ...prev, [id]: !prev[id] }));
   const formatNumber = (num) => num >= 1000 ? (num / 1000).toFixed(1) + 'k' : num;
 
   const openActionModal = (item) => { setSelectedQuestion(item); setShowActionModal(true); };
@@ -195,6 +286,54 @@ export default function HomeScreen({ navigation }) {
 
       {/* 问题卡片列表 */}
       <ScrollView style={styles.list} showsVerticalScrollIndicator={false}>
+        {/* 同城筛选条 */}
+        <View style={[styles.localFilterBar, { display: activeTab === '同城' ? 'flex' : 'none' }]}>
+          <View style={styles.localFilterRow}>
+            <TouchableOpacity style={styles.localFilterItem} onPress={() => setShowCityModal(true)}>
+              <View style={[styles.localFilterIcon, { backgroundColor: '#e0f2fe' }]}>
+                <Ionicons name="navigate" size={22} color="#0ea5e9" />
+              </View>
+              <Text style={styles.localFilterLabel}>切换位置</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.localFilterItem}
+              onPress={() => setLocalFilter('最新')}
+            >
+              <View style={[styles.localFilterIcon, { backgroundColor: '#fef3c7' }]}>
+                <Ionicons name="time" size={22} color="#f59e0b" />
+              </View>
+              <Text style={[styles.localFilterLabel, localFilter === '最新' && styles.localFilterLabelActive]}>最新</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.localFilterItem}
+              onPress={() => setLocalFilter('最热')}
+            >
+              <View style={[styles.localFilterIcon, { backgroundColor: '#fef3c7' }]}>
+                <Ionicons name="flame" size={22} color="#f59e0b" />
+              </View>
+              <Text style={[styles.localFilterLabel, localFilter === '最热' && styles.localFilterLabelActive]}>最热</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.localFilterItem}
+              onPress={() => { setLocalFilter('附近'); setShowNearbyModal(true); }}
+            >
+              <View style={[styles.localFilterIcon, { backgroundColor: '#fee2e2' }]}>
+                <Ionicons name="location" size={22} color="#ef4444" />
+              </View>
+              <Text style={[styles.localFilterLabel, localFilter === '附近' && styles.localFilterLabelActive]}>附近</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.localFilterItem}
+              onPress={() => setShowEmergencyModal(true)}
+            >
+              <View style={[styles.localFilterIcon, { backgroundColor: '#fee2e2' }]}>
+                <Ionicons name="alert-circle" size={22} color="#ef4444" />
+              </View>
+              <Text style={styles.localFilterLabel}>紧急求助</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
         {questions.map(item => {
           const isLiked = likedItems[item.id];
           return (
@@ -210,74 +349,52 @@ export default function HomeScreen({ navigation }) {
                 </View>
               )}
 
-              {/* PK进度条 - 只显示已解决百分比在交界处上方 */}
+              {/* PK进度条 - 已解决/未解决按钮在左右两侧 */}
               <View style={styles.pkSection}>
-                <View style={styles.pkBar}>
-                  <View style={[styles.pkSolvedBar, { width: `${item.solvedPercent}%` }]} />
-                  <View style={[styles.pkUnsolvedBar, { width: `${100 - item.solvedPercent}%` }]} />
-                  <View style={[styles.pkPercentLabel, { left: `${item.solvedPercent}%` }]}>
-                    <Text style={styles.pkPercentText}>{item.solvedPercent}%</Text>
-                  </View>
-                </View>
-                {/* 已解决/未解决按钮 */}
-                <View style={styles.pkButtons}>
-                  <TouchableOpacity style={styles.solvedBtn}>
-                    <Text style={styles.solvedBtnText}>已解决</Text>
+                <View style={styles.pkRow}>
+                  <TouchableOpacity style={styles.voteSolvedBtn}>
+                    <Ionicons name="checkmark-circle" size={14} color="#3b82f6" />
+                    <Text style={styles.voteSolvedText}>已解决</Text>
                   </TouchableOpacity>
-                  <View style={{ flex: 1 }} />
-                  <TouchableOpacity style={styles.unsolvedBtn}>
-                    <Text style={styles.unsolvedBtnText}>未解决</Text>
+                  <View style={styles.pkBarWrapper}>
+                    <View style={styles.pkBar}>
+                      <View style={[styles.pkSolvedBar, { width: `${item.solvedPercent}%` }]} />
+                      <View style={[styles.pkUnsolvedBar, { width: `${100 - item.solvedPercent}%` }]} />
+                    </View>
+                    <View style={[styles.pkPercentLabel, { left: `${item.solvedPercent}%` }]}>
+                      <Text style={styles.pkPercentText}>{item.solvedPercent}%</Text>
+                    </View>
+                  </View>
+                  <TouchableOpacity style={styles.voteUnsolvedBtn}>
+                    <Ionicons name="close-circle" size={14} color="#ef4444" />
+                    <Text style={styles.voteUnsolvedText}>未解决</Text>
                   </TouchableOpacity>
                 </View>
               </View>
 
-              {/* 头像、姓名、时间、地区 - 放在已解决下方 */}
+              {/* 头像、姓名、时间、地区 - 全部放在一行，右侧放点赞和评论 */}
               <View style={styles.cardHeader}>
-                <Image source={{ uri: item.avatar }} style={styles.avatar} />
-                <View style={styles.authorInfo}>
-                  <View style={styles.authorRow}>
-                    <Text style={styles.authorName}>{item.author}</Text>
-                    {item.verified && <Ionicons name="checkmark-circle" size={12} color="#3b82f6" style={{ marginLeft: 4 }} />}
-                  </View>
-                  <View style={styles.metaRow}>
-                    <Text style={styles.postTime}>{item.time}</Text>
-                    <Text style={styles.locationText}>
-                      <Ionicons name="location-outline" size={10} color="#9ca3af" /> {item.country} · {item.city}
-                    </Text>
-                  </View>
+                <View style={styles.cardHeaderLeft}>
+                  <Image source={{ uri: item.avatar }} style={styles.avatar} />
+                  <Text style={styles.authorName}>{item.author}</Text>
+                  {item.verified && <Ionicons name="checkmark-circle" size={10} color="#3b82f6" style={{ marginLeft: 2 }} />}
+                  <Text style={styles.metaSeparator}>·</Text>
+                  <Text style={styles.postTime}>{item.time}</Text>
+                  <Text style={styles.metaSeparator}>·</Text>
+                  <Ionicons name="location-outline" size={9} color="#9ca3af" />
+                  <Text style={styles.locationText}>{item.country} · {item.city}</Text>
                 </View>
-              </View>
-
-              {/* 操作按钮 */}
-              <View style={styles.cardFooter}>
-                <View style={styles.leftActions}>
-                  <TouchableOpacity style={styles.actionBtn} onPress={() => toggleLike(item.id)}>
-                    <Ionicons name={isLiked ? "thumbs-up" : "thumbs-up-outline"} size={16} color={isLiked ? "#ef4444" : "#6b7280"} />
-                    <Text style={[styles.actionText, isLiked && { color: '#ef4444' }]}>{formatNumber(item.likes + (isLiked ? 1 : 0))}</Text>
+                <View style={styles.cardHeaderRight}>
+                  <TouchableOpacity style={styles.headerActionBtn} onPress={() => toggleLike(item.id)}>
+                    <Ionicons name={isLiked ? "thumbs-up" : "thumbs-up-outline"} size={14} color={isLiked ? "#ef4444" : "#9ca3af"} />
+                    <Text style={[styles.headerActionText, isLiked && { color: '#ef4444' }]}>{formatNumber(item.likes + (isLiked ? 1 : 0))}</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.actionBtn}>
-                    <Ionicons name="thumbs-down-outline" size={16} color="#6b7280" />
-                    <Text style={styles.actionText}>{item.dislikes}</Text>
+                  <TouchableOpacity style={styles.headerActionBtn}>
+                    <Ionicons name="chatbubble-outline" size={14} color="#9ca3af" />
+                    <Text style={styles.headerActionText}>{item.answers}</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.actionBtn}>
-                    <Ionicons name="chatbubble-outline" size={16} color="#6b7280" />
-                    <Text style={styles.actionText}>{item.answers}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.actionBtn}>
-                    <Ionicons name="share-social-outline" size={16} color="#6b7280" />
-                  </TouchableOpacity>
-                </View>
-                <View style={styles.rightActions}>
-                  <TouchableOpacity style={styles.joinGroupBtn}>
-                    <Ionicons name="people-outline" size={14} color="#6b7280" />
-                    <Text style={styles.joinGroupText}>加入群聊</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.answerBtn}>
-                    <Ionicons name="create-outline" size={14} color="#fff" />
-                    <Text style={styles.answerBtnText}>回答</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.moreBtn} onPress={() => openActionModal(item)}>
-                    <Ionicons name="ellipsis-horizontal" size={18} color="#9ca3af" />
+                  <TouchableOpacity style={styles.headerMoreBtn} onPress={() => openActionModal(item)}>
+                    <Ionicons name="ellipsis-horizontal" size={16} color="#9ca3af" />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -318,12 +435,32 @@ export default function HomeScreen({ navigation }) {
           <View style={styles.actionModal}>
             <View style={styles.actionModalHandle} />
             <TouchableOpacity style={styles.actionItem}>
+              <Ionicons name="thumbs-down-outline" size={22} color="#6b7280" />
+              <Text style={styles.actionItemText}>踩一下</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionItem}>
+              <Ionicons name="arrow-redo-outline" size={22} color="#1f2937" />
+              <Text style={styles.actionItemText}>分享 ({formatNumber(selectedQuestion?.shares || 0)})</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionItem} onPress={() => { if (selectedQuestion) toggleBookmark(selectedQuestion.id); setShowActionModal(false); }}>
+              <Ionicons name={selectedQuestion && bookmarkedItems[selectedQuestion.id] ? "bookmark" : "bookmark-outline"} size={22} color={selectedQuestion && bookmarkedItems[selectedQuestion.id] ? "#f59e0b" : "#1f2937"} />
+              <Text style={styles.actionItemText}>收藏 ({formatNumber(selectedQuestion?.bookmarks || 0)})</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionItem} onPress={() => { setShowActionModal(false); navigation.navigate('GroupChat', { question: selectedQuestion }); }}>
+              <Ionicons name="people-outline" size={22} color="#1f2937" />
+              <Text style={styles.actionItemText}>加入群聊</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionItem} onPress={() => { setShowActionModal(false); navigation.navigate('QuestionDetail', { id: selectedQuestion?.id, openAnswerModal: true }); }}>
+              <Ionicons name="create-outline" size={22} color="#ef4444" />
+              <Text style={[styles.actionItemText, { color: '#ef4444' }]}>写回答</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionItem}>
               <Ionicons name="add-circle-outline" size={22} color="#1f2937" />
               <Text style={styles.actionItemText}>补充问题</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionItem}>
-              <Ionicons name="bookmark-outline" size={22} color="#1f2937" />
-              <Text style={styles.actionItemText}>收藏问题</Text>
+            <TouchableOpacity style={styles.actionItem} onPress={() => { setShowActionModal(false); navigation.navigate('Activity', { question: selectedQuestion }); }}>
+              <Ionicons name="calendar-outline" size={22} color="#22c55e" />
+              <Text style={styles.actionItemText}>发起活动</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.actionItem} onPress={() => openSocialModal('twitter')}>
               <FontAwesome5 name="twitter" size={20} color="#1DA1F2" />
@@ -506,6 +643,172 @@ export default function HomeScreen({ navigation }) {
         </View>
       </Modal>
 
+      {/* 切换城市弹窗 */}
+      <Modal visible={showCityModal} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={styles.cityModal}>
+            <View style={styles.modalHeader}>
+              <TouchableOpacity onPress={() => { if (citySelectStep > 0) setCitySelectStep(citySelectStep - 1); else closeCityModal(); }}>
+                <Ionicons name={citySelectStep > 0 ? "arrow-back" : "close"} size={24} color="#1f2937" />
+              </TouchableOpacity>
+              <Text style={styles.modalTitle}>{getCitySelectTitle()}</Text>
+              <TouchableOpacity onPress={closeCityModal}>
+                <Text style={styles.resetText}>取消</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.currentCityRow}>
+              <Ionicons name="navigate" size={16} color="#22c55e" />
+              <Text style={styles.currentCityLabel}>当前位置：</Text>
+              <Text style={styles.currentCityValue}>{localCity}</Text>
+            </View>
+            {/* 已选择的路径 */}
+            <View style={[styles.selectedPathRow, { display: citySelectStep > 0 ? 'flex' : 'none' }]}>
+              <Text style={styles.selectedPathLabel}>已选择：</Text>
+              <Text style={styles.selectedPathText}>
+                {selectedCityRegion.country}
+                {selectedCityRegion.state ? ` > ${selectedCityRegion.state}` : ''}
+              </Text>
+            </View>
+            <ScrollView style={styles.citySelectList}>
+              {getCitySelectOptions().map((option, idx) => (
+                <TouchableOpacity 
+                  key={idx} 
+                  style={styles.citySelectOption}
+                  onPress={() => selectCityRegion(option)}
+                >
+                  <Text style={styles.citySelectOptionText}>{option}</Text>
+                  <Ionicons name="chevron-forward" size={18} color="#9ca3af" />
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      {/* 附近距离选择弹窗 */}
+      <Modal visible={showNearbyModal} transparent animationType="fade">
+        <TouchableOpacity style={styles.nearbyModalOverlay} activeOpacity={1} onPress={() => setShowNearbyModal(false)}>
+          <View style={styles.nearbyModal}>
+            <Text style={styles.nearbyTitle}>选择距离范围</Text>
+            {['1公里', '2公里', '3公里', '5公里', '10公里'].map(distance => (
+              <TouchableOpacity 
+                key={distance} 
+                style={[styles.nearbyOption, nearbyDistance === distance && styles.nearbyOptionActive]}
+                onPress={() => { setNearbyDistance(distance); setShowNearbyModal(false); }}
+              >
+                <Text style={[styles.nearbyOptionText, nearbyDistance === distance && styles.nearbyOptionTextActive]}>{distance}</Text>
+                {nearbyDistance === distance && <Ionicons name="checkmark" size={18} color="#ef4444" />}
+              </TouchableOpacity>
+            ))}
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* 紧急求助弹窗 */}
+      <Modal visible={showEmergencyModal} animationType="slide">
+        <SafeAreaView style={styles.emergencyModal}>
+          <View style={styles.emergencyHeader}>
+            <TouchableOpacity onPress={() => setShowEmergencyModal(false)}>
+              <Ionicons name="close" size={26} color="#333" />
+            </TouchableOpacity>
+            <View style={styles.emergencyHeaderCenter}>
+              <Ionicons name="alert-circle" size={20} color="#ef4444" />
+              <Text style={styles.emergencyHeaderTitle}>紧急求助</Text>
+            </View>
+            <TouchableOpacity 
+              style={[styles.emergencySubmitBtn, !emergencyForm.title.trim() && styles.emergencySubmitBtnDisabled]}
+              onPress={() => {
+                if (!emergencyForm.title.trim()) {
+                  alert('请输入求助标题');
+                  return;
+                }
+                alert('紧急求助已发布，附近用户将收到通知！');
+                setShowEmergencyModal(false);
+                setEmergencyForm({ title: '', description: '', location: '', contact: '' });
+              }}
+              disabled={!emergencyForm.title.trim()}
+            >
+              <Text style={[styles.emergencySubmitText, !emergencyForm.title.trim() && styles.emergencySubmitTextDisabled]}>发布</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.emergencyWarning}>
+            <Ionicons name="warning" size={18} color="#f59e0b" />
+            <Text style={styles.emergencyWarningText}>紧急求助将通知附近用户，请确保情况紧急真实</Text>
+          </View>
+
+          <ScrollView style={styles.emergencyFormArea} keyboardShouldPersistTaps="handled">
+            <View style={styles.emergencyFormGroup}>
+              <Text style={styles.emergencyFormLabel}>求助标题 <Text style={{ color: '#ef4444' }}>*</Text></Text>
+              <TextInput
+                style={styles.emergencyFormInput}
+                placeholder="简要描述您遇到的紧急情况"
+                placeholderTextColor="#bbb"
+                value={emergencyForm.title}
+                onChangeText={(text) => setEmergencyForm({...emergencyForm, title: text})}
+              />
+            </View>
+
+            <View style={styles.emergencyFormGroup}>
+              <Text style={styles.emergencyFormLabel}>详细描述</Text>
+              <TextInput
+                style={[styles.emergencyFormInput, styles.emergencyFormTextarea]}
+                placeholder="请详细描述您的情况，以便他人更好地帮助您..."
+                placeholderTextColor="#bbb"
+                value={emergencyForm.description}
+                onChangeText={(text) => setEmergencyForm({...emergencyForm, description: text})}
+                multiline
+                textAlignVertical="top"
+              />
+            </View>
+
+            <View style={styles.emergencyFormGroup}>
+              <Text style={styles.emergencyFormLabel}>当前位置</Text>
+              <View style={styles.emergencyLocationRow}>
+                <View style={styles.emergencyLocationInput}>
+                  <Ionicons name="location" size={18} color="#ef4444" />
+                  <TextInput
+                    style={styles.emergencyLocationText}
+                    placeholder="输入或获取当前位置"
+                    placeholderTextColor="#bbb"
+                    value={emergencyForm.location || localCity}
+                    onChangeText={(text) => setEmergencyForm({...emergencyForm, location: text})}
+                  />
+                </View>
+                <TouchableOpacity style={styles.emergencyLocationBtn}>
+                  <Ionicons name="navigate" size={18} color="#3b82f6" />
+                  <Text style={styles.emergencyLocationBtnText}>定位</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <View style={styles.emergencyFormGroup}>
+              <Text style={styles.emergencyFormLabel}>联系方式</Text>
+              <View style={styles.emergencyContactInput}>
+                <Ionicons name="call" size={18} color="#6b7280" />
+                <TextInput
+                  style={styles.emergencyContactText}
+                  placeholder="请留下您的联系电话"
+                  placeholderTextColor="#bbb"
+                  value={emergencyForm.contact}
+                  onChangeText={(text) => setEmergencyForm({...emergencyForm, contact: text})}
+                  keyboardType="phone-pad"
+                />
+              </View>
+            </View>
+
+            <View style={styles.emergencyTips}>
+              <Text style={styles.emergencyTipsTitle}>温馨提示</Text>
+              <Text style={styles.emergencyTipsText}>• 紧急求助将推送给附近 {nearbyDistance} 内的用户</Text>
+              <Text style={styles.emergencyTipsText}>• 请确保描述真实准确，虚假求助将被处罚</Text>
+              <Text style={styles.emergencyTipsText}>• 如遇生命危险，请优先拨打急救电话</Text>
+            </View>
+
+            <View style={{ height: 40 }} />
+          </ScrollView>
+        </SafeAreaView>
+      </Modal>
+
       {/* 社交平台用户选择弹窗 */}
       <Modal visible={showSocialModal} transparent animationType="slide">
         <View style={styles.modalOverlay}>
@@ -584,37 +887,40 @@ const styles = StyleSheet.create({
   tabMenuBtn: { paddingHorizontal: 12, justifyContent: 'center', borderLeftWidth: 1, borderLeftColor: '#f3f4f6' },
   list: { flex: 1, paddingTop: 12, paddingHorizontal: 12 },
   questionCard: { backgroundColor: '#fff', borderRadius: 12, marginBottom: 12, overflow: 'hidden' },
-  cardHeader: { flexDirection: 'row', alignItems: 'center', padding: 12, paddingTop: 6, paddingBottom: 8 },
-  avatar: { width: 28, height: 28, borderRadius: 14 },
-  authorInfo: { flex: 1, marginLeft: 8 },
-  authorRow: { flexDirection: 'row', alignItems: 'center' },
-  authorName: { fontSize: 12, fontWeight: '500', color: '#6b7280' },
-  metaRow: { flexDirection: 'row', alignItems: 'center', marginTop: 1 },
-  postTime: { fontSize: 10, color: '#9ca3af', marginRight: 6 },
-  locationText: { fontSize: 10, color: '#9ca3af' },
+  cardHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, paddingTop: 4, paddingBottom: 8 },
+  cardHeaderLeft: { flexDirection: 'row', alignItems: 'center', flex: 1, flexWrap: 'wrap' },
+  cardHeaderRight: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  avatar: { width: 16, height: 16, borderRadius: 8 },
+  authorName: { fontSize: 10, fontWeight: '500', color: '#9ca3af', marginLeft: 4 },
+  metaSeparator: { fontSize: 8, color: '#d1d5db', marginHorizontal: 3 },
+  postTime: { fontSize: 9, color: '#9ca3af' },
+  locationText: { fontSize: 9, color: '#9ca3af', marginLeft: 1 },
+  headerActionBtn: { flexDirection: 'row', alignItems: 'center', gap: 2 },
+  headerActionText: { fontSize: 10, color: '#9ca3af' },
+  headerMoreBtn: { padding: 2 },
   moreBtn: { padding: 4 },
   questionTitle: { fontSize: 15, fontWeight: '500', color: '#1f2937', lineHeight: 22, paddingHorizontal: 12, paddingTop: 12, paddingBottom: 10 },
   singleImage: { height: 160, marginHorizontal: 12, marginBottom: 10, borderRadius: 8 },
   imageGrid: { flexDirection: 'row', paddingHorizontal: 12, paddingBottom: 10, gap: 6 },
   gridImage: { width: 100, height: 100, borderRadius: 8 },
   pkSection: { paddingHorizontal: 12, paddingBottom: 10 },
-  pkBar: { flexDirection: 'row', height: 8, borderRadius: 4, overflow: 'visible', backgroundColor: '#f3f4f6', position: 'relative' },
-  pkSolvedBar: { backgroundColor: '#ef4444', height: '100%', borderTopLeftRadius: 4, borderBottomLeftRadius: 4 },
-  pkUnsolvedBar: { backgroundColor: '#3b82f6', height: '100%', borderTopRightRadius: 4, borderBottomRightRadius: 4 },
-  pkPercentLabel: { position: 'absolute', top: -20, transform: [{ translateX: -15 }] },
-  pkPercentText: { fontSize: 11, color: '#1f2937', fontWeight: '600', backgroundColor: '#fff', paddingHorizontal: 4, borderRadius: 4 },
-  pkButtons: { flexDirection: 'row', justifyContent: 'flex-start', marginTop: 8, gap: 8 },
-  solvedBtn: { backgroundColor: '#fef2f2', paddingVertical: 4, paddingHorizontal: 12, borderRadius: 12, alignItems: 'center' },
-  solvedBtnText: { fontSize: 11, color: '#ef4444', fontWeight: '500' },
-  unsolvedBtn: { backgroundColor: '#eff6ff', paddingVertical: 4, paddingHorizontal: 12, borderRadius: 12, alignItems: 'center' },
-  unsolvedBtnText: { fontSize: 11, color: '#3b82f6', fontWeight: '500' },
+  pkRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  pkBarWrapper: { flex: 1, position: 'relative' },
+  pkBar: { flexDirection: 'row', height: 8, borderRadius: 4, overflow: 'hidden', backgroundColor: '#f3f4f6' },
+  pkSolvedBar: { backgroundColor: '#3b82f6', height: '100%' },
+  pkUnsolvedBar: { backgroundColor: '#ef4444', height: '100%' },
+  pkPercentLabel: { position: 'absolute', top: 10, transform: [{ translateX: -12 }] },
+  pkPercentText: { fontSize: 10, color: '#6b7280', fontWeight: '500' },
+  voteSolvedBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#eff6ff', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10, gap: 2 },
+  voteSolvedText: { fontSize: 10, color: '#3b82f6', fontWeight: '500' },
+  voteUnsolvedBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fef2f2', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10, gap: 2 },
+  voteUnsolvedText: { fontSize: 10, color: '#ef4444', fontWeight: '500' },
   cardFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, paddingVertical: 10, borderTopWidth: 1, borderTopColor: '#f9fafb' },
   leftActions: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   actionBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   actionText: { fontSize: 13, color: '#6b7280' },
   rightActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  joinGroupBtn: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 5, borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 14, gap: 4 },
-  joinGroupText: { fontSize: 12, color: '#6b7280' },
+  joinGroupIconBtn: { padding: 4 },
   answerBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#ef4444', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 14, gap: 4 },
   answerBtnText: { fontSize: 12, color: '#fff', fontWeight: '500' },
   // Modal styles
@@ -696,4 +1002,62 @@ const styles = StyleSheet.create({
   socialUserFollowers: { fontSize: 12, color: '#9ca3af', marginBottom: 6 },
   inviteBtn: { backgroundColor: '#ef4444', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 14 },
   inviteBtnText: { fontSize: 12, color: '#fff', fontWeight: '500' },
+  // 同城筛选条样式
+  localFilterBar: { backgroundColor: '#fff', marginBottom: 12, borderRadius: 12, paddingVertical: 16, paddingHorizontal: 8 },
+  localFilterRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around' },
+  localFilterItem: { alignItems: 'center', flex: 1 },
+  localFilterIcon: { width: 48, height: 48, borderRadius: 24, justifyContent: 'center', alignItems: 'center', marginBottom: 6 },
+  localFilterLabel: { fontSize: 12, color: '#4b5563' },
+  localFilterLabelActive: { color: '#ef4444', fontWeight: '500' },
+  // 切换城市弹窗样式
+  cityModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '70%' },
+  currentCityRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, backgroundColor: '#f0fdf4', marginHorizontal: 16, marginTop: 12, borderRadius: 8, gap: 6 },
+  currentCityLabel: { fontSize: 13, color: '#6b7280' },
+  currentCityValue: { fontSize: 14, color: '#22c55e', fontWeight: '500' },
+  selectedPathRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 8, backgroundColor: '#fef3c7', marginHorizontal: 16, marginTop: 8, borderRadius: 8 },
+  selectedPathLabel: { fontSize: 12, color: '#92400e' },
+  selectedPathText: { fontSize: 13, color: '#f59e0b', fontWeight: '500', marginLeft: 4 },
+  citySelectList: { padding: 8, maxHeight: 400 },
+  citySelectOption: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 14, paddingHorizontal: 16, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
+  citySelectOptionText: { fontSize: 15, color: '#1f2937' },
+  hotCityTitle: { fontSize: 14, fontWeight: '500', color: '#1f2937', marginHorizontal: 16, marginTop: 16, marginBottom: 12 },
+  cityGrid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 12, gap: 10 },
+  cityItem: { width: (screenWidth - 24 - 30) / 4, backgroundColor: '#f3f4f6', paddingVertical: 10, borderRadius: 8, alignItems: 'center' },
+  cityItemActive: { backgroundColor: '#fef2f2' },
+  cityItemText: { fontSize: 13, color: '#4b5563' },
+  cityItemTextActive: { color: '#ef4444', fontWeight: '500' },
+  // 附近距离弹窗样式
+  nearbyModalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
+  nearbyModal: { backgroundColor: '#fff', borderRadius: 12, width: screenWidth - 80, padding: 16 },
+  nearbyTitle: { fontSize: 16, fontWeight: '600', color: '#1f2937', textAlign: 'center', marginBottom: 16 },
+  nearbyOption: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 14, paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
+  nearbyOptionActive: { backgroundColor: '#fef2f2', borderRadius: 8 },
+  nearbyOptionText: { fontSize: 15, color: '#4b5563' },
+  nearbyOptionTextActive: { color: '#ef4444', fontWeight: '500' },
+  // 紧急求助弹窗样式
+  emergencyModal: { flex: 1, backgroundColor: '#fff' },
+  emergencyHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
+  emergencyHeaderCenter: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  emergencyHeaderTitle: { fontSize: 17, fontWeight: '600', color: '#ef4444' },
+  emergencySubmitBtn: { backgroundColor: '#ef4444', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 4 },
+  emergencySubmitBtnDisabled: { backgroundColor: '#fecaca' },
+  emergencySubmitText: { fontSize: 14, color: '#fff', fontWeight: '600' },
+  emergencySubmitTextDisabled: { color: '#fff' },
+  emergencyWarning: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fef3c7', paddingHorizontal: 16, paddingVertical: 10, gap: 8 },
+  emergencyWarningText: { fontSize: 12, color: '#92400e', flex: 1 },
+  emergencyFormArea: { flex: 1, padding: 16 },
+  emergencyFormGroup: { marginBottom: 16 },
+  emergencyFormLabel: { fontSize: 14, fontWeight: '500', color: '#374151', marginBottom: 8 },
+  emergencyFormInput: { backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 12, fontSize: 15, color: '#1f2937' },
+  emergencyFormTextarea: { minHeight: 100, textAlignVertical: 'top' },
+  emergencyLocationRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  emergencyLocationInput: { flex: 1, flexDirection: 'row', alignItems: 'center', backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 8, paddingHorizontal: 12, gap: 8 },
+  emergencyLocationText: { flex: 1, paddingVertical: 12, fontSize: 15, color: '#1f2937' },
+  emergencyLocationBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#eff6ff', paddingHorizontal: 12, paddingVertical: 12, borderRadius: 8, gap: 4 },
+  emergencyLocationBtnText: { fontSize: 13, color: '#3b82f6', fontWeight: '500' },
+  emergencyContactInput: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 8, paddingHorizontal: 12, gap: 8 },
+  emergencyContactText: { flex: 1, paddingVertical: 12, fontSize: 15, color: '#1f2937' },
+  emergencyTips: { backgroundColor: '#fef2f2', borderRadius: 8, padding: 12, marginTop: 8 },
+  emergencyTipsTitle: { fontSize: 13, fontWeight: '500', color: '#991b1b', marginBottom: 8 },
+  emergencyTipsText: { fontSize: 12, color: '#b91c1c', lineHeight: 20 },
 });

@@ -80,6 +80,31 @@ body {
   color: #6B7280;
 }
 
+.status-ended {
+  background: #F3F4F6;
+  color: #6B7280;
+}
+
+.status-processing {
+  background: #DBEAFE;
+  color: #2563EB;
+}
+
+.status-resolved {
+  background: #D1FAE5;
+  color: #059669;
+}
+
+.status-reported {
+  background: #FEE2E2;
+  color: #DC2626;
+}
+
+.status-deleted {
+  background: #F3F4F6;
+  color: #9CA3AF;
+}
+
 /* 按钮样式 */
 .btn {
   display: inline-flex;
