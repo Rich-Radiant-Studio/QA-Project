@@ -45,6 +45,7 @@ export default function AnswerDetailScreen({ navigation, route }) {
     shares: 45,
     bookmarks: 89,
     comments: 128,
+    views: 1234,
     time: '1小时前',
     adopted: true
   };
@@ -89,9 +90,15 @@ export default function AnswerDetailScreen({ navigation, route }) {
           <Ionicons name="arrow-back" size={24} color="#374151" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>回答详情</Text>
-        <TouchableOpacity style={styles.shareBtn}>
-          <Ionicons name="arrow-redo-outline" size={22} color="#6b7280" />
-        </TouchableOpacity>
+        <View style={styles.headerRight}>
+          <TouchableOpacity style={styles.shareBtn}>
+            <Ionicons name="arrow-redo-outline" size={22} color="#6b7280" />
+            <Text style={styles.shareBtnText}>{answer.shares}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.shareBtn}>
+            <Ionicons name="flag-outline" size={22} color="#ef4444" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -126,52 +133,12 @@ export default function AnswerDetailScreen({ navigation, route }) {
           <Text style={styles.answerContent}>{answer.content}</Text>
 
           <View style={styles.answerMeta}>
-            <Text style={styles.answerTime}>{answer.time}</Text>
-          </View>
-
-          {/* 回答互动按钮 */}
-          <View style={styles.answerActions}>
-            <TouchableOpacity 
-              style={styles.answerActionBtn}
-              onPress={() => setAnswerLiked(!answerLiked)}
-            >
-              <Ionicons 
-                name={answerLiked ? "thumbs-up" : "thumbs-up-outline"} 
-                size={20} 
-                color={answerLiked ? "#ef4444" : "#6b7280"} 
-              />
-              <Text style={[styles.answerActionText, answerLiked && { color: '#ef4444' }]}>
-                {answer.likes + (answerLiked ? 1 : 0)}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.answerActionBtn}>
-              <Ionicons name="chatbubble-outline" size={20} color="#6b7280" />
-              <Text style={styles.answerActionText}>{answer.comments}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.answerActionBtn}>
-              <Ionicons name="arrow-redo-outline" size={20} color="#6b7280" />
-              <Text style={styles.answerActionText}>{answer.shares}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.answerActionBtn}
-              onPress={() => setAnswerBookmarked(!answerBookmarked)}
-            >
-              <Ionicons 
-                name={answerBookmarked ? "bookmark" : "star-outline"} 
-                size={20} 
-                color={answerBookmarked ? "#f59e0b" : "#6b7280"} 
-              />
-              <Text style={[styles.answerActionText, answerBookmarked && { color: '#f59e0b' }]}>
-                {answer.bookmarks + (answerBookmarked ? 1 : 0)}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.answerActionBtn}>
-              <Ionicons name="thumbs-down-outline" size={20} color="#6b7280" />
-              <Text style={styles.answerActionText}>{answer.dislikes}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.answerActionBtn}>
-              <Ionicons name="flag-outline" size={20} color="#ef4444" />
-            </TouchableOpacity>
+            <View style={styles.answerMetaRow}>
+              <Ionicons name="eye-outline" size={14} color="#9ca3af" />
+              <Text style={styles.answerViews}>{answer.views || 0} 浏览</Text>
+              <Text style={styles.answerMetaSeparator}>·</Text>
+              <Text style={styles.answerTime}>{answer.time}</Text>
+            </View>
           </View>
         </View>
 
@@ -191,7 +158,7 @@ export default function AnswerDetailScreen({ navigation, route }) {
           </View>
 
           {/* 筛选条 */}
-          {activeTab === '全部评论 (128)' && (
+          {(activeTab === '补充回答 (2)' || activeTab === '全部评论 (128)') && (
             <View style={styles.sortFilterBar}>
               <View style={styles.sortFilterLeft}>
                 <TouchableOpacity 
@@ -209,7 +176,9 @@ export default function AnswerDetailScreen({ navigation, route }) {
                   <Text style={[styles.sortFilterText, sortFilter === '最新' && styles.sortFilterTextActive]}>最新</Text>
                 </TouchableOpacity>
               </View>
-              <Text style={styles.sortFilterCount}>共 {comments.length} 条评论</Text>
+              <Text style={styles.sortFilterCount}>
+                {activeTab === '补充回答 (2)' ? `共 ${supplementAnswers.length} 条补充回答` : `共 ${comments.length} 条评论`}
+              </Text>
             </View>
           )}
         </View>
@@ -233,22 +202,33 @@ export default function AnswerDetailScreen({ navigation, route }) {
                   </View>
                   <Text style={styles.supplementContent}>{supplement.content}</Text>
                   <View style={styles.supplementActions}>
-                    <TouchableOpacity style={styles.supplementActionBtn}>
-                      <Ionicons name="thumbs-up-outline" size={16} color="#6b7280" />
-                      <Text style={styles.supplementActionText}>{supplement.likes}</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.supplementActionBtn}>
-                      <Ionicons name="chatbubble-outline" size={16} color="#6b7280" />
-                      <Text style={styles.supplementActionText}>{supplement.comments}</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.supplementActionBtn}>
-                      <Ionicons name="arrow-redo-outline" size={16} color="#6b7280" />
-                      <Text style={styles.supplementActionText}>{supplement.shares}</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.supplementActionBtn}>
-                      <Ionicons name="star-outline" size={16} color="#6b7280" />
-                      <Text style={styles.supplementActionText}>{supplement.bookmarks}</Text>
-                    </TouchableOpacity>
+                    <View style={styles.supplementActionsLeft}>
+                      <TouchableOpacity style={styles.supplementActionBtn}>
+                        <Ionicons name="thumbs-up-outline" size={16} color="#6b7280" />
+                        <Text style={styles.supplementActionText}>{supplement.likes}</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.supplementActionBtn}>
+                        <Ionicons name="chatbubble-outline" size={16} color="#6b7280" />
+                        <Text style={styles.supplementActionText}>{supplement.comments}</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.supplementActionBtn}>
+                        <Ionicons name="arrow-redo-outline" size={16} color="#6b7280" />
+                        <Text style={styles.supplementActionText}>{supplement.shares}</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.supplementActionBtn}>
+                        <Ionicons name="bookmark-outline" size={16} color="#6b7280" />
+                        <Text style={styles.supplementActionText}>{supplement.bookmarks}</Text>
+                      </TouchableOpacity>
+                    </View>
+                    <View style={styles.supplementActionsRight}>
+                      <TouchableOpacity style={styles.supplementActionBtn}>
+                        <Ionicons name="thumbs-down-outline" size={16} color="#6b7280" />
+                        <Text style={styles.supplementActionText}>{supplement.dislikes}</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.supplementActionBtn}>
+                        <Ionicons name="flag-outline" size={16} color="#ef4444" />
+                      </TouchableOpacity>
+                    </View>
                   </View>
                 </View>
               ))}
@@ -266,56 +246,61 @@ export default function AnswerDetailScreen({ navigation, route }) {
                     </View>
                     <Text style={styles.commentText}>{comment.content}</Text>
                     <View style={styles.commentActions}>
-                      <TouchableOpacity 
-                        style={styles.commentActionBtn}
-                        onPress={() => setLiked({ ...liked, [comment.id]: !liked[comment.id] })}
-                      >
-                        <Ionicons 
-                          name={liked[comment.id] ? "thumbs-up" : "thumbs-up-outline"} 
-                          size={14} 
-                          color={liked[comment.id] ? "#ef4444" : "#9ca3af"} 
-                        />
-                        <Text style={[styles.commentActionText, liked[comment.id] && { color: '#ef4444' }]}>
-                          {comment.likes + (liked[comment.id] ? 1 : 0)}
-                        </Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity 
-                        style={styles.commentActionBtn}
-                        onPress={() => handleReply(comment)}
-                      >
-                        <Ionicons name="chatbubble-outline" size={14} color="#9ca3af" />
-                        <Text style={styles.commentActionText}>回复</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity style={styles.commentActionBtn}>
-                        <Ionicons name="arrow-redo-outline" size={14} color="#9ca3af" />
-                        <Text style={styles.commentActionText}>{comment.shares}</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity 
-                        style={styles.commentActionBtn}
-                        onPress={() => setBookmarked({ ...bookmarked, [comment.id]: !bookmarked[comment.id] })}
-                      >
-                        <Ionicons 
-                          name={bookmarked[comment.id] ? "bookmark" : "star-outline"} 
-                          size={14} 
-                          color={bookmarked[comment.id] ? "#f59e0b" : "#9ca3af"} 
-                        />
-                        <Text style={[styles.commentActionText, bookmarked[comment.id] && { color: '#f59e0b' }]}>
-                          {comment.bookmarks + (bookmarked[comment.id] ? 1 : 0)}
-                        </Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity 
-                        style={styles.commentActionBtn}
-                        onPress={() => setDisliked({ ...disliked, [comment.id]: !disliked[comment.id] })}
-                      >
-                        <Ionicons 
-                          name={disliked[comment.id] ? "thumbs-down" : "thumbs-down-outline"} 
-                          size={14} 
-                          color={disliked[comment.id] ? "#ef4444" : "#9ca3af"} 
-                        />
-                      </TouchableOpacity>
-                      <TouchableOpacity style={styles.commentActionBtn}>
-                        <Ionicons name="flag-outline" size={14} color="#ef4444" />
-                      </TouchableOpacity>
+                      <View style={styles.commentActionsLeft}>
+                        <TouchableOpacity 
+                          style={styles.commentActionBtn}
+                          onPress={() => setLiked({ ...liked, [comment.id]: !liked[comment.id] })}
+                        >
+                          <Ionicons 
+                            name={liked[comment.id] ? "thumbs-up" : "thumbs-up-outline"} 
+                            size={14} 
+                            color={liked[comment.id] ? "#ef4444" : "#9ca3af"} 
+                          />
+                          <Text style={[styles.commentActionText, liked[comment.id] && { color: '#ef4444' }]}>
+                            {comment.likes + (liked[comment.id] ? 1 : 0)}
+                          </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity 
+                          style={styles.commentActionBtn}
+                          onPress={() => handleReply(comment)}
+                        >
+                          <Ionicons name="chatbubble-outline" size={14} color="#9ca3af" />
+                          <Text style={styles.commentActionText}>回复</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.commentActionBtn}>
+                          <Ionicons name="arrow-redo-outline" size={14} color="#9ca3af" />
+                          <Text style={styles.commentActionText}>{comment.shares}</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity 
+                          style={styles.commentActionBtn}
+                          onPress={() => setBookmarked({ ...bookmarked, [comment.id]: !bookmarked[comment.id] })}
+                        >
+                          <Ionicons 
+                            name={bookmarked[comment.id] ? "bookmark" : "bookmark-outline"} 
+                            size={14} 
+                            color={bookmarked[comment.id] ? "#f59e0b" : "#9ca3af"} 
+                          />
+                          <Text style={[styles.commentActionText, bookmarked[comment.id] && { color: '#f59e0b' }]}>
+                            {comment.bookmarks + (bookmarked[comment.id] ? 1 : 0)}
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                      <View style={styles.commentActionsRight}>
+                        <TouchableOpacity 
+                          style={styles.commentActionBtn}
+                          onPress={() => setDisliked({ ...disliked, [comment.id]: !disliked[comment.id] })}
+                        >
+                          <Ionicons 
+                            name={disliked[comment.id] ? "thumbs-down" : "thumbs-down-outline"} 
+                            size={14} 
+                            color="#9ca3af" 
+                          />
+                          <Text style={styles.commentActionText}>{comment.dislikes + (disliked[comment.id] ? 1 : 0)}</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.commentActionBtn}>
+                          <Ionicons name="flag-outline" size={14} color="#ef4444" />
+                        </TouchableOpacity>
+                      </View>
                     </View>
                   </View>
                 </View>
@@ -325,22 +310,61 @@ export default function AnswerDetailScreen({ navigation, route }) {
         </View>
       </ScrollView>
 
-      {/* 底部输入栏 */}
+      {/* 底部栏 */}
       <View style={styles.bottomBar}>
-        <TextInput
-          style={styles.input}
-          placeholder="写下你的评论..."
-          placeholderTextColor="#9ca3af"
-          value={inputText}
-          onChangeText={setInputText}
-        />
-        <TouchableOpacity 
-          style={[styles.sendBtn, !inputText.trim() && styles.sendBtnDisabled]}
-          onPress={handleComment}
-          disabled={!inputText.trim()}
-        >
-          <Ionicons name="send" size={20} color="#fff" />
-        </TouchableOpacity>
+        <View style={styles.bottomBarLeft}>
+          <TouchableOpacity 
+            style={styles.bottomIconBtn}
+            onPress={() => setAnswerLiked(!answerLiked)}
+          >
+            <Ionicons 
+              name={answerLiked ? "thumbs-up" : "thumbs-up-outline"} 
+              size={20} 
+              color={answerLiked ? "#ef4444" : "#6b7280"} 
+            />
+            <Text style={[styles.bottomIconText, answerLiked && { color: '#ef4444' }]}>
+              {answer.likes + (answerLiked ? 1 : 0)}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.bottomIconBtn}
+            onPress={() => setAnswerBookmarked(!answerBookmarked)}
+          >
+            <Ionicons 
+              name={answerBookmarked ? "bookmark" : "bookmark-outline"} 
+              size={20} 
+              color={answerBookmarked ? "#f59e0b" : "#6b7280"} 
+            />
+            <Text style={[styles.bottomIconText, answerBookmarked && { color: '#f59e0b' }]}>
+              {(answer.bookmarks || 0) + (answerBookmarked ? 1 : 0)}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.bottomIconBtn}>
+            <Ionicons name="thumbs-down-outline" size={20} color="#6b7280" />
+            <Text style={styles.bottomIconText}>{answer.dislikes || 0}</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.bottomBarRight}>
+          <TouchableOpacity 
+            style={styles.bottomCommentInput}
+            onPress={() => {
+              // 可以打开评论输入弹窗或聚焦输入框
+            }}
+          >
+            <Text style={styles.bottomCommentPlaceholder}>写评论...</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.bottomSupplementBtn}
+            onPress={() => {
+              Alert.alert('补充回答', '打开补充回答编辑页面');
+              // 实际应该导航到补充回答编辑页面
+              // navigation.navigate('SupplementAnswer', { answerId: answer.id });
+            }}
+          >
+            <Ionicons name="add-circle-outline" size={16} color="#fff" />
+            <Text style={styles.bottomSupplementBtnText}>补充回答</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* 回复弹窗 */}
@@ -381,7 +405,9 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, backgroundColor: '#fff' },
   backBtn: { padding: 4 },
   headerTitle: { fontSize: 16, fontWeight: '600', color: '#1f2937' },
-  shareBtn: { padding: 4 },
+  headerRight: { flexDirection: 'row', alignItems: 'center', gap: 12, width: 80, justifyContent: 'flex-end' },
+  shareBtn: { padding: 4, flexDirection: 'row', alignItems: 'center', gap: 2 },
+  shareBtnText: { fontSize: 12, color: '#6b7280' },
   content: { flex: 1 },
   answerSection: { backgroundColor: '#fff', padding: 16, marginBottom: 8 },
   answerHeader: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 12 },
@@ -398,10 +424,10 @@ const styles = StyleSheet.create({
   adoptedText: { fontSize: 13, color: '#22c55e', fontWeight: '500' },
   answerContent: { fontSize: 15, color: '#374151', lineHeight: 24, marginBottom: 12 },
   answerMeta: { marginBottom: 12 },
+  answerMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  answerViews: { fontSize: 13, color: '#9ca3af' },
+  answerMetaSeparator: { fontSize: 13, color: '#d1d5db', marginHorizontal: 2 },
   answerTime: { fontSize: 13, color: '#9ca3af' },
-  answerActions: { flexDirection: 'row', alignItems: 'center', gap: 16, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#f3f4f6' },
-  answerActionBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  answerActionText: { fontSize: 14, color: '#6b7280' },
   tabsSection: { backgroundColor: '#fff', marginBottom: 8 },
   tabs: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
   tabItem: { flex: 1, paddingVertical: 12, position: 'relative', alignItems: 'center' },
@@ -424,7 +450,9 @@ const styles = StyleSheet.create({
   supplementMeta: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   supplementLocation: { fontSize: 12, color: '#9ca3af' },
   supplementContent: { fontSize: 14, color: '#374151', lineHeight: 22, marginBottom: 12 },
-  supplementActions: { flexDirection: 'row', alignItems: 'center', gap: 16 },
+  supplementActions: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  supplementActionsLeft: { flexDirection: 'row', alignItems: 'center', gap: 16, flex: 1 },
+  supplementActionsRight: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   supplementActionBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   supplementActionText: { fontSize: 13, color: '#6b7280' },
   commentCard: { flexDirection: 'row', padding: 16, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
@@ -434,13 +462,20 @@ const styles = StyleSheet.create({
   commentAuthor: { fontSize: 14, fontWeight: '500', color: '#1f2937' },
   commentTime: { fontSize: 12, color: '#9ca3af' },
   commentText: { fontSize: 14, color: '#374151', lineHeight: 20, marginBottom: 8 },
-  commentActions: { flexDirection: 'row', alignItems: 'center', gap: 16 },
+  commentActions: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 },
+  commentActionsLeft: { flexDirection: 'row', alignItems: 'center', gap: 16, flex: 1 },
+  commentActionsRight: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   commentActionBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   commentActionText: { fontSize: 12, color: '#9ca3af' },
-  bottomBar: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#f3f4f6', gap: 12 },
-  input: { flex: 1, backgroundColor: '#f9fafb', borderRadius: 20, paddingHorizontal: 16, paddingVertical: 10, fontSize: 14, color: '#1f2937' },
-  sendBtn: { backgroundColor: '#ef4444', width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
-  sendBtnDisabled: { backgroundColor: '#fca5a5' },
+  bottomBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, paddingVertical: 10, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#f3f4f6' },
+  bottomBarLeft: { flexDirection: 'row', alignItems: 'center', gap: 16 },
+  bottomBarRight: { flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1, marginLeft: 16 },
+  bottomIconBtn: { flexDirection: 'row', alignItems: 'center', gap: 3 },
+  bottomIconText: { fontSize: 12, color: '#6b7280' },
+  bottomCommentInput: { flex: 1, backgroundColor: '#f9fafb', borderRadius: 20, paddingHorizontal: 16, paddingVertical: 8, borderWidth: 1, borderColor: '#e5e7eb' },
+  bottomCommentPlaceholder: { fontSize: 13, color: '#9ca3af' },
+  bottomSupplementBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#ef4444', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, justifyContent: 'center' },
+  bottomSupplementBtnText: { fontSize: 13, color: '#fff', fontWeight: '600' },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
   replyModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 16, maxHeight: '60%' },
   replyModalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },

@@ -35,15 +35,41 @@ export default function HomeScreen({ navigation }) {
   const [selectedQuestion, setSelectedQuestion] = useState(null);
   const [regionStep, setRegionStep] = useState(0);
   const [selectedRegion, setSelectedRegion] = useState({ country: '', city: '', state: '', district: '' });
-  const [myChannels, setMyChannels] = useState(['关注', '推荐', '热榜', '同城', '国家', '行业', '个人', '职场', '教育']);
-  const [recommendChannels, setRecommendChannels] = useState(['科技', '财经', '娱乐', '体育', '健康', '美食', '旅游', '汽车', '房产', '游戏', '音乐', '电影', '读书', '历史', '军事', '育儿']);
-  const [isEditMode, setIsEditMode] = useState(false);
+  // 频道管理状态
+  const [myChannels, setMyChannels] = useState(['关注', '推荐', '热榜', '同城']);
+  const [channelTab, setChannelTab] = useState('my'); // my, country, industry, personal, combo
+  
+  // 频道数据
+  const channelCategories = {
+    country: {
+      name: '国家',
+      icon: 'business',
+      color: '#3b82f6',
+      subcategories: ['政策法规', '社会民生', '经济发展', '教育医疗', '环境保护', '基础设施']
+    },
+    industry: {
+      name: '行业',
+      icon: 'briefcase',
+      color: '#22c55e',
+      subcategories: ['互联网', '金融', '制造业', '医疗健康', '教育培训', '房地产', '餐饮服务', '交通运输']
+    },
+    personal: {
+      name: '个人',
+      icon: 'person',
+      color: '#8b5cf6',
+      subcategories: ['职业发展', '情感生活', '健康养生', '理财投资', '学习成长', '家庭关系']
+    }
+  };
+  
+  // 组合频道配置
   const [showComboCreator, setShowComboCreator] = useState(false);
+  const [comboStep, setComboStep] = useState(0); // 0:选择地区 1:选择类别
   const [comboConfig, setComboConfig] = useState({
-    region: { country: '', city: '', state: '', district: '' },
-    questionType: '', // 国家问题、行业问题、个人问题
+    region: { country: '', city: '', state: '' },
+    categoryType: '', // country/industry/personal
     category: ''
   });
+  const [comboRegionStep, setComboRegionStep] = useState(0); // 0:国家 1:省份 2:城市
   // 同城筛选状态
   const [localCity, setLocalCity] = useState('北京');
   const [localFilter, setLocalFilter] = useState('最新');
@@ -101,6 +127,74 @@ export default function HomeScreen({ navigation }) {
     }
   };
 
+  // 频道管理函数
+  const addToMyChannels = (channel) => {
+    if (!myChannels.includes(channel)) {
+      setMyChannels([...myChannels, channel]);
+    }
+  };
+
+  const removeFromMyChannels = (channel) => {
+    // 保留固定频道
+    const fixedChannels = ['关注', '推荐', '热榜', '同城'];
+    if (!fixedChannels.includes(channel)) {
+      setMyChannels(myChannels.filter(c => c !== channel));
+    }
+  };
+
+  // 组合频道创建
+  const getComboRegionOptions = () => {
+    if (comboRegionStep === 0) return cityRegionData.countries;
+    if (comboRegionStep === 1) return cityRegionData.states[comboConfig.region.country] || [];
+    if (comboRegionStep === 2) return cityRegionData.cities[comboConfig.region.state] || [];
+    return [];
+  };
+
+  const selectComboRegion = (value) => {
+    if (comboRegionStep === 0) {
+      setComboConfig({ ...comboConfig, region: { country: value, state: '', city: '' } });
+      setComboRegionStep(1);
+    } else if (comboRegionStep === 1) {
+      setComboConfig({ ...comboConfig, region: { ...comboConfig.region, state: value, city: '' } });
+      setComboRegionStep(2);
+    } else {
+      setComboConfig({ ...comboConfig, region: { ...comboConfig.region, city: value } });
+      setComboStep(1);
+      setComboRegionStep(0);
+    }
+  };
+
+  const createComboChannel = () => {
+    const { region, categoryType, category } = comboConfig;
+    const parts = [];
+    
+    if (region.country) parts.push(region.country);
+    if (region.state) parts.push(region.state);
+    if (region.city) parts.push(region.city);
+    
+    if (categoryType) {
+      parts.push(channelCategories[categoryType].name);
+    }
+    if (category) {
+      parts.push(category);
+    }
+    
+    if (parts.length > 0) {
+      const channelName = parts.join('·');
+      addToMyChannels(channelName);
+      setComboConfig({ region: { country: '', city: '', state: '' }, categoryType: '', category: '' });
+      setShowComboCreator(false);
+      setComboStep(0);
+    }
+  };
+
+  const getComboRegionDisplay = () => {
+    const { country, state, city } = comboConfig.region;
+    const parts = [country, state, city].filter(Boolean);
+    return parts.length > 0 ? parts.join(' · ') : '选择地区';
+  };
+
+  // 同城功能
   const getCitySelectOptions = () => {
     if (citySelectStep === 0) return cityRegionData.countries;
     if (citySelectStep === 1) return cityRegionData.states[selectedCityRegion.country] || [];
@@ -217,30 +311,6 @@ export default function HomeScreen({ navigation }) {
     setMyChannels([...myChannels, channel]);
   };
 
-  const createComboChannel = () => {
-    const { region, questionType, category } = comboConfig;
-    const parts = [];
-    if (region.country) parts.push(region.country);
-    if (region.city) parts.push(region.city);
-    if (questionType) parts.push(questionType);
-    if (category) parts.push(category);
-    
-    if (parts.length > 0) {
-      const channelName = parts.join('·');
-      if (!myChannels.includes(channelName)) {
-        setMyChannels([...myChannels, channelName]);
-      }
-      setComboConfig({ region: { country: '', city: '', state: '', district: '' }, questionType: '', category: '' });
-      setShowComboCreator(false);
-    }
-  };
-
-  const getComboRegionDisplay = () => {
-    const { country, city, state, district } = comboConfig.region;
-    const parts = [country, city, state, district].filter(Boolean);
-    return parts.length > 0 ? parts.join(' · ') : '选择地区';
-  };
-
   return (
     <SafeAreaView style={styles.container}>
       {/* 顶部搜索栏 */}
@@ -354,7 +424,20 @@ export default function HomeScreen({ navigation }) {
           return (
             <TouchableOpacity key={item.id} style={styles.questionCard} onPress={() => navigation.navigate('QuestionDetail', { id: item.id })}>
               {/* 问题标题 */}
-              <Text style={styles.questionTitle}>{item.title}</Text>
+              <Text style={styles.questionTitle}>
+                {item.type === 'reward' && item.reward && (
+                  <View style={styles.rewardTagInline}>
+                    <Text style={styles.rewardTagText}>${item.reward}</Text>
+                  </View>
+                )}
+                {item.type === 'targeted' && (
+                  <View style={styles.targetedTagInline}>
+                    <Text style={styles.targetedTagText}>定向</Text>
+                  </View>
+                )}
+                {(item.type === 'reward' || item.type === 'targeted') && ' '}
+                {item.title}
+              </Text>
 
               {/* 图片 */}
               {item.image && <Image source={{ uri: item.image }} style={styles.singleImage} />}
@@ -363,29 +446,6 @@ export default function HomeScreen({ navigation }) {
                   {item.images.map((img, idx) => <Image key={idx} source={{ uri: img }} style={styles.gridImage} />)}
                 </View>
               )}
-
-              {/* PK进度条 - 已解决/未解决按钮在左右两侧 */}
-              <View style={styles.pkSection}>
-                <View style={styles.pkRow}>
-                  <TouchableOpacity style={styles.voteSolvedBtn}>
-                    <Ionicons name="checkmark-circle" size={14} color="#3b82f6" />
-                    <Text style={styles.voteSolvedText}>已解决</Text>
-                  </TouchableOpacity>
-                  <View style={styles.pkBarWrapper}>
-                    <View style={styles.pkBar}>
-                      <View style={[styles.pkSolvedBar, { width: `${item.solvedPercent}%` }]} />
-                      <View style={[styles.pkUnsolvedBar, { width: `${100 - item.solvedPercent}%` }]} />
-                    </View>
-                    <View style={[styles.pkPercentLabel, { left: `${item.solvedPercent}%` }]}>
-                      <Text style={styles.pkPercentText}>{item.solvedPercent}%</Text>
-                    </View>
-                  </View>
-                  <TouchableOpacity style={styles.voteUnsolvedBtn}>
-                    <Ionicons name="close-circle" size={14} color="#ef4444" />
-                    <Text style={styles.voteUnsolvedText}>未解决</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
 
               {/* 头像、姓名、时间、地区 - 全部放在一行,右侧放点赞和评论 */}
               <View style={styles.cardHeader}>
@@ -500,31 +560,294 @@ export default function HomeScreen({ navigation }) {
         </TouchableOpacity>
       </Modal>
 
-      {/* 我的频道弹窗 - 简化版本 */}
+      {/* 我的频道弹窗 - 完整版本 */}
       <Modal visible={showChannelModal} transparent animationType="slide">
         <View style={styles.channelModalOverlay}>
           <View style={styles.channelModal}>
             <View style={styles.channelHeader}>
-              <Text style={styles.channelTitle}>我的频道</Text>
+              <Text style={styles.channelTitle}>频道管理</Text>
               <TouchableOpacity style={styles.closeBtn} onPress={() => setShowChannelModal(false)}>
                 <Ionicons name="close" size={24} color="#6b7280" />
               </TouchableOpacity>
             </View>
+
+            {/* 频道分类标签 */}
+            <View style={styles.channelTabs}>
+              <TouchableOpacity 
+                style={[styles.channelTabItem, channelTab === 'my' && styles.channelTabItemActive]}
+                onPress={() => setChannelTab('my')}
+              >
+                <Text style={[styles.channelTabText, channelTab === 'my' && styles.channelTabTextActive]}>我的频道</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.channelTabItem, channelTab === 'country' && styles.channelTabItemActive]}
+                onPress={() => setChannelTab('country')}
+              >
+                <Text style={[styles.channelTabText, channelTab === 'country' && styles.channelTabTextActive]}>国家</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.channelTabItem, channelTab === 'industry' && styles.channelTabItemActive]}
+                onPress={() => setChannelTab('industry')}
+              >
+                <Text style={[styles.channelTabText, channelTab === 'industry' && styles.channelTabTextActive]}>行业</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.channelTabItem, channelTab === 'personal' && styles.channelTabItemActive]}
+                onPress={() => setChannelTab('personal')}
+              >
+                <Text style={[styles.channelTabText, channelTab === 'personal' && styles.channelTabTextActive]}>个人</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.channelTabItem, channelTab === 'combo' && styles.channelTabItemActive]}
+                onPress={() => setChannelTab('combo')}
+              >
+                <Text style={[styles.channelTabText, channelTab === 'combo' && styles.channelTabTextActive]}>组合</Text>
+              </TouchableOpacity>
+            </View>
+
             <ScrollView style={styles.channelScrollView}>
-              <View style={styles.channelGrid}>
-                {myChannels.map((channel, idx) => (
+              {/* 我的频道 */}
+              {channelTab === 'my' && (
+                <View style={styles.channelSection}>
+                  <Text style={styles.channelSectionTitle}>已添加的频道</Text>
+                  <View style={styles.channelGrid}>
+                    {myChannels.map((channel) => {
+                      const isFixed = ['关注', '推荐', '热榜', '同城'].includes(channel);
+                      return (
+                        <View key={channel} style={styles.myChannelItem}>
+                          <TouchableOpacity 
+                            style={styles.channelTag}
+                            onPress={() => {
+                              setActiveTab(channel);
+                              setShowChannelModal(false);
+                            }}
+                          >
+                            <Text style={styles.channelTagText}>{channel}</Text>
+                          </TouchableOpacity>
+                          {!isFixed && (
+                            <TouchableOpacity 
+                              style={styles.removeChannelBtn}
+                              onPress={() => removeFromMyChannels(channel)}
+                            >
+                              <Ionicons name="close-circle" size={16} color="#ef4444" />
+                            </TouchableOpacity>
+                          )}
+                        </View>
+                      );
+                    })}
+                  </View>
+                </View>
+              )}
+
+              {/* 国家频道 */}
+              {channelTab === 'country' && (
+                <View style={styles.channelSection}>
                   <TouchableOpacity 
-                    key={channel} 
-                    style={styles.channelTag}
-                    onPress={() => {
-                      setActiveTab(channel);
-                      setShowChannelModal(false);
-                    }}
+                    style={styles.categoryMainBtn}
+                    onPress={() => addToMyChannels('国家')}
                   >
-                    <Text style={styles.channelTagText}>{channel}</Text>
+                    <View style={[styles.categoryIcon, { backgroundColor: channelCategories.country.color + '20' }]}>
+                      <Ionicons name={channelCategories.country.icon} size={24} color={channelCategories.country.color} />
+                    </View>
+                    <Text style={styles.categoryMainText}>国家问题</Text>
+                    <Ionicons name="add-circle" size={20} color={channelCategories.country.color} />
                   </TouchableOpacity>
-                ))}
-              </View>
+                  
+                  <Text style={styles.channelSectionTitle}>二级类别</Text>
+                  <View style={styles.channelGrid}>
+                    {channelCategories.country.subcategories.map((sub) => (
+                      <TouchableOpacity 
+                        key={sub}
+                        style={[styles.channelTag, myChannels.includes(sub) && styles.channelTagAdded]}
+                        onPress={() => addToMyChannels(sub)}
+                      >
+                        <Text style={[styles.channelTagText, myChannels.includes(sub) && styles.channelTagTextAdded]}>{sub}</Text>
+                        {myChannels.includes(sub) && <Ionicons name="checkmark-circle" size={14} color="#22c55e" style={{ marginLeft: 4 }} />}
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              )}
+
+              {/* 行业频道 */}
+              {channelTab === 'industry' && (
+                <View style={styles.channelSection}>
+                  <TouchableOpacity 
+                    style={styles.categoryMainBtn}
+                    onPress={() => addToMyChannels('行业')}
+                  >
+                    <View style={[styles.categoryIcon, { backgroundColor: channelCategories.industry.color + '20' }]}>
+                      <Ionicons name={channelCategories.industry.icon} size={24} color={channelCategories.industry.color} />
+                    </View>
+                    <Text style={styles.categoryMainText}>行业问题</Text>
+                    <Ionicons name="add-circle" size={20} color={channelCategories.industry.color} />
+                  </TouchableOpacity>
+                  
+                  <Text style={styles.channelSectionTitle}>二级类别</Text>
+                  <View style={styles.channelGrid}>
+                    {channelCategories.industry.subcategories.map((sub) => (
+                      <TouchableOpacity 
+                        key={sub}
+                        style={[styles.channelTag, myChannels.includes(sub) && styles.channelTagAdded]}
+                        onPress={() => addToMyChannels(sub)}
+                      >
+                        <Text style={[styles.channelTagText, myChannels.includes(sub) && styles.channelTagTextAdded]}>{sub}</Text>
+                        {myChannels.includes(sub) && <Ionicons name="checkmark-circle" size={14} color="#22c55e" style={{ marginLeft: 4 }} />}
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              )}
+
+              {/* 个人频道 */}
+              {channelTab === 'personal' && (
+                <View style={styles.channelSection}>
+                  <TouchableOpacity 
+                    style={styles.categoryMainBtn}
+                    onPress={() => addToMyChannels('个人')}
+                  >
+                    <View style={[styles.categoryIcon, { backgroundColor: channelCategories.personal.color + '20' }]}>
+                      <Ionicons name={channelCategories.personal.icon} size={24} color={channelCategories.personal.color} />
+                    </View>
+                    <Text style={styles.categoryMainText}>个人问题</Text>
+                    <Ionicons name="add-circle" size={20} color={channelCategories.personal.color} />
+                  </TouchableOpacity>
+                  
+                  <Text style={styles.channelSectionTitle}>二级类别</Text>
+                  <View style={styles.channelGrid}>
+                    {channelCategories.personal.subcategories.map((sub) => (
+                      <TouchableOpacity 
+                        key={sub}
+                        style={[styles.channelTag, myChannels.includes(sub) && styles.channelTagAdded]}
+                        onPress={() => addToMyChannels(sub)}
+                      >
+                        <Text style={[styles.channelTagText, myChannels.includes(sub) && styles.channelTagTextAdded]}>{sub}</Text>
+                        {myChannels.includes(sub) && <Ionicons name="checkmark-circle" size={14} color="#22c55e" style={{ marginLeft: 4 }} />}
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              )}
+
+              {/* 组合频道 */}
+              {channelTab === 'combo' && (
+                <View style={styles.channelSection}>
+                  <Text style={styles.channelSectionDesc}>创建自定义组合频道，结合地区和类别筛选</Text>
+                  <TouchableOpacity 
+                    style={styles.createComboBtn}
+                    onPress={() => setShowComboCreator(true)}
+                  >
+                    <Ionicons name="add-circle" size={24} color="#ef4444" />
+                    <Text style={styles.createComboBtnText}>创建组合频道</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      {/* 组合频道创建弹窗 */}
+      <Modal visible={showComboCreator} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={styles.comboCreatorModal}>
+            <View style={styles.modalHeader}>
+              <TouchableOpacity onPress={() => {
+                if (comboStep === 1) {
+                  setComboStep(0);
+                } else if (comboRegionStep > 0) {
+                  setComboRegionStep(comboRegionStep - 1);
+                } else {
+                  setShowComboCreator(false);
+                  setComboStep(0);
+                  setComboRegionStep(0);
+                }
+              }}>
+                <Ionicons name="arrow-back" size={24} color="#1f2937" />
+              </TouchableOpacity>
+              <Text style={styles.modalTitle}>
+                {comboStep === 0 ? (comboRegionStep === 0 ? '选择国家' : comboRegionStep === 1 ? '选择省份' : '选择城市') : '选择类别'}
+              </Text>
+              <TouchableOpacity onPress={() => {
+                setShowComboCreator(false);
+                setComboStep(0);
+                setComboRegionStep(0);
+                setComboConfig({ region: { country: '', city: '', state: '' }, categoryType: '', category: '' });
+              }}>
+                <Text style={styles.resetText}>重置</Text>
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={styles.comboCreatorContent}>
+              {/* 步骤1: 选择地区 */}
+              {comboStep === 0 && (
+                <View>
+                  {getComboRegionOptions().map((option) => (
+                    <TouchableOpacity 
+                      key={option}
+                      style={styles.regionOption}
+                      onPress={() => selectComboRegion(option)}
+                    >
+                      <Text style={styles.regionOptionText}>{option}</Text>
+                      <Ionicons name="chevron-forward" size={18} color="#9ca3af" />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+
+              {/* 步骤2: 选择类别 */}
+              {comboStep === 1 && (
+                <View>
+                  <View style={styles.comboSummary}>
+                    <Text style={styles.comboSummaryLabel}>已选地区：</Text>
+                    <Text style={styles.comboSummaryValue}>{getComboRegionDisplay()}</Text>
+                  </View>
+
+                  <Text style={styles.channelSectionTitle}>选择问题类型</Text>
+                  {Object.keys(channelCategories).map((key) => {
+                    const cat = channelCategories[key];
+                    return (
+                      <TouchableOpacity 
+                        key={key}
+                        style={[styles.categorySelectItem, comboConfig.categoryType === key && styles.categorySelectItemActive]}
+                        onPress={() => setComboConfig({ ...comboConfig, categoryType: key, category: '' })}
+                      >
+                        <View style={[styles.categoryIcon, { backgroundColor: cat.color + '20' }]}>
+                          <Ionicons name={cat.icon} size={20} color={cat.color} />
+                        </View>
+                        <Text style={styles.categorySelectText}>{cat.name}问题</Text>
+                        {comboConfig.categoryType === key && <Ionicons name="checkmark-circle" size={20} color={cat.color} />}
+                      </TouchableOpacity>
+                    );
+                  })}
+
+                  {comboConfig.categoryType && (
+                    <>
+                      <Text style={styles.channelSectionTitle}>选择二级类别（可选）</Text>
+                      <View style={styles.channelGrid}>
+                        {channelCategories[comboConfig.categoryType].subcategories.map((sub) => (
+                          <TouchableOpacity 
+                            key={sub}
+                            style={[styles.channelTag, comboConfig.category === sub && styles.channelTagAdded]}
+                            onPress={() => setComboConfig({ ...comboConfig, category: sub })}
+                          >
+                            <Text style={[styles.channelTagText, comboConfig.category === sub && styles.channelTagTextAdded]}>{sub}</Text>
+                            {comboConfig.category === sub && <Ionicons name="checkmark-circle" size={14} color="#22c55e" style={{ marginLeft: 4 }} />}
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    </>
+                  )}
+
+                  <TouchableOpacity 
+                    style={[styles.comboCreateBtn, !comboConfig.categoryType && styles.comboCreateBtnDisabled]}
+                    onPress={createComboChannel}
+                    disabled={!comboConfig.categoryType}
+                  >
+                    <Text style={styles.comboCreateBtnText}>创建频道</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
             </ScrollView>
           </View>
         </View>
@@ -622,22 +945,14 @@ const styles = StyleSheet.create({
   headerActionBtn: { flexDirection: 'row', alignItems: 'center', gap: 2 },
   headerActionText: { fontSize: 10, color: '#9ca3af' },
   headerMoreBtn: { padding: 2 },
+  rewardTagInline: { backgroundColor: '#ef4444', paddingHorizontal: 5, paddingVertical: 2, borderRadius: 4 },
+  rewardTagText: { fontSize: 10, color: '#fff', fontWeight: '600' },
+  targetedTagInline: { backgroundColor: '#f5f3ff', paddingHorizontal: 5, paddingVertical: 2, borderRadius: 4 },
+  targetedTagText: { fontSize: 10, color: '#8b5cf6', fontWeight: '600' },
   questionTitle: { fontSize: 15, fontWeight: '500', color: '#1f2937', lineHeight: 22, paddingHorizontal: 12, paddingTop: 12, paddingBottom: 10 },
   singleImage: { height: 160, marginHorizontal: 12, marginBottom: 10, borderRadius: 8 },
   imageGrid: { flexDirection: 'row', paddingHorizontal: 12, paddingBottom: 10, gap: 6 },
   gridImage: { width: 100, height: 100, borderRadius: 8 },
-  pkSection: { paddingHorizontal: 12, paddingBottom: 10 },
-  pkRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  pkBarWrapper: { flex: 1, position: 'relative' },
-  pkBar: { flexDirection: 'row', height: 8, borderRadius: 4, overflow: 'hidden', backgroundColor: '#f3f4f6' },
-  pkSolvedBar: { backgroundColor: '#3b82f6', height: '100%' },
-  pkUnsolvedBar: { backgroundColor: '#ef4444', height: '100%' },
-  pkPercentLabel: { position: 'absolute', top: 10, transform: [{ translateX: -12 }] },
-  pkPercentText: { fontSize: 10, color: '#6b7280', fontWeight: '500' },
-  voteSolvedBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#eff6ff', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10, gap: 2 },
-  voteSolvedText: { fontSize: 10, color: '#3b82f6', fontWeight: '500' },
-  voteUnsolvedBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fef2f2', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10, gap: 2 },
-  voteUnsolvedText: { fontSize: 10, color: '#ef4444', fontWeight: '500' },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
   regionModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '70%' },
   modalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
@@ -659,9 +974,37 @@ const styles = StyleSheet.create({
   channelScrollView: { flex: 1, padding: 16 },
   channelTitle: { fontSize: 18, fontWeight: '600', color: '#1f2937' },
   closeBtn: { padding: 4 },
+  channelTabs: { flexDirection: 'row', backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f3f4f6', paddingHorizontal: 8 },
+  channelTabItem: { flex: 1, paddingVertical: 12, alignItems: 'center', borderBottomWidth: 2, borderBottomColor: 'transparent' },
+  channelTabItemActive: { borderBottomColor: '#ef4444' },
+  channelTabText: { fontSize: 14, color: '#6b7280' },
+  channelTabTextActive: { color: '#ef4444', fontWeight: '600' },
+  channelSection: { marginBottom: 20 },
+  channelSectionTitle: { fontSize: 13, fontWeight: '600', color: '#6b7280', marginBottom: 12, marginTop: 8 },
+  channelSectionDesc: { fontSize: 13, color: '#9ca3af', marginBottom: 16, lineHeight: 18 },
   channelGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 20 },
-  channelTag: { backgroundColor: '#f3f4f6', paddingVertical: 8, paddingHorizontal: 16, borderRadius: 6 },
+  myChannelItem: { position: 'relative' },
+  channelTag: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f3f4f6', paddingVertical: 8, paddingHorizontal: 16, borderRadius: 6 },
+  channelTagAdded: { backgroundColor: '#dcfce7', borderWidth: 1, borderColor: '#22c55e' },
   channelTagText: { fontSize: 14, color: '#1f2937' },
+  channelTagTextAdded: { color: '#16a34a', fontWeight: '500' },
+  removeChannelBtn: { position: 'absolute', top: -6, right: -6, backgroundColor: '#fff', borderRadius: 10 },
+  categoryMainBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f9fafb', padding: 14, borderRadius: 12, marginBottom: 16, borderWidth: 1, borderColor: '#e5e7eb' },
+  categoryIcon: { width: 40, height: 40, borderRadius: 10, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
+  categoryMainText: { flex: 1, fontSize: 15, fontWeight: '500', color: '#1f2937' },
+  createComboBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fef2f2', padding: 16, borderRadius: 12, borderWidth: 2, borderStyle: 'dashed', borderColor: '#fecaca' },
+  createComboBtnText: { fontSize: 15, fontWeight: '500', color: '#ef4444', marginLeft: 8 },
+  comboCreatorModal: { flex: 1, backgroundColor: '#fff', marginTop: 100, borderTopLeftRadius: 20, borderTopRightRadius: 20 },
+  comboCreatorContent: { flex: 1, padding: 16 },
+  comboSummary: { backgroundColor: '#f9fafb', padding: 12, borderRadius: 8, marginBottom: 16 },
+  comboSummaryLabel: { fontSize: 12, color: '#6b7280', marginBottom: 4 },
+  comboSummaryValue: { fontSize: 14, fontWeight: '500', color: '#1f2937' },
+  categorySelectItem: { flexDirection: 'row', alignItems: 'center', padding: 12, backgroundColor: '#f9fafb', borderRadius: 10, marginBottom: 8, borderWidth: 1, borderColor: '#e5e7eb' },
+  categorySelectItemActive: { backgroundColor: '#fef2f2', borderColor: '#fecaca' },
+  categorySelectText: { flex: 1, fontSize: 14, color: '#1f2937', marginLeft: 12 },
+  comboCreateBtn: { backgroundColor: '#ef4444', paddingVertical: 14, borderRadius: 12, alignItems: 'center', marginTop: 24 },
+  comboCreateBtnDisabled: { backgroundColor: '#fca5a5' },
+  comboCreateBtnText: { fontSize: 15, fontWeight: '600', color: '#fff' },
   socialModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '80%', paddingBottom: 30 },
   socialHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
   socialTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },

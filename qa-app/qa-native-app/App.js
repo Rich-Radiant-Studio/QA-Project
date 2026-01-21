@@ -16,8 +16,10 @@ import FollowScreen from './src/screens/FollowScreen';
 import HotListScreen from './src/screens/HotListScreen';
 import GroupChatScreen from './src/screens/GroupChatScreen';
 import AnswerDetailScreen from './src/screens/AnswerDetailScreen';
+import SupplementDetailScreen from './src/screens/SupplementDetailScreen';
 import ActivityScreen from './src/screens/ActivityScreen';
 import LoginScreen from './src/screens/LoginScreen';
+import QuestionActivityListScreen from './src/screens/QuestionActivityListScreen';
 import { AccountSecurityScreen, PrivacySettingsScreen, HelpFeedbackScreen, AboutScreen, EditProfileScreen, FansScreen, MyGroupsScreen } from './src/screens/SettingsScreen';
 
 const Stack = createNativeStackNavigator();
@@ -29,6 +31,13 @@ function EmergencyModal({ visible, onClose, onSubmit }) {
   const freeCount = 3; // 每日免费次数
   const usedCount = 0; // 已使用次数
   const remainingFree = freeCount - usedCount;
+
+  // 常用求助标题
+  const quickTitles = [
+    '人身安全求助',
+    '紧急医疗救助',
+    '财物丢失求助'
+  ];
 
   const handleSubmit = () => {
     if (!emergencyForm.title.trim()) {
@@ -89,6 +98,21 @@ function EmergencyModal({ visible, onClose, onSubmit }) {
               value={emergencyForm.title}
               onChangeText={(text) => setEmergencyForm({...emergencyForm, title: text})}
             />
+            {/* 常用标题快捷选择 */}
+            <View style={modalStyles.quickTitlesContainer}>
+              <Text style={modalStyles.quickTitlesLabel}>常用标题：</Text>
+              <View style={modalStyles.quickTitlesRow}>
+                {quickTitles.map((title, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={modalStyles.quickTitleTag}
+                    onPress={() => setEmergencyForm({...emergencyForm, title: title})}
+                  >
+                    <Text style={modalStyles.quickTitleText}>{title}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
           </View>
 
           <View style={modalStyles.emergencyFormGroup}>
@@ -174,6 +198,11 @@ const modalStyles = StyleSheet.create({
   emergencyFormGroup: { marginBottom: 16 },
   emergencyFormLabel: { fontSize: 14, fontWeight: '500', color: '#374151', marginBottom: 8 },
   emergencyFormInput: { backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 12, fontSize: 15, color: '#1f2937' },
+  quickTitlesContainer: { marginTop: 12 },
+  quickTitlesLabel: { fontSize: 12, color: '#6b7280', marginBottom: 8 },
+  quickTitlesRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  quickTitleTag: { backgroundColor: '#fef2f2', borderWidth: 1, borderColor: '#fecaca', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16 },
+  quickTitleText: { fontSize: 12, color: '#ef4444', fontWeight: '500' },
   emergencyFormTextarea: { minHeight: 100, textAlignVertical: 'top' },
   emergencyLocationRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   emergencyLocationInput: { flex: 1, flexDirection: 'row', alignItems: 'center', backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 8, paddingHorizontal: 12, gap: 8 },
@@ -265,6 +294,8 @@ export default function App() {
         </Stack.Screen>
         <Stack.Screen name="Search" component={SearchScreen} />
         <Stack.Screen name="QuestionDetail" component={QuestionDetailScreen} />
+        <Stack.Screen name="SupplementDetail" component={SupplementDetailScreen} />
+        <Stack.Screen name="QuestionActivityList" component={QuestionActivityListScreen} />
         <Stack.Screen name="Follow" component={FollowScreen} />
         <Stack.Screen name="HotList" component={HotListScreen} />
         <Stack.Screen name="Messages" component={MessagesScreen} />

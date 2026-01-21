@@ -94,6 +94,8 @@ export default function QuestionDetailScreen({ navigation, route }) {
   const [showTeamModal, setShowTeamModal] = useState(false);
   const [isTeamMember, setIsTeamMember] = useState(false); // 是否已加入团队
   const [teamChatMessage, setTeamChatMessage] = useState('');
+  const [showProgressBar, setShowProgressBar] = useState(false); // 是否显示进度条
+  const [solvedPercentage, setSolvedPercentage] = useState(65); // 已解决的百分比
 
   // 当前问题数据
   const currentQuestion = {
@@ -203,25 +205,57 @@ export default function QuestionDetailScreen({ navigation, route }) {
           </View>
           {/* PK进度条 */}
           <View style={styles.pkSection}>
-            <View style={styles.pkRow}>
-              <TouchableOpacity style={styles.voteSolvedBtn}>
-                <Ionicons name="checkmark-circle" size={16} color="#3b82f6" />
-                <Text style={styles.voteSolvedText}>已解决</Text>
-              </TouchableOpacity>
-              <View style={styles.pkBarWrapper}>
-                <View style={styles.pkBar}>
-                  <View style={[styles.pkSolvedBar, { width: '65%' }]} />
-                  <View style={[styles.pkUnsolvedBar, { width: '35%' }]} />
-                </View>
-                <View style={[styles.pkPercentLabel, { left: '65%' }]}>
-                  <Text style={styles.pkPercentText}>65%</Text>
+            {!showProgressBar ? (
+              // 初始按钮样式
+              <View style={styles.pkRow}>
+                <View style={styles.pkBarWrapper}>
+                  <View style={styles.pkBar}>
+                    <TouchableOpacity 
+                      style={styles.pkSolvedBar}
+                      onPress={() => {
+                        setShowProgressBar(true);
+                        setSolvedPercentage(65);
+                      }}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={styles.pkSolvedText}>已解决</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                      style={styles.pkUnsolvedBar}
+                      onPress={() => {
+                        setShowProgressBar(true);
+                        setSolvedPercentage(35);
+                      }}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={styles.pkUnsolvedText}>未解决</Text>
+                    </TouchableOpacity>
+                  </View>
+                  <View style={styles.pkCenterBadge}>
+                    <Text style={styles.pkCenterText}>PK</Text>
+                  </View>
                 </View>
               </View>
-              <TouchableOpacity style={styles.voteUnsolvedBtn}>
-                <Ionicons name="close-circle" size={16} color="#ef4444" />
-                <Text style={styles.voteUnsolvedText}>未解决</Text>
-              </TouchableOpacity>
-            </View>
+            ) : (
+              // 点击后显示进度条样式
+              <View style={styles.pkProgressRow}>
+                <View style={styles.progressSolvedLabel}>
+                  <Text style={styles.progressLabelText}>已解决</Text>
+                </View>
+                <View style={styles.progressBarWrapper}>
+                  <View style={styles.progressBar}>
+                    <View style={[styles.progressSolvedFill, { width: `${solvedPercentage}%` }]} />
+                    <View style={[styles.progressUnsolvedFill, { width: `${100 - solvedPercentage}%` }]} />
+                  </View>
+                  <View style={[styles.progressPercentLabel, { left: `${solvedPercentage}%` }]}>
+                    <Text style={styles.progressPercentText}>{solvedPercentage}%</Text>
+                  </View>
+                </View>
+                <View style={styles.progressUnsolvedLabel}>
+                  <Text style={styles.progressLabelText}>未解决</Text>
+                </View>
+              </View>
+            )}
           </View>
         </View>
 
@@ -266,7 +300,14 @@ export default function QuestionDetailScreen({ navigation, route }) {
                 <TouchableOpacity 
                   key={item.id} 
                   style={styles.suppCard}
-                  onPress={() => navigation.navigate('SupplementDetail', { supplement: item })}
+                  onPress={() => {
+                    console.log('=== 点击补充问题 ===');
+                    console.log('补充问题ID:', item.id);
+                    console.log('补充问题作者:', item.author);
+                    console.log('导航对象存在:', !!navigation);
+                    console.log('准备导航到 SupplementDetail');
+                    navigation.navigate('SupplementDetail', { supplement: item });
+                  }}
                   activeOpacity={0.7}
                 >
                   <View style={styles.suppHeader}>
@@ -298,17 +339,10 @@ export default function QuestionDetailScreen({ navigation, route }) {
                       </TouchableOpacity>
                       <TouchableOpacity 
                         style={styles.suppActionBtn}
-                        onPress={(e) => e.stopPropagation()}
+                        onPress={(e) => { e.stopPropagation(); setCurrentSuppId(item.id); setShowSuppCommentListModal(true); }}
                       >
-                        <Ionicons name="create-outline" size={16} color="#6b7280" />
-                        <Text style={styles.suppActionText}>{item.answers || 12}</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity 
-                        style={styles.suppActionBtn}
-                        onPress={(e) => { e.stopPropagation(); setSuppBookmarked({ ...suppBookmarked, [item.id]: !suppBookmarked[item.id] }); }}
-                      >
-                        <Ionicons name={suppBookmarked[item.id] ? "bookmark" : "bookmark-outline"} size={16} color={suppBookmarked[item.id] ? "#f59e0b" : "#6b7280"} />
-                        <Text style={[styles.suppActionText, suppBookmarked[item.id] && { color: '#f59e0b' }]}>{item.bookmarks + (suppBookmarked[item.id] ? 1 : 0)}</Text>
+                        <Ionicons name="chatbubble-outline" size={16} color="#6b7280" />
+                        <Text style={styles.suppActionText}>{item.comments}</Text>
                       </TouchableOpacity>
                       <TouchableOpacity 
                         style={styles.suppActionBtn}
@@ -319,16 +353,16 @@ export default function QuestionDetailScreen({ navigation, route }) {
                       </TouchableOpacity>
                       <TouchableOpacity 
                         style={styles.suppActionBtn}
-                        onPress={(e) => { e.stopPropagation(); setCurrentSuppId(item.id); setShowSuppCommentListModal(true); }}
+                        onPress={(e) => { e.stopPropagation(); setSuppBookmarked({ ...suppBookmarked, [item.id]: !suppBookmarked[item.id] }); }}
                       >
-                        <Ionicons name="chatbubble-outline" size={16} color="#6b7280" />
-                        <Text style={styles.suppActionText}>{item.comments}</Text>
+                        <Ionicons name={suppBookmarked[item.id] ? "bookmark" : "bookmark-outline"} size={16} color={suppBookmarked[item.id] ? "#f59e0b" : "#6b7280"} />
+                        <Text style={[styles.suppActionText, suppBookmarked[item.id] && { color: '#f59e0b' }]}>{item.bookmarks + (suppBookmarked[item.id] ? 1 : 0)}</Text>
                       </TouchableOpacity>
                       <TouchableOpacity 
                         style={styles.suppActionBtn}
                         onPress={(e) => { e.stopPropagation(); navigation.navigate('GroupChat', { question: { title: '如何在三个月内从零基础学会Python编程？', author: '张三丰', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user1', memberCount: 128 } }); }}
                       >
-                        <Ionicons name="people-outline" size={16} color="#6b7280" />
+                        <Ionicons name="chatbubbles-outline" size={16} color="#6b7280" />
                       </TouchableOpacity>
                     </View>
                     <View style={styles.suppFooterRight}>
@@ -368,18 +402,6 @@ export default function QuestionDetailScreen({ navigation, route }) {
                           <Ionicons name={commentLiked[comment.id] ? "thumbs-up" : "thumbs-up-outline"} size={14} color={commentLiked[comment.id] ? "#ef4444" : "#9ca3af"} />
                           <Text style={[styles.commentActionText, commentLiked[comment.id] && { color: '#ef4444' }]}>{comment.likes + (commentLiked[comment.id] ? 1 : 0)}</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.commentActionBtn}>
-                          <Ionicons name="thumbs-down-outline" size={14} color="#9ca3af" />
-                          <Text style={styles.commentActionText}>{comment.dislikes || 2}</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.commentActionBtn}>
-                          <Ionicons name="bookmark-outline" size={14} color="#9ca3af" />
-                          <Text style={styles.commentActionText}>{comment.bookmarks || 8}</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.commentActionBtn}>
-                          <Ionicons name="arrow-redo-outline" size={14} color="#9ca3af" />
-                          <Text style={styles.commentActionText}>{comment.shares || 5}</Text>
-                        </TouchableOpacity>
                         <TouchableOpacity 
                           style={styles.commentActionBtn}
                           onPress={() => { setCurrentCommentId(comment.id); setShowCommentReplyModal(true); }}
@@ -387,8 +409,20 @@ export default function QuestionDetailScreen({ navigation, route }) {
                           <Ionicons name="chatbubble-outline" size={14} color="#9ca3af" />
                           <Text style={styles.commentActionText}>{comment.replies} 回复</Text>
                         </TouchableOpacity>
+                        <TouchableOpacity style={styles.commentActionBtn}>
+                          <Ionicons name="arrow-redo-outline" size={14} color="#9ca3af" />
+                          <Text style={styles.commentActionText}>{comment.shares || 5}</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.commentActionBtn}>
+                          <Ionicons name="bookmark-outline" size={14} color="#9ca3af" />
+                          <Text style={styles.commentActionText}>{comment.bookmarks || 8}</Text>
+                        </TouchableOpacity>
                       </View>
                       <View style={styles.commentFooterRight}>
+                        <TouchableOpacity style={styles.commentActionBtn}>
+                          <Ionicons name="thumbs-down-outline" size={14} color="#9ca3af" />
+                          <Text style={styles.commentActionText}>{comment.dislikes || 2}</Text>
+                        </TouchableOpacity>
                         <TouchableOpacity style={styles.commentActionBtn}>
                           <Ionicons name="flag-outline" size={14} color="#ef4444" />
                         </TouchableOpacity>
@@ -573,7 +607,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
                   <Text style={styles.answerAuthorTitle}>{answer.title}</Text>
                 </View>
                 <TouchableOpacity style={styles.answerSupplementBtnTop} onPress={(e) => e.stopPropagation()}>
-                  <Ionicons name="add-circle-outline" size={14} color="#ef4444" />
+                  <Ionicons name="add-circle-outline" size={14} color="#fff" />
                   <Text style={styles.answerSupplementTextTop}>补充回答 (2)</Text>
                 </TouchableOpacity>
               </View>
@@ -588,20 +622,6 @@ export default function QuestionDetailScreen({ navigation, route }) {
                     <Text style={[styles.answerActionText, answerLiked[answer.id] && { color: '#ef4444' }]}>{answer.likes + (answerLiked[answer.id] ? 1 : 0)}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity 
-                    style={styles.answerActionBtn}
-                    onPress={(e) => { e.stopPropagation(); setAnswerBookmarked({ ...answerBookmarked, [answer.id]: !answerBookmarked[answer.id] }); }}
-                  >
-                    <Ionicons name={answerBookmarked[answer.id] ? "bookmark" : "bookmark-outline"} size={16} color={answerBookmarked[answer.id] ? "#f59e0b" : "#6b7280"} />
-                    <Text style={[styles.answerActionText, answerBookmarked[answer.id] && { color: '#f59e0b' }]}>89</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity 
-                    style={styles.answerActionBtn} 
-                    onPress={(e) => { e.stopPropagation(); setAnswerDisliked({ ...answerDisliked, [answer.id]: !answerDisliked[answer.id] }); }}
-                  >
-                    <Ionicons name={answerDisliked[answer.id] ? "thumbs-down" : "thumbs-down-outline"} size={16} color={answerDisliked[answer.id] ? "#3b82f6" : "#6b7280"} />
-                    <Text style={[styles.answerActionText, answerDisliked[answer.id] && { color: '#3b82f6' }]}>{answer.dislikes || 3}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity 
                     style={styles.answerActionBtn} 
                     onPress={(e) => { e.stopPropagation(); setCurrentAnswerId(answer.id); setShowAnswerCommentListModal(true); }}
                   >
@@ -612,8 +632,22 @@ export default function QuestionDetailScreen({ navigation, route }) {
                     <Ionicons name="arrow-redo-outline" size={16} color="#6b7280" />
                     <Text style={styles.answerActionText}>34</Text>
                   </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={styles.answerActionBtn}
+                    onPress={(e) => { e.stopPropagation(); setAnswerBookmarked({ ...answerBookmarked, [answer.id]: !answerBookmarked[answer.id] }); }}
+                  >
+                    <Ionicons name={answerBookmarked[answer.id] ? "bookmark" : "bookmark-outline"} size={16} color={answerBookmarked[answer.id] ? "#f59e0b" : "#6b7280"} />
+                    <Text style={[styles.answerActionText, answerBookmarked[answer.id] && { color: '#f59e0b' }]}>89</Text>
+                  </TouchableOpacity>
                 </View>
                 <View style={styles.answerFooterRight}>
+                  <TouchableOpacity 
+                    style={styles.answerActionBtn} 
+                    onPress={(e) => { e.stopPropagation(); setAnswerDisliked({ ...answerDisliked, [answer.id]: !answerDisliked[answer.id] }); }}
+                  >
+                    <Ionicons name={answerDisliked[answer.id] ? "thumbs-down" : "thumbs-down-outline"} size={16} color={answerDisliked[answer.id] ? "#3b82f6" : "#6b7280"} />
+                    <Text style={[styles.answerActionText, answerDisliked[answer.id] && { color: '#3b82f6' }]}>{answer.dislikes || 3}</Text>
+                  </TouchableOpacity>
                   <TouchableOpacity style={styles.answerActionBtn} onPress={(e) => e.stopPropagation()}>
                     <Ionicons name="flag-outline" size={16} color="#ef4444" />
                   </TouchableOpacity>
@@ -624,6 +658,112 @@ export default function QuestionDetailScreen({ navigation, route }) {
           <TouchableOpacity style={styles.loadMoreBtn}><Text style={styles.loadMoreText}>查看更多回答</Text><Ionicons name="chevron-down" size={16} color="#ef4444" /></TouchableOpacity>
             </>
           )}
+        </View>
+
+        {/* 推荐相关问题 */}
+        <View style={styles.recommendedSection}>
+          <View style={styles.recommendedHeader}>
+            <View style={styles.recommendedHeaderLeft}>
+              <Ionicons name="bulb-outline" size={20} color="#f59e0b" />
+              <Text style={styles.recommendedTitle}>相关推荐</Text>
+            </View>
+            <Text style={styles.recommendedSubtitle}>继续浏览更多精彩内容</Text>
+          </View>
+
+          {/* 推荐问题卡片 */}
+          <TouchableOpacity 
+            style={styles.recommendedQuestionCard}
+            onPress={() => navigation.push('QuestionDetail', { id: 2 })}
+            activeOpacity={0.95}
+          >
+            <Text style={styles.recommendedQuestionTitle}>
+              <View style={styles.rewardTagInline}>
+                <Text style={styles.rewardTagText}>$30</Text>
+              </View>
+              {' '}
+              <View style={styles.recommendedHotTagInline}>
+                <Ionicons name="flame" size={10} color="#ef4444" />
+                <Text style={styles.recommendedHotTextInline}>热门</Text>
+              </View>
+              {' '}React Native开发中如何优化长列表性能？FlatList和ScrollView该如何选择？
+            </Text>
+            
+            <Text style={styles.recommendedQuestionContent} numberOfLines={3}>
+              我在开发一个新闻类APP，列表有上千条数据，使用ScrollView会很卡顿。听说FlatList性能更好，但不知道具体该怎么优化。请问有经验的开发者能分享一下最佳实践吗？
+            </Text>
+
+            <View style={styles.recommendedQuestionMeta}>
+              <View style={styles.recommendedAuthorInfo}>
+                <Image 
+                  source={{ uri: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user2' }} 
+                  style={styles.recommendedAuthorAvatar} 
+                />
+                <Text style={styles.recommendedAuthorName}>前端小白</Text>
+                <Text style={styles.recommendedQuestionTime}>· 3小时前</Text>
+              </View>
+              <View style={styles.recommendedQuestionStats}>
+                <View style={styles.recommendedStatItem}>
+                  <Ionicons name="chatbubble-outline" size={14} color="#9ca3af" />
+                  <Text style={styles.recommendedStatText}>89</Text>
+                </View>
+                <View style={styles.recommendedStatItem}>
+                  <Ionicons name="eye-outline" size={14} color="#9ca3af" />
+                  <Text style={styles.recommendedStatText}>2.3k</Text>
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.recommendedTopicTags}>
+              <Text style={styles.recommendedTopicTag}>#ReactNative</Text>
+              <Text style={styles.recommendedTopicTag}>#性能优化</Text>
+              <Text style={styles.recommendedTopicTag}>#移动开发</Text>
+            </View>
+          </TouchableOpacity>
+
+          {/* 第二个推荐问题 */}
+          <TouchableOpacity 
+            style={styles.recommendedQuestionCard}
+            onPress={() => navigation.push('QuestionDetail', { id: 3 })}
+            activeOpacity={0.95}
+          >
+            <Text style={styles.recommendedQuestionTitle}>
+              <View style={styles.rewardTagInline}>
+                <Text style={styles.rewardTagText}>$20</Text>
+              </View>
+              {' '}如何系统学习JavaScript？从入门到精通需要掌握哪些核心知识点？
+            </Text>
+            
+            <Text style={styles.recommendedQuestionContent} numberOfLines={3}>
+              想转行做前端开发，JavaScript是必备技能。但是网上资料太多太杂，不知道该从哪里开始学。希望有经验的前辈能给一个系统的学习路线图。
+            </Text>
+
+            <View style={styles.recommendedQuestionMeta}>
+              <View style={styles.recommendedAuthorInfo}>
+                <Image 
+                  source={{ uri: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user3' }} 
+                  style={styles.recommendedAuthorAvatar} 
+                />
+                <Text style={styles.recommendedAuthorName}>转行者</Text>
+                <Text style={styles.recommendedQuestionTime}>· 5小时前</Text>
+              </View>
+              <View style={styles.recommendedQuestionStats}>
+                <View style={styles.recommendedStatItem}>
+                  <Ionicons name="chatbubble-outline" size={14} color="#9ca3af" />
+                  <Text style={styles.recommendedStatText}>156</Text>
+                </View>
+                <View style={styles.recommendedStatItem}>
+                  <Ionicons name="eye-outline" size={14} color="#9ca3af" />
+                  <Text style={styles.recommendedStatText}>4.5k</Text>
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.recommendedTopicTags}>
+              <Text style={styles.recommendedTopicTag}>#JavaScript</Text>
+              <Text style={styles.recommendedTopicTag}>#前端开发</Text>
+              <Text style={styles.recommendedTopicTag}>#学习路线</Text>
+            </View>
+          </TouchableOpacity>
         </View>
       </ScrollView>
 
@@ -641,10 +781,6 @@ export default function QuestionDetailScreen({ navigation, route }) {
           <Ionicons name="chatbubble-outline" size={20} color="#6b7280" />
           <Text style={styles.bottomActionText}>评论</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.bottomActionBtn} onPress={() => alert('分享功能')}>
-          <Ionicons name="arrow-redo-outline" size={20} color="#6b7280" />
-          <Text style={styles.bottomActionText}>34</Text>
-        </TouchableOpacity>
         <TouchableOpacity style={styles.bottomActionBtn} onPress={() => setShowAnswerModal(true)}>
           <Ionicons name="create-outline" size={20} color="#ef4444" />
           <Text style={[styles.bottomActionText, { color: '#ef4444' }]}>回答</Text>
@@ -652,6 +788,10 @@ export default function QuestionDetailScreen({ navigation, route }) {
         <TouchableOpacity style={styles.bottomActionBtn}>
           <Ionicons name="add-circle-outline" size={20} color="#6b7280" />
           <Text style={styles.bottomActionText}>补充</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.bottomActionBtn} onPress={() => setLiked({ ...liked, dislike: !liked.dislike })}>
+          <Ionicons name={liked.dislike ? "thumbs-down" : "thumbs-down-outline"} size={20} color={liked.dislike ? "#6b7280" : "#9ca3af"} />
+          <Text style={[styles.bottomActionText, liked.dislike && { color: '#6b7280' }]}>12</Text>
         </TouchableOpacity>
       </View>
 
@@ -1466,18 +1606,27 @@ const styles = StyleSheet.create({
   smallPostTime: { fontSize: 11, color: '#9ca3af', marginTop: 2 },
   actionButtonsRight: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   smallActionBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f9fafb', width: 32, height: 32, borderRadius: 16, borderWidth: 1, borderColor: '#e5e7eb' },
-  pkSection: { marginTop: 16, marginBottom: 16 },
-  pkRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  pkBarWrapper: { flex: 1, position: 'relative' },
-  pkBar: { flexDirection: 'row', height: 8, borderRadius: 4, overflow: 'hidden', backgroundColor: '#f3f4f6' },
-  pkSolvedBar: { backgroundColor: '#3b82f6', height: '100%' },
-  pkUnsolvedBar: { backgroundColor: '#ef4444', height: '100%' },
-  pkPercentLabel: { position: 'absolute', top: 12, transform: [{ translateX: -15 }] },
-  pkPercentText: { fontSize: 11, color: '#6b7280', fontWeight: '500' },
-  voteSolvedBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#eff6ff', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 14, gap: 4 },
-  voteSolvedText: { fontSize: 12, color: '#3b82f6', fontWeight: '500' },
-  voteUnsolvedBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fef2f2', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 14, gap: 4 },
-  voteUnsolvedText: { fontSize: 12, color: '#ef4444', fontWeight: '500' },
+  pkSection: { marginTop: 12, marginBottom: 12 },
+  pkRow: { flexDirection: 'row', alignItems: 'center' },
+  pkBarWrapper: { flex: 1, position: 'relative', alignItems: 'center', justifyContent: 'center' },
+  pkBar: { flexDirection: 'row', height: 36, borderRadius: 18, overflow: 'hidden', width: '100%' },
+  pkSolvedBar: { backgroundColor: '#3b82f6', flex: 1, alignItems: 'center', justifyContent: 'center', paddingRight: 15 },
+  pkUnsolvedBar: { backgroundColor: '#ef4444', flex: 1, alignItems: 'center', justifyContent: 'center', paddingLeft: 15 },
+  pkSolvedText: { fontSize: 13, color: '#fff', fontWeight: '600' },
+  pkUnsolvedText: { fontSize: 13, color: '#fff', fontWeight: '600' },
+  pkCenterBadge: { position: 'absolute', backgroundColor: '#fff', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 16, borderWidth: 1.5, borderColor: '#e5e7eb', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.08, shadowRadius: 3, elevation: 2 },
+  pkCenterText: { fontSize: 12, color: '#ef4444', fontWeight: '700' },
+  // 进度条样式
+  pkProgressRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  progressSolvedLabel: { backgroundColor: '#eff6ff', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 12, borderWidth: 1, borderColor: '#bfdbfe' },
+  progressUnsolvedLabel: { backgroundColor: '#fef2f2', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 12, borderWidth: 1, borderColor: '#fecaca' },
+  progressLabelText: { fontSize: 10, color: '#6b7280', fontWeight: '600' },
+  progressBarWrapper: { flex: 1, position: 'relative' },
+  progressBar: { flexDirection: 'row', height: 6, borderRadius: 3, overflow: 'hidden', backgroundColor: '#f3f4f6' },
+  progressSolvedFill: { backgroundColor: '#3b82f6', height: '100%' },
+  progressUnsolvedFill: { backgroundColor: '#ef4444', height: '100%' },
+  progressPercentLabel: { position: 'absolute', top: -18, transform: [{ translateX: -12 }] },
+  progressPercentText: { fontSize: 10, color: '#6b7280', fontWeight: '600' },
   // 底部固定栏样式
   bottomBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', paddingVertical: 12, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#f3f4f6' },
   bottomActionBtn: { flexDirection: 'column', alignItems: 'center', gap: 4 },
@@ -1506,8 +1655,8 @@ const styles = StyleSheet.create({
   adoptedTag: { backgroundColor: '#ef4444', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4 },
   adoptedTagText: { fontSize: 10, color: '#fff', fontWeight: '500' },
   answerAuthorTitle: { fontSize: 12, color: '#9ca3af', marginTop: 2 },
-  answerSupplementBtnTop: { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: '#fef2f2', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10, borderWidth: 1, borderColor: '#fecaca' },
-  answerSupplementTextTop: { fontSize: 11, color: '#ef4444', fontWeight: '500' },
+  answerSupplementBtnTop: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#ef4444', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 14 },
+  answerSupplementTextTop: { fontSize: 12, color: '#fff', fontWeight: '600' },
   answerContent: { fontSize: 14, color: '#374151', lineHeight: 22 },
   answerFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#f3f4f6' },
   answerFooterLeft: { flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 },
@@ -1795,4 +1944,25 @@ const styles = StyleSheet.create({
   replyActionBtn: { flexDirection: 'row', alignItems: 'center', gap: 3 },
   replyActionText: { fontSize: 11, color: '#9ca3af' },
   replyReplyBtn: { fontSize: 11, color: '#ef4444' },
+  // 推荐问题样式
+  recommendedSection: { backgroundColor: '#f9fafb', paddingTop: 16 },
+  recommendedHeader: { paddingHorizontal: 16, marginBottom: 16 },
+  recommendedHeaderLeft: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
+  recommendedTitle: { fontSize: 16, fontWeight: '600', color: '#1f2937' },
+  recommendedSubtitle: { fontSize: 12, color: '#9ca3af', marginLeft: 28 },
+  recommendedQuestionCard: { backgroundColor: '#fff', marginBottom: 8, padding: 16, borderTopWidth: 1, borderTopColor: '#e5e7eb' },
+  recommendedHotTagInline: { flexDirection: 'row', alignItems: 'center', gap: 2, backgroundColor: '#fef2f2', paddingHorizontal: 5, paddingVertical: 2, borderRadius: 4 },
+  recommendedHotTextInline: { fontSize: 10, color: '#ef4444', fontWeight: '600' },
+  recommendedQuestionTitle: { fontSize: 17, fontWeight: '600', color: '#1f2937', lineHeight: 26, marginBottom: 12 },
+  recommendedQuestionContent: { fontSize: 14, color: '#6b7280', lineHeight: 22, marginBottom: 12 },
+  recommendedQuestionMeta: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
+  recommendedAuthorInfo: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  recommendedAuthorAvatar: { width: 24, height: 24, borderRadius: 12 },
+  recommendedAuthorName: { fontSize: 13, fontWeight: '500', color: '#374151' },
+  recommendedQuestionTime: { fontSize: 12, color: '#9ca3af' },
+  recommendedQuestionStats: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  recommendedStatItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  recommendedStatText: { fontSize: 12, color: '#9ca3af' },
+  recommendedTopicTags: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
+  recommendedTopicTag: { fontSize: 12, color: '#3b82f6', backgroundColor: '#eff6ff', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
 });
