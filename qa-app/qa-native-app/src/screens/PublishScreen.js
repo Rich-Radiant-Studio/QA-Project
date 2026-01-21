@@ -19,7 +19,7 @@ const categoryData = {
     { id: 3, name: '个人', icon: 'person', color: '#8b5cf6', desc: '个人生活、成长' },
   ],
   level2: {
-    1: [ // 国家
+    1: [
       { id: 101, name: '政策法规', icon: 'document-text' },
       { id: 102, name: '社会民生', icon: 'people' },
       { id: 103, name: '经济发展', icon: 'trending-up' },
@@ -27,7 +27,7 @@ const categoryData = {
       { id: 105, name: '环境保护', icon: 'leaf' },
       { id: 106, name: '基础设施', icon: 'construct' },
     ],
-    2: [ // 行业
+    2: [
       { id: 201, name: '互联网', icon: 'globe' },
       { id: 202, name: '金融', icon: 'card' },
       { id: 203, name: '医疗健康', icon: 'fitness' },
@@ -36,7 +36,7 @@ const categoryData = {
       { id: 206, name: '制造业', icon: 'cog' },
       { id: 207, name: '餐饮服务', icon: 'restaurant' },
     ],
-    3: [ // 个人
+    3: [
       { id: 301, name: '职业发展', icon: 'rocket' },
       { id: 302, name: '情感生活', icon: 'heart' },
       { id: 303, name: '健康养生', icon: 'fitness' },
@@ -56,10 +56,9 @@ export default function PublishScreen({ navigation }) {
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [images, setImages] = useState([]);
   const [customTopic, setCustomTopic] = useState('');
-  const [location, setLocation] = useState('北京市');
+  const [location, setLocation] = useState('北京');
   const [visibility, setVisibility] = useState('所有人');
   
-  // 问题类别状态
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [selectedLevel1, setSelectedLevel1] = useState(null);
   const [selectedLevel2, setSelectedLevel2] = useState(null);
@@ -127,9 +126,9 @@ export default function PublishScreen({ navigation }) {
 
   const handleLocationPress = () => {
     Alert.alert('选择位置', '选择您的位置', [
-      { text: '北京市', onPress: () => setLocation('北京市') },
-      { text: '上海市', onPress: () => setLocation('上海市') },
-      { text: '广州市', onPress: () => setLocation('广州市') },
+      { text: '北京', onPress: () => setLocation('北京') },
+      { text: '上海', onPress: () => setLocation('上海') },
+      { text: '广州', onPress: () => setLocation('广州') },
       { text: '不显示位置', onPress: () => setLocation('不显示') },
       { text: '取消', style: 'cancel' }
     ]);
@@ -399,7 +398,6 @@ const styles = StyleSheet.create({
   typeCardActive: { borderColor: '#ef4444', backgroundColor: '#fef2f2' },
   typeName: { fontSize: 12, fontWeight: '500', color: '#374151', marginTop: 8 },
   typeDesc: { fontSize: 10, color: '#9ca3af', marginTop: 4 },
-  // 类别选择器
   categorySelector: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#f9fafb', borderRadius: 10, padding: 14, borderWidth: 1, borderColor: '#e5e7eb' },
   categorySelectorLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
   categoryIcon: { width: 32, height: 32, borderRadius: 8, justifyContent: 'center', alignItems: 'center', marginRight: 10 },
@@ -437,7 +435,6 @@ const styles = StyleSheet.create({
   publishBtn: { backgroundColor: '#ef4444', borderRadius: 12, paddingVertical: 14, alignItems: 'center' },
   publishBtnDisabled: { backgroundColor: '#fecaca' },
   publishBtnText: { fontSize: 16, color: '#fff', fontWeight: '600' },
-  // 弹窗样式
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
   categoryModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '80%' },
   modalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },

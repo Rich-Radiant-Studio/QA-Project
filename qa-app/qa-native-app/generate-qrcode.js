@@ -1,17 +1,23 @@
 const QRCode = require('qrcode');
 const fs = require('fs');
 
-const url = 'exp://atllyxa-anonymous-8082.exp.direct';
+// Expo tunnel URL
+const url = 'exp://atllyxa-anonymous-8081.exp.direct';
 
+// 生成二维码图片
 QRCode.toFile('expo-qrcode.png', url, {
-  width: 400,
+  width: 500,
   margin: 2,
   color: {
     dark: '#000000',
-    light: '#ffffff'
+    light: '#FFFFFF'
   }
 }, function (err) {
-  if (err) throw err;
-  console.log('二维码已生成: expo-qrcode.png');
-  console.log('扫描地址: ' + url);
+  if (err) {
+    console.error('生成二维码失败:', err);
+  } else {
+    console.log('✅ 二维码已生成: expo-qrcode.png');
+    console.log('📱 扫描此二维码访问应用');
+    console.log('🌐 URL:', url);
+  }
 });

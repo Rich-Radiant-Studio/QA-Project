@@ -34,7 +34,7 @@ const myQuestions = [
 const myAnswers = [
   { id: 1, questionTitle: '如何高效学习一门新技能？', content: '作为一个自学了多门技能的人，我来分享一下我的经验...', likes: 256, comments: 23, adopted: true, time: '1小时前' },
   { id: 2, questionTitle: 'Python数据分析入门需要学什么？', content: '首先需要掌握Python基础语法，然后学习NumPy和Pandas...', likes: 189, comments: 15, adopted: false, time: '3小时前' },
-  { id: 3, questionTitle: '35岁转行做程序员还来得及吗？', content: '完全来得及！我就是35岁转行的，现在已经工作3年了...', likes: 512, comments: 45, adopted: true, time: '昨天' },
+  { id: 3, questionTitle: '35岁转行做程序员还来得及吗？', content: '完全来得及！我就是35岁转行的，现在已经工作2年了...', likes: 512, comments: 45, adopted: true, time: '昨天' },
   { id: 4, questionTitle: '如何克服拖延症？', content: '拖延症的根本原因是对任务的恐惧，可以尝试番茄工作法...', likes: 98, comments: 8, adopted: false, time: '2天前' },
 ];
 
@@ -43,16 +43,16 @@ const contentTabs = ['我的提问', '我的回答'];
 // 收藏数据
 const favoritesData = {
   questions: [
-    { id: 1, title: '如何高效学习一门新技能？', author: '学习达人', time: '收藏于 2天前' },
-    { id: 2, title: 'Python数据分析入门指南', author: '数据分析师', time: '收藏于 3天前' },
+    { id: 1, title: '如何高效学习一门新技能？', author: '学习达人', time: '收藏于2天前' },
+    { id: 2, title: 'Python数据分析入门指南', author: '数据分析师', time: '收藏于3天前' },
   ],
   answers: [
-    { id: 1, title: '关于职场新人如何快速成长的回答', author: '职场导师', time: '收藏于 1周前' },
-    { id: 2, title: '关于如何克服拖延症的回答', author: '心理咨询师', time: '收藏于 2周前' },
+    { id: 1, title: '关于职场新人如何快速成长的回答', author: '职场导师', time: '收藏于1周前' },
+    { id: 2, title: '关于如何克服拖延症的回答', author: '心理咨询师', time: '收藏于2周前' },
   ],
   comments: [
-    { id: 1, title: '"这个方法真的很有用！"', author: '小明', time: '收藏于 3天前' },
-    { id: 2, title: '"感谢分享，学到了很多"', author: '小红', time: '收藏于 5天前' },
+    { id: 1, title: '"这个方法真的很有用！"', author: '小明', time: '收藏于3天前' },
+    { id: 2, title: '"感谢分享，学到了很多"', author: '小红', time: '收藏于5天前' },
   ],
 };
 
@@ -65,9 +65,9 @@ const historyList = [
 
 // 草稿数据
 const draftsList = [
-  { id: 1, title: '关于远程办公的一些思考...', time: '保存于 1小时前', type: 'question' },
-  { id: 2, title: '我对Python学习的建议是...', time: '保存于 昨天', type: 'answer' },
-  { id: 3, title: '新手养猫注意事项', time: '保存于 3天前', type: 'question' },
+  { id: 1, title: '关于远程办公的一些思考...', time: '保存于1小时前', type: 'question' },
+  { id: 2, title: '我对Python学习的建议是...', time: '保存于昨天', type: 'answer' },
+  { id: 3, title: '新手养猫注意事项', time: '保存于3天前', type: 'question' },
 ];
 
 export default function ProfileScreen({ navigation, onLogout }) {
@@ -160,9 +160,9 @@ export default function ProfileScreen({ navigation, onLogout }) {
     switch (action) {
       case 'recharge':
         Alert.alert('充值', '请选择充值金额', [
-          { text: '$10', onPress: () => Alert.alert('充值成功', '已充值 $10') },
-          { text: '$50', onPress: () => Alert.alert('充值成功', '已充值 $50') },
-          { text: '$100', onPress: () => Alert.alert('充值成功', '已充值 $100') },
+          { text: '$10', onPress: () => Alert.alert('充值成功', '已充值$10') },
+          { text: '$50', onPress: () => Alert.alert('充值成功', '已充值$50') },
+          { text: '$100', onPress: () => Alert.alert('充值成功', '已充值$100') },
           { text: '取消', style: 'cancel' }
         ]);
         break;
@@ -245,7 +245,7 @@ export default function ProfileScreen({ navigation, onLogout }) {
             <Image source={{ uri: 'https://api.dicebear.com/7.x/avataaars/svg?seed=myuser' }} style={styles.avatar} />
             <View style={styles.profileInfo}>
               <View style={styles.nameRow}>
-                <Text style={styles.userName}>张三丰</Text>
+                <Text style={styles.userName}>张三</Text>
                 <Ionicons name="checkmark-circle" size={16} color="#3b82f6" />
                 <View style={styles.levelTag}><Text style={styles.levelText}>Lv.5</Text></View>
               </View>
@@ -567,7 +567,6 @@ const styles = StyleSheet.create({
   questionStatText: { fontSize: 12, color: '#9ca3af' },
   viewAllBtn: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingVertical: 12, borderTopWidth: 1, borderTopColor: '#f3f4f6' },
   viewAllText: { fontSize: 13, color: '#ef4444' },
-  // 我的回答样式
   answerItem: { padding: 12, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
   answerHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
   adoptedTag: { backgroundColor: '#dcfce7', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10 },
@@ -579,7 +578,6 @@ const styles = StyleSheet.create({
   settingsSection: { backgroundColor: '#fff', marginHorizontal: 12, marginTop: 12, borderRadius: 16, overflow: 'hidden' },
   logoutBtn: { marginHorizontal: 12, marginTop: 12, backgroundColor: '#fff', borderRadius: 16, paddingVertical: 14, alignItems: 'center' },
   logoutText: { fontSize: 15, color: '#ef4444', fontWeight: '500' },
-  // 列表弹窗样式
   listModal: { flex: 1, backgroundColor: '#fff' },
   listModalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
   listModalTitle: { fontSize: 17, fontWeight: '600', color: '#1f2937' },
@@ -591,19 +589,17 @@ const styles = StyleSheet.create({
   listItemMeta: { flexDirection: 'row', alignItems: 'center', marginTop: 4, gap: 12 },
   listItemAuthor: { fontSize: 12, color: '#6b7280' },
   listItemTime: { fontSize: 12, color: '#9ca3af' },
-  // 收藏分类标签
   favoriteTabs: { flexDirection: 'row', backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
-  favoriteTab: { flex: 1, paddingVertical: 12, alignItems: 'center' },
-  favoriteTabActive: { borderBottomWidth: 2, borderBottomColor: '#ef4444' },
+  favoriteTab: { flex: 1, paddingVertical: 12, alignItems: 'center', borderBottomWidth: 2, borderBottomColor: 'transparent' },
+  favoriteTabActive: { borderBottomColor: '#ef4444' },
   favoriteTabText: { fontSize: 14, color: '#6b7280' },
   favoriteTabTextActive: { color: '#ef4444', fontWeight: '600' },
-  // 草稿样式
   draftItem: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
   draftContent: { flex: 1, flexDirection: 'row', alignItems: 'center' },
-  draftTypeTag: { backgroundColor: '#f3f4f6', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4, marginRight: 12 },
-  draftTypeText: { fontSize: 11, color: '#6b7280' },
-  draftInfo: { flex: 1 },
-  draftTitle: { fontSize: 15, color: '#1f2937' },
-  draftTime: { fontSize: 12, color: '#9ca3af', marginTop: 4 },
+  draftTypeTag: { backgroundColor: '#fef2f2', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
+  draftTypeText: { fontSize: 11, color: '#ef4444', fontWeight: '500' },
+  draftInfo: { flex: 1, marginLeft: 12 },
+  draftTitle: { fontSize: 14, color: '#1f2937', marginBottom: 4 },
+  draftTime: { fontSize: 12, color: '#9ca3af' },
   draftDeleteBtn: { padding: 8 },
 });

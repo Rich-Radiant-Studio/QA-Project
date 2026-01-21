@@ -4,7 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
-import { View, Text, Modal, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
+import { View, Text, Modal, TouchableOpacity, TextInput, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
 
 import HomeScreen from './src/screens/HomeScreen';
 import SearchScreen from './src/screens/SearchScreen';
@@ -25,111 +25,166 @@ const Tab = createBottomTabNavigator();
 
 // 紧急求助弹窗组件
 function EmergencyModal({ visible, onClose, onSubmit }) {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const freeCount = 1;
-  const usedCount = 0;
+  const [emergencyForm, setEmergencyForm] = useState({ title: '', description: '', location: '北京市朝阳区', contact: '' });
+  const freeCount = 3; // 每日免费次数
+  const usedCount = 0; // 已使用次数
   const remainingFree = freeCount - usedCount;
-  const needPay = remainingFree <= 0;
 
   const handleSubmit = () => {
-    if (!title.trim()) {
-      alert('请输入紧急求助标题');
+    if (!emergencyForm.title.trim()) {
+      alert('请输入求助标题');
       return;
     }
-    onSubmit({ title, description });
-    setTitle('');
-    setDescription('');
+    alert('紧急求助已发布，附近用户将收到通知！');
     onClose();
+    setEmergencyForm({ title: '', description: '', location: '北京市朝阳区', contact: '' });
   };
 
   return (
-    <Modal visible={visible} transparent animationType="slide">
-      <View style={modalStyles.overlay}>
-        <View style={modalStyles.container}>
-          <View style={modalStyles.header}>
-            <Text style={modalStyles.headerTitle}>紧急求助</Text>
-            <TouchableOpacity onPress={onClose}>
-              <Ionicons name="close" size={24} color="#6b7280" />
-            </TouchableOpacity>
+    <Modal visible={visible} animationType="slide">
+      <View style={modalStyles.emergencyModal}>
+        <View style={modalStyles.emergencyHeader}>
+          <TouchableOpacity onPress={onClose}>
+            <Ionicons name="close" size={26} color="#333" />
+          </TouchableOpacity>
+          <View style={modalStyles.emergencyHeaderCenter}>
+            <Ionicons name="alert-circle" size={20} color="#ef4444" />
+            <Text style={modalStyles.emergencyHeaderTitle}>紧急求助</Text>
           </View>
-
-          <View style={modalStyles.content}>
-            <View style={modalStyles.inputGroup}>
-              <Text style={modalStyles.label}>求助标题 <Text style={modalStyles.required}>*</Text></Text>
-              <TextInput
-                style={modalStyles.input}
-                placeholder="请输入紧急求助标题"
-                value={title}
-                onChangeText={setTitle}
-                maxLength={50}
-              />
-            </View>
-
-            <View style={modalStyles.inputGroup}>
-              <Text style={modalStyles.label}>求助描述</Text>
-              <TextInput
-                style={[modalStyles.input, modalStyles.textArea]}
-                placeholder="请输入详细描述（选填）"
-                value={description}
-                onChangeText={setDescription}
-                multiline
-                numberOfLines={4}
-                maxLength={200}
-              />
-            </View>
-
-            <View style={modalStyles.infoRow}>
-              <Ionicons name="location" size={18} color="#ef4444" />
-              <Text style={modalStyles.infoText}>当前位置：北京市朝阳区</Text>
-            </View>
-
-            <View style={modalStyles.freeInfo}>
-              <Ionicons name="gift" size={18} color="#22c55e" />
-              <Text style={modalStyles.freeText}>
-                当日免费次数：<Text style={modalStyles.freeCount}>{remainingFree}次</Text>
-              </Text>
-            </View>
-
-            {needPay && (
-              <View style={modalStyles.payInfo}>
-                <Ionicons name="warning" size={18} color="#f59e0b" />
-                <Text style={modalStyles.payText}>免费次数已用完，发送求助需支付 ¥5</Text>
-              </View>
-            )}
-          </View>
-
-          <TouchableOpacity style={modalStyles.submitBtn} onPress={handleSubmit}>
-            <Text style={modalStyles.submitText}>
-              {needPay ? '支付并发送求助' : '发送求助'}
-            </Text>
+          <TouchableOpacity 
+            style={[modalStyles.emergencySubmitBtn, !emergencyForm.title.trim() && modalStyles.emergencySubmitBtnDisabled]}
+            onPress={handleSubmit}
+            disabled={!emergencyForm.title.trim()}
+          >
+            <Text style={[modalStyles.emergencySubmitText, !emergencyForm.title.trim() && modalStyles.emergencySubmitTextDisabled]}>发布</Text>
           </TouchableOpacity>
         </View>
+
+        <View style={modalStyles.emergencyWarning}>
+          <Ionicons name="warning" size={18} color="#f59e0b" />
+          <Text style={modalStyles.emergencyWarningText}>紧急求助将通知附近用户，请确保情况紧急真实</Text>
+        </View>
+
+        {/* 免费次数显示 */}
+        <View style={modalStyles.freeCountBanner}>
+          <View style={modalStyles.freeCountLeft}>
+            <Ionicons name="gift" size={20} color="#22c55e" />
+            <Text style={modalStyles.freeCountText}>今日剩余免费次数：</Text>
+            <Text style={modalStyles.freeCountNumber}>{remainingFree}/{freeCount}</Text>
+          </View>
+          {remainingFree <= 0 && (
+            <View style={modalStyles.needPayTag}>
+              <Text style={modalStyles.needPayText}>需付费 ¥5</Text>
+            </View>
+          )}
+        </View>
+
+        <ScrollView style={modalStyles.emergencyFormArea} keyboardShouldPersistTaps="handled">
+          <View style={modalStyles.emergencyFormGroup}>
+            <Text style={modalStyles.emergencyFormLabel}>求助标题 <Text style={{ color: '#ef4444' }}>*</Text></Text>
+            <TextInput
+              style={modalStyles.emergencyFormInput}
+              placeholder="简要描述您遇到的紧急情况"
+              placeholderTextColor="#bbb"
+              value={emergencyForm.title}
+              onChangeText={(text) => setEmergencyForm({...emergencyForm, title: text})}
+            />
+          </View>
+
+          <View style={modalStyles.emergencyFormGroup}>
+            <Text style={modalStyles.emergencyFormLabel}>详细描述</Text>
+            <TextInput
+              style={[modalStyles.emergencyFormInput, modalStyles.emergencyFormTextarea]}
+              placeholder="请详细描述您的情况，以便他人更好地帮助您..."
+              placeholderTextColor="#bbb"
+              value={emergencyForm.description}
+              onChangeText={(text) => setEmergencyForm({...emergencyForm, description: text})}
+              multiline
+              textAlignVertical="top"
+            />
+          </View>
+
+          <View style={modalStyles.emergencyFormGroup}>
+            <Text style={modalStyles.emergencyFormLabel}>当前位置</Text>
+            <View style={modalStyles.emergencyLocationRow}>
+              <View style={modalStyles.emergencyLocationInput}>
+                <Ionicons name="location" size={18} color="#ef4444" />
+                <TextInput
+                  style={modalStyles.emergencyLocationText}
+                  placeholder="输入或获取当前位置"
+                  placeholderTextColor="#bbb"
+                  value={emergencyForm.location}
+                  onChangeText={(text) => setEmergencyForm({...emergencyForm, location: text})}
+                />
+              </View>
+              <TouchableOpacity style={modalStyles.emergencyLocationBtn}>
+                <Ionicons name="navigate" size={18} color="#3b82f6" />
+                <Text style={modalStyles.emergencyLocationBtnText}>定位</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={modalStyles.emergencyFormGroup}>
+            <Text style={modalStyles.emergencyFormLabel}>联系方式</Text>
+            <View style={modalStyles.emergencyContactInput}>
+              <Ionicons name="call" size={18} color="#6b7280" />
+              <TextInput
+                style={modalStyles.emergencyContactText}
+                placeholder="请留下您的联系电话"
+                placeholderTextColor="#bbb"
+                value={emergencyForm.contact}
+                onChangeText={(text) => setEmergencyForm({...emergencyForm, contact: text})}
+                keyboardType="phone-pad"
+              />
+            </View>
+          </View>
+
+          <View style={modalStyles.emergencyTips}>
+            <Text style={modalStyles.emergencyTipsTitle}>温馨提示</Text>
+            <Text style={modalStyles.emergencyTipsText}>• 紧急求助将推送给附近 5km 内的用户</Text>
+            <Text style={modalStyles.emergencyTipsText}>• 请确保描述真实准确，虚假求助将被处罚</Text>
+            <Text style={modalStyles.emergencyTipsText}>• 如遇生命危险，请优先拨打急救电话</Text>
+          </View>
+
+          <View style={{ height: 40 }} />
+        </ScrollView>
       </View>
     </Modal>
   );
 }
 
 const modalStyles = StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-  container: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 34 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
-  headerTitle: { fontSize: 18, fontWeight: 'bold', color: '#1f2937' },
-  content: { padding: 16 },
-  inputGroup: { marginBottom: 16 },
-  label: { fontSize: 14, fontWeight: '500', color: '#374151', marginBottom: 8 },
-  required: { color: '#ef4444' },
-  input: { backgroundColor: '#f9fafb', borderRadius: 8, padding: 12, fontSize: 14, borderWidth: 1, borderColor: '#e5e7eb' },
-  textArea: { height: 100, textAlignVertical: 'top' },
-  infoRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fef2f2', padding: 12, borderRadius: 8, marginBottom: 12 },
-  infoText: { fontSize: 14, color: '#374151', marginLeft: 8 },
-  freeInfo: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f0fdf4', padding: 12, borderRadius: 8, marginBottom: 12 },
-  freeText: { fontSize: 14, color: '#374151', marginLeft: 8 },
-  freeCount: { color: '#22c55e', fontWeight: 'bold' },
-  payInfo: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fffbeb', padding: 12, borderRadius: 8 },
-  payText: { fontSize: 14, color: '#92400e', marginLeft: 8 },
-  submitBtn: { backgroundColor: '#ef4444', marginHorizontal: 16, padding: 14, borderRadius: 8, alignItems: 'center' },
-  submitText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  emergencyModal: { flex: 1, backgroundColor: '#fff' },
+  emergencyHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
+  emergencyHeaderCenter: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  emergencyHeaderTitle: { fontSize: 17, fontWeight: '600', color: '#222' },
+  emergencySubmitBtn: { backgroundColor: '#ef4444', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 4 },
+  emergencySubmitBtnDisabled: { backgroundColor: '#fecaca' },
+  emergencySubmitText: { fontSize: 14, color: '#fff', fontWeight: '600' },
+  emergencySubmitTextDisabled: { color: '#fff' },
+  emergencyWarning: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fffbeb', paddingHorizontal: 16, paddingVertical: 12, gap: 8 },
+  emergencyWarningText: { flex: 1, fontSize: 13, color: '#92400e', lineHeight: 18 },
+  freeCountBanner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#f0fdf4', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#e5e7eb' },
+  freeCountLeft: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  freeCountText: { fontSize: 14, color: '#374151' },
+  freeCountNumber: { fontSize: 16, fontWeight: 'bold', color: '#22c55e' },
+  needPayTag: { backgroundColor: '#fef3c7', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+  needPayText: { fontSize: 12, color: '#92400e', fontWeight: '500' },
+  emergencyFormArea: { flex: 1, padding: 16 },
+  emergencyFormGroup: { marginBottom: 16 },
+  emergencyFormLabel: { fontSize: 14, fontWeight: '500', color: '#374151', marginBottom: 8 },
+  emergencyFormInput: { backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 12, fontSize: 15, color: '#1f2937' },
+  emergencyFormTextarea: { minHeight: 100, textAlignVertical: 'top' },
+  emergencyLocationRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  emergencyLocationInput: { flex: 1, flexDirection: 'row', alignItems: 'center', backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 8, paddingHorizontal: 12, gap: 8 },
+  emergencyLocationText: { flex: 1, paddingVertical: 12, fontSize: 15, color: '#1f2937' },
+  emergencyLocationBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#eff6ff', paddingHorizontal: 12, paddingVertical: 12, borderRadius: 8, gap: 4 },
+  emergencyLocationBtnText: { fontSize: 13, color: '#3b82f6', fontWeight: '500' },
+  emergencyContactInput: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 8, paddingHorizontal: 12, gap: 8 },
+  emergencyContactText: { flex: 1, paddingVertical: 12, fontSize: 15, color: '#1f2937' },
+  emergencyTips: { backgroundColor: '#fef2f2', borderRadius: 8, padding: 12, marginTop: 8 },
+  emergencyTipsTitle: { fontSize: 13, fontWeight: '500', color: '#991b1b', marginBottom: 8 },
+  emergencyTipsText: { fontSize: 12, color: '#b91c1c', lineHeight: 20 },
 });
 
 function MainTabs({ showEmergencyModal, onLogout }) {

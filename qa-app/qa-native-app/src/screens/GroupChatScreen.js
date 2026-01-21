@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, TextInput, StyleSheet, SafeAreaView, Alert, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-// 模拟留言数据
 const initialMessages = [
   { id: 1, author: '技术小白', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=msg1', content: '这个问题我也很想知道答案，关注了！', time: '10分钟前', likes: 12, dislikes: 1, shares: 3, bookmarks: 5 },
   { id: 2, author: 'Python爱好者', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=msg2', content: '我觉得3个月入门完全可以，关键是要坚持每天练习', time: '25分钟前', likes: 28, dislikes: 2, shares: 8, bookmarks: 15 },
@@ -22,10 +21,9 @@ export default function GroupChatScreen({ navigation, route }) {
   const [replyTarget, setReplyTarget] = useState(null);
   const [replyText, setReplyText] = useState('');
 
-  // 问题信息（实际应从route.params获取）
   const question = route?.params?.question || {
     title: '如何在三个月内从零基础学会Python编程？有没有系统的学习路线推荐？',
-    author: '张三丰',
+    author: '张三',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user1',
     memberCount: 128
   };
@@ -152,7 +150,7 @@ export default function GroupChatScreen({ navigation, route }) {
                     <Text style={styles.msgActionText}>{msg.shares}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.msgActionBtn} onPress={() => setBookmarked({ ...bookmarked, [msg.id]: !bookmarked[msg.id] })}>
-                    <Ionicons name={bookmarked[msg.id] ? "bookmark" : "bookmark-outline"} size={14} color={bookmarked[msg.id] ? "#f59e0b" : "#6b7280"} />
+                    <Ionicons name={bookmarked[msg.id] ? "bookmark" : "star-outline"} size={14} color={bookmarked[msg.id] ? "#f59e0b" : "#6b7280"} />
                     <Text style={[styles.msgActionText, bookmarked[msg.id] && { color: '#f59e0b' }]}>{msg.bookmarks + (bookmarked[msg.id] ? 1 : 0)}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.msgActionBtn} onPress={() => handleReport(msg)}>
@@ -221,7 +219,7 @@ export default function GroupChatScreen({ navigation, route }) {
         </TouchableOpacity>
       </Modal>
 
-      {/* 底部输入框 */}
+      {/* 底部输入栏 */}
       <View style={styles.bottomBar}>
         <View style={styles.inputWrapper}>
           <TextInput
@@ -276,7 +274,6 @@ const styles = StyleSheet.create({
   msgActionText: { fontSize: 12, color: '#6b7280' },
   replyBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, marginLeft: 'auto' },
   replyBtnText: { fontSize: 12, color: '#ef4444', fontWeight: '500' },
-  // 回复弹窗样式
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
   replyModal: { backgroundColor: '#fff', borderTopLeftRadius: 16, borderTopRightRadius: 16, paddingBottom: 34 },
   replyModalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
