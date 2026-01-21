@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, SafeAreaView, Alert, Share, Modal } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, Alert, Share, Modal } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import Avatar from '../components/Avatar';
 
 const stats = [
   { label: '粉丝', value: '1.2k', screen: 'Fans' },
@@ -254,7 +256,7 @@ export default function ProfileScreen({ navigation, onLogout }) {
         {/* 用户信息卡片 */}
         <View style={styles.profileCard}>
           <View style={styles.profileHeader}>
-            <Image source={{ uri: 'https://api.dicebear.com/7.x/avataaars/svg?seed=myuser' }} style={styles.avatar} />
+            <Avatar uri="https://api.dicebear.com/7.x/avataaars/svg?seed=myuser" name="我的账号" size={64} />
             <View style={styles.profileInfo}>
               <View style={styles.nameRow}>
                 <Text style={styles.userName}>张三</Text>

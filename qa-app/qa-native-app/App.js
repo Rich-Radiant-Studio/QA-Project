@@ -4,7 +4,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
-import { View, Text, Modal, TouchableOpacity, TextInput, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
+import { View, Text, Modal, TouchableOpacity, TextInput, StyleSheet, ScrollView, SafeAreaView, Platform } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import HomeScreen from './src/screens/HomeScreen';
 import SearchScreen from './src/screens/SearchScreen';
@@ -280,20 +281,21 @@ export default function App() {
 
   if (!isLoggedIn) {
     return (
-      <>
+      <SafeAreaProvider>
         <StatusBar style="dark" />
         <LoginScreen onLogin={handleLogin} />
-      </>
+      </SafeAreaProvider>
     );
   }
 
   return (
-    <NavigationContainer>
-      <StatusBar style="dark" />
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Main">
-          {() => <MainTabs showEmergencyModal={() => setEmergencyModalVisible(true)} onLogout={handleLogout} />}
-        </Stack.Screen>
+    <SafeAreaProvider>
+      <NavigationContainer>
+        <StatusBar style="dark" />
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="Main">
+            {() => <MainTabs showEmergencyModal={() => setEmergencyModalVisible(true)} onLogout={handleLogout} />}
+          </Stack.Screen>
         <Stack.Screen name="Search" component={SearchScreen} />
         <Stack.Screen name="QuestionDetail" component={QuestionDetailScreen} />
         <Stack.Screen name="SupplementDetail" component={SupplementDetailScreen} />
@@ -321,5 +323,6 @@ export default function App() {
         onSubmit={handleEmergencySubmit}
       />
     </NavigationContainer>
+    </SafeAreaProvider>
   );
 }

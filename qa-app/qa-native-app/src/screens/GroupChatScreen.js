@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, TextInput, StyleSheet, SafeAreaView, Alert, Modal } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Image, TextInput, StyleSheet, Alert, Modal } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import Avatar from '../components/Avatar';
 
 const initialMessages = [
   { id: 1, author: '技术小白', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=msg1', content: '这个问题我也很想知道答案，关注了！', time: '10分钟前', likes: 12, dislikes: 1, shares: 3, bookmarks: 5 },

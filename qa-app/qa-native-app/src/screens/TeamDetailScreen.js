@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, TextInput, StyleSheet, SafeAreaView, Alert, Modal } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Image, TextInput, StyleSheet, Alert, Modal } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import Avatar from '../components/Avatar';
 
 const initialMessages = [
   { id: 1, author: '张三', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=member1', content: '大家好，欢迎加入Python学习团队！', time: '2小时前', likes: 15, dislikes: 0, shares: 3, bookmarks: 8 },
@@ -475,10 +477,10 @@ export default function TeamDetailScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f9fafb' },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
-  backBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
-  headerCenter: { position: 'absolute', left: 0, right: 0, alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' },
+  backBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center', zIndex: 10 },
+  headerCenter: { position: 'absolute', left: 0, right: 0, alignItems: 'center', justifyContent: 'center', zIndex: 1 },
   headerTitle: { fontSize: 18, fontWeight: '600', color: '#1f2937' },
-  publishBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 12, paddingVertical: 6, backgroundColor: '#fef3c7', borderRadius: 8 },
+  publishBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 12, paddingVertical: 6, backgroundColor: '#fef3c7', borderRadius: 8, zIndex: 10 },
   publishBtnText: { fontSize: 13, color: '#f59e0b', fontWeight: '600' },
   content: { flex: 1 },
   teamInfoCard: { backgroundColor: '#fff', padding: 16, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },

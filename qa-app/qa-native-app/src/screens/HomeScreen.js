@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, SafeAreaView, Modal, Dimensions, TextInput, FlatList } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, Modal, Dimensions, TextInput, FlatList } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
+import Avatar from '../components/Avatar';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -450,7 +452,7 @@ export default function HomeScreen({ navigation }) {
               {/* 头像、姓名、时间、地区 - 全部放在一行,右侧放点赞和评论 */}
               <View style={styles.cardHeader}>
                 <View style={styles.cardHeaderLeft}>
-                  <Image source={{ uri: item.avatar }} style={styles.avatar} />
+                  <Avatar uri={item.avatar} name={item.author} size={24} />
                   <Text style={styles.authorName}>{item.author}</Text>
                   {item.verified && <Ionicons name="checkmark-circle" size={10} color="#3b82f6" style={{ marginLeft: 2 }} />}
                   <Text style={styles.metaSeparator}>·</Text>
@@ -891,7 +893,7 @@ export default function HomeScreen({ navigation }) {
               keyExtractor={item => item.id.toString()}
               renderItem={({ item }) => (
                 <TouchableOpacity style={styles.socialUserItem} onPress={() => sendSocialMessage(item)}>
-                  <Image source={{ uri: item.avatar }} style={styles.socialUserAvatar} />
+                  <Avatar uri={item.avatar} name={item.name} size={40} />
                   <View style={styles.socialUserInfo}>
                     <Text style={styles.socialUserName}>{item.name}</Text>
                     <Text style={styles.socialUserHandle}>{item.handle}</Text>

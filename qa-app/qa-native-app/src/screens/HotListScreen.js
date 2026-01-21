@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
 const hotTabs = ['全站热榜', '国家热榜', '行业热榜', '个人热榜'];
@@ -190,7 +191,7 @@ export default function HotListScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <Ionicons name="arrow-back" size={24} color="#374151" />
@@ -241,7 +242,7 @@ export default function HotListScreen({ navigation }) {
         ))}
         <View style={styles.listFooter} />
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
