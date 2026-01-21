@@ -20,6 +20,8 @@ import SupplementDetailScreen from './src/screens/SupplementDetailScreen';
 import ActivityScreen from './src/screens/ActivityScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import QuestionActivityListScreen from './src/screens/QuestionActivityListScreen';
+import MyTeamsScreen from './src/screens/MyTeamsScreen';
+import TeamDetailScreen from './src/screens/TeamDetailScreen';
 import { AccountSecurityScreen, PrivacySettingsScreen, HelpFeedbackScreen, AboutScreen, EditProfileScreen, FansScreen, MyGroupsScreen } from './src/screens/SettingsScreen';
 
 const Stack = createNativeStackNavigator();
@@ -310,6 +312,8 @@ export default function App() {
         <Stack.Screen name="EditProfile" component={EditProfileScreen} />
         <Stack.Screen name="Fans" component={FansScreen} />
         <Stack.Screen name="MyGroups" component={MyGroupsScreen} />
+        <Stack.Screen name="MyTeams" component={MyTeamsScreen} />
+        <Stack.Screen name="TeamDetail" component={TeamDetailScreen} />
       </Stack.Navigator>
       <EmergencyModal
         visible={emergencyModalVisible}

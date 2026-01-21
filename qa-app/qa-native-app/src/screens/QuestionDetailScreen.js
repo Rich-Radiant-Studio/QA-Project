@@ -91,9 +91,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
   const [showCommentReplyModal, setShowCommentReplyModal] = useState(false);
   const [currentCommentId, setCurrentCommentId] = useState(null);
   const [showInviteModal, setShowInviteModal] = useState(false);
-  const [showTeamModal, setShowTeamModal] = useState(false);
   const [isTeamMember, setIsTeamMember] = useState(false); // 是否已加入团队
-  const [teamChatMessage, setTeamChatMessage] = useState('');
   const [showProgressBar, setShowProgressBar] = useState(false); // 是否显示进度条
   const [solvedPercentage, setSolvedPercentage] = useState(65); // 已解决的百分比
 
@@ -181,7 +179,19 @@ export default function QuestionDetailScreen({ navigation, route }) {
               <TouchableOpacity style={styles.smallActionBtn} onPress={() => navigation.navigate('GroupChat', { question: currentQuestion })}>
                 <Ionicons name="chatbubbles-outline" size={16} color="#8b5cf6" />
               </TouchableOpacity>
-              <TouchableOpacity style={styles.smallActionBtn} onPress={() => setShowTeamModal(true)}>
+              <TouchableOpacity style={styles.smallActionBtn} onPress={() => navigation.navigate('TeamDetail', { 
+                team: {
+                  id: 1,
+                  name: currentQuestion.title,
+                  avatar: 'https://api.dicebear.com/7.x/shapes/svg?seed=team1',
+                  role: isTeamMember ? '成员' : null,
+                  members: 12,
+                  questions: 1,
+                  description: '围绕这个问题组建的学习团队，一起讨论解决方案',
+                  createdAt: '2026-01-20',
+                  isActive: true
+                }
+              })}>
                 <Ionicons name="people-circle-outline" size={16} color="#f59e0b" />
               </TouchableOpacity>
               <TouchableOpacity style={styles.smallActionBtn} onPress={() => navigation.navigate('QuestionActivityList', { questionId: currentQuestion.id, questionTitle: currentQuestion.title })}>
@@ -1313,118 +1323,6 @@ export default function QuestionDetailScreen({ navigation, route }) {
                 </View>
               ))}
             </ScrollView>
-          </View>
-        </TouchableOpacity>
-      </Modal>
-
-      {/* 团队弹窗 */}
-      <Modal visible={showTeamModal} transparent animationType="slide">
-        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowTeamModal(false)}>
-          <View style={styles.teamModal} onStartShouldSetResponder={() => true}>
-            <View style={styles.teamModalHandle} />
-            
-            {/* 团队头部 */}
-            <View style={styles.teamHeader}>
-              <Text style={styles.teamTitle}>问题团队</Text>
-              <TouchableOpacity onPress={() => setShowTeamModal(false)}>
-                <Ionicons name="close" size={24} color="#6b7280" />
-              </TouchableOpacity>
-            </View>
-
-            {/* 团队成员头像区域 */}
-            <View style={styles.teamMembersSection}>
-              <Text style={styles.teamMembersTitle}>团队成员 (5人)</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.teamMembersScroll}>
-                {/* 问题发布者（队长） */}
-                <View style={styles.teamMemberItem}>
-                  <View style={styles.teamMemberAvatarWrapper}>
-                    <Image source={{ uri: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user1' }} style={styles.teamMemberAvatar} />
-                    <View style={styles.teamLeaderBadge}>
-                      <Ionicons name="star" size={10} color="#fff" />
-                    </View>
-                  </View>
-                  <Text style={styles.teamMemberName}>张三丰</Text>
-                  <Text style={styles.teamMemberRole}>队长</Text>
-                </View>
-                {/* 其他成员 */}
-                {[2, 3, 4, 5].map(i => (
-                  <View key={i} style={styles.teamMemberItem}>
-                    <Image source={{ uri: `https://api.dicebear.com/7.x/avataaars/svg?seed=member${i}` }} style={styles.teamMemberAvatar} />
-                    <Text style={styles.teamMemberName}>成员{i}</Text>
-                  </View>
-                ))}
-              </ScrollView>
-            </View>
-
-            {/* 团队聊天区域 */}
-            <View style={styles.teamChatSection}>
-              <Text style={styles.teamChatTitle}>团队讨论</Text>
-              <ScrollView style={styles.teamChatMessages} showsVerticalScrollIndicator={false}>
-                {[
-                  { id: 1, user: '张三丰', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user1', message: '欢迎大家加入团队，一起解决这个问题！', time: '10:30' },
-                  { id: 2, user: '成员2', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=member2', message: '我可以负责数据分析部分', time: '10:32' },
-                  { id: 3, user: '成员3', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=member3', message: '我来写代码示例', time: '10:35' },
-                  { id: 4, user: '成员4', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=member4', message: '我整理学习资源', time: '10:38' },
-                ].map(msg => (
-                  <View key={msg.id} style={styles.teamChatMessage}>
-                    <Image source={{ uri: msg.avatar }} style={styles.teamChatAvatar} />
-                    <View style={styles.teamChatBubble}>
-                      <View style={styles.teamChatHeader}>
-                        <Text style={styles.teamChatUser}>{msg.user}</Text>
-                        <Text style={styles.teamChatTime}>{msg.time}</Text>
-                      </View>
-                      <Text style={styles.teamChatText}>{msg.message}</Text>
-                    </View>
-                  </View>
-                ))}
-              </ScrollView>
-
-              {/* 聊天输入框 */}
-              {isTeamMember && (
-                <View style={styles.teamChatInputContainer}>
-                  <TextInput
-                    style={styles.teamChatInput}
-                    placeholder="输入消息..."
-                    placeholderTextColor="#9ca3af"
-                    value={teamChatMessage}
-                    onChangeText={setTeamChatMessage}
-                  />
-                  <TouchableOpacity style={styles.teamChatSendBtn} onPress={() => { alert('消息已发送'); setTeamChatMessage(''); }}>
-                    <Ionicons name="send" size={18} color="#fff" />
-                  </TouchableOpacity>
-                </View>
-              )}
-            </View>
-
-            {/* 底部操作按钮 */}
-            <View style={styles.teamActions}>
-              {isTeamMember ? (
-                <TouchableOpacity 
-                  style={styles.teamLeaveBtn}
-                  onPress={() => {
-                    if (confirm('确定要退出团队吗？')) {
-                      setIsTeamMember(false);
-                      alert('已退出团队');
-                      setShowTeamModal(false);
-                    }
-                  }}
-                >
-                  <Ionicons name="exit-outline" size={20} color="#ef4444" />
-                  <Text style={styles.teamLeaveBtnText}>退出团队</Text>
-                </TouchableOpacity>
-              ) : (
-                <TouchableOpacity 
-                  style={styles.teamJoinBtn}
-                  onPress={() => {
-                    alert('已发送加入申请，等待队长审核');
-                    setShowTeamModal(false);
-                  }}
-                >
-                  <Ionicons name="person-add" size={20} color="#fff" />
-                  <Text style={styles.teamJoinBtnText}>申请加入团队</Text>
-                </TouchableOpacity>
-              )}
-            </View>
           </View>
         </TouchableOpacity>
       </Modal>

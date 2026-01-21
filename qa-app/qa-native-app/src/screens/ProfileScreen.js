@@ -3,10 +3,12 @@ import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, SafeAreaVi
 import { Ionicons } from '@expo/vector-icons';
 
 const stats = [
-  { label: '关注', value: '128', screen: 'Follow' },
   { label: '粉丝', value: '1.2k', screen: 'Fans' },
-  { label: '提问', value: '56', screen: 'MyQuestions' },
+  { label: '点赞', value: '3.5k', screen: 'Likes' },
+  { label: '收藏', value: '892', screen: 'Bookmarks' },
   { label: '回答', value: '234', screen: 'MyAnswers' },
+  { label: '提问', value: '56', screen: 'MyQuestions' },
+  { label: '关注', value: '128', screen: 'Follow' },
 ];
 
 const menuItems = [
@@ -14,6 +16,7 @@ const menuItems = [
   { icon: 'time', label: '浏览历史', value: '', color: '#3b82f6' },
   { icon: 'document-text', label: '我的草稿', value: '3', color: '#22c55e' },
   { icon: 'people', label: '我的群聊', value: '5', color: '#a855f7' },
+  { icon: 'people-circle', label: '我的团队', value: '2', color: '#f59e0b' },
   { icon: 'calendar', label: '我的活动', value: '2', color: '#ef4444' },
 ];
 
@@ -87,17 +90,23 @@ export default function ProfileScreen({ navigation, onLogout }) {
 
   const handleStatPress = (stat) => {
     switch (stat.label) {
-      case '关注':
-        navigation.navigate('Follow');
-        break;
       case '粉丝':
         navigation.navigate('Fans');
+        break;
+      case '关注':
+        navigation.navigate('Follow');
         break;
       case '提问':
         setActiveTab('我的提问');
         break;
       case '回答':
         setActiveTab('我的回答');
+        break;
+      case '点赞':
+        Alert.alert('获赞统计', '您的内容共获得 3.5k 个赞');
+        break;
+      case '收藏':
+        setShowFavoritesModal(true);
         break;
       default:
         break;
@@ -117,6 +126,9 @@ export default function ProfileScreen({ navigation, onLogout }) {
         break;
       case '我的群聊':
         navigation.navigate('MyGroups');
+        break;
+      case '我的团队':
+        navigation.navigate('MyTeams');
         break;
       case '我的活动':
         navigation.navigate('Activity', { fromProfile: true });
@@ -258,6 +270,30 @@ export default function ProfileScreen({ navigation, onLogout }) {
             <View style={styles.metaItem}><Ionicons name="location-outline" size={14} color="#9ca3af" /><Text style={styles.metaText}>北京</Text></View>
             <View style={styles.metaItem}><Ionicons name="briefcase-outline" size={14} color="#9ca3af" /><Text style={styles.metaText}>数据分析师</Text></View>
           </View>
+          
+          {/* 影响力和智慧指数 */}
+          <View style={styles.indexRow}>
+            <View style={styles.indexItem}>
+              <View style={styles.indexIconWrapper}>
+                <Ionicons name="flame" size={18} color="#ef4444" />
+              </View>
+              <View style={styles.indexInfo}>
+                <Text style={styles.indexLabel}>影响力</Text>
+                <Text style={styles.indexValue}>8,567</Text>
+              </View>
+            </View>
+            <View style={styles.indexDivider} />
+            <View style={styles.indexItem}>
+              <View style={styles.indexIconWrapper}>
+                <Ionicons name="bulb" size={18} color="#f59e0b" />
+              </View>
+              <View style={styles.indexInfo}>
+                <Text style={styles.indexLabel}>智慧指数</Text>
+                <Text style={styles.indexValue}>92.5</Text>
+              </View>
+            </View>
+          </View>
+          
           <View style={styles.statsRow}>
             {stats.map((stat, idx) => (
               <TouchableOpacity key={idx} style={styles.statItem} onPress={() => handleStatPress(stat)}>
@@ -282,13 +318,13 @@ export default function ProfileScreen({ navigation, onLogout }) {
             </View>
           </View>
           <View style={styles.walletStats}>
-            <TouchableOpacity style={styles.walletStatItem} onPress={() => handleWalletAction('expense')}>
-              <Text style={styles.walletStatValue}>$150.00</Text>
-              <Text style={styles.walletStatLabel}>悬赏支出</Text>
-            </TouchableOpacity>
             <TouchableOpacity style={styles.walletStatItem} onPress={() => handleWalletAction('income')}>
               <Text style={[styles.walletStatValue, { color: '#22c55e' }]}>$320.00</Text>
               <Text style={styles.walletStatLabel}>回答收入</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.walletStatItem} onPress={() => handleWalletAction('expense')}>
+              <Text style={styles.walletStatValue}>$150.00</Text>
+              <Text style={styles.walletStatLabel}>悬赏支出</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.walletStatItem} onPress={() => handleWalletAction('pending')}>
               <Text style={styles.walletStatValue}>12</Text>
@@ -327,15 +363,21 @@ export default function ProfileScreen({ navigation, onLogout }) {
             {myQuestions.map(q => (
               <TouchableOpacity key={q.id} style={styles.questionItem} onPress={() => handleQuestionPress(q)}>
                 <View style={styles.questionHeader}>
-                  {q.type === 'reward' ? (
-                    <View style={styles.rewardTag}><Text style={styles.rewardTagText}>悬赏 ${q.reward}</Text></View>
-                  ) : (
-                    <View style={styles.freeTag}><Text style={styles.freeTagText}>免费</Text></View>
-                  )}
-                  {q.solved && <View style={styles.solvedTag}><Text style={styles.solvedTagText}>已解决</Text></View>}
                   <Text style={styles.questionTime}>{q.time}</Text>
                 </View>
-                <Text style={styles.questionTitle}>{q.title}</Text>
+                <Text style={styles.questionTitle}>
+                  {q.type === 'reward' && (
+                    <View style={styles.rewardTagInline}>
+                      <Text style={styles.rewardTagInlineText}>${q.reward}</Text>
+                    </View>
+                  )}
+                  {q.solved && (
+                    <View style={styles.solvedTagInline}>
+                      <Text style={styles.solvedTagInlineText}>已解决</Text>
+                    </View>
+                  )}
+                  {' '}{q.title}
+                </Text>
                 <View style={styles.questionStats}>
                   <View style={styles.questionStatItem}>
                     <Ionicons name="eye-outline" size={12} color="#9ca3af" />
@@ -359,10 +401,16 @@ export default function ProfileScreen({ navigation, onLogout }) {
             {myAnswers.map(a => (
               <TouchableOpacity key={a.id} style={styles.answerItem} onPress={() => navigation.navigate('AnswerDetail', { answer: a })}>
                 <View style={styles.answerHeader}>
-                  {a.adopted && <View style={styles.adoptedTag}><Text style={styles.adoptedTagText}>已采纳</Text></View>}
-                  <Text style={[styles.answerTime, !a.adopted && { marginLeft: 0 }]}>{a.time}</Text>
+                  <Text style={styles.answerTime}>{a.time}</Text>
                 </View>
-                <Text style={styles.answerQuestion} numberOfLines={1}>{a.questionTitle}</Text>
+                <Text style={styles.answerQuestion} numberOfLines={1}>
+                  {a.adopted && (
+                    <View style={styles.adoptedTagInline}>
+                      <Text style={styles.adoptedTagInlineText}>已采纳</Text>
+                    </View>
+                  )}
+                  {' '}{a.questionTitle}
+                </Text>
                 <Text style={styles.answerContent} numberOfLines={2}>{a.content}</Text>
                 <View style={styles.answerStats}>
                   <View style={styles.questionStatItem}>
@@ -522,6 +570,13 @@ const styles = StyleSheet.create({
   userMeta: { flexDirection: 'row', gap: 16, marginTop: 10 },
   metaItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   metaText: { fontSize: 12, color: '#9ca3af' },
+  indexRow: { flexDirection: 'row', marginTop: 16, backgroundColor: '#f9fafb', borderRadius: 12, padding: 12, gap: 16 },
+  indexItem: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10 },
+  indexIconWrapper: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 2, elevation: 1 },
+  indexInfo: { flex: 1 },
+  indexLabel: { fontSize: 11, color: '#9ca3af', marginBottom: 2 },
+  indexValue: { fontSize: 16, fontWeight: 'bold', color: '#1f2937' },
+  indexDivider: { width: 1, height: '100%', backgroundColor: '#e5e7eb' },
   statsRow: { flexDirection: 'row', marginTop: 16, paddingTop: 16, borderTopWidth: 1, borderTopColor: '#f3f4f6' },
   statItem: { flex: 1, alignItems: 'center' },
   statValue: { fontSize: 16, fontWeight: 'bold', color: '#1f2937' },
@@ -554,13 +609,11 @@ const styles = StyleSheet.create({
   contentTabIndicator: { position: 'absolute', bottom: 0, width: 40, height: 2, backgroundColor: '#ef4444', borderRadius: 1 },
   questionItem: { padding: 12, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
   questionHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
-  rewardTag: { backgroundColor: '#fef2f2', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10 },
-  rewardTagText: { fontSize: 11, color: '#ef4444', fontWeight: '500' },
-  freeTag: { backgroundColor: '#f0fdf4', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10 },
-  freeTagText: { fontSize: 11, color: '#22c55e', fontWeight: '500' },
-  solvedTag: { backgroundColor: '#dcfce7', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10, marginLeft: 6 },
-  solvedTagText: { fontSize: 11, color: '#16a34a', fontWeight: '500' },
   questionTime: { fontSize: 11, color: '#9ca3af', marginLeft: 'auto' },
+  rewardTagInline: { backgroundColor: '#ef4444', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
+  rewardTagInlineText: { fontSize: 11, color: '#fff', fontWeight: '600' },
+  solvedTagInline: { backgroundColor: '#22c55e', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, marginLeft: 4 },
+  solvedTagInlineText: { fontSize: 11, color: '#fff', fontWeight: '600' },
   questionTitle: { fontSize: 14, color: '#1f2937', lineHeight: 20 },
   questionStats: { flexDirection: 'row', gap: 12, marginTop: 8 },
   questionStatItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
@@ -569,8 +622,8 @@ const styles = StyleSheet.create({
   viewAllText: { fontSize: 13, color: '#ef4444' },
   answerItem: { padding: 12, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
   answerHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
-  adoptedTag: { backgroundColor: '#dcfce7', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10 },
-  adoptedTagText: { fontSize: 11, color: '#16a34a', fontWeight: '500' },
+  adoptedTagInline: { backgroundColor: '#22c55e', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
+  adoptedTagInlineText: { fontSize: 11, color: '#fff', fontWeight: '600' },
   answerTime: { fontSize: 11, color: '#9ca3af', marginLeft: 'auto' },
   answerQuestion: { fontSize: 14, fontWeight: '500', color: '#1f2937', marginBottom: 4 },
   answerContent: { fontSize: 13, color: '#6b7280', lineHeight: 18 },
