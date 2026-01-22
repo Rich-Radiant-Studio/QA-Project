@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, Alert, Modal, TextInput } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Modal, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import Avatar from '../components/Avatar';
 
 // 顶部快捷入口数据
 const quickEntries = [
@@ -153,7 +154,7 @@ export default function MessagesScreen({ navigation }) {
           </View>
           {inviteAnswers.map(item => (
             <TouchableOpacity key={item.id} style={styles.inviteItem}>
-              <Image source={{ uri: item.avatar }} style={styles.inviteAvatar} />
+              <Avatar uri={item.avatar} name={item.name} size={40} />
               <View style={styles.inviteContent}>
                 <Text style={styles.inviteName}>{item.name} 邀请你回答</Text>
                 <Text style={styles.inviteQuestion} numberOfLines={1}>{item.question}</Text>
@@ -198,7 +199,7 @@ export default function MessagesScreen({ navigation }) {
           </View>
           {privateMessages.map(item => (
             <TouchableOpacity key={item.id} style={styles.privateItem}>
-              <Image source={{ uri: item.avatar }} style={styles.privateAvatar} />
+              <Avatar uri={item.avatar} name={item.name} size={48} />
               <View style={styles.privateContent}>
                 <View style={styles.privateTitleRow}>
                   <Text style={styles.privateName}>{item.name}</Text>
@@ -258,7 +259,7 @@ export default function MessagesScreen({ navigation }) {
           <View style={[styles.selectedUserSection, { display: selectedUser ? 'flex' : 'none' }]}>
             <Text style={styles.selectedLabel}>发送给：</Text>
             <View style={styles.selectedUserTag}>
-              <Image source={{ uri: selectedUser?.avatar }} style={styles.selectedUserAvatar} />
+              <Avatar uri={selectedUser?.avatar} name={selectedUser?.name} size={24} />
               <Text style={styles.selectedUserName}>{selectedUser?.name}</Text>
               <TouchableOpacity onPress={() => setSelectedUser(null)}>
                 <Ionicons name="close" size={16} color="#6b7280" />
@@ -276,7 +277,7 @@ export default function MessagesScreen({ navigation }) {
                   style={styles.userItem}
                   onPress={() => setSelectedUser(user)}
                 >
-                  <Image source={{ uri: user.avatar }} style={styles.userAvatar} />
+                  <Avatar uri={user.avatar} name={user.name} size={44} />
                   <View style={styles.userInfo}>
                     <View style={styles.userNameRow}>
                       <Text style={styles.userName}>{user.name}</Text>
@@ -333,7 +334,7 @@ const styles = StyleSheet.create({
   sectionTitle: { fontSize: 15, fontWeight: '600', color: '#1f2937' },
   sectionMore: { fontSize: 13, color: '#ef4444' },
   inviteItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
-  inviteAvatar: { width: 40, height: 40, borderRadius: 20 },
+
   inviteContent: { flex: 1, marginLeft: 10 },
   inviteName: { fontSize: 13, color: '#6b7280' },
   inviteQuestion: { fontSize: 14, fontWeight: '500', color: '#1f2937', marginTop: 2 },
@@ -355,7 +356,7 @@ const styles = StyleSheet.create({
   // 私信列表样式
   privateSection: { backgroundColor: '#fff', marginTop: 8, padding: 12 },
   privateItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
-  privateAvatar: { width: 48, height: 48, borderRadius: 24 },
+
   privateContent: { flex: 1, marginLeft: 12 },
   privateTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   privateName: { fontSize: 15, fontWeight: '500', color: '#1f2937' },
@@ -377,13 +378,13 @@ const styles = StyleSheet.create({
   selectedUserSection: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 10, backgroundColor: '#f9fafb', borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
   selectedLabel: { fontSize: 13, color: '#6b7280', marginRight: 8 },
   selectedUserTag: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 16, borderWidth: 1, borderColor: '#e5e7eb', gap: 6 },
-  selectedUserAvatar: { width: 24, height: 24, borderRadius: 12 },
+
   selectedUserName: { fontSize: 13, color: '#1f2937' },
   userListSection: { flex: 1, padding: 12 },
   userListTitle: { fontSize: 14, fontWeight: '500', color: '#6b7280', marginBottom: 12 },
   userList: { flex: 1 },
   userItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
-  userAvatar: { width: 44, height: 44, borderRadius: 22 },
+
   userInfo: { flex: 1, marginLeft: 12 },
   userNameRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   userName: { fontSize: 15, fontWeight: '500', color: '#1f2937' },
