@@ -94,6 +94,7 @@ const menuGroups = [
       { path: '/emergency', name: '紧急求助', icon: 'fas fa-exclamation-triangle', badge: '23' },
       { path: '/groups', name: '群聊管理', icon: 'fas fa-users-cog' },
       { path: '/hotlist', name: '热榜管理', icon: 'fas fa-fire' },
+      { path: '/hotlist-tags', name: '热榜标签', icon: 'fas fa-tags' },
       { path: '/regions', name: '地区管理', icon: 'fas fa-map-marker-alt' },
       { path: '/messages', name: '消息推送', icon: 'fas fa-bell' },
       { path: '/reports', name: '举报管理', icon: 'fas fa-flag', badge: '8' },

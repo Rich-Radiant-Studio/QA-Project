@@ -57,9 +57,14 @@ export default function SearchScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* 搜索栏 */}
+      {/* 头部 */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+        <TouchableOpacity 
+          onPress={() => navigation.goBack()} 
+          style={styles.backBtn}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          activeOpacity={0.7}
+        >
           <Ionicons name="arrow-back" size={24} color="#374151" />
         </TouchableOpacity>
         <View style={styles.searchBar}>
@@ -143,10 +148,10 @@ export default function SearchScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f3f4f6' },
   header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 8, backgroundColor: '#fff' },
-  backBtn: { padding: 8 },
-  searchBar: { flex: 1, flexDirection: 'row', alignItems: 'center', backgroundColor: '#f3f4f6', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 8 },
+  backBtn: { padding: 8, minWidth: 44, minHeight: 44, justifyContent: 'center', alignItems: 'center' },
+  searchBar: { flex: 1, flexDirection: 'row', alignItems: 'center', backgroundColor: '#f3f4f6', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 8, marginHorizontal: 8 },
   searchInput: { flex: 1, marginLeft: 8, fontSize: 14 },
-  searchBtn: { paddingHorizontal: 12, paddingVertical: 8 },
+  searchBtn: { paddingHorizontal: 12, paddingVertical: 8, minWidth: 44, minHeight: 44, justifyContent: 'center', alignItems: 'center' },
   searchBtnText: { color: '#ef4444', fontSize: 14, fontWeight: '500' },
   content: { flex: 1 },
   section: { backgroundColor: '#fff', marginTop: 8, paddingHorizontal: 16, paddingVertical: 12 },

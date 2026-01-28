@@ -26,7 +26,7 @@ function QuestionCard({ question }) {
             <span className="font-medium text-sm">{question.author}</span>
             {question.verified && <i className="fas fa-check-circle text-blue-500 text-xs ml-1"></i>}
             <span className={`${typeClass[question.type]} text-white text-xs px-2 py-0.5 rounded-full ml-2`}>
-              {question.type === 'reward' ? `悬赏 $${question.reward}` : question.type === 'free' ? '免费' : '定向'}
+              {question.type === 'reward' ? `悬赏 $${question.reward}` : question.type === 'free' ? '公开' : '定向'}
             </span>
           </div>
           <span className="text-xs text-gray-400">{question.time}</span>

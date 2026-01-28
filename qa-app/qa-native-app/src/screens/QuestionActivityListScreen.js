@@ -61,14 +61,24 @@ export default function QuestionActivityListScreen({ navigation, route }) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+        <TouchableOpacity 
+          onPress={() => navigation.goBack()} 
+          style={styles.backBtn}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          activeOpacity={0.7}
+        >
           <Ionicons name="arrow-back" size={24} color="#374151" />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
           <Text style={styles.headerTitle}>相关活动</Text>
           <Text style={styles.headerSubtitle} numberOfLines={1}>{questionTitle}</Text>
         </View>
-        <TouchableOpacity style={styles.publishBtn} onPress={() => setShowActivityModal(true)}>
+        <TouchableOpacity 
+          style={styles.publishBtn} 
+          onPress={() => setShowActivityModal(true)}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          activeOpacity={0.7}
+        >
           <Text style={styles.publishBtnText}>发布</Text>
         </TouchableOpacity>
       </View>

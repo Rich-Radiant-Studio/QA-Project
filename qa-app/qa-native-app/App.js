@@ -23,7 +23,15 @@ import LoginScreen from './src/screens/LoginScreen';
 import QuestionActivityListScreen from './src/screens/QuestionActivityListScreen';
 import MyTeamsScreen from './src/screens/MyTeamsScreen';
 import TeamDetailScreen from './src/screens/TeamDetailScreen';
-import { AccountSecurityScreen, PrivacySettingsScreen, HelpFeedbackScreen, AboutScreen, EditProfileScreen, FansScreen, MyGroupsScreen } from './src/screens/SettingsScreen';
+import QuestionTeamsScreen from './src/screens/QuestionTeamsScreen';
+import SettingsScreen from './src/screens/SettingsScreen';
+import WisdomIndexScreen from './src/screens/WisdomIndexScreen';
+import WisdomExamScreen from './src/screens/WisdomExamScreen';
+import ExamHistoryScreen from './src/screens/ExamHistoryScreen';
+import ExamDetailScreen from './src/screens/ExamDetailScreen';
+import QuestionBankScreen from './src/screens/QuestionBankScreen';
+import UploadBankScreen from './src/screens/UploadBankScreen';
+import ChannelManageScreen from './src/screens/ChannelManageScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -305,17 +313,21 @@ export default function App() {
         <Stack.Screen name="Messages" component={MessagesScreen} />
         <Stack.Screen name="GroupChat" component={GroupChatScreen} />
         <Stack.Screen name="AnswerDetail" component={AnswerDetailScreen} />
-        <Stack.Screen name="Activity" component={ActivityScreen} />
-        {/* 设置相关页面 */}
-        <Stack.Screen name="AccountSecurity" component={AccountSecurityScreen} />
-        <Stack.Screen name="PrivacySettings" component={PrivacySettingsScreen} />
-        <Stack.Screen name="HelpFeedback" component={HelpFeedbackScreen} />
-        <Stack.Screen name="About" component={AboutScreen} />
-        <Stack.Screen name="EditProfile" component={EditProfileScreen} />
-        <Stack.Screen name="Fans" component={FansScreen} />
-        <Stack.Screen name="MyGroups" component={MyGroupsScreen} />
+        {/* 团队相关页面 */}
         <Stack.Screen name="MyTeams" component={MyTeamsScreen} />
+        <Stack.Screen name="QuestionTeams" component={QuestionTeamsScreen} />
         <Stack.Screen name="TeamDetail" component={TeamDetailScreen} />
+        {/* 设置页面 */}
+        <Stack.Screen name="Settings" component={SettingsScreen} />
+        {/* 频道管理页面 */}
+        <Stack.Screen name="ChannelManage" component={ChannelManageScreen} />
+        {/* 智慧指数相关页面 */}
+        <Stack.Screen name="WisdomIndex" component={WisdomIndexScreen} />
+        <Stack.Screen name="WisdomExam" component={WisdomExamScreen} />
+        <Stack.Screen name="ExamHistory" component={ExamHistoryScreen} />
+        <Stack.Screen name="ExamDetail" component={ExamDetailScreen} />
+        <Stack.Screen name="QuestionBank" component={QuestionBankScreen} />
+        <Stack.Screen name="UploadBank" component={UploadBankScreen} />
       </Stack.Navigator>
       <EmergencyModal
         visible={emergencyModalVisible}

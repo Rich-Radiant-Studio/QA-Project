@@ -96,7 +96,7 @@ function Follow() {
                 <div className="bg-gray-50 rounded-lg p-3 mb-3">
                   <div className="flex items-center mb-1">
                     <span className={`${item.question.type === 'reward' ? 'question-type-reward' : 'question-type-free'} text-white text-xs px-2 py-0.5 rounded-full`}>
-                      {item.question.type === 'reward' ? `悬赏 $${item.question.reward}` : '免费'}
+                      {item.question.type === 'reward' ? `悬赏 $${item.question.reward}` : '公开'}
                     </span>
                   </div>
                   <h3 className="text-sm font-medium text-gray-900">{item.question.title}</h3>

@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 const hotTabs = ['全站热榜', '国家热榜', '行业热榜', '个人热榜'];
 
 const subTabsData = {
-  '全站热榜': [],
+  '全站热榜': ['科技数码', 'Python编程', '职场发展', '健康养生', '美食烹饪', '旅游出行'],
   '国家热榜': ['政策法规', '社会民生', '经济发展', '教育医疗', '环境保护', '基础设施'],
   '行业热榜': ['互联网', '金融', '医疗健康', '教育培训', '房地产', '制造业', '餐饮服务'],
   '个人热榜': ['职业发展', '情感生活', '健康养生', '理财投资', '学习成长', '家庭关系'],
@@ -19,6 +19,30 @@ const hotListData = {
     { id: 'qz3', rank: 3, title: '2026年最值得学习的编程语言是什么？', hot: '1245万', tag: '新', tagColor: '#22c55e', author: '技术博主', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=hot3', answers: 1567, isUp: false },
     { id: 'qz4', rank: 4, title: '第一次养猫需要准备什么？', hot: '986万', tag: '', tagColor: '', author: '李小龙', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=hot4', answers: 1234, isUp: true },
     { id: 'qz5', rank: 5, title: '长期失眠应该怎么调理？', hot: '876万', tag: '', tagColor: '', author: '王医生', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=hot5', answers: 987, isUp: false },
+  ],
+  '科技数码': [
+    { id: 'kj1', rank: 1, title: 'iPhone 15 Pro值得购买吗？', hot: '1234万', tag: '热', tagColor: '#ef4444', author: '数码评测', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=kj1', answers: 1876, isUp: true },
+    { id: 'kj2', rank: 2, title: '2026年最值得买的笔记本电脑推荐', hot: '987万', tag: '新', tagColor: '#22c55e', author: '科技达人', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=kj2', answers: 1543, isUp: true },
+  ],
+  'Python编程': [
+    { id: 'py1', rank: 1, title: 'Python爬虫入门教程推荐', hot: '1567万', tag: '热', tagColor: '#ef4444', author: 'Python老司机', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=py1', answers: 2345, isUp: true },
+    { id: 'py2', rank: 2, title: 'Django和Flask该选哪个？', hot: '1234万', tag: '', tagColor: '', author: '后端开发', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=py2', answers: 1876, isUp: false },
+  ],
+  '职场发展': [
+    { id: 'zc1', rank: 1, title: '如何写一份优秀的简历？', hot: '1765万', tag: '热', tagColor: '#ef4444', author: 'HR总监', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=zc1', answers: 3234, isUp: true },
+    { id: 'zc2', rank: 2, title: '面试时如何谈薪资？', hot: '1543万', tag: '热', tagColor: '#ef4444', author: '职场导师', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=zc2', answers: 2876, isUp: true },
+  ],
+  '健康养生': [
+    { id: 'jk1', rank: 1, title: '每天喝多少水才健康？', hot: '1543万', tag: '热', tagColor: '#ef4444', author: '营养师', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=jk1', answers: 2345, isUp: true },
+    { id: 'jk2', rank: 2, title: '如何科学减肥不反弹？', hot: '1321万', tag: '新', tagColor: '#22c55e', author: '健身教练', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=jk2', answers: 1987, isUp: true },
+  ],
+  '美食烹饪': [
+    { id: 'ms1', rank: 1, title: '有什么简单又好吃的家常菜推荐？', hot: '1432万', tag: '热', tagColor: '#ef4444', author: '美食达人', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ms1', answers: 2134, isUp: true },
+    { id: 'ms2', rank: 2, title: '新手如何做出好吃的红烧肉？', hot: '1234万', tag: '', tagColor: '', author: '厨艺大师', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ms2', answers: 1765, isUp: false },
+  ],
+  '旅游出行': [
+    { id: 'ly1', rank: 1, title: '2026年国内旅游最值得去的地方', hot: '1654万', tag: '热', tagColor: '#ef4444', author: '旅游博主', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ly1', answers: 2456, isUp: true },
+    { id: 'ly2', rank: 2, title: '出国旅游需要准备什么？', hot: '1321万', tag: '新', tagColor: '#22c55e', author: '环球旅行家', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ly2', answers: 1876, isUp: true },
   ],
   '国家热榜': [
     { id: 'gj1', rank: 1, title: '2026年新能源汽车补贴政策有哪些变化？', hot: '2156万', tag: '热', tagColor: '#ef4444', author: '政策解读', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=gj1', answers: 3456, isUp: true },
@@ -193,11 +217,20 @@ export default function HotListScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+        <TouchableOpacity 
+          onPress={() => navigation.goBack()} 
+          style={styles.backBtn}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          activeOpacity={0.7}
+        >
           <Ionicons name="arrow-back" size={24} color="#374151" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>热榜</Text>
-        <TouchableOpacity style={styles.refreshBtn}>
+        <TouchableOpacity 
+          style={styles.refreshBtn}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          activeOpacity={0.7}
+        >
           <Ionicons name="refresh" size={22} color="#6b7280" />
         </TouchableOpacity>
       </View>
@@ -219,6 +252,11 @@ export default function HotListScreen({ navigation }) {
       {hasSubTabs && (
         <View style={styles.subTabBar}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <SubTabItem 
+              label="全部"
+              isActive={activeSubTab === ''}
+              onPress={() => setActiveSubTab('')}
+            />
             {visibleSubTabs.map((sub) => (
               <SubTabItem 
                 key={sub}

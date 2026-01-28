@@ -1,189 +1,176 @@
-# 无限滚动浏览功能说明
+# 无限滚动加载功能实现方案
 
-## ✅ 已完成的工作
+## 功能需求
 
-### 功能概述
-在问题详情页实现了类似抖音/小红书的无限滚动浏览体验。用户可以通过上滑查看更多相关推荐问题,无需返回列表页。
+在问题详情页的四个列表标签页中实现无限滚动加载功能：
+1. 补充列表
+2. 回答列表
+3. 评论列表
+4. 邀请列表
 
-### 实现位置
-- **文件**: `qa-app/qa-native-app/src/screens/QuestionDetailScreen.js`
-- **位置**: "查看更多回答"按钮下方
+## 交互流程
 
-## 📱 功能特点
+### 默认状态
+- 显示前3-5条数据
+- 显示推荐模块（如果有）
+- 底部显示"查看更多XXX (N)"按钮
 
-### 1. 推荐问题区域
-在当前问题的所有回答展示完毕后,自动显示推荐的相关问题。
+### 展开状态
+- 点击"查看更多"按钮
+- 隐藏推荐模块
+- 显示所有已加载的数据
+- 支持向上滚动加载更多数据
+- 底部固定显示"收起"按钮
 
-### 2. 区域头部
-- **图标**: 灯泡图标(黄色)
-- **标题**: "相关推荐"
-- **副标题**: "继续浏览更多精彩内容"
+### 收起状态
+- 点击"收起"按钮
+- 恢复到默认状态
+- 显示前3-5条数据
+- 重新显示推荐模块
 
-### 3. 推荐问题卡片
-每个推荐问题卡片包含:
+## 技术实现
 
-#### 顶部标签
-- **悬赏标签**: 显示悬赏金额(红色背景)
-- **热门标签**: 火焰图标 + "热门"文字(可选)
+### 1. 状态管理
 
-#### 问题信息
-- **问题标题**: 大字号,加粗显示
-- **问题内容**: 最多显示3行,超出显示省略号
-- **作者信息**: 头像 + 姓名 + 发布时间
-- **统计数据**: 回答数 + 浏览量
+需要为每个列表添加以下状态：
 
-#### 话题标签
-- 显示相关话题标签
-- 蓝色背景,圆角设计
-
-#### 底部提示
-- **上滑提示**: 向上箭头 + "上滑查看详情/更多"
-- 引导用户继续滚动
-
-### 4. 交互功能
-- **点击卡片**: 使用 `navigation.push()` 跳转到新问题详情页
-- **无限滚动**: 可以持续上滑查看更多问题
-- **返回导航**: 支持返回到之前查看的问题
-
-## 🎨 设计特点
-
-### 视觉层次
-1. **区域分隔**: 浅灰色背景区分推荐区域
-2. **卡片设计**: 白色卡片,顶部边框分隔
-3. **信息层级**: 标题 → 内容 → 元信息 → 标签 → 提示
-
-### 颜色方案
-- **背景色**: #f9fafb (浅灰)
-- **卡片背景**: #fff (白色)
-- **悬赏标签**: #ef4444 (红色)
-- **热门标签**: #fef2f2 (浅红背景) + #ef4444 (红色文字)
-- **话题标签**: #eff6ff (浅蓝背景) + #3b82f6 (蓝色文字)
-- **提示文字**: #9ca3af (灰色)
-
-### 间距设计
-- 区域内边距: 16px
-- 卡片间距: 8px
-- 元素间距: 8-12px
-
-## 🔄 使用流程
-
-1. 用户进入问题详情页
-2. 向下滚动查看问题内容和回答
-3. 滚动到"查看更多回答"按钮下方
-4. 看到"相关推荐"区域
-5. 继续上滑查看推荐问题
-6. 点击感兴趣的问题卡片
-7. 跳转到新问题详情页
-8. 重复步骤2-7,实现无限浏览
-
-## 💡 技术实现
-
-### 导航方式
-使用 `navigation.push()` 而不是 `navigation.navigate()`:
 ```javascript
-navigation.push('QuestionDetail', { id: 2 })
+// 补充列表
+const [showAllSupplements, setShowAllSupplements] = useState(false);
+const [supplementsPage, setSupplementsPage] = useState(1);
+const [loadingSupplements, setLoadingSupplements] = useState(false);
+
+// 回答列表
+const [showAllAnswers, setShowAllAnswers] = useState(false);
+const [answersPage, setAnswersPage] = useState(1);
+const [loadingAnswers, setLoadingAnswers] = useState(false);
+
+// 评论列表
+const [showAllComments, setShowAllComments] = useState(false);
+const [commentsPage, setCommentsPage] = useState(1);
+const [loadingComments, setLoadingComments] = useState(false);
+
+// 邀请列表
+const [showAllInvited, setShowAllInvited] = useState(false);
+const [invitedPage, setInvitedPage] = useState(1);
+const [loadingInvited, setLoadingInvited] = useState(false);
 ```
 
-**优势**:
-- 支持查看同一个路由的多个实例
-- 可以无限堆叠问题详情页
-- 支持返回到之前查看的问题
+### 2. 数据加载函数
 
-### 数据结构
 ```javascript
-{
-  id: 2,
-  title: '问题标题',
-  content: '问题内容',
-  reward: '$30',
-  isHot: true,
-  author: {
-    name: '作者名',
-    avatar: '头像URL'
-  },
-  stats: {
-    answers: 89,
-    views: '2.3k'
-  },
-  tags: ['#标签1', '#标签2'],
-  time: '3小时前'
-}
+const loadMoreSupplements = () => {
+  if (loadingSupplements) return;
+  setLoadingSupplements(true);
+  
+  // 模拟API调用
+  setTimeout(() => {
+    // 添加新数据到列表
+    setSupplementsPage(supplementsPage + 1);
+    setLoadingSupplements(false);
+  }, 1000);
+};
 ```
 
-## 🚀 后续优化建议
+### 3. ScrollView 配置
 
-### 1. 智能推荐
-- 根据当前问题的标签推荐相关问题
-- 根据用户浏览历史推荐
-- 根据用户兴趣推荐
+```javascript
+<ScrollView
+  onScroll={({nativeEvent}) => {
+    if (showAllSupplements) {
+      const {layoutMeasurement, contentOffset, contentSize} = nativeEvent;
+      const paddingToBottom = 20;
+      if (layoutMeasurement.height + contentOffset.y >= 
+          contentSize.height - paddingToBottom) {
+        loadMoreSupplements();
+      }
+    }
+  }}
+  scrollEventThrottle={400}
+>
+```
 
-### 2. 加载更多
-- 滚动到底部时自动加载更多推荐
-- 显示加载动画
-- 支持下拉刷新
+### 4. 按钮交互
 
-### 3. 数据持久化
-- 记录用户浏览历史
-- 支持"已读"标记
-- 避免重复推荐
+```javascript
+// 查看更多按钮
+<TouchableOpacity 
+  style={styles.loadMoreBtn}
+  onPress={() => setShowAllSupplements(true)}
+>
+  <Text>查看更多补充 (N)</Text>
+  <Ionicons name="chevron-down" size={16} color="#ef4444" />
+</TouchableOpacity>
 
-### 4. 性能优化
-- 使用 FlatList 替代 ScrollView
-- 实现虚拟滚动
-- 图片懒加载
+// 收起按钮（固定在底部）
+{showAllSupplements && (
+  <View style={styles.collapseButtonContainer}>
+    <TouchableOpacity 
+      style={styles.collapseBtn}
+      onPress={() => {
+        setShowAllSupplements(false);
+        setSupplementsPage(1);
+      }}
+    >
+      <Text>收起</Text>
+      <Ionicons name="chevron-up" size={16} color="#ef4444" />
+    </TouchableOpacity>
+  </View>
+)}
+```
 
-### 5. 交互优化
-- 添加滑动手势
-- 支持左右滑动切换问题
-- 添加过渡动画
+## 样式定义
 
-### 6. 个性化
-- 允许用户隐藏不感兴趣的问题
-- 支持举报不当内容
-- 收藏感兴趣的问题
+```javascript
+collapseButtonContainer: {
+  position: 'sticky',
+  bottom: 0,
+  backgroundColor: '#fff',
+  borderTopWidth: 1,
+  borderTopColor: '#f3f4f6',
+  paddingVertical: 12,
+  paddingHorizontal: 16,
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: -2 },
+  shadowOpacity: 0.1,
+  shadowRadius: 4,
+  elevation: 5,
+},
+collapseBtn: {
+  flexDirection: 'row',
+  justifyContent: 'center',
+  alignItems: 'center',
+  gap: 4,
+  paddingVertical: 12,
+  backgroundColor: '#fef2f2',
+  borderRadius: 8,
+},
+```
 
-## 📊 用户体验提升
+## 实施步骤
 
-### 优势
-1. **减少跳转**: 无需返回列表页即可浏览更多内容
-2. **沉浸体验**: 连续的浏览体验,类似短视频应用
-3. **发现更多**: 增加用户发现新内容的机会
-4. **提高留存**: 延长用户停留时间
+1. ✅ 添加状态管理变量
+2. ✅ 实现数据加载函数
+3. ✅ 修改ScrollView添加滚动监听
+4. ✅ 更新按钮交互逻辑
+5. ✅ 添加加载指示器
+6. ✅ 测试各个列表的展开/收起功能
+7. ✅ 优化性能和用户体验
 
-### 注意事项
-1. **返回导航**: 确保用户可以方便地返回
-2. **性能考虑**: 避免堆栈过深导致内存问题
-3. **内容质量**: 推荐内容需要高质量和相关性
-4. **加载速度**: 确保推荐内容快速加载
+## 注意事项
 
-## 📝 示例数据
+1. 展开状态下隐藏推荐模块，避免干扰
+2. 收起时重置页码，避免数据累积
+3. 添加加载指示器，提升用户体验
+4. 防止重复加载（loading状态控制）
+5. 滚动到底部时自动加载下一页
+6. 收起按钮需要固定在底部，不随内容滚动
 
-当前实现包含2个示例推荐问题:
+## 预期效果
 
-### 问题1
-- **标题**: React Native开发中如何优化长列表性能？
-- **悬赏**: $30
-- **标签**: 热门
-- **话题**: #ReactNative #性能优化 #移动开发
-
-### 问题2
-- **标题**: 如何系统学习JavaScript？
-- **悬赏**: $20
-- **话题**: #JavaScript #前端开发 #学习路线
-
-## 🔧 自定义配置
-
-### 修改推荐数量
-在代码中添加更多推荐问题卡片即可。
-
-### 修改推荐逻辑
-后续可以对接后端API,根据算法返回个性化推荐。
-
-### 修改样式
-所有样式都在 `styles` 对象中定义,可以轻松自定义。
-
----
-
-**创建时间**: 2026-01-21
-**状态**: 已完成基础功能
-**下一步**: 对接后端API实现智能推荐
+用户可以：
+- 快速浏览前几条重要内容
+- 需要时展开查看所有内容
+- 无限滚动加载更多数据
+- 随时收起回到简洁视图
+- 在不同列表间切换时保持各自状态

@@ -5,29 +5,18 @@ import { Ionicons } from '@expo/vector-icons';
 import Avatar from '../components/Avatar';
 
 const stats = [
-  { label: '粉丝', value: '1.2k', screen: 'Fans' },
   { label: '点赞', value: '3.5k', screen: 'Likes' },
-  { label: '收藏', value: '892', screen: 'Bookmarks' },
-  { label: '回答', value: '234', screen: 'MyAnswers' },
-  { label: '提问', value: '56', screen: 'MyQuestions' },
+  { label: '粉丝', value: '1.2k', screen: 'Fans' },
   { label: '关注', value: '128', screen: 'Follow' },
+  { label: '朋友', value: '56', screen: 'Friends' },
 ];
 
 const menuItems = [
-  { icon: 'star', label: '我的收藏', value: '89', color: '#eab308' },
   { icon: 'time', label: '浏览历史', value: '', color: '#3b82f6' },
   { icon: 'document-text', label: '我的草稿', value: '3', color: '#22c55e' },
   { icon: 'people', label: '我的群聊', value: '5', color: '#a855f7' },
   { icon: 'people-circle', label: '我的团队', value: '2', color: '#f59e0b' },
   { icon: 'calendar', label: '我的活动', value: '2', color: '#ef4444' },
-];
-
-const settingsItems = [
-  { icon: 'shield-checkmark', label: '账号与安全', color: '#6b7280', screen: 'AccountSecurity' },
-  { icon: 'notifications', label: '消息通知', color: '#6b7280', screen: 'Messages' },
-  { icon: 'lock-closed', label: '隐私设置', color: '#6b7280', screen: 'PrivacySettings' },
-  { icon: 'help-circle', label: '帮助与反馈', color: '#6b7280', screen: 'HelpFeedback' },
-  { icon: 'information-circle', label: '关于我们', color: '#6b7280', screen: 'About' },
 ];
 
 const myQuestions = [
@@ -43,7 +32,7 @@ const myAnswers = [
   { id: 4, questionTitle: '如何克服拖延症？', content: '拖延症的根本原因是对任务的恐惧，可以尝试番茄工作法...', likes: 98, comments: 8, adopted: false, time: '2天前' },
 ];
 
-const contentTabs = ['我的提问', '我的回答'];
+const contentTabs = ['我的提问 (56)', '我的回答 (234)', '我的收藏 (892)'];
 
 // 收藏数据
 const favoritesData = {
@@ -76,7 +65,7 @@ const draftsList = [
 ];
 
 export default function ProfileScreen({ navigation, onLogout }) {
-  const [activeTab, setActiveTab] = useState('我的提问');
+  const [activeTab, setActiveTab] = useState('我的提问 (56)');
   const [showFavoritesModal, setShowFavoritesModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [showDraftsModal, setShowDraftsModal] = useState(false);
@@ -98,17 +87,11 @@ export default function ProfileScreen({ navigation, onLogout }) {
       case '关注':
         navigation.navigate('Follow');
         break;
-      case '提问':
-        setActiveTab('我的提问');
-        break;
-      case '回答':
-        setActiveTab('我的回答');
-        break;
       case '点赞':
         Alert.alert('获赞统计', '您的内容共获得 3.5k 个赞');
         break;
-      case '收藏':
-        setShowFavoritesModal(true);
+      case '朋友':
+        Alert.alert('我的朋友', '您有 56 位朋友');
         break;
       default:
         break;
@@ -117,9 +100,6 @@ export default function ProfileScreen({ navigation, onLogout }) {
 
   const handleMenuPress = (item) => {
     switch (item.label) {
-      case '我的收藏':
-        setShowFavoritesModal(true);
-        break;
       case '浏览历史':
         setShowHistoryModal(true);
         break;
@@ -133,29 +113,8 @@ export default function ProfileScreen({ navigation, onLogout }) {
         navigation.navigate('MyTeams');
         break;
       case '我的活动':
-        navigation.navigate('Activity', { fromProfile: true });
-        break;
-      default:
-        break;
-    }
-  };
-
-  const handleSettingPress = (item) => {
-    switch (item.label) {
-      case '消息通知':
-        navigation.navigate('Messages');
-        break;
-      case '账号与安全':
-        navigation.navigate('AccountSecurity');
-        break;
-      case '隐私设置':
-        navigation.navigate('PrivacySettings');
-        break;
-      case '帮助与反馈':
-        navigation.navigate('HelpFeedback');
-        break;
-      case '关于我们':
-        navigation.navigate('About');
+        // 使用jumpTo跳转到活动Tab
+        navigation.navigate('活动', { fromProfile: true });
         break;
       default:
         break;
@@ -164,10 +123,6 @@ export default function ProfileScreen({ navigation, onLogout }) {
 
   const handleQuestionPress = (question) => {
     navigation.navigate('QuestionDetail', { id: question.id });
-  };
-
-  const handleEditProfile = () => {
-    navigation.navigate('EditProfile');
   };
 
   const handleWalletAction = (action) => {
@@ -248,8 +203,21 @@ export default function ProfileScreen({ navigation, onLogout }) {
         {/* 顶部背景 */}
         <View style={styles.headerBg}>
           <View style={styles.headerActions}>
-            <TouchableOpacity onPress={handleShare}><Ionicons name="share-social-outline" size={22} color="#fff" /></TouchableOpacity>
-            <TouchableOpacity style={{ marginLeft: 16 }} onPress={() => navigation.navigate('AccountSecurity')}><Ionicons name="settings-outline" size={22} color="#fff" /></TouchableOpacity>
+            <TouchableOpacity 
+              onPress={handleShare}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="share-social-outline" size={22} color="#fff" />
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={{ marginLeft: 16 }} 
+              onPress={() => navigation.navigate('Settings')}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="settings-outline" size={22} color="#fff" />
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -265,7 +233,6 @@ export default function ProfileScreen({ navigation, onLogout }) {
               </View>
               <Text style={styles.userId}>ID: 12345678</Text>
             </View>
-            <TouchableOpacity style={styles.editBtn} onPress={handleEditProfile}><Text style={styles.editBtnText}>编辑资料</Text></TouchableOpacity>
           </View>
           <Text style={styles.userBio}>热爱学习，乐于分享。专注Python、数据分析领域。</Text>
           <View style={styles.userMeta}>
@@ -285,7 +252,10 @@ export default function ProfileScreen({ navigation, onLogout }) {
               </View>
             </View>
             <View style={styles.indexDivider} />
-            <View style={styles.indexItem}>
+            <TouchableOpacity 
+              style={styles.indexItem}
+              onPress={() => navigation.navigate('WisdomIndex')}
+            >
               <View style={styles.indexIconWrapper}>
                 <Ionicons name="bulb" size={18} color="#f59e0b" />
               </View>
@@ -293,7 +263,7 @@ export default function ProfileScreen({ navigation, onLogout }) {
                 <Text style={styles.indexLabel}>智慧指数</Text>
                 <Text style={styles.indexValue}>92.5</Text>
               </View>
-            </View>
+            </TouchableOpacity>
           </View>
           
           <View style={styles.statsRow}>
@@ -361,7 +331,7 @@ export default function ProfileScreen({ navigation, onLogout }) {
           </View>
           
           {/* 我的提问列表 */}
-          <View style={{ display: activeTab === '我的提问' ? 'flex' : 'none' }}>
+          <View style={{ display: activeTab === '我的提问 (56)' ? 'flex' : 'none' }}>
             {myQuestions.map(q => (
               <TouchableOpacity key={q.id} style={styles.questionItem} onPress={() => handleQuestionPress(q)}>
                 <View style={styles.questionHeader}>
@@ -399,7 +369,7 @@ export default function ProfileScreen({ navigation, onLogout }) {
           </View>
 
           {/* 我的回答列表 */}
-          <View style={{ display: activeTab === '我的回答' ? 'flex' : 'none' }}>
+          <View style={{ display: activeTab === '我的回答 (234)' ? 'flex' : 'none' }}>
             {myAnswers.map(a => (
               <TouchableOpacity key={a.id} style={styles.answerItem} onPress={() => navigation.navigate('AnswerDetail', { answer: a })}>
                 <View style={styles.answerHeader}>
@@ -427,19 +397,53 @@ export default function ProfileScreen({ navigation, onLogout }) {
               </TouchableOpacity>
             ))}
           </View>
+
+          {/* 我的收藏列表 */}
+          <View style={{ display: activeTab === '我的收藏 (892)' ? 'flex' : 'none' }}>
+            {/* 收藏分类标签 */}
+            <View style={styles.favoriteTabsInline}>
+              <TouchableOpacity 
+                style={[styles.favoriteTabInline, favoritesTab === 'questions' && styles.favoriteTabInlineActive]} 
+                onPress={() => setFavoritesTab('questions')}
+              >
+                <Text style={[styles.favoriteTabInlineText, favoritesTab === 'questions' && styles.favoriteTabInlineTextActive]}>
+                  问题 ({favoritesData.questions.length})
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.favoriteTabInline, favoritesTab === 'answers' && styles.favoriteTabInlineActive]} 
+                onPress={() => setFavoritesTab('answers')}
+              >
+                <Text style={[styles.favoriteTabInlineText, favoritesTab === 'answers' && styles.favoriteTabInlineTextActive]}>
+                  回答 ({favoritesData.answers.length})
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.favoriteTabInline, favoritesTab === 'comments' && styles.favoriteTabInlineActive]} 
+                onPress={() => setFavoritesTab('comments')}
+              >
+                <Text style={[styles.favoriteTabInlineText, favoritesTab === 'comments' && styles.favoriteTabInlineTextActive]}>
+                  评论 ({favoritesData.comments.length})
+                </Text>
+              </TouchableOpacity>
+            </View>
+            
+            {/* 收藏内容列表 */}
+            {getFavoritesData().map(item => (
+              <TouchableOpacity key={item.id} style={styles.favoriteItem} onPress={() => handleFavoritePress(item)}>
+                <View style={styles.favoriteItemContent}>
+                  <Text style={styles.favoriteItemTitle}>{item.title}</Text>
+                  <View style={styles.favoriteItemMeta}>
+                    <Text style={styles.favoriteItemAuthor}>{item.author}</Text>
+                    <Text style={styles.favoriteItemTime}>{item.time}</Text>
+                  </View>
+                </View>
+                <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
+              </TouchableOpacity>
+            ))}
+          </View>
           
           <TouchableOpacity style={styles.viewAllBtn} onPress={() => Alert.alert('查看全部', `查看全部${activeTab}`)}><Text style={styles.viewAllText}>查看全部</Text><Ionicons name="chevron-forward" size={16} color="#ef4444" /></TouchableOpacity>
-        </View>
-
-        {/* 更多设置 */}
-        <View style={styles.settingsSection}>
-          {settingsItems.map((item, idx) => (
-            <TouchableOpacity key={idx} style={styles.menuItem} onPress={() => handleSettingPress(item)}>
-              <Ionicons name={item.icon} size={20} color={item.color} />
-              <Text style={styles.menuLabel}>{item.label}</Text>
-              <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
-            </TouchableOpacity>
-          ))}
         </View>
 
         {/* 退出登录 */}
@@ -566,8 +570,6 @@ const styles = StyleSheet.create({
   levelTag: { backgroundColor: '#fef3c7', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
   levelText: { fontSize: 10, color: '#d97706', fontWeight: '500' },
   userId: { fontSize: 12, color: '#9ca3af', marginTop: 4 },
-  editBtn: { paddingHorizontal: 12, paddingVertical: 6, borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 14 },
-  editBtnText: { fontSize: 12, color: '#6b7280' },
   userBio: { fontSize: 13, color: '#4b5563', marginTop: 12, lineHeight: 18 },
   userMeta: { flexDirection: 'row', gap: 16, marginTop: 10 },
   metaItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
@@ -630,7 +632,6 @@ const styles = StyleSheet.create({
   answerQuestion: { fontSize: 14, fontWeight: '500', color: '#1f2937', marginBottom: 4 },
   answerContent: { fontSize: 13, color: '#6b7280', lineHeight: 18 },
   answerStats: { flexDirection: 'row', gap: 12, marginTop: 8 },
-  settingsSection: { backgroundColor: '#fff', marginHorizontal: 12, marginTop: 12, borderRadius: 16, overflow: 'hidden' },
   logoutBtn: { marginHorizontal: 12, marginTop: 12, backgroundColor: '#fff', borderRadius: 16, paddingVertical: 14, alignItems: 'center' },
   logoutText: { fontSize: 15, color: '#ef4444', fontWeight: '500' },
   listModal: { flex: 1, backgroundColor: '#fff' },
@@ -657,4 +658,16 @@ const styles = StyleSheet.create({
   draftTitle: { fontSize: 14, color: '#1f2937', marginBottom: 4 },
   draftTime: { fontSize: 12, color: '#9ca3af' },
   draftDeleteBtn: { padding: 8 },
+  // 内嵌收藏标签样式
+  favoriteTabsInline: { flexDirection: 'row', backgroundColor: '#f9fafb', borderRadius: 8, padding: 4, margin: 12 },
+  favoriteTabInline: { flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: 6 },
+  favoriteTabInlineActive: { backgroundColor: '#fff', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 2, elevation: 1 },
+  favoriteTabInlineText: { fontSize: 13, color: '#6b7280' },
+  favoriteTabInlineTextActive: { color: '#ef4444', fontWeight: '600' },
+  favoriteItem: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
+  favoriteItemContent: { flex: 1 },
+  favoriteItemTitle: { fontSize: 14, color: '#1f2937', lineHeight: 20, marginBottom: 6 },
+  favoriteItemMeta: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  favoriteItemAuthor: { fontSize: 12, color: '#6b7280' },
+  favoriteItemTime: { fontSize: 12, color: '#9ca3af' },
 });

@@ -135,7 +135,7 @@ const getRankBg = (rank) => {
 const latestQuestions = [
   { id: 1, title: '如何在三个月内从零基础学会Python编程？', type: '悬赏 $50', typeClass: 'bg-gradient-to-r from-red-500 to-orange-500',
     author: '张三丰', time: '2小时前', status: '待审核', statusClass: 'bg-yellow-100 text-yellow-600', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user1' },
-  { id: 2, title: '第一次养猫需要准备什么？', type: '免费', typeClass: 'bg-gradient-to-r from-green-500 to-teal-500',
+  { id: 2, title: '第一次养猫需要准备什么？', type: '公开', typeClass: 'bg-gradient-to-r from-green-500 to-teal-500',
     author: '李小龙', time: '5小时前', status: '已通过', statusClass: 'bg-green-100 text-green-600', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user2' },
   { id: 3, title: '长期失眠应该怎么调理？', type: '定向', typeClass: 'bg-gradient-to-r from-blue-500 to-cyan-500',
     author: '王医生', time: '昨天', status: '已通过', statusClass: 'bg-green-100 text-green-600', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user3' },

@@ -93,7 +93,7 @@ export default function FollowScreen({ navigation }) {
           {followedQuestions.map(item => (
             <TouchableOpacity key={item.id} style={styles.questionCard} onPress={() => navigation.navigate('QuestionDetail', { id: item.id })}>
               <View style={styles.questionHeader}>
-                <Image source={{ uri: item.avatar }} style={styles.questionAvatar} />
+                <Avatar uri={item.avatar} name={item.author} size={40} />
                 <View style={styles.questionAuthorInfo}>
                   <View style={styles.authorNameRow}>
                     <Text style={styles.authorName}>{item.author}</Text>
@@ -102,20 +102,10 @@ export default function FollowScreen({ navigation }) {
                   <Text style={styles.questionTime}>{item.time}</Text>
                 </View>
                 <View style={[styles.typeTag, { backgroundColor: item.type === 'reward' ? '#ef4444' : '#22c55e' }]}>
-                  <Text style={styles.typeTagText}>{item.type === 'reward' ? `悬赏 $${item.reward}` : '免费'}</Text>
+                  <Text style={styles.typeTagText}>{item.type === 'reward' ? `悬赏 $${item.reward}` : '公开'}</Text>
                 </View>
               </View>
               <Text style={styles.questionTitle}>{item.title}</Text>
-              <View style={styles.pkSection}>
-                <View style={styles.pkBar}>
-                  <View style={[styles.pkSolvedBar, { width: `${item.solvedPercent}%` }]} />
-                  <View style={[styles.pkUnsolvedBar, { width: `${100 - item.solvedPercent}%` }]} />
-                </View>
-                <View style={styles.pkLabels}>
-                  <Text style={styles.pkSolved}>已解决 {item.solvedPercent}%</Text>
-                  <Text style={styles.pkUnsolved}>未解决 {100 - item.solvedPercent}%</Text>
-                </View>
-              </View>
               <View style={styles.questionFooter}>
                 <View style={styles.questionStats}>
                   <TouchableOpacity style={styles.statBtn} onPress={() => toggleLike(item.id)}>
@@ -161,7 +151,7 @@ export default function FollowScreen({ navigation }) {
             <Text style={styles.sectionTitle}>已关注 ({filteredFollowedUsers.length})</Text>
             {filteredFollowedUsers.map(user => (
               <TouchableOpacity key={user.id} style={styles.userCard}>
-                <Image source={{ uri: user.avatar }} style={styles.userAvatar} />
+                <Avatar uri={user.avatar} name={user.name} size={48} />
                 <View style={styles.userInfo}>
                   <View style={styles.userNameRow}>
                     <Text style={styles.userName}>{user.name}</Text>
@@ -187,7 +177,7 @@ export default function FollowScreen({ navigation }) {
             <Text style={styles.sectionTitle}>推荐关注</Text>
             {filteredRecommendUsers.map(user => (
               <TouchableOpacity key={user.id} style={styles.userCard}>
-                <Image source={{ uri: user.avatar }} style={styles.userAvatar} />
+                <Avatar uri={user.avatar} name={user.name} size={48} />
                 <View style={styles.userInfo}>
                   <View style={styles.userNameRow}>
                     <Text style={styles.userName}>{user.name}</Text>
@@ -265,13 +255,6 @@ const styles = StyleSheet.create({
   typeTag: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
   typeTagText: { color: '#fff', fontSize: 11, fontWeight: '500' },
   questionTitle: { fontSize: 15, fontWeight: '500', color: '#1f2937', lineHeight: 22 },
-  pkSection: { marginTop: 10 },
-  pkBar: { flexDirection: 'row', height: 6, borderRadius: 3, overflow: 'hidden', backgroundColor: '#f3f4f6' },
-  pkSolvedBar: { backgroundColor: '#ef4444', height: '100%' },
-  pkUnsolvedBar: { backgroundColor: '#3b82f6', height: '100%' },
-  pkLabels: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 },
-  pkSolved: { fontSize: 11, color: '#ef4444', fontWeight: '500' },
-  pkUnsolved: { fontSize: 11, color: '#3b82f6', fontWeight: '500' },
   questionFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#f3f4f6' },
   questionStats: { flexDirection: 'row', gap: 16 },
   statBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },

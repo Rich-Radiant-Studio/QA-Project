@@ -1,16 +1,30 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, Switch, Alert, Modal } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, Switch, Alert, Modal, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import IdentitySelector from '../components/IdentitySelector';
 
 const questionTypes = [
-  { id: 'free', name: '免费问题', desc: '公开提问', icon: 'gift', color: '#22c55e' },
+  { id: 'free', name: '公开问题', desc: '公开提问', icon: 'gift', color: '#22c55e' },
   { id: 'reward', name: '悬赏问题', desc: '付费求答', icon: 'cash', color: '#f97316' },
   { id: 'targeted', name: '定向问题', desc: '指定回答', icon: 'locate', color: '#3b82f6' },
 ];
 
+
 const rewardAmounts = [10, 20, 50, 100];
 const topics = ['#职场', '#教育', '#科技', '#生活', '#健康', '#情感', '#理财', '#美食'];
+
+// 可邀请的专家用户
+const expertUsers = [
+  { id: 1, name: 'Python老司机', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=expert1', verified: true, title: '资深Python开发 · 10年经验', field: '编程', recommended: true },
+  { id: 2, name: '王医生', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=expert2', verified: true, title: '主任医师 · 三甲医院', field: '医疗', recommended: true },
+  { id: 3, name: '理财达人', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=expert3', verified: true, title: '注册理财规划师', field: '理财', recommended: true },
+  { id: 4, name: '美食评论家', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=expert4', verified: true, title: '美食博主 · 100万粉丝', field: '美食', recommended: false },
+  { id: 5, name: '职场导师', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=expert5', verified: true, title: 'HR总监 · 15年经验', field: '职场', recommended: false },
+  { id: 6, name: '心理咨询师', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=expert6', verified: true, title: '国家二级心理咨询师', field: '心理', recommended: true },
+  { id: 7, name: '法律顾问', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=expert7', verified: true, title: '执业律师 · 8年经验', field: '法律', recommended: false },
+  { id: 8, name: '健身教练', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=expert8', verified: true, title: '国家级健身教练', field: '健身', recommended: false },
+];
 
 // 问题类别数据
 const categoryData = {
@@ -61,8 +75,23 @@ export default function PublishScreen({ navigation }) {
   const [visibility, setVisibility] = useState('所有人');
   
   const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [showVisibilityModal, setShowVisibilityModal] = useState(false);
   const [selectedLevel1, setSelectedLevel1] = useState(null);
   const [selectedLevel2, setSelectedLevel2] = useState(null);
+  
+  // 定向问题相关状态
+  const [targetedUsers, setTargetedUsers] = useState([]);
+  const [targetedReward, setTargetedReward] = useState('');
+  const [expertSearchQuery, setExpertSearchQuery] = useState('');
+  
+  // 答案设置
+  const [answerPublic, setAnswerPublic] = useState(true); // 是否公开答案
+  const [answerPaid, setAnswerPaid] = useState(false); // 是否付费查看
+  const [answerPrice, setAnswerPrice] = useState(''); // 查看答案价格
+  
+  // 身份选择
+  const [publishIdentity, setPublishIdentity] = useState('personal'); // 'personal' or 'team'
+  const [selectedTeams, setSelectedTeams] = useState([]); // 选中的团队ID数组
 
   const toggleTopic = (topic) => {
     if (selectedTopics.includes(topic)) {
@@ -120,6 +149,20 @@ export default function PublishScreen({ navigation }) {
       Alert.alert('提示', '请设置悬赏金额');
       return;
     }
+    if (selectedType === 'targeted') {
+      if (targetedUsers.length === 0) {
+        Alert.alert('提示', '请至少邀请一位专家');
+        return;
+      }
+      if (!targetedReward || parseInt(targetedReward) < 1) {
+        Alert.alert('提示', '请设置奖赏金额');
+        return;
+      }
+    }
+    if (answerPaid && (!answerPrice || parseInt(answerPrice) < 1)) {
+      Alert.alert('提示', '请设置查看答案的价格');
+      return;
+    }
     Alert.alert('发布成功', '您的问题已发布', [
       { text: '确定', onPress: () => navigation.goBack() }
     ]);
@@ -136,13 +179,34 @@ export default function PublishScreen({ navigation }) {
   };
 
   const handleVisibilityPress = () => {
-    Alert.alert('谁可以看', '选择可见范围', [
-      { text: '所有人', onPress: () => setVisibility('所有人') },
-      { text: '仅关注我的人', onPress: () => setVisibility('仅关注我的人') },
-      { text: '仅自己', onPress: () => setVisibility('仅自己') },
-      { text: '取消', style: 'cancel' }
-    ]);
+    setShowVisibilityModal(true);
   };
+
+  const selectVisibility = (value) => {
+    setVisibility(value);
+    setShowVisibilityModal(false);
+  };
+
+  const toggleTargetedUser = (user) => {
+    if (targetedUsers.find(u => u.id === user.id)) {
+      setTargetedUsers(targetedUsers.filter(u => u.id !== user.id));
+    } else if (targetedUsers.length < 5) {
+      setTargetedUsers([...targetedUsers, user]);
+    } else {
+      Alert.alert('提示', '最多邀请5位专家');
+    }
+  };
+
+  const removeTargetedUser = (userId) => {
+    setTargetedUsers(targetedUsers.filter(u => u.id !== userId));
+  };
+
+  // 过滤专家列表
+  const filteredExperts = expertUsers.filter(user => 
+    user.name.toLowerCase().includes(expertSearchQuery.toLowerCase()) ||
+    user.title.toLowerCase().includes(expertSearchQuery.toLowerCase()) ||
+    user.field.toLowerCase().includes(expertSearchQuery.toLowerCase())
+  );
 
   const selectLevel1 = (cat) => {
     setSelectedLevel1(cat);
@@ -164,11 +228,23 @@ export default function PublishScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity 
+          onPress={() => navigation.goBack()}
+          style={styles.closeBtn}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          activeOpacity={0.7}
+        >
           <Ionicons name="close" size={28} color="#374151" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>发布问题</Text>
-        <TouchableOpacity onPress={handleSaveDraft}><Text style={styles.saveDraft}>存草稿</Text></TouchableOpacity>
+        <TouchableOpacity 
+          onPress={handleSaveDraft}
+          style={styles.saveDraftBtn}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.saveDraft}>存草稿</Text>
+        </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -235,6 +311,122 @@ export default function PublishScreen({ navigation }) {
           </View>
         )}
 
+        {/* 定向问题 - 邀请专家 */}
+        {selectedType === 'targeted' && (
+          <>
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>邀请回答专家 <Text style={styles.required}>*</Text></Text>
+              <Text style={styles.sectionDesc}>最多邀请5位专家回答</Text>
+              
+              {/* 已选择的专家 */}
+              {targetedUsers.length > 0 && (
+                <View style={styles.selectedUsersContainer}>
+                  {targetedUsers.map(user => (
+                    <View key={user.id} style={styles.selectedUserChip}>
+                      <View style={styles.selectedUserInfo}>
+                        <Ionicons name="person-circle" size={20} color="#3b82f6" />
+                        <Text style={styles.selectedUserName}>{user.name}</Text>
+                      </View>
+                      <TouchableOpacity onPress={() => removeTargetedUser(user.id)}>
+                        <Ionicons name="close-circle" size={20} color="#ef4444" />
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+                </View>
+              )}
+
+              {/* 搜索框 */}
+              <View style={styles.expertSearchContainer}>
+                <Ionicons name="search" size={20} color="#9ca3af" />
+                <TextInput
+                  style={styles.expertSearchInput}
+                  placeholder="搜索专家姓名、领域或职称..."
+                  value={expertSearchQuery}
+                  onChangeText={setExpertSearchQuery}
+                  placeholderTextColor="#9ca3af"
+                />
+                {expertSearchQuery.length > 0 && (
+                  <TouchableOpacity onPress={() => setExpertSearchQuery('')}>
+                    <Ionicons name="close-circle" size={20} color="#9ca3af" />
+                  </TouchableOpacity>
+                )}
+              </View>
+
+              {/* 可选择的专家列表 */}
+              <View style={styles.expertListContainer}>
+                {/* 推荐标题 */}
+                <View style={styles.recommendedHeader}>
+                  <Ionicons name="star" size={18} color="#f59e0b" />
+                  <Text style={styles.recommendedHeaderText}>推荐专家</Text>
+                </View>
+
+                {/* 专家列表 */}
+                <View style={styles.expertList}>
+                  {filteredExperts.length > 0 ? (
+                    filteredExperts.map(user => {
+                      const isSelected = targetedUsers.find(u => u.id === user.id);
+                      return (
+                        <TouchableOpacity
+                          key={user.id}
+                          style={[styles.expertItem, isSelected && styles.expertItemSelected]}
+                          onPress={() => toggleTargetedUser(user)}
+                        >
+                          <View style={styles.expertAvatar}>
+                            <Ionicons name="person-circle" size={40} color={isSelected ? '#3b82f6' : '#9ca3af'} />
+                          </View>
+                          <View style={styles.expertInfo}>
+                            <View style={styles.expertNameRow}>
+                              <Text style={styles.expertName}>{user.name}</Text>
+                              {user.verified && (
+                                <Ionicons name="checkmark-circle" size={16} color="#3b82f6" />
+                              )}
+                            </View>
+                            <Text style={styles.expertTitle}>{user.title}</Text>
+                            <View style={styles.expertFieldTag}>
+                              <Text style={styles.expertFieldText}>{user.field}</Text>
+                            </View>
+                          </View>
+                          {isSelected && (
+                            <Ionicons name="checkmark-circle" size={24} color="#3b82f6" />
+                          )}
+                        </TouchableOpacity>
+                      );
+                    })
+                  ) : (
+                    <View style={styles.noResultsContainer}>
+                      <Ionicons name="search-outline" size={48} color="#d1d5db" />
+                      <Text style={styles.noResultsText}>未找到匹配的专家</Text>
+                      <Text style={styles.noResultsHint}>试试其他关键词</Text>
+                    </View>
+                  )}
+                </View>
+              </View>
+            </View>
+
+            {/* 定向问题奖赏 */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>设置奖赏金额 <Text style={styles.required}>*</Text></Text>
+              <Text style={styles.sectionDesc}>给予专家的回答奖励</Text>
+              <View style={styles.quickAmounts}>
+                {rewardAmounts.map(amount => (
+                  <TouchableOpacity
+                    key={amount}
+                    style={[styles.amountBtn, targetedReward === String(amount) && styles.amountBtnActive]}
+                    onPress={() => setTargetedReward(String(amount))}
+                  >
+                    <Text style={[styles.amountText, targetedReward === String(amount) && styles.amountTextActive]}>${amount}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              <View style={styles.customAmount}>
+                <Text style={styles.customLabel}>自定义金额：</Text>
+                <TextInput style={styles.customInput} placeholder="输入金额" keyboardType="numeric" value={targetedReward} onChangeText={setTargetedReward} />
+                <Text style={styles.currencySymbol}>$</Text>
+              </View>
+            </View>
+          </>
+        )}
+
         {/* 问题标题 */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>问题标题 <Text style={styles.required}>*</Text></Text>
@@ -289,6 +481,74 @@ export default function PublishScreen({ navigation }) {
           </View>
         </View>
 
+        {/* 答案设置 */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>答案设置</Text>
+          
+          {/* 是否公开答案 */}
+          <View style={styles.answerSettingItem}>
+            <View style={styles.answerSettingLeft}>
+              <Ionicons name="eye-outline" size={22} color="#3b82f6" />
+              <View style={styles.answerSettingText}>
+                <Text style={styles.answerSettingTitle}>公开答案</Text>
+                <Text style={styles.answerSettingDesc}>所有人都可以看到问题的答案</Text>
+              </View>
+            </View>
+            <Switch 
+              value={answerPublic} 
+              onValueChange={setAnswerPublic} 
+              trackColor={{ false: '#e5e7eb', true: '#bfdbfe' }} 
+              thumbColor={answerPublic ? '#3b82f6' : '#fff'} 
+            />
+          </View>
+
+          {/* 付费查看答案 */}
+          {answerPublic && (
+            <View style={styles.answerSettingItem}>
+              <View style={styles.answerSettingLeft}>
+                <Ionicons name="cash-outline" size={22} color="#f59e0b" />
+                <View style={styles.answerSettingText}>
+                  <Text style={styles.answerSettingTitle}>付费查看</Text>
+                  <Text style={styles.answerSettingDesc}>用户需要付费才能查看答案</Text>
+                </View>
+              </View>
+              <Switch 
+                value={answerPaid} 
+                onValueChange={setAnswerPaid} 
+                trackColor={{ false: '#e5e7eb', true: '#fef3c7' }} 
+                thumbColor={answerPaid ? '#f59e0b' : '#fff'} 
+              />
+            </View>
+          )}
+
+          {/* 查看价格设置 */}
+          {answerPublic && answerPaid && (
+            <View style={styles.answerPriceContainer}>
+              <Text style={styles.answerPriceLabel}>查看价格</Text>
+              <View style={styles.answerPriceInput}>
+                <Text style={styles.currencySymbol}>$</Text>
+                <TextInput 
+                  style={styles.priceInput} 
+                  placeholder="设置查看答案的价格" 
+                  keyboardType="numeric" 
+                  value={answerPrice} 
+                  onChangeText={setAnswerPrice}
+                  placeholderTextColor="#9ca3af"
+                />
+              </View>
+              <Text style={styles.answerPriceHint}>建议价格：$1 - $10</Text>
+            </View>
+          )}
+
+          {/* 私密答案提示 */}
+          {!answerPublic && (
+            <View style={styles.privateAnswerTip}>
+              <Ionicons name="lock-closed" size={16} color="#6b7280" />
+              <Text style={styles.privateAnswerText}>答案将仅对你可见，其他用户无法查看</Text>
+            </View>
+          )}
+        </View>
+
         {/* 更多设置 */}
         <View style={styles.settingsSection}>
           <TouchableOpacity style={styles.settingItem} onPress={handleLocationPress}>
@@ -308,6 +568,16 @@ export default function PublishScreen({ navigation }) {
             <Text style={styles.settingLabel}>匿名提问</Text>
             <Switch value={isAnonymous} onValueChange={setIsAnonymous} trackColor={{ false: '#e5e7eb', true: '#fecaca' }} thumbColor={isAnonymous ? '#ef4444' : '#fff'} />
           </View>
+        </View>
+
+        {/* 身份选择器 */}
+        <View style={styles.section}>
+          <IdentitySelector
+            selectedIdentity={publishIdentity}
+            selectedTeams={selectedTeams}
+            onIdentityChange={setPublishIdentity}
+            onTeamsChange={setSelectedTeams}
+          />
         </View>
 
         {/* 发布按钮 */}
@@ -380,6 +650,84 @@ export default function PublishScreen({ navigation }) {
           </View>
         </View>
       </Modal>
+
+      {/* 谁可以看弹窗 */}
+      <Modal visible={showVisibilityModal} animationType="fade" transparent>
+        <View style={[styles.modalOverlay, { justifyContent: 'center' }]}>
+          <TouchableOpacity 
+            style={styles.modalBackdrop} 
+            activeOpacity={1} 
+            onPress={() => setShowVisibilityModal(false)}
+          />
+          <View style={styles.visibilityModal}>
+            <View style={styles.visibilityHeader}>
+              <Text style={styles.visibilityTitle}>谁可以看</Text>
+              <Text style={styles.visibilitySubtitle}>选择问题的可见范围</Text>
+            </View>
+
+            <View style={styles.visibilityOptions}>
+              <TouchableOpacity
+                style={[styles.visibilityOption, visibility === '所有人' && styles.visibilityOptionActive]}
+                onPress={() => selectVisibility('所有人')}
+                activeOpacity={0.7}
+              >
+                <View style={[styles.visibilityIconContainer, { backgroundColor: '#dbeafe' }]}>
+                  <Ionicons name="globe-outline" size={24} color="#3b82f6" />
+                </View>
+                <View style={styles.visibilityTextContainer}>
+                  <Text style={styles.visibilityOptionTitle}>所有人</Text>
+                  <Text style={styles.visibilityOptionDesc}>所有用户都可以看到这个问题</Text>
+                </View>
+                {visibility === '所有人' && (
+                  <Ionicons name="checkmark-circle" size={24} color="#3b82f6" />
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.visibilityOption, visibility === '仅关注我的人' && styles.visibilityOptionActive]}
+                onPress={() => selectVisibility('仅关注我的人')}
+                activeOpacity={0.7}
+              >
+                <View style={[styles.visibilityIconContainer, { backgroundColor: '#fef3c7' }]}>
+                  <Ionicons name="people-outline" size={24} color="#f59e0b" />
+                </View>
+                <View style={styles.visibilityTextContainer}>
+                  <Text style={styles.visibilityOptionTitle}>仅关注我的人</Text>
+                  <Text style={styles.visibilityOptionDesc}>只有关注你的用户可以看到</Text>
+                </View>
+                {visibility === '仅关注我的人' && (
+                  <Ionicons name="checkmark-circle" size={24} color="#f59e0b" />
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.visibilityOption, visibility === '仅自己' && styles.visibilityOptionActive]}
+                onPress={() => selectVisibility('仅自己')}
+                activeOpacity={0.7}
+              >
+                <View style={[styles.visibilityIconContainer, { backgroundColor: '#fce7f3' }]}>
+                  <Ionicons name="lock-closed-outline" size={24} color="#ec4899" />
+                </View>
+                <View style={styles.visibilityTextContainer}>
+                  <Text style={styles.visibilityOptionTitle}>仅自己</Text>
+                  <Text style={styles.visibilityOptionDesc}>只有你自己可以看到这个问题</Text>
+                </View>
+                {visibility === '仅自己' && (
+                  <Ionicons name="checkmark-circle" size={24} color="#ec4899" />
+                )}
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity
+              style={styles.visibilityCloseBtn}
+              onPress={() => setShowVisibilityModal(false)}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.visibilityCloseBtnText}>取消</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -388,11 +736,14 @@ export default function PublishScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f3f4f6' },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, backgroundColor: '#fff' },
+  closeBtn: { padding: 4, minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
+  saveDraftBtn: { padding: 4, minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
   headerTitle: { fontSize: 16, fontWeight: '600', color: '#1f2937' },
   saveDraft: { fontSize: 14, color: '#ef4444' },
   content: { flex: 1, padding: 12 },
   section: { backgroundColor: '#fff', borderRadius: 12, padding: 16, marginBottom: 12 },
   sectionTitle: { fontSize: 14, fontWeight: '600', color: '#1f2937', marginBottom: 12 },
+  sectionDesc: { fontSize: 12, color: '#6b7280', marginBottom: 12 },
   required: { color: '#ef4444' },
   typeList: { flexDirection: 'row', gap: 10 },
   typeCard: { flex: 1, alignItems: 'center', padding: 14, borderRadius: 12, borderWidth: 2, borderColor: '#e5e7eb' },
@@ -436,8 +787,29 @@ const styles = StyleSheet.create({
   publishBtn: { backgroundColor: '#ef4444', borderRadius: 12, paddingVertical: 14, alignItems: 'center' },
   publishBtnDisabled: { backgroundColor: '#fecaca' },
   publishBtnText: { fontSize: 16, color: '#fff', fontWeight: '600' },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-  categoryModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '80%' },
+  modalOverlay: { 
+    flex: 1, 
+    backgroundColor: 'rgba(0,0,0,0.5)', 
+    justifyContent: 'flex-end',
+    ...(Platform.OS === 'web' && {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      zIndex: 9999,
+    }),
+  },
+  categoryModal: { 
+    backgroundColor: '#fff', 
+    borderTopLeftRadius: 20, 
+    borderTopRightRadius: 20, 
+    maxHeight: '80%',
+    ...(Platform.OS === 'web' && {
+      position: 'relative',
+      zIndex: 10000,
+    }),
+  },
   modalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
   modalTitle: { fontSize: 16, fontWeight: '600', color: '#1f2937' },
   categoryContent: { padding: 16 },
@@ -456,4 +828,117 @@ const styles = StyleSheet.create({
   level2Name: { fontSize: 13, color: '#374151' },
   level2Empty: { alignItems: 'center', paddingVertical: 30 },
   level2EmptyText: { fontSize: 14, color: '#9ca3af', marginTop: 8 },
+  
+  // 谁可以看弹窗样式
+  modalBackdrop: { 
+    position: 'absolute', 
+    top: 0, 
+    left: 0, 
+    right: 0, 
+    bottom: 0,
+    ...(Platform.OS === 'web' && {
+      zIndex: 9999,
+    }),
+  },
+  visibilityModal: { 
+    backgroundColor: '#fff', 
+    borderRadius: 20, 
+    marginHorizontal: 24, 
+    width: '90%',
+    maxWidth: 400, 
+    alignSelf: 'center', 
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+    ...(Platform.OS === 'web' && {
+      position: 'relative',
+      zIndex: 10000,
+      boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+    }),
+  },
+  visibilityHeader: { 
+    paddingTop: 24,
+    paddingHorizontal: 20, 
+    paddingBottom: 16,
+    borderBottomWidth: 1, 
+    borderBottomColor: '#f3f4f6', 
+    alignItems: 'center' 
+  },
+  visibilityTitle: { fontSize: 18, fontWeight: '700', color: '#1f2937', marginBottom: 6 },
+  visibilitySubtitle: { fontSize: 13, color: '#9ca3af' },
+  visibilityOptions: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 },
+  visibilityOption: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    padding: 14, 
+    borderRadius: 12, 
+    marginBottom: 10, 
+    backgroundColor: '#f9fafb', 
+    borderWidth: 2, 
+    borderColor: 'transparent' 
+  },
+  visibilityOptionActive: { backgroundColor: '#fef2f2', borderColor: '#fecaca' },
+  visibilityIconContainer: { 
+    width: 44, 
+    height: 44, 
+    borderRadius: 22, 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    marginRight: 12,
+    flexShrink: 0,
+  },
+  visibilityTextContainer: { flex: 1, marginRight: 8 },
+  visibilityOptionTitle: { fontSize: 15, fontWeight: '600', color: '#1f2937', marginBottom: 3 },
+  visibilityOptionDesc: { fontSize: 12, color: '#6b7280', lineHeight: 16 },
+  visibilityCloseBtn: { 
+    marginHorizontal: 16, 
+    marginTop: 8,
+    marginBottom: 20, 
+    paddingVertical: 14, 
+    backgroundColor: '#f3f4f6', 
+    borderRadius: 12, 
+    alignItems: 'center' 
+  },
+  visibilityCloseBtnText: { fontSize: 15, fontWeight: '600', color: '#6b7280' },
+  
+  // 定向问题样式
+  selectedUsersContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
+  selectedUserChip: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#eff6ff', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, gap: 6 },
+  selectedUserInfo: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  selectedUserName: { fontSize: 13, color: '#1f2937', fontWeight: '500' },
+  expertSearchContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f9fafb', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10, marginBottom: 16, borderWidth: 1, borderColor: '#e5e7eb' },
+  expertSearchInput: { flex: 1, marginLeft: 8, fontSize: 14, color: '#1f2937' },
+  expertListContainer: { marginTop: 8 },
+  recommendedHeader: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 12, paddingHorizontal: 4, marginBottom: 8 },
+  recommendedHeaderText: { fontSize: 15, fontWeight: '700', color: '#1f2937' },
+  expertList: { gap: 10 },
+  expertItem: { flexDirection: 'row', alignItems: 'center', padding: 12, backgroundColor: '#f9fafb', borderRadius: 12, borderWidth: 2, borderColor: 'transparent' },
+  expertItemSelected: { backgroundColor: '#eff6ff', borderColor: '#bfdbfe' },
+  expertAvatar: { marginRight: 12 },
+  expertInfo: { flex: 1 },
+  expertNameRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 4, flexWrap: 'wrap' },
+  expertName: { fontSize: 14, fontWeight: '600', color: '#1f2937' },
+  expertTitle: { fontSize: 12, color: '#6b7280', marginBottom: 6 },
+  expertFieldTag: { alignSelf: 'flex-start', backgroundColor: '#fef3c7', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 12 },
+  expertFieldText: { fontSize: 11, color: '#f59e0b', fontWeight: '500' },
+  noResultsContainer: { alignItems: 'center', paddingVertical: 40 },
+  noResultsText: { fontSize: 15, fontWeight: '600', color: '#6b7280', marginTop: 12 },
+  noResultsHint: { fontSize: 13, color: '#9ca3af', marginTop: 4 },
+  
+  // 答案设置样式
+  answerSettingItem: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
+  answerSettingLeft: { flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 12 },
+  answerSettingText: { marginLeft: 12, flex: 1 },
+  answerSettingTitle: { fontSize: 14, fontWeight: '600', color: '#1f2937', marginBottom: 2 },
+  answerSettingDesc: { fontSize: 12, color: '#6b7280' },
+  answerPriceContainer: { marginTop: 12, padding: 12, backgroundColor: '#fffbeb', borderRadius: 10, borderWidth: 1, borderColor: '#fef3c7' },
+  answerPriceLabel: { fontSize: 13, fontWeight: '600', color: '#92400e', marginBottom: 8 },
+  answerPriceInput: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 8, paddingHorizontal: 12, borderWidth: 1, borderColor: '#fde68a' },
+  priceInput: { flex: 1, paddingVertical: 10, fontSize: 14, color: '#1f2937', marginLeft: 4 },
+  answerPriceHint: { fontSize: 11, color: '#92400e', marginTop: 6 },
+  privateAnswerTip: { flexDirection: 'row', alignItems: 'center', marginTop: 12, padding: 12, backgroundColor: '#f9fafb', borderRadius: 10, gap: 8 },
+  privateAnswerText: { fontSize: 12, color: '#6b7280', flex: 1 },
 });

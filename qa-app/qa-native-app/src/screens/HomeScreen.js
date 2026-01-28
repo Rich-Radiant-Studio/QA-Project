@@ -317,16 +317,38 @@ export default function HomeScreen({ navigation }) {
     <SafeAreaView style={styles.container}>
       {/* 顶部搜索栏 */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.regionBtn} onPress={() => setShowRegionModal(true)}>
+        <TouchableOpacity 
+          style={styles.regionBtn} 
+          onPress={() => setShowRegionModal(true)}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          activeOpacity={0.7}
+        >
           <Ionicons name="location-outline" size={16} color="#ef4444" />
           <Text style={styles.regionText} numberOfLines={1}>{getDisplayRegion()}</Text>
           <Ionicons name="chevron-down" size={14} color="#6b7280" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.searchBar} onPress={() => navigation.navigate('Search')}>
+        <TouchableOpacity 
+          style={styles.searchBar} 
+          onPress={() => navigation.navigate('Search')}
+          activeOpacity={0.7}
+        >
           <Ionicons name="search" size={16} color="#9ca3af" />
           <Text style={styles.searchPlaceholder}>搜索问题、话题或用户</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.notifyBtn} onPress={() => navigation.navigate('Messages')}>
+        <TouchableOpacity 
+          style={styles.teamBtn} 
+          onPress={() => navigation.navigate('MyTeams')}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="people-circle-outline" size={24} color="#4b5563" />
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={styles.notifyBtn} 
+          onPress={() => navigation.navigate('Messages')}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          activeOpacity={0.7}
+        >
           <Ionicons name="notifications-outline" size={22} color="#4b5563" />
           <View style={styles.badge} />
         </TouchableOpacity>
@@ -922,7 +944,8 @@ const styles = StyleSheet.create({
   regionText: { fontSize: 12, color: '#ef4444', marginHorizontal: 4, fontWeight: '500' },
   searchBar: { flex: 1, flexDirection: 'row', alignItems: 'center', backgroundColor: '#f3f4f6', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 8 },
   searchPlaceholder: { marginLeft: 6, color: '#9ca3af', fontSize: 13 },
-  notifyBtn: { padding: 8, position: 'relative' },
+  teamBtn: { padding: 6, marginLeft: 8 },
+  notifyBtn: { padding: 6, marginLeft: 0, position: 'relative' },
   badge: { position: 'absolute', top: 6, right: 6, width: 8, height: 8, backgroundColor: '#ef4444', borderRadius: 4 },
   tabBarContainer: { flexDirection: 'row', backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
   tabBar: { flex: 1 },

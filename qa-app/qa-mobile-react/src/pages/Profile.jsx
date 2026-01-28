@@ -154,7 +154,7 @@ function Profile() {
             <Link key={q.id} to={`/question/${q.id}`} className="block px-4 py-3">
               <div className="flex items-center mb-1">
                 <span className={`px-2 py-0.5 ${q.type === 'reward' ? 'question-type-reward' : 'question-type-free'} text-white text-xs rounded-full`}>
-                  {q.type === 'reward' ? `悬赏 $${q.reward}` : '免费'}
+                  {q.type === 'reward' ? `悬赏 $${q.reward}` : '公开'}
                 </span>
                 {q.solved && <span className="ml-2 text-xs text-green-500">已解决</span>}
                 <span className="ml-2 text-xs text-gray-400">{q.time}</span>

@@ -20,7 +20,7 @@
         <div class="flex items-center gap-4">
           <el-input v-model="searchQuery" placeholder="搜索问题标题、ID" prefix-icon="Search" style="width: 250px" />
           <el-select v-model="typeFilter" placeholder="问题类型" clearable>
-            <el-option label="免费" value="free" />
+            <el-option label="公开" value="free" />
             <el-option label="悬赏" value="reward" />
             <el-option label="定向" value="targeted" />
           </el-select>
@@ -85,7 +85,7 @@ const statusText = { approved: '已通过', pending: '待审核', rejected: '已
 
 const questions = ref([
   { id: 'Q10001', title: '如何在三个月内从零基础学会Python编程？有没有系统的学习路线推荐？', author: '张三丰', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user1', type: '悬赏 $50', typeClass: 'type-reward', answerCount: 56, status: 'approved', time: '2小时前' },
-  { id: 'Q10002', title: '第一次养猫需要准备什么？有哪些新手容易踩的坑？', author: '李小龙', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user2', type: '免费', typeClass: 'type-free', answerCount: 89, status: 'approved', time: '5小时前' },
+  { id: 'Q10002', title: '第一次养猫需要准备什么？有哪些新手容易踩的坑？', author: '李小龙', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user2', type: '公开', typeClass: 'type-free', answerCount: 89, status: 'approved', time: '5小时前' },
   { id: 'Q10003', title: '长期失眠应该怎么调理？吃褪黑素有用吗？求专业医生解答', author: '王医生', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user3', type: '定向', typeClass: 'type-targeted', answerCount: 234, status: 'approved', time: '昨天' },
   { id: 'Q10004', title: '35岁程序员如何规划职业发展？是继续技术深耕还是转管理？', author: '程序员小明', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user4', type: '悬赏 $100', typeClass: 'type-reward', answerCount: 456, status: 'pending', time: '3小时前' },
 ])

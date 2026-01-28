@@ -210,7 +210,7 @@ const Search = () => {
             {/* 更多问题结果 */}
             <div className="bg-white px-4 py-3">
               <div className="flex items-center mb-2">
-                <span className="px-2 py-0.5 bg-gradient-to-r from-green-500 to-teal-500 text-white text-xs rounded-full">免费</span>
+                <span className="px-2 py-0.5 bg-gradient-to-r from-green-500 to-teal-500 text-white text-xs rounded-full">公开</span>
                 <span className="ml-2 text-xs text-gray-400">89 回答</span>
               </div>
               <h3 className="text-sm font-medium text-gray-900">{highlightText('Python', searchQuery)}和Java哪个更适合初学者？</h3>

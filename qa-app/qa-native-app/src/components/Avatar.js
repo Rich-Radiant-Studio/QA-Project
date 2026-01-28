@@ -55,7 +55,6 @@ export default function Avatar({ uri, name = '用户', size = 40, style, textSty
           borderRadius: size / 2,
           backgroundColor: '#f3f4f6'
         }}
-        onLoadStart={() => setLoading(true)}
         onLoad={() => setLoading(false)}
         onError={(e) => {
           console.log('头像加载失败:', uri, e.nativeEvent.error);
@@ -63,21 +62,6 @@ export default function Avatar({ uri, name = '用户', size = 40, style, textSty
           setLoading(false);
         }}
       />
-      {loading && (
-        <View 
-          style={[
-            styles.loadingPlaceholder,
-            { 
-              width: size, 
-              height: size, 
-              borderRadius: size / 2,
-              position: 'absolute',
-              top: 0,
-              left: 0
-            }
-          ]}
-        />
-      )}
     </View>
   );
 }
@@ -90,8 +74,5 @@ const styles = StyleSheet.create({
   initial: {
     color: '#ffffff',
     fontWeight: '700',
-  },
-  loadingPlaceholder: {
-    backgroundColor: '#f3f4f6',
   },
 });

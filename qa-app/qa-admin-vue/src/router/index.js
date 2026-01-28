@@ -12,6 +12,7 @@ const routes = [
   { path: '/emergency', name: 'Emergency', component: () => import('@/views/Emergency.vue') },
   { path: '/groups', name: 'Groups', component: () => import('@/views/Groups.vue') },
   { path: '/hotlist', name: 'HotList', component: () => import('@/views/HotList.vue') },
+  { path: '/hotlist-tags', name: 'HotListTags', component: () => import('@/views/HotListTags.vue') },
   { path: '/regions', name: 'Regions', component: () => import('@/views/Regions.vue') },
   { path: '/messages', name: 'Messages', component: () => import('@/views/Messages.vue') },
   { path: '/finance', name: 'Finance', component: () => import('@/views/Finance.vue') },

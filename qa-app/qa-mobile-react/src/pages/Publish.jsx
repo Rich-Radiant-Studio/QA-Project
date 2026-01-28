@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 const questionTypes = [
-  { id: 'free', icon: 'fa-gift', name: '免费问题', desc: '公开提问' },
+  { id: 'free', icon: 'fa-gift', name: '公开问题', desc: '公开提问' },
   { id: 'reward', icon: 'fa-coins', name: '悬赏问题', desc: '付费求答' },
   { id: 'targeted', icon: 'fa-bullseye', name: '定向问题', desc: '指定回答' }
 ]

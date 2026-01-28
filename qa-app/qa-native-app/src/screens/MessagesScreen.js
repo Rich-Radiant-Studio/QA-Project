@@ -18,6 +18,30 @@ const inviteAnswers = [
   { id: 2, avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=invite2', name: '李小龙', question: '35岁程序员如何规划职业发展？', time: '30分钟前' },
 ];
 
+// 仲裁邀请数据
+const arbitrationInvites = [
+  { 
+    id: 1, 
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user1', 
+    name: '张三丰', 
+    question: '如何在三个月内从零基础学会Python编程？',
+    answer: 'Python老司机',
+    reason: '原答案中关于学习时间的估计不够准确，对于零基础学习者来说，3个月时间过于乐观...', 
+    time: '5分钟前',
+    status: 'pending' // pending: 待投票, voted: 已投票
+  },
+  { 
+    id: 2, 
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user2', 
+    name: '李四', 
+    question: 'React和Vue应该选择哪个？',
+    answer: '前端专家',
+    reason: '答案过于偏向React，没有客观分析两者的优劣...', 
+    time: '1小时前',
+    status: 'voted'
+  },
+];
+
 // 消息列表数据
 const messageGroups = [
   { 
@@ -76,6 +100,12 @@ export default function MessagesScreen({ navigation }) {
   const [searchText, setSearchText] = useState('');
   const [selectedUser, setSelectedUser] = useState(null);
   const [messageContent, setMessageContent] = useState('');
+  const [showVoteModal, setShowVoteModal] = useState(false);
+  const [currentArbitration, setCurrentArbitration] = useState(null);
+  const [voteChoice, setVoteChoice] = useState(null); // 'agree' or 'disagree'
+  const [voteReason, setVoteReason] = useState('');
+  const [showArbitrationResultModal, setShowArbitrationResultModal] = useState(false);
+  const [currentArbitrationResult, setCurrentArbitrationResult] = useState(null);
 
   const handleMarkAllRead = () => {
     Alert.alert('全部已读', '确定将所有消息标记为已读吗？', [
@@ -100,6 +130,27 @@ export default function MessagesScreen({ navigation }) {
     setSearchText('');
   };
 
+  const handleOpenVoteModal = (arbitration) => {
+    setCurrentArbitration(arbitration);
+    setShowVoteModal(true);
+  };
+
+  const handleSubmitVote = () => {
+    if (!voteChoice) {
+      Alert.alert('提示', '请选择您的投票意见');
+      return;
+    }
+    if (!voteReason.trim()) {
+      Alert.alert('提示', '请填写投票理由');
+      return;
+    }
+    Alert.alert('投票成功', '您的投票已提交，感谢您的参与！');
+    setShowVoteModal(false);
+    setCurrentArbitration(null);
+    setVoteChoice(null);
+    setVoteReason('');
+  };
+
   const filteredUsers = allUsers.filter(user => 
     user.name.toLowerCase().includes(searchText.toLowerCase())
   );
@@ -107,15 +158,29 @@ export default function MessagesScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+        <TouchableOpacity 
+          onPress={() => navigation.goBack()} 
+          style={styles.backBtn}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          activeOpacity={0.7}
+        >
           <Ionicons name="arrow-back" size={22} color="#4b5563" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>消息</Text>
         <View style={styles.headerRight}>
-          <TouchableOpacity onPress={handleMarkAllRead}>
+          <TouchableOpacity 
+            onPress={handleMarkAllRead}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            activeOpacity={0.7}
+          >
             <Text style={styles.markAllRead}>全部已读</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.sendMsgBtn} onPress={() => setShowPrivateModal(true)}>
+          <TouchableOpacity 
+            style={styles.sendMsgBtn} 
+            onPress={() => setShowPrivateModal(true)}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            activeOpacity={0.7}
+          >
             <Ionicons name="create-outline" size={20} color="#ef4444" />
           </TouchableOpacity>
         </View>
@@ -166,6 +231,60 @@ export default function MessagesScreen({ navigation }) {
                 </TouchableOpacity>
               </View>
             </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* 仲裁邀请 */}
+        <View style={styles.arbitrationSection}>
+          <View style={styles.sectionHeader}>
+            <View style={styles.sectionTitleRow}>
+              <Ionicons name="gavel" size={18} color="#ef4444" />
+              <Text style={styles.sectionTitle}>仲裁邀请</Text>
+            </View>
+            <TouchableOpacity>
+              <Text style={styles.sectionMore}>查看全部</Text>
+            </TouchableOpacity>
+          </View>
+          {arbitrationInvites.map(item => (
+            <View key={item.id} style={styles.arbitrationItem}>
+              <Avatar uri={item.avatar} name={item.name} size={40} />
+              <View style={styles.arbitrationContent}>
+                <View style={styles.arbitrationHeader}>
+                  <Text style={styles.arbitrationName}>{item.name} 邀请你参与仲裁</Text>
+                  {item.status === 'voted' && (
+                    <View style={styles.votedBadge}>
+                      <Ionicons name="checkmark-circle" size={12} color="#22c55e" />
+                      <Text style={styles.votedBadgeText}>已投票</Text>
+                    </View>
+                  )}
+                </View>
+                <Text style={styles.arbitrationQuestion} numberOfLines={1}>
+                  问题：{item.question}
+                </Text>
+                <Text style={styles.arbitrationAnswer} numberOfLines={1}>
+                  答案作者：{item.answer}
+                </Text>
+                <Text style={styles.arbitrationReason} numberOfLines={2}>
+                  理由：{item.reason}
+                </Text>
+              </View>
+              <View style={styles.arbitrationRight}>
+                <Text style={styles.arbitrationTime}>{item.time}</Text>
+                {item.status === 'pending' ? (
+                  <TouchableOpacity 
+                    style={styles.voteBtn}
+                    onPress={() => handleOpenVoteModal(item)}
+                  >
+                    <Ionicons name="hand-right" size={14} color="#fff" />
+                    <Text style={styles.voteBtnText}>去投票</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity style={styles.viewVoteBtn}>
+                    <Text style={styles.viewVoteBtnText}>查看</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            </View>
           ))}
         </View>
 
@@ -305,6 +424,136 @@ export default function MessagesScreen({ navigation }) {
           </View>
         </SafeAreaView>
       </Modal>
+
+      {/* 专家投票弹窗 */}
+      <Modal visible={showVoteModal} animationType="slide" transparent>
+        <View style={styles.voteModalOverlay}>
+          <View style={styles.voteModal}>
+            <View style={styles.voteModalHandle} />
+            <Text style={styles.voteModalTitle}>仲裁投票</Text>
+
+            {currentArbitration && (
+              <ScrollView style={styles.voteModalContent} showsVerticalScrollIndicator={false}>
+                {/* 问题信息 */}
+                <View style={styles.voteQuestionCard}>
+                  <Text style={styles.voteQuestionLabel}>问题</Text>
+                  <Text style={styles.voteQuestionText}>{currentArbitration.question}</Text>
+                  <View style={styles.voteAnswerRow}>
+                    <Text style={styles.voteAnswerLabel}>答案作者：</Text>
+                    <Text style={styles.voteAnswerAuthor}>{currentArbitration.answer}</Text>
+                  </View>
+                </View>
+
+                {/* 仲裁理由 */}
+                <View style={styles.voteReasonCard}>
+                  <Text style={styles.voteReasonLabel}>申请理由</Text>
+                  <Text style={styles.voteReasonText}>{currentArbitration.reason}</Text>
+                  <View style={styles.voteApplicantRow}>
+                    <Avatar uri={currentArbitration.avatar} name={currentArbitration.name} size={20} />
+                    <Text style={styles.voteApplicantName}>{currentArbitration.name}</Text>
+                    <Text style={styles.voteApplicantTime}>{currentArbitration.time}</Text>
+                  </View>
+                </View>
+
+                {/* 投票选项 */}
+                <Text style={styles.voteChoiceTitle}>您的投票意见</Text>
+                <View style={styles.voteChoices}>
+                  <TouchableOpacity
+                    style={[
+                      styles.voteChoiceBtn,
+                      voteChoice === 'agree' && styles.voteChoiceBtnActive
+                    ]}
+                    onPress={() => setVoteChoice('agree')}
+                  >
+                    <View style={[
+                      styles.voteChoiceRadio,
+                      voteChoice === 'agree' && styles.voteChoiceRadioActive
+                    ]}>
+                      {voteChoice === 'agree' && (
+                        <View style={styles.voteChoiceRadioDot} />
+                      )}
+                    </View>
+                    <View style={styles.voteChoiceContent}>
+                      <Text style={[
+                        styles.voteChoiceLabel,
+                        voteChoice === 'agree' && styles.voteChoiceLabelActive
+                      ]}>同意推翻</Text>
+                      <Text style={styles.voteChoiceDesc}>
+                        认为原答案存在问题，应该推翻采纳
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[
+                      styles.voteChoiceBtn,
+                      voteChoice === 'disagree' && styles.voteChoiceBtnActive
+                    ]}
+                    onPress={() => setVoteChoice('disagree')}
+                  >
+                    <View style={[
+                      styles.voteChoiceRadio,
+                      voteChoice === 'disagree' && styles.voteChoiceRadioActive
+                    ]}>
+                      {voteChoice === 'disagree' && (
+                        <View style={styles.voteChoiceRadioDot} />
+                      )}
+                    </View>
+                    <View style={styles.voteChoiceContent}>
+                      <Text style={[
+                        styles.voteChoiceLabel,
+                        voteChoice === 'disagree' && styles.voteChoiceLabelActive
+                      ]}>维持原判</Text>
+                      <Text style={styles.voteChoiceDesc}>
+                        认为原答案合理，应该维持采纳
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+
+                {/* 投票理由 */}
+                <Text style={styles.voteReasonInputLabel}>投票理由（必填）</Text>
+                <TextInput
+                  style={styles.voteReasonInput}
+                  placeholder="请详细说明您的投票理由..."
+                  placeholderTextColor="#9ca3af"
+                  value={voteReason}
+                  onChangeText={setVoteReason}
+                  multiline
+                  numberOfLines={4}
+                  textAlignVertical="top"
+                />
+
+                <View style={{ height: 20 }} />
+              </ScrollView>
+            )}
+
+            <View style={styles.voteModalFooter}>
+              <TouchableOpacity
+                style={[
+                  styles.submitVoteBtn,
+                  (!voteChoice || !voteReason.trim()) && styles.submitVoteBtnDisabled
+                ]}
+                onPress={handleSubmitVote}
+                disabled={!voteChoice || !voteReason.trim()}
+              >
+                <Text style={styles.submitVoteBtnText}>提交投票</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.cancelVoteBtn}
+                onPress={() => {
+                  setShowVoteModal(false);
+                  setCurrentArbitration(null);
+                  setVoteChoice(null);
+                  setVoteReason('');
+                }}
+              >
+                <Text style={styles.cancelVoteBtnText}>取消</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -392,4 +641,58 @@ const styles = StyleSheet.create({
   messageInputSection: { flex: 1, padding: 16 },
   messageInputLabel: { fontSize: 14, fontWeight: '500', color: '#374151', marginBottom: 8 },
   messageTextInput: { flex: 1, backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 8, padding: 12, fontSize: 15, color: '#1f2937', minHeight: 150 },
+  // 仲裁邀请样式
+  arbitrationSection: { backgroundColor: '#fff', marginTop: 8, padding: 12 },
+  arbitrationItem: { flexDirection: 'row', alignItems: 'flex-start', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
+  arbitrationContent: { flex: 1, marginLeft: 10 },
+  arbitrationHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
+  arbitrationName: { fontSize: 13, color: '#6b7280', flex: 1 },
+  votedBadge: { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: '#f0fdf4', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 8 },
+  votedBadgeText: { fontSize: 10, color: '#22c55e', fontWeight: '600' },
+  arbitrationQuestion: { fontSize: 13, fontWeight: '500', color: '#1f2937', marginBottom: 2 },
+  arbitrationAnswer: { fontSize: 12, color: '#6b7280', marginBottom: 2 },
+  arbitrationReason: { fontSize: 12, color: '#9ca3af', marginTop: 4, lineHeight: 18 },
+  arbitrationRight: { alignItems: 'flex-end', marginLeft: 10 },
+  arbitrationTime: { fontSize: 11, color: '#9ca3af', marginBottom: 8 },
+  voteBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#ef4444', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12 },
+  voteBtnText: { fontSize: 12, color: '#fff', fontWeight: '600' },
+  viewVoteBtn: { backgroundColor: '#f3f4f6', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12 },
+  viewVoteBtnText: { fontSize: 12, color: '#6b7280', fontWeight: '500' },
+  // 专家投票弹窗样式
+  voteModalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+  voteModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '90%' },
+  voteModalHandle: { width: 40, height: 4, backgroundColor: '#e5e7eb', borderRadius: 2, alignSelf: 'center', marginTop: 12, marginBottom: 12 },
+  voteModalTitle: { fontSize: 18, fontWeight: '600', color: '#1f2937', textAlign: 'center', marginBottom: 16 },
+  voteModalContent: { maxHeight: 500, paddingHorizontal: 20 },
+  voteQuestionCard: { backgroundColor: '#f9fafb', borderRadius: 12, padding: 14, marginBottom: 16, borderWidth: 1, borderColor: '#e5e7eb' },
+  voteQuestionLabel: { fontSize: 12, fontWeight: '600', color: '#6b7280', marginBottom: 6 },
+  voteQuestionText: { fontSize: 15, fontWeight: '500', color: '#1f2937', lineHeight: 22, marginBottom: 8 },
+  voteAnswerRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  voteAnswerLabel: { fontSize: 12, color: '#9ca3af' },
+  voteAnswerAuthor: { fontSize: 12, fontWeight: '500', color: '#3b82f6' },
+  voteReasonCard: { backgroundColor: '#fffbeb', borderRadius: 12, padding: 14, marginBottom: 20, borderWidth: 1, borderColor: '#fde68a' },
+  voteReasonLabel: { fontSize: 12, fontWeight: '600', color: '#92400e', marginBottom: 6 },
+  voteReasonText: { fontSize: 13, color: '#78350f', lineHeight: 20, marginBottom: 10 },
+  voteApplicantRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  voteApplicantName: { fontSize: 12, fontWeight: '500', color: '#92400e' },
+  voteApplicantTime: { fontSize: 11, color: '#d97706', marginLeft: 'auto' },
+  voteChoiceTitle: { fontSize: 15, fontWeight: '600', color: '#1f2937', marginBottom: 12 },
+  voteChoices: { gap: 12, marginBottom: 20 },
+  voteChoiceBtn: { flexDirection: 'row', alignItems: 'flex-start', padding: 14, backgroundColor: '#f9fafb', borderRadius: 12, borderWidth: 2, borderColor: '#e5e7eb' },
+  voteChoiceBtnActive: { backgroundColor: '#eff6ff', borderColor: '#3b82f6' },
+  voteChoiceRadio: { width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: '#d1d5db', alignItems: 'center', justifyContent: 'center', marginTop: 2 },
+  voteChoiceRadioActive: { borderColor: '#3b82f6' },
+  voteChoiceRadioDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: '#3b82f6' },
+  voteChoiceContent: { flex: 1, marginLeft: 12 },
+  voteChoiceLabel: { fontSize: 14, fontWeight: '600', color: '#1f2937', marginBottom: 4 },
+  voteChoiceLabelActive: { color: '#3b82f6' },
+  voteChoiceDesc: { fontSize: 12, color: '#6b7280', lineHeight: 18 },
+  voteReasonInputLabel: { fontSize: 14, fontWeight: '600', color: '#1f2937', marginBottom: 10 },
+  voteReasonInput: { backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, padding: 12, fontSize: 14, color: '#1f2937', minHeight: 100, textAlignVertical: 'top', marginBottom: 20 },
+  voteModalFooter: { paddingHorizontal: 20, paddingVertical: 16, borderTopWidth: 1, borderTopColor: '#f3f4f6' },
+  submitVoteBtn: { backgroundColor: '#ef4444', borderRadius: 12, paddingVertical: 14, alignItems: 'center', marginBottom: 10 },
+  submitVoteBtnDisabled: { backgroundColor: '#fca5a5' },
+  submitVoteBtnText: { fontSize: 15, color: '#fff', fontWeight: '600' },
+  cancelVoteBtn: { backgroundColor: '#f3f4f6', borderRadius: 12, paddingVertical: 14, alignItems: 'center' },
+  cancelVoteBtnText: { fontSize: 15, color: '#6b7280', fontWeight: '500' },
 });

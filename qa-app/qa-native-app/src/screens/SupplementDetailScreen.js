@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, TextInput, StyleSheet, Modal } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import Avatar from '../components/Avatar';
 
 const supplementAnswers = [
   { id: 1, author: '数学老师', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=matht1', verified: true, title: '高中数学教师 · 8年经验', content: '学Python其实不需要太高深的数学基础。基础的加减乘除、简单的逻辑思维就够了。如果要做数据分析,了解一些统计学知识会更好,但这些都可以边学边补。', likes: 89, bookmarks: 34, shares: 18, comments: 12, time: '1小时前' },
@@ -79,12 +80,22 @@ export default function SupplementDetailScreen({ navigation, route }) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+        <TouchableOpacity 
+          onPress={() => navigation.goBack()} 
+          style={styles.backBtn}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          activeOpacity={0.7}
+        >
           <Ionicons name="arrow-back" size={24} color="#374151" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>补充问题详情</Text>
         <View style={styles.headerRight}>
-          <TouchableOpacity style={styles.shareBtn} onPress={() => alert('分享功能')}>
+          <TouchableOpacity 
+            style={styles.shareBtn} 
+            onPress={() => alert('分享功能')}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            activeOpacity={0.7}
+          >
             <Ionicons name="arrow-redo-outline" size={22} color="#6b7280" />
             <Text style={styles.shareBtnText}>{supplementQuestion.shares}</Text>
           </TouchableOpacity>
@@ -97,7 +108,7 @@ export default function SupplementDetailScreen({ navigation, route }) {
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.supplementSection}>
           <View style={styles.supplementHeader}>
-            <Image source={{ uri: supplementQuestion.avatar }} style={styles.supplementAvatar} />
+            <Avatar uri={supplementQuestion.avatar} name={supplementQuestion.author} size={40} />
             <View style={styles.supplementAuthorInfo}>
               <View style={styles.supplementAuthorRow}>
                 <Text style={styles.supplementAuthor}>{supplementQuestion.author}</Text>
@@ -127,7 +138,7 @@ export default function SupplementDetailScreen({ navigation, route }) {
           </View>
           <Text style={styles.originalQuestionTitle} numberOfLines={2}>{originalQuestion.title}</Text>
           <View style={styles.originalQuestionFooter}>
-            <Image source={{ uri: originalQuestion.avatar }} style={styles.originalQuestionAvatar} />
+            <Avatar uri={originalQuestion.avatar} name={originalQuestion.author} size={20} />
             <Text style={styles.originalQuestionAuthor}>{originalQuestion.author}</Text>
             <Text style={styles.originalQuestionTime}>· {originalQuestion.time}</Text>
           </View>
@@ -185,7 +196,7 @@ export default function SupplementDetailScreen({ navigation, route }) {
                   activeOpacity={0.7}
                 >
                   <View style={styles.answerHeader}>
-                    <Image source={{ uri: answer.avatar }} style={styles.answerAvatar} />
+                    <Avatar uri={answer.avatar} name={answer.author} size={40} />
                     <View style={styles.answerAuthorInfo}>
                       <View style={styles.answerAuthorRow}>
                         <Text style={styles.answerAuthor}>{answer.author}</Text>
@@ -396,7 +407,7 @@ export default function SupplementDetailScreen({ navigation, route }) {
               {supplementComments.map(comment => (
                 <View key={comment.id}>
                   <View style={styles.commentCard}>
-                    <Image source={{ uri: comment.avatar }} style={styles.commentAvatar} />
+                    <Avatar uri={comment.avatar} name={comment.author} size={32} />
                     <View style={styles.commentContent}>
                       <View style={styles.commentHeader}>
                         <Text style={styles.commentAuthor}>{comment.author}</Text>
@@ -454,7 +465,7 @@ export default function SupplementDetailScreen({ navigation, route }) {
                     <View style={styles.repliesContainer}>
                       {repliesData[comment.id].map(reply => (
                         <View key={reply.id} style={styles.replyCard}>
-                          <Image source={{ uri: reply.avatar }} style={styles.replyAvatar} />
+                          <Avatar uri={reply.avatar} name={reply.author} size={28} />
                           <View style={styles.replyContent}>
                             <View style={styles.replyHeader}>
                               <Text style={styles.replyAuthor}>{reply.author}</Text>

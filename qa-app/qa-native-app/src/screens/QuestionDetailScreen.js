@@ -3,11 +3,91 @@ import { View, Text, ScrollView, TouchableOpacity, Image, TextInput, StyleSheet,
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import Avatar from '../components/Avatar';
+import IdentitySelector from '../components/IdentitySelector';
 
 const answers = [
-  { id: 1, author: 'Python老司机', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=answer1', verified: true, adopted: true, title: '资深Python开发 · 10年经验', content: '作为一个从零开始学Python的过来人，我来分享一下我的经验：\n\n1. 学习时间：如果每天能保证2-3小时的学习时间，3个月完全可以入门并做一些简单的项目。\n\n2. 学习路线：\n- 第1个月：Python基础语法、数据类型、函数、面向对象\n- 第2个月：常用库（NumPy、Pandas）、数据处理\n- 第3个月：实战项目、数据可视化\n\n3. 推荐资源：廖雪峰的Python教程（免费）、《Python编程从入门到实践》', likes: 256, dislikes: 3, comments: 23, time: '1小时前' },
-  { id: 2, author: '数据分析师小王', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=answer2', verified: false, adopted: false, title: '数据分析师 · 3年经验', content: '我也是文科转行的，现在在做数据分析。给你几点建议：\n\n1. 不要一开始就啃书，先跟着视频教程敲代码\n2. 多做项目，边学边练\n3. 加入一些学习群，有问题可以随时问', likes: 89, dislikes: 1, comments: 12, time: '30分钟前' },
-  { id: 3, author: '编程新手', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=answer3', verified: false, adopted: false, title: '学生', content: '同问！我也想学Python，坐等大佬回答~', likes: 5, dislikes: 2, comments: 0, time: '10分钟前' },
+  { 
+    id: 1, 
+    author: 'Python老司机', 
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=answer1', 
+    verified: true, 
+    adopted: true, 
+    title: '资深Python开发 · 10年经验', 
+    content: '作为一个从零开始学Python的过来人，我来分享一下我的经验：\n\n1. 学习时间：如果每天能保证2-3小时的学习时间，3个月完全可以入门并做一些简单的项目。\n\n2. 学习路线：\n- 第1个月：Python基础语法、数据类型、函数、面向对象\n- 第2个月：常用库（NumPy、Pandas）、数据处理\n- 第3个月：实战项目、数据可视化\n\n3. 推荐资源：廖雪峰的Python教程（免费）、《Python编程从入门到实践》', 
+    likes: 256, 
+    dislikes: 3, 
+    comments: 23, 
+    time: '1小时前',
+    invitedBy: { name: '张三丰', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=inviter1' },
+    superLikes: 5, // 超级赞数量
+    isMyAnswer: false // 是否是我的回答
+  },
+  { 
+    id: 2, 
+    author: '数据分析师小王', 
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=answer2', 
+    verified: false, 
+    adopted: false, 
+    title: '数据分析师 · 3年经验', 
+    content: '我也是文科转行的，现在在做数据分析。给你几点建议：\n\n1. 不要一开始就啃书，先跟着视频教程敲代码\n2. 多做项目，边学边练\n3. 加入一些学习群，有问题可以随时问', 
+    likes: 89, 
+    dislikes: 1, 
+    comments: 12, 
+    time: '30分钟前',
+    // 添加仲裁信息
+    hasArbitration: true,
+    arbitrationResult: 'completed', // 'completed': 仲裁已完成
+    arbitrationData: {
+      status: 'rejected', // 'approved': 推翻, 'rejected': 维持
+      votes: { agree: 1, disagree: 2, total: 3 },
+      experts: [
+        { 
+          id: 1, 
+          name: '李明', 
+          avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=expert1', 
+          title: 'Python架构师', 
+          vote: 'agree', 
+          reason: '答案过于简单，缺少具体的学习方法和资源推荐，建议推翻。', 
+          time: '2小时前' 
+        },
+        { 
+          id: 2, 
+          name: '王芳', 
+          avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=expert2', 
+          title: '数据科学家', 
+          vote: 'disagree', 
+          reason: '答案虽然简短，但给出了实用的建议，适合初学者，建议维持。', 
+          time: '1小时前' 
+        },
+        { 
+          id: 3, 
+          name: '赵强', 
+          avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=expert3', 
+          title: '技术总监', 
+          vote: 'disagree', 
+          reason: '答案简洁明了，重点突出，对于文科转行者来说很有参考价值。', 
+          time: '30分钟前' 
+        },
+      ]
+    },
+    superLikes: 12, // 超级赞数量
+    isMyAnswer: true // 是我的回答，可以购买超级赞
+  },
+  { 
+    id: 3, 
+    author: '编程新手', 
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=answer3', 
+    verified: false, 
+    adopted: false, 
+    title: '学生', 
+    content: '同问！我也想学Python，坐等大佬回答~', 
+    likes: 5, 
+    dislikes: 2, 
+    comments: 0, 
+    time: '10分钟前',
+    superLikes: 0,
+    isMyAnswer: false
+  },
 ];
 
 const answerTabs = ['补充 (4)', '回答 (56)', '评论 (4)', '邀请'];
@@ -96,6 +176,83 @@ export default function QuestionDetailScreen({ navigation, route }) {
   const [isTeamMember, setIsTeamMember] = useState(false); // 是否已加入团队
   const [showProgressBar, setShowProgressBar] = useState(false); // 是否显示进度条
   const [solvedPercentage, setSolvedPercentage] = useState(65); // 已解决的百分比
+  const [currentSupplement, setCurrentSupplement] = useState(null); // 当前要回答的补充问题
+  const [showSupplementAnswerModal, setShowSupplementAnswerModal] = useState(false); // 补充回答弹窗
+  const [currentAnswer, setCurrentAnswer] = useState(null); // 当前要补充回答的答案
+  const [supplementAnswerText, setSupplementAnswerText] = useState(''); // 补充回答内容
+  
+  // 身份选择
+  const [answerIdentity, setAnswerIdentity] = useState('personal'); // 回答身份
+  const [answerSelectedTeams, setAnswerSelectedTeams] = useState([]); // 回答选中的团队
+  const [supplementIdentity, setSupplementIdentity] = useState('personal'); // 补充回答身份
+  const [supplementSelectedTeams, setSupplementSelectedTeams] = useState([]); // 补充回答选中的团队
+  const [commentIdentity, setCommentIdentity] = useState('personal'); // 评论身份
+  const [commentSelectedTeams, setCommentSelectedTeams] = useState([]); // 评论选中的团队
+  
+  // 无限滚动状态
+  const [showAllInvited, setShowAllInvited] = useState(false); // 是否显示全部已邀请用户
+  const [showAllSupplements, setShowAllSupplements] = useState(false); // 是否显示全部补充
+  const [showAllAnswers, setShowAllAnswers] = useState(false); // 是否显示全部回答
+  const [showAllComments, setShowAllComments] = useState(false); // 是否显示全部评论
+  
+  const [invitedPage, setInvitedPage] = useState(1);
+  const [supplementsPage, setSupplementsPage] = useState(1);
+  const [answersPage, setAnswersPage] = useState(1);
+  const [commentsPage, setCommentsPage] = useState(1);
+  
+  const [loadingInvited, setLoadingInvited] = useState(false);
+  const [loadingSupplements, setLoadingSupplements] = useState(false);
+  const [loadingAnswers, setLoadingAnswers] = useState(false);
+  const [loadingComments, setLoadingComments] = useState(false);
+
+  // 增加悬赏相关状态
+  const [showAddRewardModal, setShowAddRewardModal] = useState(false);
+  const [currentReward, setCurrentReward] = useState(50); // 当前悬赏金额
+  const [rewardContributors, setRewardContributors] = useState(3); // 追加悬赏的人数
+  const [addRewardAmount, setAddRewardAmount] = useState('');
+  const [selectedAddRewardAmount, setSelectedAddRewardAmount] = useState(null);
+  const [showRewardContributorsModal, setShowRewardContributorsModal] = useState(false); // 显示追加悬赏人员名单
+
+  // 超级赞相关状态
+  const [showSuperLikeModal, setShowSuperLikeModal] = useState(false); // 显示购买超级赞弹窗
+  const [currentAnswerForSuperLike, setCurrentAnswerForSuperLike] = useState(null); // 当前要购买超级赞的回答
+  const [superLikeAmount, setSuperLikeAmount] = useState(''); // 购买超级赞的数量
+  const [selectedSuperLikeAmount, setSelectedSuperLikeAmount] = useState(null); // 快速选择的超级赞数量
+  const [answerSuperLikes, setAnswerSuperLikes] = useState({}); // 记录每个回答的超级赞数量
+
+  // 追加悬赏人员名单数据
+  const rewardContributorsList = [
+    { id: 1, name: '张三丰', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user1', amount: 20, time: '2小时前' },
+    { id: 2, name: 'Python老司机', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=answer1', amount: 15, time: '1小时前' },
+    { id: 3, name: '数据分析师小王', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=answer2', amount: 15, time: '30分钟前' },
+  ];
+
+  // 仲裁相关状态
+  const [showArbitrationModal, setShowArbitrationModal] = useState(false);
+  const [showArbitrationStatusModal, setShowArbitrationStatusModal] = useState(false);
+  const [showArbitrationResultModal, setShowArbitrationResultModal] = useState(false);
+  const [currentArbitrationResult, setCurrentArbitrationResult] = useState(null);
+  const [arbitrationReason, setArbitrationReason] = useState('');
+  const [selectedExperts, setSelectedExperts] = useState([]);
+  const [arbitrationStatus, setArbitrationStatus] = useState(null); // null: 未申请, 'pending': 投票中, 'rejected': 维持原判, 'approved': 推翻采纳
+  const [arbitrationVotes, setArbitrationVotes] = useState({ agree: 0, disagree: 0, total: 0 });
+  const [expertSearchText, setExpertSearchText] = useState(''); // 专家搜索文本
+
+  // 可邀请的专家列表
+  const expertsList = [
+    { id: 1, name: '李明', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=expert1', title: 'Python架构师', verified: true, expertise: 'Python开发', votes: 0 },
+    { id: 2, name: '王芳', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=expert2', title: '数据科学家', verified: true, expertise: '数据分析', votes: 0 },
+    { id: 3, name: '赵强', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=expert3', title: '技术总监', verified: true, expertise: '技术管理', votes: 0 },
+    { id: 4, name: '刘洋', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=expert4', title: 'AI工程师', verified: true, expertise: '机器学习', votes: 0 },
+    { id: 5, name: '陈静', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=expert5', title: '全栈开发', verified: true, expertise: 'Web开发', votes: 0 },
+  ];
+
+  // 专家投票详情数据（模拟已完成投票的情况）
+  const [expertVoteDetails, setExpertVoteDetails] = useState([
+    { id: 1, name: '李明', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=expert1', title: 'Python架构师', vote: 'agree', reason: '原答案中关于学习时间的估计不够准确，对于零基础学习者来说，3个月时间过于乐观。建议重新评估。', time: '2小时前' },
+    { id: 2, name: '王芳', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=expert2', title: '数据科学家', vote: 'agree', reason: '同意推翻。答案缺少对数据分析实际工作场景的介绍，学习路线过于理论化。', time: '1小时前' },
+    { id: 3, name: '赵强', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=expert3', title: '技术总监', vote: 'disagree', reason: '我认为原答案基本合理，学习路线清晰，资源推荐也很实用。建议维持原判。', time: '30分钟前' },
+  ]);
 
   // 当前问题数据
   const currentQuestion = {
@@ -132,17 +289,202 @@ export default function QuestionDetailScreen({ navigation, route }) {
     alert('回答提交成功！');
     setAnswerText('');
     setShowAnswerModal(false);
+    setCurrentSupplement(null);
+  };
+
+  const handleSubmitSupplementAnswer = () => {
+    if (!supplementAnswerText.trim()) return;
+    alert('补充回答提交成功！');
+    setSupplementAnswerText('');
+    setShowSupplementAnswerModal(false);
+    setCurrentAnswer(null);
+  };
+
+  // 处理追加悬赏
+  const handleAddReward = () => {
+    const amount = selectedAddRewardAmount || parseFloat(addRewardAmount);
+    if (!amount || amount <= 0) {
+      alert('请输入有效的悬赏金额');
+      return;
+    }
+    if (amount < 5) {
+      alert('最低追加金额为 $5');
+      return;
+    }
+    if (amount > 1000) {
+      alert('单次追加金额不能超过 $1000');
+      return;
+    }
+    
+    setCurrentReward(currentReward + amount);
+    setRewardContributors(rewardContributors + 1);
+    alert(`成功追加 $${amount} 悬赏！`);
+    setShowAddRewardModal(false);
+    setAddRewardAmount('');
+    setSelectedAddRewardAmount(null);
+  };
+
+  // 处理购买超级赞
+  const handleBuySuperLike = () => {
+    const amount = selectedSuperLikeAmount || parseInt(superLikeAmount);
+    if (!amount || amount <= 0) {
+      alert('请输入有效的超级赞数量');
+      return;
+    }
+    if (amount < 1) {
+      alert('最少购买 1 个超级赞');
+      return;
+    }
+    if (amount > 100) {
+      alert('单次最多购买 100 个超级赞');
+      return;
+    }
+    
+    const answerId = currentAnswerForSuperLike.id;
+    const currentCount = answerSuperLikes[answerId] || currentAnswerForSuperLike.superLikes || 0;
+    setAnswerSuperLikes({ ...answerSuperLikes, [answerId]: currentCount + amount });
+    
+    const totalCost = amount * 2; // 每个超级赞 $2
+    alert(`成功购买 ${amount} 个超级赞！\n花费：$${totalCost}\n您的回答排名将会提升！`);
+    setShowSuperLikeModal(false);
+    setSuperLikeAmount('');
+    setSelectedSuperLikeAmount(null);
+    setCurrentAnswerForSuperLike(null);
+  };
+
+  // 处理仲裁申请
+  const handleSubmitArbitration = () => {
+    if (!arbitrationReason.trim()) {
+      alert('请说明申请仲裁的理由');
+      return;
+    }
+    if (selectedExperts.length < 3) {
+      alert('至少需要邀请 3 位专家参与仲裁');
+      return;
+    }
+    if (selectedExperts.length > 5) {
+      alert('最多只能邀请 5 位专家');
+      return;
+    }
+
+    // 提交仲裁申请
+    setArbitrationStatus('pending');
+    setArbitrationVotes({ agree: 0, disagree: 0, total: selectedExperts.length });
+    alert('仲裁申请已提交，等待专家投票中...');
+    setShowArbitrationModal(false);
+    setArbitrationReason('');
+  };
+
+  // 切换专家选择
+  const toggleExpertSelection = (expertId) => {
+    if (selectedExperts.includes(expertId)) {
+      setSelectedExperts(selectedExperts.filter(id => id !== expertId));
+    } else {
+      if (selectedExperts.length >= 5) {
+        alert('最多只能邀请 5 位专家');
+        return;
+      }
+      setSelectedExperts([...selectedExperts, expertId]);
+    }
+  };
+
+  // 模拟专家投票（实际应该由专家操作）
+  const simulateVoting = () => {
+    // 随机生成投票结果
+    const agreeVotes = Math.floor(Math.random() * (selectedExperts.length + 1));
+    const disagreeVotes = selectedExperts.length - agreeVotes;
+    const agreePercentage = (agreeVotes / selectedExperts.length) * 100;
+
+    setArbitrationVotes({ 
+      agree: agreeVotes, 
+      disagree: disagreeVotes, 
+      total: selectedExperts.length 
+    });
+
+    if (agreePercentage > 50) {
+      setArbitrationStatus('approved');
+      setShowProgressBar(false); // 回到PK状态
+      alert('仲裁通过！问题状态已回到PK状态');
+    } else {
+      setArbitrationStatus('rejected');
+      alert('仲裁未通过，维持原采纳答案');
+    }
+  };
+
+  // 加载更多数据的函数
+  const loadMoreInvited = () => {
+    if (loadingInvited) return;
+    setLoadingInvited(true);
+    setTimeout(() => {
+      setInvitedPage(invitedPage + 1);
+      setLoadingInvited(false);
+    }, 1000);
+  };
+
+  const loadMoreSupplements = () => {
+    if (loadingSupplements) return;
+    setLoadingSupplements(true);
+    setTimeout(() => {
+      setSupplementsPage(supplementsPage + 1);
+      setLoadingSupplements(false);
+    }, 1000);
+  };
+
+  const loadMoreAnswers = () => {
+    if (loadingAnswers) return;
+    setLoadingAnswers(true);
+    setTimeout(() => {
+      setAnswersPage(answersPage + 1);
+      setLoadingAnswers(false);
+    }, 1000);
+  };
+
+  const loadMoreComments = () => {
+    if (loadingComments) return;
+    setLoadingComments(true);
+    setTimeout(() => {
+      setCommentsPage(commentsPage + 1);
+      setLoadingComments(false);
+    }, 1000);
+  };
+
+  // 滚动监听处理
+  const handleScroll = ({nativeEvent}) => {
+    const {layoutMeasurement, contentOffset, contentSize} = nativeEvent;
+    const paddingToBottom = 20;
+    const isCloseToBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
+    
+    if (isCloseToBottom) {
+      if (activeTab === '邀请 (8)' && showAllInvited) {
+        loadMoreInvited();
+      } else if (activeTab === '补充 (4)' && showAllSupplements) {
+        loadMoreSupplements();
+      } else if (activeTab === '回答 (56)' && showAllAnswers) {
+        loadMoreAnswers();
+      } else if (activeTab === '评论 (4)' && showAllComments) {
+        loadMoreComments();
+      }
+    }
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+        <TouchableOpacity 
+          onPress={() => navigation.goBack()} 
+          style={styles.backBtn}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          activeOpacity={0.7}
+        >
           <Ionicons name="arrow-back" size={24} color="#374151" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>问题详情</Text>
         <View style={styles.headerRight}>
-          <TouchableOpacity onPress={() => alert('分享功能')}>
+          <TouchableOpacity 
+            onPress={() => alert('分享功能')}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            activeOpacity={0.7}
+          >
             <Ionicons name="arrow-redo-outline" size={22} color="#374151" />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => setShowReportModal(true)}>
@@ -151,18 +493,24 @@ export default function QuestionDetailScreen({ navigation, route }) {
         </View>
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        style={styles.content} 
+        showsVerticalScrollIndicator={false}
+        onScroll={handleScroll}
+        scrollEventThrottle={400}
+        contentContainerStyle={{ paddingBottom: 20 }}
+      >
         {/* 问题内容 */}
         <View style={styles.questionSection}>
           <Text style={styles.questionTitle}>
-            <View style={styles.rewardTagInline}><Text style={styles.rewardTagText}>$50</Text></View>
+            <View style={styles.rewardTagInline}><Text style={styles.rewardTagText}>${currentReward}</Text></View>
             {' '}如何在三个月内从零基础学会Python编程？有没有系统的学习路线推荐？
           </Text>
           
           {/* 作者信息和操作按钮行 - 紧跟标题 */}
           <View style={styles.authorActionsRow}>
             <View style={styles.authorInfoLeft}>
-              <Image source={{ uri: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user1' }} style={styles.smallAvatar} />
+              <Avatar uri="https://api.dicebear.com/7.x/avataaars/svg?seed=user1" name="张三" size={32} />
               <View style={styles.authorMetaInfo}>
                 <View style={styles.authorNameRow}>
                   <Text style={styles.smallAuthorName}>张三丰</Text>
@@ -181,18 +529,9 @@ export default function QuestionDetailScreen({ navigation, route }) {
               <TouchableOpacity style={styles.smallActionBtn} onPress={() => navigation.navigate('GroupChat', { question: currentQuestion })}>
                 <Ionicons name="chatbubbles-outline" size={16} color="#8b5cf6" />
               </TouchableOpacity>
-              <TouchableOpacity style={styles.smallActionBtn} onPress={() => navigation.navigate('TeamDetail', { 
-                team: {
-                  id: 1,
-                  name: currentQuestion.title,
-                  avatar: 'https://api.dicebear.com/7.x/shapes/svg?seed=team1',
-                  role: isTeamMember ? '成员' : null,
-                  members: 12,
-                  questions: 1,
-                  description: '围绕这个问题组建的学习团队，一起讨论解决方案',
-                  createdAt: '2026-01-20',
-                  isActive: true
-                }
+              <TouchableOpacity style={styles.smallActionBtn} onPress={() => navigation.navigate('QuestionTeams', { 
+                questionId: currentQuestion.id,
+                questionTitle: currentQuestion.title
               })}>
                 <Ionicons name="people-circle-outline" size={16} color="#f59e0b" />
               </TouchableOpacity>
@@ -204,6 +543,32 @@ export default function QuestionDetailScreen({ navigation, route }) {
 
           <Text style={styles.questionContent}>本人是一名文科生，之前完全没有接触过编程。最近想转行做数据分析，听说Python是必备技能。{'\n\n'}想请教各位大神：{'\n'}1. 零基础学Python需要多长时间？{'\n'}2. 有没有推荐的学习路线或者教程？{'\n'}3. 需要买什么书或者报什么课程吗？</Text>
           <Image source={{ uri: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=600&h=300&fit=crop' }} style={styles.questionImage} />
+          
+          {/* 悬赏信息卡片 - 移到这里，在图片之后 */}
+          <View style={styles.rewardInfoCard}>
+            <View style={styles.rewardInfoLeft}>
+              <View style={styles.rewardAmountRow}>
+                <Ionicons name="cash-outline" size={16} color="#ef4444" />
+                <Text style={styles.rewardAmountText}>${currentReward}</Text>
+              </View>
+              <TouchableOpacity 
+                style={styles.rewardContributorsRow}
+                onPress={() => setShowRewardContributorsModal(true)}
+              >
+                <Ionicons name="people-outline" size={12} color="#9ca3af" />
+                <Text style={styles.rewardContributorsText}>{rewardContributors} 人追加</Text>
+                <Ionicons name="chevron-forward" size={12} color="#9ca3af" />
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity 
+              style={styles.addRewardBtn}
+              onPress={() => setShowAddRewardModal(true)}
+            >
+              <Ionicons name="add" size={14} color="#fff" />
+              <Text style={styles.addRewardBtnText}>追加</Text>
+            </TouchableOpacity>
+          </View>
+          
           <View style={styles.viewsAndTags}>
             <View style={styles.viewsRow}>
               <Ionicons name="eye-outline" size={14} color="#9ca3af" />
@@ -308,7 +673,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
           {activeTab === '补充 (4)' ? (
             // 补充问题列表
             <>
-              {supplementQuestions.map(item => (
+              {supplementQuestions.slice(0, showAllSupplements ? supplementQuestions.length : 3).map(item => (
                 <TouchableOpacity 
                   key={item.id} 
                   style={styles.suppCard}
@@ -323,7 +688,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
                   activeOpacity={0.7}
                 >
                   <View style={styles.suppHeader}>
-                    <Image source={{ uri: item.avatar }} style={styles.suppAvatar} />
+                    <Avatar uri={item.avatar} name={item.author} size={32} />
                     <View style={styles.suppAuthorInfo}>
                       <Text style={styles.suppAuthor}>{item.author}</Text>
                       <View style={styles.suppLocationRow}>
@@ -333,7 +698,11 @@ export default function QuestionDetailScreen({ navigation, route }) {
                     </View>
                     <TouchableOpacity 
                       style={styles.suppAnswerBtnTop} 
-                      onPress={(e) => { e.stopPropagation(); navigation.navigate('AnswerDetail'); }}
+                      onPress={(e) => { 
+                        e.stopPropagation(); 
+                        setCurrentSupplement(item);
+                        setShowAnswerModal(true);
+                      }}
                     >
                       <Ionicons name="create-outline" size={14} color="#fff" />
                       <Text style={styles.suppAnswerTextTop}>回答 (12)</Text>
@@ -388,17 +757,39 @@ export default function QuestionDetailScreen({ navigation, route }) {
                   </View>
                 </TouchableOpacity>
               ))}
-              <TouchableOpacity style={styles.loadMoreBtn}>
-                <Text style={styles.loadMoreText}>查看更多补充问题</Text>
-                <Ionicons name="chevron-down" size={16} color="#ef4444" />
-              </TouchableOpacity>
+              {loadingSupplements && (
+                <View style={styles.loadingIndicator}>
+                  <Text style={styles.loadingText}>加载中...</Text>
+                </View>
+              )}
+              {!showAllSupplements && (
+                <TouchableOpacity 
+                  style={styles.loadMoreBtn}
+                  onPress={() => setShowAllSupplements(true)}
+                >
+                  <Text style={styles.loadMoreText}>查看更多补充 ({supplementQuestions.length - 3})</Text>
+                  <Ionicons name="chevron-down" size={16} color="#ef4444" />
+                </TouchableOpacity>
+              )}
+              {showAllSupplements && (
+                <TouchableOpacity 
+                  style={styles.collapseBtn}
+                  onPress={() => {
+                    setShowAllSupplements(false);
+                    setSupplementsPage(1);
+                  }}
+                >
+                  <Text style={styles.collapseBtnText}>收起</Text>
+                  <Ionicons name="chevron-up" size={16} color="#ef4444" />
+                </TouchableOpacity>
+              )}
             </>
           ) : activeTab === '评论 (4)' ? (
             // 评论列表
             <>
-              {commentsData.map(comment => (
+              {commentsData.slice(0, showAllComments ? commentsData.length : 3).map(comment => (
                 <View key={comment.id} style={styles.commentCard}>
-                  <Image source={{ uri: comment.avatar }} style={styles.commentAvatar} />
+                  <Avatar uri={comment.avatar} name={comment.author} size={32} />
                   <View style={styles.commentContent}>
                     <View style={styles.commentHeader}>
                       <Text style={styles.commentAuthor}>{comment.author}</Text>
@@ -443,10 +834,32 @@ export default function QuestionDetailScreen({ navigation, route }) {
                   </View>
                 </View>
               ))}
-              <TouchableOpacity style={styles.loadMoreBtn}>
-                <Text style={styles.loadMoreText}>查看更多评论</Text>
-                <Ionicons name="chevron-down" size={16} color="#ef4444" />
-              </TouchableOpacity>
+              {loadingComments && (
+                <View style={styles.loadingIndicator}>
+                  <Text style={styles.loadingText}>加载中...</Text>
+                </View>
+              )}
+              {!showAllComments && (
+                <TouchableOpacity 
+                  style={styles.loadMoreBtn}
+                  onPress={() => setShowAllComments(true)}
+                >
+                  <Text style={styles.loadMoreText}>查看更多评论 ({commentsData.length - 3})</Text>
+                  <Ionicons name="chevron-down" size={16} color="#ef4444" />
+                </TouchableOpacity>
+              )}
+              {showAllComments && (
+                <TouchableOpacity 
+                  style={styles.collapseBtn}
+                  onPress={() => {
+                    setShowAllComments(false);
+                    setCommentsPage(1);
+                  }}
+                >
+                  <Text style={styles.collapseBtnText}>收起</Text>
+                  <Ionicons name="chevron-up" size={16} color="#ef4444" />
+                </TouchableOpacity>
+              )}
             </>
           ) : activeTab === '邀请' ? (
             // 邀请列表 - 二级tab标签
@@ -514,9 +927,9 @@ export default function QuestionDetailScreen({ navigation, route }) {
 
                   {/* 已邀请用户列表 */}
                   <Text style={styles.invitedListTitle}>已邀请</Text>
-                  {[1, 2, 3, 4].map(i => (
+                  {[1, 2, 3, 4, 5, 6, 7, 8].slice(0, showAllInvited ? 8 : 3).map(i => (
                     <View key={`invited-local-${i}`} style={styles.inviteUserCard}>
-                      <Image source={{ uri: `https://api.dicebear.com/7.x/avataaars/svg?seed=local${i}` }} style={styles.inviteUserAvatar} />
+                      <Avatar uri={`https://api.dicebear.com/7.x/avataaars/svg?seed=local${i}`} name={`用户${i}`} size={40} />
                       <View style={styles.inviteUserInfo}>
                         <Text style={styles.inviteUserName}>用户{i}</Text>
                         <Text style={styles.inviteUserDesc}>Python开发者 · 回答过 {i * 10} 个问题</Text>
@@ -527,6 +940,32 @@ export default function QuestionDetailScreen({ navigation, route }) {
                       </View>
                     </View>
                   ))}
+                  {loadingInvited && (
+                    <View style={styles.loadingIndicator}>
+                      <Text style={styles.loadingText}>加载中...</Text>
+                    </View>
+                  )}
+                  {!showAllInvited && (
+                    <TouchableOpacity 
+                      style={styles.loadMoreInvitedBtn} 
+                      onPress={() => setShowAllInvited(true)}
+                    >
+                      <Text style={styles.loadMoreInvitedText}>查看更多邀请 (5)</Text>
+                      <Ionicons name="chevron-down" size={16} color="#ef4444" />
+                    </TouchableOpacity>
+                  )}
+                  {showAllInvited && (
+                    <TouchableOpacity 
+                      style={styles.collapseBtn}
+                      onPress={() => {
+                        setShowAllInvited(false);
+                        setInvitedPage(1);
+                      }}
+                    >
+                      <Text style={styles.collapseBtnText}>收起</Text>
+                      <Ionicons name="chevron-up" size={16} color="#ef4444" />
+                    </TouchableOpacity>
+                  )}
                 </View>
               )}
 
@@ -551,9 +990,9 @@ export default function QuestionDetailScreen({ navigation, route }) {
 
                   {/* 已邀请用户列表 */}
                   <Text style={styles.invitedListTitle}>已邀请</Text>
-                  {[1, 2, 3].map(i => (
+                  {[1, 2, 3, 4, 5, 6].slice(0, showAllInvited ? 6 : 3).map(i => (
                     <View key={`invited-twitter-${i}`} style={styles.inviteUserCard}>
-                      <Image source={{ uri: `https://api.dicebear.com/7.x/avataaars/svg?seed=twitter${i}` }} style={styles.inviteUserAvatar} />
+                      <Avatar uri={`https://api.dicebear.com/7.x/avataaars/svg?seed=twitter${i}`} name={`@twitter_user${i}`} size={40} />
                       <View style={styles.inviteUserInfo}>
                         <Text style={styles.inviteUserName}>@twitter_user{i}</Text>
                         <Text style={styles.inviteUserDesc}>{i * 1000} 关注者</Text>
@@ -564,6 +1003,32 @@ export default function QuestionDetailScreen({ navigation, route }) {
                       </View>
                     </View>
                   ))}
+                  {loadingInvited && (
+                    <View style={styles.loadingIndicator}>
+                      <Text style={styles.loadingText}>加载中...</Text>
+                    </View>
+                  )}
+                  {!showAllInvited && (
+                    <TouchableOpacity 
+                      style={styles.loadMoreInvitedBtn} 
+                      onPress={() => setShowAllInvited(true)}
+                    >
+                      <Text style={styles.loadMoreInvitedText}>查看更多邀请 (3)</Text>
+                      <Ionicons name="chevron-down" size={16} color="#ef4444" />
+                    </TouchableOpacity>
+                  )}
+                  {showAllInvited && (
+                    <TouchableOpacity 
+                      style={styles.collapseBtn}
+                      onPress={() => {
+                        setShowAllInvited(false);
+                        setInvitedPage(1);
+                      }}
+                    >
+                      <Text style={styles.collapseBtnText}>收起</Text>
+                      <Ionicons name="chevron-up" size={16} color="#ef4444" />
+                    </TouchableOpacity>
+                  )}
                 </View>
               )}
 
@@ -588,9 +1053,9 @@ export default function QuestionDetailScreen({ navigation, route }) {
 
                   {/* 已邀请用户列表 */}
                   <Text style={styles.invitedListTitle}>已邀请</Text>
-                  {[1, 2, 3].map(i => (
+                  {[1, 2, 3, 4, 5].slice(0, showAllInvited ? 5 : 3).map(i => (
                     <View key={`invited-facebook-${i}`} style={styles.inviteUserCard}>
-                      <Image source={{ uri: `https://api.dicebear.com/7.x/avataaars/svg?seed=facebook${i}` }} style={styles.inviteUserAvatar} />
+                      <Avatar uri={`https://api.dicebear.com/7.x/avataaars/svg?seed=facebook${i}`} name={`Facebook User ${i}`} size={40} />
                       <View style={styles.inviteUserInfo}>
                         <Text style={styles.inviteUserName}>Facebook User {i}</Text>
                         <Text style={styles.inviteUserDesc}>{i * 500} 好友</Text>
@@ -601,16 +1066,42 @@ export default function QuestionDetailScreen({ navigation, route }) {
                       </View>
                     </View>
                   ))}
+                  {loadingInvited && (
+                    <View style={styles.loadingIndicator}>
+                      <Text style={styles.loadingText}>加载中...</Text>
+                    </View>
+                  )}
+                  {!showAllInvited && (
+                    <TouchableOpacity 
+                      style={styles.loadMoreInvitedBtn} 
+                      onPress={() => setShowAllInvited(true)}
+                    >
+                      <Text style={styles.loadMoreInvitedText}>查看更多邀请 (2)</Text>
+                      <Ionicons name="chevron-down" size={16} color="#ef4444" />
+                    </TouchableOpacity>
+                  )}
+                  {showAllInvited && (
+                    <TouchableOpacity 
+                      style={styles.collapseBtn}
+                      onPress={() => {
+                        setShowAllInvited(false);
+                        setInvitedPage(1);
+                      }}
+                    >
+                      <Text style={styles.collapseBtnText}>收起</Text>
+                      <Ionicons name="chevron-up" size={16} color="#ef4444" />
+                    </TouchableOpacity>
+                  )}
                 </View>
               )}
             </View>
           ) : (
             // 回答列表
             <>
-              {answers.map(answer => (
+              {answers.slice(0, showAllAnswers ? answers.length : 3).map(answer => (
             <TouchableOpacity key={answer.id} style={[styles.answerCard, answer.adopted && styles.answerCardAdopted]} onPress={() => navigation.navigate('AnswerDetail', { answer })}>
               <View style={styles.answerHeader}>
-                <Image source={{ uri: answer.avatar }} style={styles.answerAvatar} />
+                <Avatar uri={answer.avatar} name={answer.author} size={40} />
                 <View style={styles.answerAuthorInfo}>
                   <View style={styles.answerAuthorRow}>
                     <Text style={styles.answerAuthor}>{answer.author}</Text>
@@ -618,12 +1109,143 @@ export default function QuestionDetailScreen({ navigation, route }) {
                   </View>
                   <Text style={styles.answerAuthorTitle}>{answer.title}</Text>
                 </View>
-                <TouchableOpacity style={styles.answerSupplementBtnTop} onPress={(e) => e.stopPropagation()}>
+                <TouchableOpacity 
+                  style={styles.answerSupplementBtnTop} 
+                  onPress={(e) => { 
+                    e.stopPropagation(); 
+                    setCurrentAnswer(answer);
+                    setShowSupplementAnswerModal(true);
+                  }}
+                >
                   <Ionicons name="add-circle-outline" size={14} color="#fff" />
                   <Text style={styles.answerSupplementTextTop}>补充回答 (2)</Text>
                 </TouchableOpacity>
               </View>
+
+              {/* 标签区域 - 优化布局 */}
+              <View style={styles.answerTagsSection}>
+                {/* 超级赞徽章 - 显示在最前面 */}
+                {((answerSuperLikes[answer.id] || answer.superLikes || 0) > 0) && (
+                  <View style={styles.superLikeBadge}>
+                    <Ionicons name="star" size={14} color="#f59e0b" />
+                    <Text style={styles.superLikeBadgeText}>超级赞 x{answerSuperLikes[answer.id] || answer.superLikes}</Text>
+                  </View>
+                )}
+                
+                {/* 已采纳标签 */}
+                {answer.adopted && (
+                  <View style={styles.adoptedBadgeCompact}>
+                    <Ionicons name="checkmark-circle" size={14} color="#22c55e" />
+                    <Text style={styles.adoptedBadgeCompactText}>已采纳</Text>
+                  </View>
+                )}
+                
+                {/* 邀请者标签 */}
+                {answer.invitedBy && (
+                  <View style={styles.inviterBadgeCompact}>
+                    <Avatar uri={answer.invitedBy.avatar} name={answer.invitedBy.name} size={14} />
+                    <Text style={styles.inviterTextCompact}>由 {answer.invitedBy.name} 邀请</Text>
+                  </View>
+                )}
+
+                {/* 仲裁结果标签 */}
+                {answer.hasArbitration && answer.arbitrationResult === 'completed' && (
+                  <View style={[
+                    styles.arbitrationResultBadge,
+                    answer.arbitrationData.status === 'approved' ? styles.arbitrationResultApproved : styles.arbitrationResultRejected
+                  ]}>
+                    <Ionicons 
+                      name={answer.arbitrationData.status === 'approved' ? "close-circle" : "shield-checkmark"} 
+                      size={12} 
+                      color={answer.arbitrationData.status === 'approved' ? "#ef4444" : "#22c55e"} 
+                    />
+                    <Text style={[
+                      styles.arbitrationResultText,
+                      answer.arbitrationData.status === 'approved' ? styles.arbitrationResultTextApproved : styles.arbitrationResultTextRejected
+                    ]}>
+                      {answer.arbitrationData.status === 'approved' ? '仲裁推翻' : '仲裁维持'}
+                    </Text>
+                  </View>
+                )}
+
+                {/* 仲裁状态标签 */}
+                {answer.adopted && arbitrationStatus === 'pending' && (
+                  <View style={styles.arbitrationPendingBadgeCompact}>
+                    <Ionicons name="time-outline" size={12} color="#f59e0b" />
+                    <Text style={styles.arbitrationPendingTextCompact}>投票中</Text>
+                  </View>
+                )}
+                
+                {answer.adopted && arbitrationStatus === 'approved' && (
+                  <View style={styles.arbitrationApprovedBadgeCompact}>
+                    <Ionicons name="close-circle" size={12} color="#ef4444" />
+                    <Text style={styles.arbitrationApprovedTextCompact}>已推翻</Text>
+                  </View>
+                )}
+
+                {/* 右侧操作按钮 */}
+                <View style={styles.answerTagsActions}>
+                  {/* 查看仲裁结果按钮 */}
+                  {answer.hasArbitration && answer.arbitrationResult === 'completed' && (
+                    <TouchableOpacity 
+                      style={styles.viewArbitrationResultBtn}
+                      onPress={(e) => { 
+                        e.stopPropagation(); 
+                        setCurrentArbitrationResult(answer.arbitrationData);
+                        setShowArbitrationResultModal(true);
+                      }}
+                    >
+                      <Ionicons name="document-text-outline" size={12} color="#6b7280" />
+                      <Text style={styles.viewArbitrationResultBtnText}>查看仲裁</Text>
+                    </TouchableOpacity>
+                  )}
+                  
+                  {answer.adopted && !arbitrationStatus && (
+                    <TouchableOpacity 
+                      style={styles.arbitrationBtnCompact}
+                      onPress={(e) => { 
+                        e.stopPropagation(); 
+                        setShowArbitrationModal(true);
+                      }}
+                    >
+                      <Ionicons name="gavel-outline" size={12} color="#6b7280" />
+                      <Text style={styles.arbitrationBtnTextCompact}>仲裁</Text>
+                    </TouchableOpacity>
+                  )}
+                  
+                  {answer.adopted && arbitrationStatus && (
+                    <TouchableOpacity 
+                      style={styles.viewArbitrationBtnCompact}
+                      onPress={(e) => { 
+                        e.stopPropagation(); 
+                        setShowArbitrationStatusModal(true);
+                      }}
+                    >
+                      <Text style={styles.viewArbitrationBtnTextCompact}>详情</Text>
+                      <Ionicons name="chevron-forward" size={12} color="#6b7280" />
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </View>
+              
               <Text style={styles.answerContent}>{answer.content}</Text>
+              
+              {/* 如果是我的回答，显示购买超级赞按钮 */}
+              {answer.isMyAnswer && (
+                <TouchableOpacity 
+                  style={styles.buySuperLikeBtn}
+                  onPress={(e) => { 
+                    e.stopPropagation(); 
+                    setCurrentAnswerForSuperLike(answer);
+                    setShowSuperLikeModal(true);
+                  }}
+                >
+                  <Ionicons name="star-outline" size={16} color="#f59e0b" />
+                  <Text style={styles.buySuperLikeBtnText}>购买超级赞提升排名</Text>
+                  <Ionicons name="chevron-forward" size={14} color="#f59e0b" />
+                </TouchableOpacity>
+              )}
+              
               <View style={styles.answerFooter}>
                 <View style={styles.answerFooterLeft}>
                   <TouchableOpacity 
@@ -667,12 +1289,38 @@ export default function QuestionDetailScreen({ navigation, route }) {
               </View>
             </TouchableOpacity>
           ))}
-          <TouchableOpacity style={styles.loadMoreBtn}><Text style={styles.loadMoreText}>查看更多回答</Text><Ionicons name="chevron-down" size={16} color="#ef4444" /></TouchableOpacity>
+              {loadingAnswers && (
+                <View style={styles.loadingIndicator}>
+                  <Text style={styles.loadingText}>加载中...</Text>
+                </View>
+              )}
+              {!showAllAnswers && (
+                <TouchableOpacity 
+                  style={styles.loadMoreBtn}
+                  onPress={() => setShowAllAnswers(true)}
+                >
+                  <Text style={styles.loadMoreText}>查看更多回答 ({answers.length - 3})</Text>
+                  <Ionicons name="chevron-down" size={16} color="#ef4444" />
+                </TouchableOpacity>
+              )}
+              {showAllAnswers && (
+                <TouchableOpacity 
+                  style={styles.collapseBtn}
+                  onPress={() => {
+                    setShowAllAnswers(false);
+                    setAnswersPage(1);
+                  }}
+                >
+                  <Text style={styles.collapseBtnText}>收起</Text>
+                  <Ionicons name="chevron-up" size={16} color="#ef4444" />
+                </TouchableOpacity>
+              )}
             </>
           )}
         </View>
 
-        {/* 推荐相关问题 */}
+        {/* 推荐相关问题 - 仅在列表未展开时显示 */}
+        {!showAllSupplements && !showAllAnswers && !showAllComments && !showAllInvited && (
         <View style={styles.recommendedSection}>
           <View style={styles.recommendedHeader}>
             <View style={styles.recommendedHeaderLeft}>
@@ -706,9 +1354,10 @@ export default function QuestionDetailScreen({ navigation, route }) {
 
             <View style={styles.recommendedQuestionMeta}>
               <View style={styles.recommendedAuthorInfo}>
-                <Image 
-                  source={{ uri: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user2' }} 
-                  style={styles.recommendedAuthorAvatar} 
+                <Avatar 
+                  uri="https://api.dicebear.com/7.x/avataaars/svg?seed=user2" 
+                  name="前端小白"
+                  size={24}
                 />
                 <Text style={styles.recommendedAuthorName}>前端小白</Text>
                 <Text style={styles.recommendedQuestionTime}>· 3小时前</Text>
@@ -751,9 +1400,10 @@ export default function QuestionDetailScreen({ navigation, route }) {
 
             <View style={styles.recommendedQuestionMeta}>
               <View style={styles.recommendedAuthorInfo}>
-                <Image 
-                  source={{ uri: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user3' }} 
-                  style={styles.recommendedAuthorAvatar} 
+                <Avatar 
+                  uri="https://api.dicebear.com/7.x/avataaars/svg?seed=user3" 
+                  name="转行者"
+                  size={24}
                 />
                 <Text style={styles.recommendedAuthorName}>转行者</Text>
                 <Text style={styles.recommendedQuestionTime}>· 5小时前</Text>
@@ -777,6 +1427,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
             </View>
           </TouchableOpacity>
         </View>
+        )}
       </ScrollView>
 
       {/* 底部固定栏 - 主要互动按钮 */}
@@ -789,7 +1440,12 @@ export default function QuestionDetailScreen({ navigation, route }) {
           <Ionicons name={bookmarked ? "bookmark" : "bookmark-outline"} size={20} color={bookmarked ? "#f59e0b" : "#6b7280"} />
           <Text style={[styles.bottomActionText, bookmarked && { color: '#f59e0b' }]}>89</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.bottomActionBtn}>
+        <TouchableOpacity style={styles.bottomActionBtn} onPress={() => {
+          console.log('评论按钮被点击');
+          console.log('当前 showCommentModal 状态:', showCommentModal);
+          setShowCommentModal(true);
+          console.log('设置 showCommentModal 为 true');
+        }}>
           <Ionicons name="chatbubble-outline" size={20} color="#6b7280" />
           <Text style={styles.bottomActionText}>评论</Text>
         </TouchableOpacity>
@@ -984,7 +1640,17 @@ export default function QuestionDetailScreen({ navigation, route }) {
       </Modal>
 
       {/* 评论弹窗 */}
-      <Modal visible={showCommentModal} animationType="slide">
+      <Modal 
+        visible={showCommentModal} 
+        animationType="slide"
+        presentationStyle="fullScreen"
+        onShow={() => console.log('评论弹窗已显示')}
+        onRequestClose={() => {
+          console.log('评论弹窗请求关闭');
+          setShowCommentModal(false);
+          setCommentText('');
+        }}
+      >
         <SafeAreaView style={styles.commentModal}>
           <View style={styles.commentModalHeader}>
             <TouchableOpacity onPress={() => { setShowCommentModal(false); setCommentText(''); }} style={styles.commentCloseBtn}>
@@ -1019,6 +1685,16 @@ export default function QuestionDetailScreen({ navigation, route }) {
               autoFocus
               textAlignVertical="top"
             />
+            
+            {/* 身份选择器 */}
+            <View style={styles.commentIdentitySection}>
+              <IdentitySelector
+                selectedIdentity={commentIdentity}
+                selectedTeams={commentSelectedTeams}
+                onIdentityChange={setCommentIdentity}
+                onTeamsChange={setCommentSelectedTeams}
+              />
+            </View>
           </ScrollView>
 
           <View style={styles.commentToolbar}>
@@ -1091,7 +1767,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
       <Modal visible={showAnswerModal} animationType="slide">
         <SafeAreaView style={styles.answerModal}>
           <View style={styles.answerModalHeader}>
-            <TouchableOpacity onPress={() => setShowAnswerModal(false)} style={styles.answerCloseBtn}>
+            <TouchableOpacity onPress={() => { setShowAnswerModal(false); setCurrentSupplement(null); }} style={styles.answerCloseBtn}>
               <Ionicons name="close" size={26} color="#333" />
             </TouchableOpacity>
             <View style={styles.answerHeaderCenter}>
@@ -1110,7 +1786,16 @@ export default function QuestionDetailScreen({ navigation, route }) {
             <View style={styles.answerQuestionIcon}>
               <Ionicons name="help-circle" size={20} color="#ef4444" />
             </View>
-            <Text style={styles.answerQuestionText} numberOfLines={2}>如何在三个月内从零基础学会Python编程？有没有系统的学习路线推荐？</Text>
+            <View style={styles.answerQuestionContent}>
+              <Text style={styles.answerQuestionText} numberOfLines={2}>{currentQuestion.title}</Text>
+              {currentSupplement && (
+                <View style={styles.answerSupplementInfo}>
+                  <Ionicons name="arrow-forward" size={14} color="#f59e0b" />
+                  <Text style={styles.answerSupplementLabel}>补充问题：</Text>
+                  <Text style={styles.answerSupplementText} numberOfLines={2}>{currentSupplement.content}</Text>
+                </View>
+              )}
+            </View>
           </View>
 
           <ScrollView style={styles.answerContentArea} keyboardShouldPersistTaps="handled">
@@ -1124,6 +1809,16 @@ export default function QuestionDetailScreen({ navigation, route }) {
               autoFocus
               textAlignVertical="top"
             />
+            
+            {/* 身份选择器 */}
+            <View style={styles.answerIdentitySection}>
+              <IdentitySelector
+                selectedIdentity={answerIdentity}
+                selectedTeams={answerSelectedTeams}
+                onIdentityChange={setAnswerIdentity}
+                onTeamsChange={setAnswerSelectedTeams}
+              />
+            </View>
           </ScrollView>
 
           <View style={styles.answerToolbar}>
@@ -1469,6 +2164,746 @@ export default function QuestionDetailScreen({ navigation, route }) {
           </ScrollView>
         </SafeAreaView>
       </Modal>
+
+      {/* 补充回答弹窗 */}
+      <Modal visible={showSupplementAnswerModal} animationType="slide">
+        <SafeAreaView style={styles.answerModal}>
+          <View style={styles.answerModalHeader}>
+            <TouchableOpacity 
+              onPress={() => { 
+                setShowSupplementAnswerModal(false); 
+                setCurrentAnswer(null); 
+                setSupplementAnswerText('');
+              }} 
+              style={styles.answerCloseBtn}
+            >
+              <Ionicons name="close" size={26} color="#333" />
+            </TouchableOpacity>
+            <View style={styles.answerHeaderCenter}>
+              <Text style={styles.answerModalTitle}>补充回答</Text>
+            </View>
+            <TouchableOpacity 
+              style={[styles.answerPublishBtn, !supplementAnswerText.trim() && styles.answerPublishBtnDisabled]}
+              onPress={handleSubmitSupplementAnswer}
+              disabled={!supplementAnswerText.trim()}
+            >
+              <Text style={[styles.answerPublishText, !supplementAnswerText.trim() && styles.answerPublishTextDisabled]}>发布</Text>
+            </TouchableOpacity>
+          </View>
+
+          {currentAnswer && (
+            <View style={styles.supplementAnswerContext}>
+              <View style={styles.supplementAnswerHeader}>
+                <Ionicons name="document-text" size={18} color="#3b82f6" />
+                <Text style={styles.supplementAnswerLabel}>原回答</Text>
+              </View>
+              <View style={styles.supplementAnswerAuthor}>
+                <Avatar uri={currentAnswer.avatar} name={currentAnswer.author} size={24} />
+                <Text style={styles.supplementAnswerAuthorName}>{currentAnswer.author}</Text>
+              </View>
+              <Text style={styles.supplementAnswerContent} numberOfLines={3}>{currentAnswer.content}</Text>
+            </View>
+          )}
+
+          <ScrollView style={styles.answerContentArea} keyboardShouldPersistTaps="handled">
+            <TextInput
+              style={styles.answerTextInput}
+              placeholder="补充你的回答，提供更多信息..."
+              placeholderTextColor="#bbb"
+              value={supplementAnswerText}
+              onChangeText={setSupplementAnswerText}
+              multiline
+              autoFocus
+              textAlignVertical="top"
+            />
+            
+            {/* 身份选择器 */}
+            <View style={styles.answerIdentitySection}>
+              <IdentitySelector
+                selectedIdentity={supplementIdentity}
+                selectedTeams={supplementSelectedTeams}
+                onIdentityChange={setSupplementIdentity}
+                onTeamsChange={setSupplementSelectedTeams}
+              />
+            </View>
+          </ScrollView>
+
+          <View style={styles.answerToolbar}>
+            <View style={styles.answerToolsLeft}>
+              <TouchableOpacity style={styles.answerToolItem}>
+                <Ionicons name="image-outline" size={24} color="#666" />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.answerToolItem}>
+                <Ionicons name="videocam-outline" size={24} color="#666" />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.answerToolItem}>
+                <Ionicons name="at-outline" size={24} color="#666" />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.answerToolItem}>
+                <Ionicons name="pricetag-outline" size={24} color="#666" />
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.answerWordCount}>{supplementAnswerText.length}/2000</Text>
+          </View>
+        </SafeAreaView>
+      </Modal>
+
+      {/* 追加悬赏弹窗 */}
+      <Modal visible={showAddRewardModal} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.addRewardModal}>
+            <View style={styles.addRewardModalHandle} />
+            <Text style={styles.addRewardModalTitle}>追加悬赏</Text>
+            
+            <View style={styles.addRewardContent}>
+              {/* 当前悬赏信息 */}
+              <View style={styles.currentRewardInfo}>
+                <View style={styles.currentRewardRow}>
+                  <Text style={styles.currentRewardLabel}>当前悬赏</Text>
+                  <Text style={styles.currentRewardAmount}>${currentReward}</Text>
+                </View>
+                <View style={styles.currentRewardRow}>
+                  <Text style={styles.currentRewardDesc}>已有 {rewardContributors} 人追加悬赏</Text>
+                </View>
+              </View>
+
+              {/* 快速选择金额 */}
+              <Text style={styles.addRewardSectionTitle}>选择追加金额</Text>
+              <View style={styles.quickAmountGrid}>
+                {[10, 20, 50, 100, 200, 500].map(amount => (
+                  <TouchableOpacity
+                    key={amount}
+                    style={[
+                      styles.quickAmountBtn,
+                      selectedAddRewardAmount === amount && styles.quickAmountBtnActive
+                    ]}
+                    onPress={() => {
+                      setSelectedAddRewardAmount(amount);
+                      setAddRewardAmount('');
+                    }}
+                  >
+                    <Text style={[
+                      styles.quickAmountText,
+                      selectedAddRewardAmount === amount && styles.quickAmountTextActive
+                    ]}>${amount}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              {/* 自定义金额 */}
+              <Text style={styles.addRewardSectionTitle}>或输入自定义金额</Text>
+              <View style={styles.customAmountInput}>
+                <Text style={styles.currencySymbol}>$</Text>
+                <TextInput
+                  style={styles.customAmountField}
+                  placeholder="最低 $5"
+                  placeholderTextColor="#9ca3af"
+                  value={addRewardAmount}
+                  onChangeText={(text) => {
+                    setAddRewardAmount(text);
+                    setSelectedAddRewardAmount(null);
+                  }}
+                  keyboardType="numeric"
+                />
+              </View>
+
+              {/* 提示信息 */}
+              <View style={styles.addRewardTips}>
+                <Ionicons name="information-circle-outline" size={16} color="#6b7280" />
+                <Text style={styles.addRewardTipsText}>
+                  追加的悬赏将与原悬赏合并，吸引更多优质回答
+                </Text>
+              </View>
+
+              {/* 确认按钮 */}
+              <TouchableOpacity
+                style={[
+                  styles.confirmAddRewardBtn,
+                  (!selectedAddRewardAmount && !addRewardAmount) && styles.confirmAddRewardBtnDisabled
+                ]}
+                onPress={handleAddReward}
+                disabled={!selectedAddRewardAmount && !addRewardAmount}
+              >
+                <Text style={styles.confirmAddRewardBtnText}>
+                  确认追加 ${selectedAddRewardAmount || addRewardAmount || 0}
+                </Text>
+              </TouchableOpacity>
+
+              {/* 取消按钮 */}
+              <TouchableOpacity
+                style={styles.cancelAddRewardBtn}
+                onPress={() => {
+                  setShowAddRewardModal(false);
+                  setAddRewardAmount('');
+                  setSelectedAddRewardAmount(null);
+                }}
+              >
+                <Text style={styles.cancelAddRewardBtnText}>取消</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* 购买超级赞弹窗 */}
+      <Modal visible={showSuperLikeModal} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.superLikeModal}>
+            <View style={styles.superLikeModalHandle} />
+            <View style={styles.superLikeModalHeader}>
+              <Ionicons name="star" size={24} color="#f59e0b" />
+              <Text style={styles.superLikeModalTitle}>购买超级赞</Text>
+            </View>
+            
+            <ScrollView 
+              style={styles.superLikeScrollContent}
+              contentContainerStyle={styles.superLikeContentContainer}
+              showsVerticalScrollIndicator={false}
+            >
+              {/* 当前超级赞信息 */}
+              <View style={styles.currentSuperLikeInfo}>
+                <View style={styles.superLikeInfoCard}>
+                  <View style={styles.superLikeInfoRow}>
+                    <Text style={styles.superLikeInfoLabel}>当前超级赞</Text>
+                    <View style={styles.superLikeCountBadge}>
+                      <Ionicons name="star" size={16} color="#f59e0b" />
+                      <Text style={styles.superLikeCountText}>
+                        {answerSuperLikes[currentAnswerForSuperLike?.id] || currentAnswerForSuperLike?.superLikes || 0}
+                      </Text>
+                    </View>
+                  </View>
+                  <Text style={styles.superLikeInfoDesc}>
+                    超级赞越多，您的回答排名越靠前，获得更多曝光
+                  </Text>
+                </View>
+              </View>
+
+              {/* 快速选择数量 */}
+              <Text style={styles.superLikeSectionTitle}>选择购买数量</Text>
+              <View style={styles.quickSuperLikeGrid}>
+                {[5, 10, 20, 50, 100].map(amount => (
+                  <TouchableOpacity
+                    key={amount}
+                    style={[
+                      styles.quickSuperLikeBtn,
+                      selectedSuperLikeAmount === amount && styles.quickSuperLikeBtnActive
+                    ]}
+                    onPress={() => {
+                      setSelectedSuperLikeAmount(amount);
+                      setSuperLikeAmount('');
+                    }}
+                  >
+                    <Ionicons name="star" size={18} color={selectedSuperLikeAmount === amount ? "#fff" : "#f59e0b"} />
+                    <Text style={[
+                      styles.quickSuperLikeText,
+                      selectedSuperLikeAmount === amount && styles.quickSuperLikeTextActive
+                    ]}>x{amount}</Text>
+                    <Text style={[
+                      styles.quickSuperLikePrice,
+                      selectedSuperLikeAmount === amount && styles.quickSuperLikePriceActive
+                    ]}>${amount * 2}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              {/* 自定义数量 */}
+              <Text style={styles.superLikeSectionTitle}>或输入自定义数量</Text>
+              <View style={styles.customSuperLikeInput}>
+                <Ionicons name="star-outline" size={20} color="#f59e0b" />
+                <TextInput
+                  style={styles.customSuperLikeField}
+                  placeholder="最少 1 个"
+                  placeholderTextColor="#9ca3af"
+                  value={superLikeAmount}
+                  onChangeText={(text) => {
+                    setSuperLikeAmount(text);
+                    setSelectedSuperLikeAmount(null);
+                  }}
+                  keyboardType="numeric"
+                />
+                <Text style={styles.superLikePriceHint}>
+                  ${(parseInt(superLikeAmount) || 0) * 2}
+                </Text>
+              </View>
+
+              {/* 价格说明 */}
+              <View style={styles.superLikePriceInfo}>
+                <View style={styles.priceInfoRow}>
+                  <Text style={styles.priceInfoLabel}>单价</Text>
+                  <Text style={styles.priceInfoValue}>$2 / 个</Text>
+                </View>
+                <View style={styles.priceInfoRow}>
+                  <Text style={styles.priceInfoLabel}>购买数量</Text>
+                  <Text style={styles.priceInfoValue}>
+                    {selectedSuperLikeAmount || superLikeAmount || 0} 个
+                  </Text>
+                </View>
+                <View style={[styles.priceInfoRow, styles.priceInfoTotal]}>
+                  <Text style={styles.priceInfoTotalLabel}>总计</Text>
+                  <Text style={styles.priceInfoTotalValue}>
+                    ${(selectedSuperLikeAmount || parseInt(superLikeAmount) || 0) * 2}
+                  </Text>
+                </View>
+              </View>
+
+              {/* 提示信息 */}
+              <View style={styles.superLikeTips}>
+                <Ionicons name="information-circle-outline" size={16} color="#6b7280" />
+                <Text style={styles.superLikeTipsText}>
+                  购买超级赞后，您的回答将获得更高的排名权重，增加曝光机会
+                </Text>
+              </View>
+            </ScrollView>
+
+            {/* 底部按钮区域 - 固定在底部 */}
+            <View style={styles.superLikeFooter}>
+              {/* 确认按钮 */}
+              <TouchableOpacity
+                style={[
+                  styles.confirmSuperLikeBtn,
+                  (!selectedSuperLikeAmount && !superLikeAmount) && styles.confirmSuperLikeBtnDisabled
+                ]}
+                onPress={handleBuySuperLike}
+                disabled={!selectedSuperLikeAmount && !superLikeAmount}
+              >
+                <Ionicons name="star" size={18} color="#fff" />
+                <Text style={styles.confirmSuperLikeBtnText}>
+                  立即购买 {selectedSuperLikeAmount || superLikeAmount || 0} 个超级赞
+                </Text>
+              </TouchableOpacity>
+
+              {/* 取消按钮 */}
+              <TouchableOpacity
+                style={styles.cancelSuperLikeBtn}
+                onPress={() => {
+                  setShowSuperLikeModal(false);
+                  setSuperLikeAmount('');
+                  setSelectedSuperLikeAmount(null);
+                  setCurrentAnswerForSuperLike(null);
+                }}
+              >
+                <Text style={styles.cancelSuperLikeBtnText}>取消</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* 追加悬赏人员名单弹窗 */}
+      <Modal visible={showRewardContributorsModal} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.contributorsModal}>
+            <View style={styles.contributorsModalHandle} />
+            <View style={styles.contributorsModalHeader}>
+              <Text style={styles.contributorsModalTitle}>追加悬赏名单</Text>
+              <TouchableOpacity onPress={() => setShowRewardContributorsModal(false)}>
+                <Ionicons name="close" size={24} color="#6b7280" />
+              </TouchableOpacity>
+            </View>
+            
+            <View style={styles.contributorsTotalInfo}>
+              <View style={styles.contributorsTotalRow}>
+                <Text style={styles.contributorsTotalLabel}>当前总悬赏</Text>
+                <Text style={styles.contributorsTotalAmount}>${currentReward}</Text>
+              </View>
+              <Text style={styles.contributorsTotalDesc}>共 {rewardContributors} 人追加悬赏</Text>
+            </View>
+
+            <ScrollView style={styles.contributorsList} showsVerticalScrollIndicator={false}>
+              {rewardContributorsList.map((contributor, index) => (
+                <View key={contributor.id} style={styles.contributorItem}>
+                  <View style={styles.contributorRank}>
+                    <Text style={styles.contributorRankText}>#{index + 1}</Text>
+                  </View>
+                  <Avatar uri={contributor.avatar} name={contributor.name} size={40} />
+                  <View style={styles.contributorInfo}>
+                    <Text style={styles.contributorName}>{contributor.name}</Text>
+                    <Text style={styles.contributorTime}>{contributor.time}</Text>
+                  </View>
+                  <View style={styles.contributorAmountBadge}>
+                    <Ionicons name="add" size={12} color="#ef4444" />
+                    <Text style={styles.contributorAmountText}>${contributor.amount}</Text>
+                  </View>
+                </View>
+              ))}
+            </ScrollView>
+
+            <TouchableOpacity 
+              style={styles.contributorsCloseBtn}
+              onPress={() => setShowRewardContributorsModal(false)}
+            >
+              <Text style={styles.contributorsCloseBtnText}>关闭</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* 申请仲裁弹窗 */}
+      <Modal visible={showArbitrationModal} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.arbitrationModal}>
+            <View style={styles.arbitrationModalHandle} />
+            <View style={styles.arbitrationModalHeader}>
+              <Text style={styles.arbitrationModalTitle}>申请仲裁</Text>
+              <TouchableOpacity onPress={() => setShowArbitrationModal(false)}>
+                <Ionicons name="close" size={24} color="#6b7280" />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={styles.arbitrationContent} showsVerticalScrollIndicator={false}>
+              {/* 说明 */}
+              <View style={styles.arbitrationInfo}>
+                <Ionicons name="information-circle" size={20} color="#3b82f6" />
+                <Text style={styles.arbitrationInfoText}>
+                  如果您对已采纳的答案持有不同意见，可以申请仲裁。邀请至少3位专家投票，超过50%同意则推翻采纳。
+                </Text>
+              </View>
+
+              {/* 仲裁理由 */}
+              <Text style={styles.arbitrationSectionTitle}>仲裁理由</Text>
+              <TextInput
+                style={styles.arbitrationReasonInput}
+                placeholder="请详细说明您申请仲裁的理由..."
+                placeholderTextColor="#9ca3af"
+                value={arbitrationReason}
+                onChangeText={setArbitrationReason}
+                multiline
+                numberOfLines={4}
+                textAlignVertical="top"
+              />
+
+              {/* 邀请专家 */}
+              <View style={styles.arbitrationExpertsHeader}>
+                <Text style={styles.arbitrationSectionTitle}>邀请专家投票</Text>
+                <Text style={styles.arbitrationExpertsCount}>
+                  已选 {selectedExperts.length}/5 位
+                </Text>
+              </View>
+
+              {/* 专家搜索框 */}
+              <View style={styles.expertSearchBox}>
+                <Ionicons name="search-outline" size={18} color="#9ca3af" />
+                <TextInput
+                  style={styles.expertSearchInput}
+                  placeholder="搜索专家姓名、职称或领域..."
+                  placeholderTextColor="#9ca3af"
+                  value={expertSearchText}
+                  onChangeText={setExpertSearchText}
+                />
+                {expertSearchText.length > 0 && (
+                  <TouchableOpacity onPress={() => setExpertSearchText('')}>
+                    <Ionicons name="close-circle" size={18} color="#9ca3af" />
+                  </TouchableOpacity>
+                )}
+              </View>
+
+              {/* 推荐专家标题 */}
+              <View style={styles.recommendedExpertsHeader}>
+                <Ionicons name="star" size={16} color="#f59e0b" />
+                <Text style={styles.recommendedExpertsTitle}>推荐专家</Text>
+              </View>
+
+              {expertsList
+                .filter(expert => {
+                  if (!expertSearchText) return true;
+                  const searchLower = expertSearchText.toLowerCase();
+                  return (
+                    expert.name.toLowerCase().includes(searchLower) ||
+                    expert.title.toLowerCase().includes(searchLower) ||
+                    expert.expertise.toLowerCase().includes(searchLower)
+                  );
+                })
+                .map(expert => (
+                <TouchableOpacity
+                  key={expert.id}
+                  style={[
+                    styles.expertItem,
+                    selectedExperts.includes(expert.id) && styles.expertItemSelected
+                  ]}
+                  onPress={() => toggleExpertSelection(expert.id)}
+                >
+                  <Avatar uri={expert.avatar} name={expert.name} size={44} />
+                  <View style={styles.expertInfo}>
+                    <View style={styles.expertNameRow}>
+                      <Text style={styles.expertName}>{expert.name}</Text>
+                      {expert.verified && <Ionicons name="checkmark-circle" size={14} color="#3b82f6" />}
+                    </View>
+                    <Text style={styles.expertTitle}>{expert.title}</Text>
+                    <Text style={styles.expertExpertise}>擅长：{expert.expertise}</Text>
+                  </View>
+                  <View style={[
+                    styles.expertCheckbox,
+                    selectedExperts.includes(expert.id) && styles.expertCheckboxSelected
+                  ]}>
+                    {selectedExperts.includes(expert.id) && (
+                      <Ionicons name="checkmark" size={16} color="#fff" />
+                    )}
+                  </View>
+                </TouchableOpacity>
+              ))}
+
+              {/* 搜索无结果提示 */}
+              {expertSearchText && expertsList.filter(expert => {
+                const searchLower = expertSearchText.toLowerCase();
+                return (
+                  expert.name.toLowerCase().includes(searchLower) ||
+                  expert.title.toLowerCase().includes(searchLower) ||
+                  expert.expertise.toLowerCase().includes(searchLower)
+                );
+              }).length === 0 && (
+                <View style={styles.noExpertsFound}>
+                  <Ionicons name="search-outline" size={32} color="#d1d5db" />
+                  <Text style={styles.noExpertsFoundText}>未找到匹配的专家</Text>
+                  <Text style={styles.noExpertsFoundDesc}>试试其他关键词</Text>
+                </View>
+              )}
+
+              <View style={{ height: 20 }} />
+            </ScrollView>
+
+            <View style={styles.arbitrationModalFooter}>
+              <TouchableOpacity
+                style={[
+                  styles.submitArbitrationBtn,
+                  (!arbitrationReason.trim() || selectedExperts.length < 3) && styles.submitArbitrationBtnDisabled
+                ]}
+                onPress={handleSubmitArbitration}
+                disabled={!arbitrationReason.trim() || selectedExperts.length < 3}
+              >
+                <Text style={styles.submitArbitrationBtnText}>
+                  提交仲裁申请
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.cancelArbitrationBtn}
+                onPress={() => {
+                  setShowArbitrationModal(false);
+                  setArbitrationReason('');
+                  setSelectedExperts([]);
+                }}
+              >
+                <Text style={styles.cancelArbitrationBtnText}>取消</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* 仲裁状态弹窗 */}
+      <Modal visible={showArbitrationStatusModal} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.arbitrationStatusModal}>
+            <View style={styles.arbitrationModalHandle} />
+            <Text style={styles.arbitrationStatusTitle}>仲裁投票详情</Text>
+
+            {/* 投票进度 */}
+            <View style={styles.votingProgress}>
+              <View style={styles.votingProgressBar}>
+                <View style={[styles.votingAgreeBar, { width: `${(arbitrationVotes.agree / arbitrationVotes.total) * 100}%` }]} />
+                <View style={[styles.votingDisagreeBar, { width: `${(arbitrationVotes.disagree / arbitrationVotes.total) * 100}%` }]} />
+              </View>
+              <View style={styles.votingStats}>
+                <View style={styles.votingStatItem}>
+                  <View style={styles.votingAgreeIndicator} />
+                  <Text style={styles.votingStatText}>同意推翻：{arbitrationVotes.agree} 票</Text>
+                </View>
+                <View style={styles.votingStatItem}>
+                  <View style={styles.votingDisagreeIndicator} />
+                  <Text style={styles.votingStatText}>维持原判：{arbitrationVotes.disagree} 票</Text>
+                </View>
+              </View>
+              <Text style={styles.votingPercentage}>
+                {((arbitrationVotes.agree / arbitrationVotes.total) * 100).toFixed(1)}% 同意推翻
+              </Text>
+            </View>
+
+            {/* 投票结果 */}
+            {arbitrationStatus === 'pending' && (
+              <View style={styles.arbitrationPendingInfo}>
+                <Ionicons name="time-outline" size={24} color="#f59e0b" />
+                <Text style={styles.arbitrationPendingInfoText}>
+                  等待专家投票中...
+                </Text>
+                <TouchableOpacity 
+                  style={styles.simulateVoteBtn}
+                  onPress={simulateVoting}
+                >
+                  <Text style={styles.simulateVoteBtnText}>模拟投票结果</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {arbitrationStatus === 'approved' && (
+              <View style={styles.arbitrationApprovedInfo}>
+                <Ionicons name="checkmark-circle" size={32} color="#22c55e" />
+                <Text style={styles.arbitrationResultTitle}>仲裁通过</Text>
+                <Text style={styles.arbitrationResultDesc}>
+                  超过50%的专家同意推翻原采纳答案，问题状态已回到PK状态
+                </Text>
+              </View>
+            )}
+
+            {arbitrationStatus === 'rejected' && (
+              <View style={styles.arbitrationRejectedInfo}>
+                <Ionicons name="close-circle" size={32} color="#ef4444" />
+                <Text style={styles.arbitrationResultTitle}>仲裁未通过</Text>
+                <Text style={styles.arbitrationResultDesc}>
+                  未达到50%同意率，维持原采纳答案
+                </Text>
+              </View>
+            )}
+
+            {/* 专家投票详情列表 */}
+            {arbitrationStatus && (
+              <View style={styles.expertVotesSection}>
+                <Text style={styles.expertVotesSectionTitle}>专家投票详情</Text>
+                <ScrollView style={styles.expertVotesList} showsVerticalScrollIndicator={false}>
+                  {expertVoteDetails.map(expert => (
+                    <View key={expert.id} style={styles.expertVoteCard}>
+                      <View style={styles.expertVoteHeader}>
+                        <Avatar uri={expert.avatar} name={expert.name} size={40} />
+                        <View style={styles.expertVoteInfo}>
+                          <View style={styles.expertVoteNameRow}>
+                            <Text style={styles.expertVoteName}>{expert.name}</Text>
+                            <View style={[
+                              styles.expertVoteBadge,
+                              expert.vote === 'agree' ? styles.expertVoteAgreeBadge : styles.expertVoteDisagreeBadge
+                            ]}>
+                              <Ionicons 
+                                name={expert.vote === 'agree' ? "checkmark" : "close"} 
+                                size={12} 
+                                color="#fff" 
+                              />
+                              <Text style={styles.expertVoteBadgeText}>
+                                {expert.vote === 'agree' ? '同意推翻' : '维持原判'}
+                              </Text>
+                            </View>
+                          </View>
+                          <Text style={styles.expertVoteTitle}>{expert.title}</Text>
+                        </View>
+                      </View>
+                      <View style={styles.expertVoteReasonBox}>
+                        <Text style={styles.expertVoteReasonLabel}>投票理由：</Text>
+                        <Text style={styles.expertVoteReasonText}>{expert.reason}</Text>
+                      </View>
+                      <Text style={styles.expertVoteTime}>{expert.time}</Text>
+                    </View>
+                  ))}
+                </ScrollView>
+              </View>
+            )}
+
+            <TouchableOpacity
+              style={styles.closeArbitrationStatusBtn}
+              onPress={() => setShowArbitrationStatusModal(false)}
+            >
+              <Text style={styles.closeArbitrationStatusBtnText}>关闭</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* 仲裁结果弹窗 */}
+      <Modal visible={showArbitrationResultModal} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.arbitrationStatusModal}>
+            <View style={styles.arbitrationModalHandle} />
+            <Text style={styles.arbitrationStatusTitle}>仲裁结果</Text>
+
+            {currentArbitrationResult && (
+              <>
+                {/* 投票进度 */}
+                <View style={styles.votingProgress}>
+                  <View style={styles.votingProgressBar}>
+                    <View style={[styles.votingAgreeBar, { width: `${(currentArbitrationResult.votes.agree / currentArbitrationResult.votes.total) * 100}%` }]} />
+                    <View style={[styles.votingDisagreeBar, { width: `${(currentArbitrationResult.votes.disagree / currentArbitrationResult.votes.total) * 100}%` }]} />
+                  </View>
+                  <View style={styles.votingStats}>
+                    <View style={styles.votingStatItem}>
+                      <View style={styles.votingAgreeIndicator} />
+                      <Text style={styles.votingStatText}>同意推翻：{currentArbitrationResult.votes.agree} 票</Text>
+                    </View>
+                    <View style={styles.votingStatItem}>
+                      <View style={styles.votingDisagreeIndicator} />
+                      <Text style={styles.votingStatText}>维持原判：{currentArbitrationResult.votes.disagree} 票</Text>
+                    </View>
+                  </View>
+                  <Text style={styles.votingPercentage}>
+                    {((currentArbitrationResult.votes.agree / currentArbitrationResult.votes.total) * 100).toFixed(1)}% 同意推翻
+                  </Text>
+                </View>
+
+                {/* 投票结果 */}
+                {currentArbitrationResult.status === 'approved' ? (
+                  <View style={styles.arbitrationApprovedInfo}>
+                    <Ionicons name="checkmark-circle" size={32} color="#22c55e" />
+                    <Text style={styles.arbitrationResultTitle}>仲裁通过</Text>
+                    <Text style={styles.arbitrationResultDesc}>
+                      超过50%的专家同意推翻原采纳答案
+                    </Text>
+                  </View>
+                ) : (
+                  <View style={styles.arbitrationRejectedInfo}>
+                    <Ionicons name="shield-checkmark" size={32} color="#22c55e" />
+                    <Text style={styles.arbitrationResultTitle}>仲裁未通过</Text>
+                    <Text style={styles.arbitrationResultDesc}>
+                      未达到50%同意率，维持原答案
+                    </Text>
+                  </View>
+                )}
+
+                {/* 专家投票详情列表 */}
+                <View style={styles.expertVotesSection}>
+                  <Text style={styles.expertVotesSectionTitle}>专家投票详情</Text>
+                  <ScrollView style={styles.expertVotesList} showsVerticalScrollIndicator={false}>
+                    {currentArbitrationResult.experts.map(expert => (
+                      <View key={expert.id} style={styles.expertVoteCard}>
+                        <View style={styles.expertVoteHeader}>
+                          <Avatar uri={expert.avatar} name={expert.name} size={40} />
+                          <View style={styles.expertVoteInfo}>
+                            <View style={styles.expertVoteNameRow}>
+                              <Text style={styles.expertVoteName}>{expert.name}</Text>
+                              <View style={[
+                                styles.expertVoteBadge,
+                                expert.vote === 'agree' ? styles.expertVoteAgreeBadge : styles.expertVoteDisagreeBadge
+                              ]}>
+                                <Ionicons 
+                                  name={expert.vote === 'agree' ? "checkmark" : "close"} 
+                                  size={12} 
+                                  color="#fff" 
+                                />
+                                <Text style={styles.expertVoteBadgeText}>
+                                  {expert.vote === 'agree' ? '同意推翻' : '维持原判'}
+                                </Text>
+                              </View>
+                            </View>
+                            <Text style={styles.expertVoteTitle}>{expert.title}</Text>
+                          </View>
+                        </View>
+                        <View style={styles.expertVoteReasonBox}>
+                          <Text style={styles.expertVoteReasonLabel}>投票理由：</Text>
+                          <Text style={styles.expertVoteReasonText}>{expert.reason}</Text>
+                        </View>
+                        <Text style={styles.expertVoteTime}>{expert.time}</Text>
+                      </View>
+                    ))}
+                  </ScrollView>
+                </View>
+              </>
+            )}
+
+            <TouchableOpacity
+              style={styles.closeArbitrationStatusBtn}
+              onPress={() => {
+                setShowArbitrationResultModal(false);
+                setCurrentArbitrationResult(null);
+              }}
+            >
+              <Text style={styles.closeArbitrationStatusBtnText}>关闭</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -1487,6 +2922,15 @@ const styles = StyleSheet.create({
   questionTitle: { fontSize: 18, fontWeight: 'bold', color: '#1f2937', lineHeight: 26, marginBottom: 8 },
   rewardTagInline: { backgroundColor: '#ef4444', paddingHorizontal: 5, paddingVertical: 2, borderRadius: 4 },
   rewardTagText: { fontSize: 10, color: '#fff', fontWeight: '600' },
+  // 悬赏信息卡片样式 - 缩小版
+  rewardInfoCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#fef2f2', borderWidth: 1, borderColor: '#fee2e2', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 8, marginBottom: 12 },
+  rewardInfoLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  rewardAmountRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  rewardAmountText: { fontSize: 16, fontWeight: '700', color: '#ef4444' },
+  rewardContributorsRow: { flexDirection: 'row', alignItems: 'center', gap: 3 },
+  rewardContributorsText: { fontSize: 11, color: '#9ca3af' },
+  addRewardBtn: { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: '#ef4444', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 14 },
+  addRewardBtnText: { fontSize: 12, color: '#fff', fontWeight: '600' },
   questionContent: { fontSize: 14, color: '#4b5563', lineHeight: 22, marginTop: 12, marginBottom: 12 },
   questionImage: { width: '100%', height: 180, borderRadius: 8, marginBottom: 12 },
   viewsAndTags: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
@@ -1547,6 +2991,30 @@ const styles = StyleSheet.create({
   sortFilterCount: { fontSize: 12, color: '#9ca3af' },
   answerCard: { padding: 16, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
   answerCardAdopted: { backgroundColor: '#fef2f210' },
+  // 答案标签区域 - 优化布局
+  answerTagsSection: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6, marginBottom: 10 },
+  answerTagsActions: { marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', gap: 6 },
+  // 紧凑版标签样式
+  adoptedBadgeCompact: { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: '#f0fdf4', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10, borderWidth: 1, borderColor: '#bbf7d0' },
+  adoptedBadgeCompactText: { fontSize: 11, color: '#22c55e', fontWeight: '600' },
+  inviterBadgeCompact: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#eff6ff', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10, borderWidth: 1, borderColor: '#bfdbfe' },
+  inviterTextCompact: { fontSize: 10, color: '#3b82f6', fontWeight: '500' },
+  arbitrationPendingBadgeCompact: { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: '#fffbeb', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10, borderWidth: 1, borderColor: '#fde68a' },
+  arbitrationPendingTextCompact: { fontSize: 10, color: '#f59e0b', fontWeight: '600' },
+  arbitrationApprovedBadgeCompact: { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: '#fef2f2', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10, borderWidth: 1, borderColor: '#fecaca' },
+  arbitrationApprovedTextCompact: { fontSize: 10, color: '#ef4444', fontWeight: '600' },
+  arbitrationResultBadge: { flexDirection: 'row', alignItems: 'center', gap: 3, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10, borderWidth: 1 },
+  arbitrationResultApproved: { backgroundColor: '#fef2f2', borderColor: '#fecaca' },
+  arbitrationResultRejected: { backgroundColor: '#f0fdf4', borderColor: '#bbf7d0' },
+  arbitrationResultText: { fontSize: 10, fontWeight: '600' },
+  arbitrationResultTextApproved: { color: '#ef4444' },
+  arbitrationResultTextRejected: { color: '#22c55e' },
+  viewArbitrationResultBtn: { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: '#f9fafb', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10, borderWidth: 1, borderColor: '#e5e7eb' },
+  viewArbitrationResultBtnText: { fontSize: 10, color: '#6b7280', fontWeight: '500' },
+  arbitrationBtnCompact: { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: '#f9fafb', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10, borderWidth: 1, borderColor: '#e5e7eb' },
+  arbitrationBtnTextCompact: { fontSize: 10, color: '#6b7280', fontWeight: '500' },
+  viewArbitrationBtnCompact: { flexDirection: 'row', alignItems: 'center', gap: 2, paddingHorizontal: 6, paddingVertical: 2 },
+  viewArbitrationBtnTextCompact: { fontSize: 10, color: '#6b7280' },
   answerHeader: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 12 },
   answerAvatar: { width: 40, height: 40, borderRadius: 20 },
   answerAuthorInfo: { flex: 1, marginLeft: 12 },
@@ -1622,6 +3090,7 @@ const styles = StyleSheet.create({
   commentPublishTextDisabled: { color: '#fff' },
   commentContentArea: { flex: 1, backgroundColor: '#fff' },
   commentTextInput: { padding: 16, fontSize: 16, color: '#333', lineHeight: 26, minHeight: 200 },
+  commentIdentitySection: { paddingHorizontal: 16, paddingBottom: 16 },
   commentToolbar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, paddingVertical: 10, borderTopWidth: 1, borderTopColor: '#f0f0f0', backgroundColor: '#fff' },
   commentToolsLeft: { flexDirection: 'row', alignItems: 'center' },
   commentToolItem: { padding: 10 },
@@ -1658,13 +3127,28 @@ const styles = StyleSheet.create({
   answerPublishTextDisabled: { color: '#fff' },
   answerQuestionCard: { flexDirection: 'row', alignItems: 'flex-start', padding: 16, backgroundColor: '#fafafa', borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
   answerQuestionIcon: { marginRight: 8, marginTop: 2 },
+  answerQuestionContent: { flex: 1 },
+  answerQuestionLabel: { fontSize: 12, color: '#f59e0b', fontWeight: '600', marginBottom: 6 },
   answerQuestionText: { flex: 1, fontSize: 15, color: '#333', lineHeight: 22, fontWeight: '500' },
+  answerSupplementInfo: { flexDirection: 'row', alignItems: 'flex-start', marginTop: 10, paddingTop: 10, borderTopWidth: 1, borderTopColor: '#e5e7eb', gap: 4 },
+  answerSupplementLabel: { fontSize: 12, color: '#f59e0b', fontWeight: '600' },
+  answerSupplementText: { flex: 1, fontSize: 13, color: '#6b7280', lineHeight: 18 },
+  answerQuestionAuthor: { flexDirection: 'row', alignItems: 'center', marginTop: 8, gap: 6 },
+  answerQuestionAuthorText: { fontSize: 12, color: '#9ca3af' },
   answerContentArea: { flex: 1, backgroundColor: '#fff' },
   answerTextInput: { padding: 16, fontSize: 16, color: '#333', lineHeight: 26, minHeight: 300 },
+  answerIdentitySection: { paddingHorizontal: 16, paddingBottom: 16 },
   answerToolbar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, paddingVertical: 10, borderTopWidth: 1, borderTopColor: '#f0f0f0', backgroundColor: '#fff' },
   answerToolsLeft: { flexDirection: 'row', alignItems: 'center' },
   answerToolItem: { padding: 10 },
   answerWordCount: { fontSize: 13, color: '#999' },
+  // 补充回答弹窗样式
+  supplementAnswerContext: { backgroundColor: '#f0f9ff', padding: 16, borderBottomWidth: 1, borderBottomColor: '#e0f2fe' },
+  supplementAnswerHeader: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 },
+  supplementAnswerLabel: { fontSize: 13, color: '#3b82f6', fontWeight: '600' },
+  supplementAnswerAuthor: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 },
+  supplementAnswerAuthorName: { fontSize: 14, fontWeight: '500', color: '#1f2937' },
+  supplementAnswerContent: { fontSize: 14, color: '#6b7280', lineHeight: 20 },
   // 发起活动弹窗样式
   activityModal: { flex: 1, backgroundColor: '#fff' },
   activityModalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
@@ -1770,6 +3254,8 @@ const styles = StyleSheet.create({
   inviteUserDesc: { fontSize: 12, color: '#9ca3af' },
   invitedTag: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#f0fdf4', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 12 },
   invitedTagText: { fontSize: 12, color: '#22c55e', fontWeight: '500' },
+  loadMoreInvitedBtn: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingVertical: 12, gap: 4, marginTop: 8 },
+  loadMoreInvitedText: { fontSize: 14, color: '#ef4444', fontWeight: '500' },
   inviteBtn: { backgroundColor: '#ef4444', paddingHorizontal: 16, paddingVertical: 6, borderRadius: 14, flexDirection: 'row', alignItems: 'center', gap: 4 },
   inviteBtnText: { fontSize: 13, color: '#fff', fontWeight: '500' },
   inviteBtnTwitter: { backgroundColor: '#1DA1F2' },
@@ -1865,4 +3351,199 @@ const styles = StyleSheet.create({
   recommendedStatText: { fontSize: 12, color: '#9ca3af' },
   recommendedTopicTags: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
   recommendedTopicTag: { fontSize: 12, color: '#3b82f6', backgroundColor: '#eff6ff', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+  // 加载指示器样式
+  loadingIndicator: { paddingVertical: 16, alignItems: 'center', justifyContent: 'center' },
+  loadingText: { fontSize: 13, color: '#9ca3af' },
+  // 收起按钮样式（在列表内部）
+  collapseBtn: { 
+    flexDirection: 'row', 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    paddingVertical: 16, 
+    marginTop: 16, 
+    marginBottom: 16,
+    marginHorizontal: 16,
+    backgroundColor: '#fef2f2', 
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#fecaca',
+  },
+  collapseBtnText: { fontSize: 15, color: '#ef4444', fontWeight: '600', marginRight: 4 },
+  // 追加悬赏弹窗样式
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+  addRewardModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 30 },
+  addRewardModalHandle: { width: 40, height: 4, backgroundColor: '#e5e7eb', borderRadius: 2, alignSelf: 'center', marginTop: 12, marginBottom: 16 },
+  addRewardModalTitle: { fontSize: 18, fontWeight: '600', color: '#1f2937', textAlign: 'center', marginBottom: 20 },
+  addRewardContent: { paddingHorizontal: 20 },
+  currentRewardInfo: { backgroundColor: '#f9fafb', borderRadius: 12, padding: 16, marginBottom: 20 },
+  currentRewardRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 },
+  currentRewardLabel: { fontSize: 14, color: '#6b7280' },
+  currentRewardAmount: { fontSize: 28, fontWeight: '700', color: '#ef4444' },
+  currentRewardDesc: { fontSize: 12, color: '#9ca3af' },
+  addRewardSectionTitle: { fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 12 },
+  quickAmountGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 20 },
+  quickAmountBtn: { width: '30%', backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, paddingVertical: 14, alignItems: 'center', justifyContent: 'center' },
+  quickAmountBtnActive: { backgroundColor: '#fef2f2', borderColor: '#ef4444', borderWidth: 2 },
+  quickAmountText: { fontSize: 16, fontWeight: '600', color: '#6b7280' },
+  quickAmountTextActive: { color: '#ef4444' },
+  customAmountInput: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12, marginBottom: 16 },
+  currencySymbol: { fontSize: 18, fontWeight: '600', color: '#6b7280', marginRight: 8 },
+  customAmountField: { flex: 1, fontSize: 16, color: '#1f2937', padding: 0 },
+  addRewardTips: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, backgroundColor: '#eff6ff', borderRadius: 8, padding: 12, marginBottom: 20 },
+  addRewardTipsText: { flex: 1, fontSize: 12, color: '#6b7280', lineHeight: 18 },
+  confirmAddRewardBtn: { backgroundColor: '#ef4444', borderRadius: 12, paddingVertical: 14, alignItems: 'center', marginBottom: 12 },
+  confirmAddRewardBtnDisabled: { backgroundColor: '#fca5a5' },
+  confirmAddRewardBtnText: { fontSize: 15, color: '#fff', fontWeight: '600' },
+  cancelAddRewardBtn: { backgroundColor: '#f3f4f6', borderRadius: 12, paddingVertical: 14, alignItems: 'center' },
+  cancelAddRewardBtnText: { fontSize: 15, color: '#6b7280', fontWeight: '500' },
+  // 追加悬赏人员名单弹窗样式
+  contributorsModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '70%', paddingBottom: 20 },
+  contributorsModalHandle: { width: 40, height: 4, backgroundColor: '#e5e7eb', borderRadius: 2, alignSelf: 'center', marginTop: 12, marginBottom: 12 },
+  contributorsModalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
+  contributorsModalTitle: { fontSize: 18, fontWeight: '600', color: '#1f2937' },
+  contributorsTotalInfo: { backgroundColor: '#fef2f2', marginHorizontal: 20, marginTop: 16, marginBottom: 12, borderRadius: 12, padding: 14, borderWidth: 1, borderColor: '#fee2e2' },
+  contributorsTotalRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 },
+  contributorsTotalLabel: { fontSize: 13, color: '#6b7280' },
+  contributorsTotalAmount: { fontSize: 24, fontWeight: '700', color: '#ef4444' },
+  contributorsTotalDesc: { fontSize: 12, color: '#9ca3af' },
+  contributorsList: { maxHeight: 300, paddingHorizontal: 20 },
+  contributorItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#f9fafb' },
+  contributorRank: { width: 28, height: 28, borderRadius: 14, backgroundColor: '#f9fafb', alignItems: 'center', justifyContent: 'center', marginRight: 10 },
+  contributorRankText: { fontSize: 12, fontWeight: '600', color: '#9ca3af' },
+  contributorInfo: { flex: 1, marginLeft: 10 },
+  contributorName: { fontSize: 14, fontWeight: '500', color: '#1f2937', marginBottom: 2 },
+  contributorTime: { fontSize: 11, color: '#9ca3af' },
+  contributorAmountBadge: { flexDirection: 'row', alignItems: 'center', gap: 2, backgroundColor: '#fef2f2', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 12, borderWidth: 1, borderColor: '#fee2e2' },
+  contributorAmountText: { fontSize: 13, fontWeight: '600', color: '#ef4444' },
+  contributorsCloseBtn: { marginHorizontal: 20, marginTop: 12, backgroundColor: '#f3f4f6', borderRadius: 12, paddingVertical: 12, alignItems: 'center' },
+  contributorsCloseBtnText: { fontSize: 15, color: '#6b7280', fontWeight: '500' },
+  
+  // 超级赞徽章样式
+  superLikeBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#fffbeb', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10, borderWidth: 1, borderColor: '#fef3c7' },
+  superLikeBadgeText: { fontSize: 11, color: '#f59e0b', fontWeight: '600' },
+  
+  // 购买超级赞按钮样式
+  buySuperLikeBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: '#fffbeb', borderWidth: 1, borderColor: '#fef3c7', borderRadius: 12, paddingVertical: 10, paddingHorizontal: 14, marginBottom: 12 },
+  buySuperLikeBtnText: { fontSize: 13, color: '#f59e0b', fontWeight: '600' },
+  
+  // 购买超级赞弹窗样式
+  superLikeModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '85%' },
+  superLikeModalHandle: { width: 40, height: 4, backgroundColor: '#e5e7eb', borderRadius: 2, alignSelf: 'center', marginTop: 12, marginBottom: 16 },
+  superLikeModalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 20 },
+  superLikeModalTitle: { fontSize: 20, fontWeight: '700', color: '#1f2937' },
+  superLikeScrollContent: { maxHeight: 450 },
+  superLikeContentContainer: { paddingHorizontal: 20, paddingBottom: 10 },
+  superLikeContent: { paddingHorizontal: 20 },
+  currentSuperLikeInfo: { marginBottom: 20 },
+  superLikeInfoCard: { backgroundColor: '#fffbeb', borderRadius: 12, padding: 16, borderWidth: 1, borderColor: '#fef3c7' },
+  superLikeInfoRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
+  superLikeInfoLabel: { fontSize: 14, color: '#92400e', fontWeight: '500' },
+  superLikeCountBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#fff', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20 },
+  superLikeCountText: { fontSize: 16, fontWeight: '700', color: '#f59e0b' },
+  superLikeInfoDesc: { fontSize: 12, color: '#92400e', lineHeight: 18 },
+  superLikeSectionTitle: { fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 12 },
+  quickSuperLikeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 20 },
+  quickSuperLikeBtn: { width: '30%', backgroundColor: '#fffbeb', borderWidth: 1, borderColor: '#fef3c7', borderRadius: 12, paddingVertical: 14, alignItems: 'center', justifyContent: 'center', gap: 4 },
+  quickSuperLikeBtnActive: { backgroundColor: '#f59e0b', borderColor: '#f59e0b', borderWidth: 2 },
+  quickSuperLikeText: { fontSize: 15, fontWeight: '600', color: '#f59e0b' },
+  quickSuperLikeTextActive: { color: '#fff' },
+  quickSuperLikePrice: { fontSize: 11, color: '#92400e' },
+  quickSuperLikePriceActive: { color: '#fff' },
+  customSuperLikeInput: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12, marginBottom: 16, gap: 10 },
+  customSuperLikeField: { flex: 1, fontSize: 16, color: '#1f2937', padding: 0 },
+  superLikePriceHint: { fontSize: 14, fontWeight: '600', color: '#f59e0b' },
+  superLikePriceInfo: { backgroundColor: '#f9fafb', borderRadius: 12, padding: 14, marginBottom: 16 },
+  priceInfoRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
+  priceInfoLabel: { fontSize: 13, color: '#6b7280' },
+  priceInfoValue: { fontSize: 13, color: '#1f2937', fontWeight: '500' },
+  priceInfoTotal: { borderTopWidth: 1, borderTopColor: '#e5e7eb', paddingTop: 8, marginTop: 4 },
+  priceInfoTotalLabel: { fontSize: 14, fontWeight: '600', color: '#1f2937' },
+  priceInfoTotalValue: { fontSize: 18, fontWeight: '700', color: '#f59e0b' },
+  superLikeTips: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, backgroundColor: '#eff6ff', borderRadius: 8, padding: 12, marginBottom: 20 },
+  superLikeTipsText: { flex: 1, fontSize: 12, color: '#6b7280', lineHeight: 18 },
+  superLikeFooter: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 20, borderTopWidth: 1, borderTopColor: '#f3f4f6', backgroundColor: '#fff' },
+  confirmSuperLikeBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: '#f59e0b', borderRadius: 12, paddingVertical: 14, marginBottom: 12 },
+  confirmSuperLikeBtnDisabled: { backgroundColor: '#fcd34d' },
+  confirmSuperLikeBtnText: { fontSize: 15, color: '#fff', fontWeight: '600' },
+  cancelSuperLikeBtn: { backgroundColor: '#f3f4f6', borderRadius: 12, paddingVertical: 14, alignItems: 'center' },
+  cancelSuperLikeBtnText: { fontSize: 15, color: '#6b7280', fontWeight: '500' },
+  
+  // 仲裁申请弹窗样式
+  arbitrationModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '85%' },
+  arbitrationModalHandle: { width: 40, height: 4, backgroundColor: '#e5e7eb', borderRadius: 2, alignSelf: 'center', marginTop: 12, marginBottom: 12 },
+  arbitrationModalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
+  arbitrationModalTitle: { fontSize: 18, fontWeight: '600', color: '#1f2937' },
+  arbitrationContent: { maxHeight: 500, paddingHorizontal: 20, paddingTop: 16 },
+  arbitrationInfo: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, backgroundColor: '#eff6ff', borderRadius: 12, padding: 14, marginBottom: 20, borderWidth: 1, borderColor: '#dbeafe' },
+  arbitrationInfoText: { flex: 1, fontSize: 13, color: '#1e40af', lineHeight: 20 },
+  arbitrationSectionTitle: { fontSize: 15, fontWeight: '600', color: '#1f2937', marginBottom: 10 },
+  arbitrationReasonInput: { backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, padding: 12, fontSize: 14, color: '#1f2937', minHeight: 100, marginBottom: 20 },
+  arbitrationExpertsHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
+  arbitrationExpertsCount: { fontSize: 13, color: '#6b7280', fontWeight: '500' },
+  // 专家搜索框样式
+  expertSearchBox: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, marginBottom: 16, gap: 8 },
+  expertSearchInput: { flex: 1, fontSize: 14, color: '#1f2937', padding: 0 },
+  // 推荐专家标题样式
+  recommendedExpertsHeader: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12 },
+  recommendedExpertsTitle: { fontSize: 14, fontWeight: '600', color: '#1f2937' },
+  // 搜索无结果样式
+  noExpertsFound: { alignItems: 'center', paddingVertical: 40 },
+  noExpertsFoundText: { fontSize: 15, fontWeight: '500', color: '#6b7280', marginTop: 12 },
+  noExpertsFoundDesc: { fontSize: 13, color: '#9ca3af', marginTop: 4 },
+  expertItem: { flexDirection: 'row', alignItems: 'center', padding: 12, backgroundColor: '#f9fafb', borderRadius: 12, marginBottom: 10, borderWidth: 1, borderColor: '#e5e7eb' },
+  expertItemSelected: { backgroundColor: '#eff6ff', borderColor: '#3b82f6', borderWidth: 2 },
+  expertInfo: { flex: 1, marginLeft: 12 },
+  expertNameRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 },
+  expertName: { fontSize: 14, fontWeight: '600', color: '#1f2937' },
+  expertTitle: { fontSize: 12, color: '#6b7280', marginBottom: 2 },
+  expertExpertise: { fontSize: 11, color: '#9ca3af' },
+  expertCheckbox: { width: 24, height: 24, borderRadius: 12, borderWidth: 2, borderColor: '#d1d5db', alignItems: 'center', justifyContent: 'center' },
+  expertCheckboxSelected: { backgroundColor: '#3b82f6', borderColor: '#3b82f6' },
+  arbitrationModalFooter: { paddingHorizontal: 20, paddingVertical: 16, borderTopWidth: 1, borderTopColor: '#f3f4f6' },
+  submitArbitrationBtn: { backgroundColor: '#ef4444', borderRadius: 12, paddingVertical: 14, alignItems: 'center', marginBottom: 10 },
+  submitArbitrationBtnDisabled: { backgroundColor: '#fca5a5' },
+  submitArbitrationBtnText: { fontSize: 15, color: '#fff', fontWeight: '600' },
+  cancelArbitrationBtn: { backgroundColor: '#f3f4f6', borderRadius: 12, paddingVertical: 14, alignItems: 'center' },
+  cancelArbitrationBtnText: { fontSize: 15, color: '#6b7280', fontWeight: '500' },
+  // 仲裁状态弹窗样式
+  arbitrationStatusModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingHorizontal: 20, paddingBottom: 30 },
+  arbitrationStatusTitle: { fontSize: 18, fontWeight: '600', color: '#1f2937', textAlign: 'center', marginTop: 20, marginBottom: 20 },
+  votingProgress: { backgroundColor: '#f9fafb', borderRadius: 12, padding: 16, marginBottom: 20 },
+  votingProgressBar: { flexDirection: 'row', height: 8, borderRadius: 4, overflow: 'hidden', backgroundColor: '#e5e7eb', marginBottom: 12 },
+  votingAgreeBar: { backgroundColor: '#22c55e', height: '100%' },
+  votingDisagreeBar: { backgroundColor: '#ef4444', height: '100%' },
+  votingStats: { gap: 8, marginBottom: 12 },
+  votingStatItem: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  votingAgreeIndicator: { width: 12, height: 12, borderRadius: 6, backgroundColor: '#22c55e' },
+  votingDisagreeIndicator: { width: 12, height: 12, borderRadius: 6, backgroundColor: '#ef4444' },
+  votingStatText: { fontSize: 13, color: '#6b7280' },
+  votingPercentage: { fontSize: 16, fontWeight: '700', color: '#1f2937', textAlign: 'center' },
+  arbitrationPendingInfo: { alignItems: 'center', paddingVertical: 20 },
+  arbitrationPendingInfoText: { fontSize: 14, color: '#6b7280', marginTop: 10, marginBottom: 16 },
+  simulateVoteBtn: { backgroundColor: '#3b82f6', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 12 },
+  simulateVoteBtnText: { fontSize: 13, color: '#fff', fontWeight: '600' },
+  arbitrationApprovedInfo: { alignItems: 'center', paddingVertical: 20 },
+  arbitrationRejectedInfo: { alignItems: 'center', paddingVertical: 20 },
+  arbitrationResultTitle: { fontSize: 18, fontWeight: '600', color: '#1f2937', marginTop: 12, marginBottom: 8 },
+  arbitrationResultDesc: { fontSize: 13, color: '#6b7280', textAlign: 'center', lineHeight: 20, paddingHorizontal: 20 },
+  closeArbitrationStatusBtn: { backgroundColor: '#f3f4f6', borderRadius: 12, paddingVertical: 14, alignItems: 'center', marginTop: 10 },
+  closeArbitrationStatusBtnText: { fontSize: 15, color: '#6b7280', fontWeight: '500' },
+  // 专家投票详情样式
+  expertVotesSection: { marginTop: 20, maxHeight: 400 },
+  expertVotesSectionTitle: { fontSize: 15, fontWeight: '600', color: '#1f2937', marginBottom: 12, paddingHorizontal: 20 },
+  expertVotesList: { maxHeight: 350, paddingHorizontal: 20 },
+  expertVoteCard: { backgroundColor: '#f9fafb', borderRadius: 12, padding: 14, marginBottom: 12, borderWidth: 1, borderColor: '#e5e7eb' },
+  expertVoteHeader: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 10 },
+  expertVoteInfo: { flex: 1, marginLeft: 12 },
+  expertVoteNameRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
+  expertVoteName: { fontSize: 14, fontWeight: '600', color: '#1f2937' },
+  expertVoteBadge: { flexDirection: 'row', alignItems: 'center', gap: 3, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10 },
+  expertVoteAgreeBadge: { backgroundColor: '#22c55e' },
+  expertVoteDisagreeBadge: { backgroundColor: '#ef4444' },
+  expertVoteBadgeText: { fontSize: 10, color: '#fff', fontWeight: '600' },
+  expertVoteTitle: { fontSize: 12, color: '#6b7280' },
+  expertVoteReasonBox: { backgroundColor: '#fff', borderRadius: 8, padding: 10, marginBottom: 8 },
+  expertVoteReasonLabel: { fontSize: 12, fontWeight: '600', color: '#6b7280', marginBottom: 4 },
+  expertVoteReasonText: { fontSize: 13, color: '#374151', lineHeight: 20 },
+  expertVoteTime: { fontSize: 11, color: '#9ca3af', textAlign: 'right' },
 });

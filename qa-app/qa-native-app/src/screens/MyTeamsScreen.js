@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, Alert, Modal, TextInput } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Modal, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import Avatar from '../components/Avatar';
 
 // 我的团队数据
 const myTeams = [
@@ -14,7 +15,10 @@ const myTeams = [
     questions: 45,
     description: '专注Python学习，互帮互助，共同进步',
     createdAt: '2025-12-15',
-    isActive: true
+    isActive: true,
+    creatorId: 1,      // 创建者ID
+    currentUserId: 1,  // 当前用户ID（模拟）
+    isAdmin: true      // 是否是管理员
   },
   { 
     id: 2, 
@@ -25,7 +29,10 @@ const myTeams = [
     questions: 23,
     description: '数据分析实战项目，分享经验与技巧',
     createdAt: '2026-01-05',
-    isActive: true
+    isActive: true,
+    creatorId: 2,      // 创建者ID（不是当前用户）
+    currentUserId: 3,  // 当前用户ID（队长3）
+    isAdmin: false     // 不是管理员
   },
 ];
 
@@ -106,11 +113,21 @@ export default function MyTeamsScreen({ navigation }) {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+        <TouchableOpacity 
+          onPress={() => navigation.goBack()} 
+          style={styles.backBtn}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          activeOpacity={0.7}
+        >
           <Ionicons name="arrow-back" size={24} color="#374151" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>我的团队</Text>
-        <TouchableOpacity onPress={handleCreateTeam} style={styles.createBtn}>
+        <TouchableOpacity 
+          onPress={handleCreateTeam} 
+          style={styles.createBtn}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          activeOpacity={0.7}
+        >
           <Text style={styles.createBtnText}>创建</Text>
         </TouchableOpacity>
       </View>
@@ -144,7 +161,7 @@ export default function MyTeamsScreen({ navigation }) {
               onPress={() => handleTeamPress(team)}
               activeOpacity={0.7}
             >
-              <Image source={{ uri: team.avatar }} style={styles.teamAvatar} />
+              <Avatar uri={team.avatar} name={team.name} size={56} />
               <View style={styles.teamInfo}>
                 <View style={styles.teamHeader}>
                   <Text style={styles.teamName}>{team.name}</Text>

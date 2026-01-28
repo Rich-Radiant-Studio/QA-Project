@@ -35,6 +35,21 @@ export default function AnswerDetailScreen({ navigation, route }) {
   const [replyText, setReplyText] = useState('');
   const [following, setFollowing] = useState(false);
 
+  // 仲裁相关状态
+  const [showArbitrationModal, setShowArbitrationModal] = useState(false);
+  const [arbitrationReason, setArbitrationReason] = useState('');
+  const [selectedExperts, setSelectedExperts] = useState([]);
+  const [expertSearchText, setExpertSearchText] = useState('');
+
+  // 可邀请的专家列表
+  const expertsList = [
+    { id: 1, name: '李明', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=expert1', title: 'Python架构师', verified: true, expertise: 'Python开发' },
+    { id: 2, name: '王芳', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=expert2', title: '数据科学家', verified: true, expertise: '数据分析' },
+    { id: 3, name: '赵强', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=expert3', title: '技术总监', verified: true, expertise: '技术管理' },
+    { id: 4, name: '刘洋', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=expert4', title: 'AI工程师', verified: true, expertise: '机器学习' },
+    { id: 5, name: '陈静', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=expert5', title: '全栈开发', verified: true, expertise: 'Web开发' },
+  ];
+
   // 回答信息(实际应从route.params获取)
   const answer = route?.params?.answer || {
     author: 'Python老司机',
@@ -49,8 +64,50 @@ export default function AnswerDetailScreen({ navigation, route }) {
     comments: 128,
     views: 1234,
     time: '1小时前',
-    adopted: true
+    adopted: true,
+    invitedBy: { name: '张三丰', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=inviter1' }
   };
+
+  // 处理仲裁申请
+  const handleSubmitArbitration = () => {
+    if (!arbitrationReason.trim()) {
+      Alert.alert('提示', '请说明申请仲裁的理由');
+      return;
+    }
+    if (selectedExperts.length < 3) {
+      Alert.alert('提示', '至少需要邀请 3 位专家参与仲裁');
+      return;
+    }
+    if (selectedExperts.length > 5) {
+      Alert.alert('提示', '最多只能邀请 5 位专家');
+      return;
+    }
+
+    Alert.alert('成功', '仲裁申请已提交，等待专家投票中...');
+    setShowArbitrationModal(false);
+    setArbitrationReason('');
+    setSelectedExperts([]);
+  };
+
+  // 切换专家选择
+  const toggleExpertSelection = (expertId) => {
+    if (selectedExperts.includes(expertId)) {
+      setSelectedExperts(selectedExperts.filter(id => id !== expertId));
+    } else {
+      if (selectedExperts.length >= 5) {
+        Alert.alert('提示', '最多只能邀请 5 位专家');
+        return;
+      }
+      setSelectedExperts([...selectedExperts, expertId]);
+    }
+  };
+
+  // 过滤专家列表
+  const filteredExperts = expertsList.filter(expert =>
+    expert.name.toLowerCase().includes(expertSearchText.toLowerCase()) ||
+    expert.title.toLowerCase().includes(expertSearchText.toLowerCase()) ||
+    expert.expertise.toLowerCase().includes(expertSearchText.toLowerCase())
+  );
 
   const handleReply = (comment) => {
     setReplyTarget(comment);
@@ -125,21 +182,45 @@ export default function AnswerDetailScreen({ navigation, route }) {
             </TouchableOpacity>
           </View>
 
-          {answer.adopted && (
-            <View style={styles.adoptedBadge}>
-              <Ionicons name="checkmark-circle" size={16} color="#22c55e" />
-              <Text style={styles.adoptedText}>已采纳</Text>
-            </View>
-          )}
-
           <Text style={styles.answerContent}>{answer.content}</Text>
 
-          <View style={styles.answerMeta}>
-            <View style={styles.answerMetaRow}>
+          {/* 时间和标签区域 - 合并在一行 */}
+          <View style={styles.answerMetaWithBadges}>
+            <View style={styles.answerMetaLeft}>
               <Ionicons name="eye-outline" size={14} color="#9ca3af" />
               <Text style={styles.answerViews}>{answer.views || 0} 浏览</Text>
               <Text style={styles.answerMetaSeparator}>·</Text>
               <Text style={styles.answerTime}>{answer.time}</Text>
+            </View>
+            
+            {/* 标签区域 - 放在右侧 */}
+            <View style={styles.badgesSectionRight}>
+              {/* 已采纳标签 */}
+              {answer.adopted && (
+                <View style={styles.adoptedBadgeCompact}>
+                  <Ionicons name="checkmark-circle" size={14} color="#22c55e" />
+                  <Text style={styles.adoptedBadgeCompactText}>已采纳</Text>
+                </View>
+              )}
+              
+              {/* 邀请者标签 */}
+              {answer.invitedBy && (
+                <View style={styles.inviterBadgeCompact}>
+                  <Image source={{ uri: answer.invitedBy.avatar }} style={styles.inviterAvatarCompact} />
+                  <Text style={styles.inviterTextCompact}>由 {answer.invitedBy.name} 邀请</Text>
+                </View>
+              )}
+
+              {/* 仲裁按钮 */}
+              {answer.adopted && (
+                <TouchableOpacity 
+                  style={styles.arbitrationBtnCompact}
+                  onPress={() => setShowArbitrationModal(true)}
+                >
+                  <Ionicons name="gavel-outline" size={12} color="#6b7280" />
+                  <Text style={styles.arbitrationBtnTextCompact}>仲裁</Text>
+                </TouchableOpacity>
+              )}
             </View>
           </View>
         </View>
@@ -398,6 +479,184 @@ export default function AnswerDetailScreen({ navigation, route }) {
           </View>
         </View>
       </Modal>
+
+      {/* 仲裁申请弹窗 - 完善版 */}
+      <Modal visible={showArbitrationModal} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.arbitrationModal}>
+            <View style={styles.arbitrationModalHandle} />
+            
+            {/* 标题和说明 */}
+            <View style={styles.arbitrationModalHeader}>
+              <Text style={styles.arbitrationModalTitle}>申请仲裁</Text>
+              <Text style={styles.arbitrationModalSubtitle}>
+                对已采纳的答案提出异议，邀请专家进行投票裁决
+              </Text>
+            </View>
+            
+            <ScrollView style={styles.arbitrationModalContent} showsVerticalScrollIndicator={false}>
+              {/* 问题信息卡片 */}
+              <View style={styles.arbitrationQuestionCard}>
+                <View style={styles.arbitrationQuestionHeader}>
+                  <Ionicons name="document-text" size={18} color="#6b7280" />
+                  <Text style={styles.arbitrationQuestionTitle}>当前答案</Text>
+                </View>
+                <View style={styles.arbitrationAnswerInfo}>
+                  <Image source={{ uri: answer.avatar }} style={styles.arbitrationAnswerAvatar} />
+                  <View style={styles.arbitrationAnswerMeta}>
+                    <Text style={styles.arbitrationAnswerAuthor}>{answer.author}</Text>
+                    <Text style={styles.arbitrationAnswerTitle}>{answer.title}</Text>
+                  </View>
+                </View>
+                <Text style={styles.arbitrationAnswerPreview} numberOfLines={3}>
+                  {answer.content}
+                </Text>
+              </View>
+
+              {/* 仲裁理由 */}
+              <View style={styles.arbitrationSection}>
+                <View style={styles.arbitrationSectionHeader}>
+                  <Text style={styles.arbitrationLabel}>仲裁理由</Text>
+                  <Text style={styles.arbitrationRequired}>*必填</Text>
+                </View>
+                <TextInput
+                  style={styles.arbitrationReasonInput}
+                  placeholder="请详细说明申请仲裁的理由，例如：答案存在事实错误、逻辑不严谨、缺少关键信息等..."
+                  placeholderTextColor="#9ca3af"
+                  value={arbitrationReason}
+                  onChangeText={setArbitrationReason}
+                  multiline
+                  numberOfLines={5}
+                  textAlignVertical="top"
+                />
+                <Text style={styles.arbitrationCharCount}>
+                  {arbitrationReason.length} / 500 字
+                </Text>
+              </View>
+
+              {/* 专家邀请 */}
+              <View style={styles.arbitrationSection}>
+                <View style={styles.arbitrationSectionHeader}>
+                  <Text style={styles.arbitrationLabel}>邀请专家</Text>
+                  <View style={styles.expertCountBadge}>
+                    <Text style={styles.expertCountText}>
+                      已选 {selectedExperts.length}/5 位
+                    </Text>
+                  </View>
+                </View>
+                <Text style={styles.arbitrationHint}>
+                  至少邀请 3 位专家，最多 5 位。超过 50% 专家同意则推翻原答案。
+                </Text>
+                
+                {/* 专家搜索 */}
+                <View style={styles.expertSearchBox}>
+                  <Ionicons name="search" size={16} color="#9ca3af" />
+                  <TextInput
+                    style={styles.expertSearchInput}
+                    placeholder="搜索专家姓名、职称、领域..."
+                    placeholderTextColor="#9ca3af"
+                    value={expertSearchText}
+                    onChangeText={setExpertSearchText}
+                  />
+                  {expertSearchText.length > 0 && (
+                    <TouchableOpacity onPress={() => setExpertSearchText('')}>
+                      <Ionicons name="close-circle" size={16} color="#9ca3af" />
+                    </TouchableOpacity>
+                  )}
+                </View>
+
+                {/* 推荐专家标题 */}
+                <View style={styles.recommendExpertsHeader}>
+                  <Ionicons name="star" size={16} color="#f59e0b" />
+                  <Text style={styles.recommendExpertsTitle}>推荐专家</Text>
+                  <Text style={styles.recommendExpertsCount}>
+                    ({filteredExperts.length} 位)
+                  </Text>
+                </View>
+
+                {/* 专家列表 */}
+                <View style={styles.expertsList}>
+                  {filteredExperts.length > 0 ? (
+                    filteredExperts.map(expert => (
+                      <TouchableOpacity
+                        key={expert.id}
+                        style={[
+                          styles.expertItem,
+                          selectedExperts.includes(expert.id) && styles.expertItemSelected
+                        ]}
+                        onPress={() => toggleExpertSelection(expert.id)}
+                        activeOpacity={0.7}
+                      >
+                        <Image source={{ uri: expert.avatar }} style={styles.expertAvatar} />
+                        <View style={styles.expertInfo}>
+                          <View style={styles.expertNameRow}>
+                            <Text style={styles.expertName}>{expert.name}</Text>
+                            {expert.verified && <Ionicons name="checkmark-circle" size={14} color="#3b82f6" />}
+                          </View>
+                          <Text style={styles.expertTitle}>{expert.title}</Text>
+                          <View style={styles.expertExpertiseRow}>
+                            <Ionicons name="briefcase-outline" size={11} color="#9ca3af" />
+                            <Text style={styles.expertExpertise}>{expert.expertise}</Text>
+                          </View>
+                        </View>
+                        <View style={[
+                          styles.expertCheckbox,
+                          selectedExperts.includes(expert.id) && styles.expertCheckboxSelected
+                        ]}>
+                          {selectedExperts.includes(expert.id) && (
+                            <Ionicons name="checkmark" size={16} color="#fff" />
+                          )}
+                        </View>
+                      </TouchableOpacity>
+                    ))
+                  ) : (
+                    <View style={styles.emptyExpertsList}>
+                      <Ionicons name="search-outline" size={32} color="#d1d5db" />
+                      <Text style={styles.emptyExpertsText}>未找到匹配的专家</Text>
+                    </View>
+                  )}
+                </View>
+              </View>
+
+              <View style={{ height: 20 }} />
+            </ScrollView>
+
+            {/* 底部操作栏 */}
+            <View style={styles.arbitrationModalFooter}>
+              <View style={styles.arbitrationFooterInfo}>
+                <Ionicons name="information-circle-outline" size={16} color="#6b7280" />
+                <Text style={styles.arbitrationFooterInfoText}>
+                  提交后将通知专家进行投票，预计 24 小时内完成
+                </Text>
+              </View>
+              <View style={styles.arbitrationFooterButtons}>
+                <TouchableOpacity
+                  style={styles.cancelArbitrationBtn}
+                  onPress={() => {
+                    setShowArbitrationModal(false);
+                    setArbitrationReason('');
+                    setSelectedExperts([]);
+                    setExpertSearchText('');
+                  }}
+                >
+                  <Text style={styles.cancelArbitrationBtnText}>取消</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.submitArbitrationBtn,
+                    (!arbitrationReason.trim() || selectedExperts.length < 3) && styles.submitArbitrationBtnDisabled
+                  ]}
+                  onPress={handleSubmitArbitration}
+                  disabled={!arbitrationReason.trim() || selectedExperts.length < 3}
+                >
+                  <Ionicons name="paper-plane" size={16} color="#fff" />
+                  <Text style={styles.submitArbitrationBtnText}>提交申请</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -412,6 +671,22 @@ const styles = StyleSheet.create({
   shareBtnText: { fontSize: 12, color: '#6b7280' },
   content: { flex: 1 },
   answerSection: { backgroundColor: '#fff', padding: 16, marginBottom: 8 },
+  // 时间和标签合并区域
+  answerMetaWithBadges: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, flexWrap: 'wrap', gap: 8 },
+  answerMetaLeft: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  badgesSectionRight: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
+  // 标签区域样式 - 紧凑版
+  badgesSection: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12, flexWrap: 'wrap' },
+  adoptedBadgeCompact: { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: '#f0fdf4', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
+  adoptedBadgeCompactText: { fontSize: 11, color: '#22c55e', fontWeight: '600' },
+  inviterBadgeCompact: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#eff6ff', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
+  inviterAvatarCompact: { width: 14, height: 14, borderRadius: 7 },
+  inviterTextCompact: { fontSize: 10, color: '#3b82f6', fontWeight: '500' },
+  arbitrationBtnCompact: { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: '#f9fafb', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10, borderWidth: 1, borderColor: '#e5e7eb' },
+  arbitrationBtnTextCompact: { fontSize: 10, color: '#6b7280', fontWeight: '500' },
+  inviterBadge: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#eff6ff', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 12, marginBottom: 12, alignSelf: 'flex-start' },
+  inviterAvatar: { width: 16, height: 16, borderRadius: 8 },
+  inviterText: { fontSize: 12, color: '#3b82f6', fontWeight: '500' },
   answerHeader: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 12 },
   answerAvatar: { width: 48, height: 48, borderRadius: 24 },
   answerAuthorInfo: { flex: 1, marginLeft: 12 },
@@ -486,4 +761,68 @@ const styles = StyleSheet.create({
   replySubmitBtn: { backgroundColor: '#ef4444', paddingVertical: 12, borderRadius: 12, alignItems: 'center' },
   replySubmitBtnDisabled: { backgroundColor: '#fca5a5' },
   replySubmitText: { fontSize: 15, color: '#fff', fontWeight: '600' },
+  // 仲裁弹窗样式 - 完善版
+  arbitrationModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '90%', paddingBottom: 0 },
+  arbitrationModalHandle: { width: 40, height: 4, backgroundColor: '#d1d5db', borderRadius: 2, alignSelf: 'center', marginTop: 12, marginBottom: 12 },
+  arbitrationModalHeader: { paddingHorizontal: 20, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
+  arbitrationModalTitle: { fontSize: 20, fontWeight: '700', color: '#1f2937', textAlign: 'center', marginBottom: 6 },
+  arbitrationModalSubtitle: { fontSize: 13, color: '#6b7280', textAlign: 'center', lineHeight: 18 },
+  arbitrationModalContent: { flex: 1, paddingHorizontal: 20, paddingTop: 16 },
+  
+  // 问题信息卡片
+  arbitrationQuestionCard: { backgroundColor: '#f9fafb', borderRadius: 12, padding: 14, marginBottom: 20, borderWidth: 1, borderColor: '#e5e7eb' },
+  arbitrationQuestionHeader: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 },
+  arbitrationQuestionTitle: { fontSize: 13, fontWeight: '600', color: '#6b7280' },
+  arbitrationAnswerInfo: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
+  arbitrationAnswerAvatar: { width: 32, height: 32, borderRadius: 16 },
+  arbitrationAnswerMeta: { flex: 1, marginLeft: 10 },
+  arbitrationAnswerAuthor: { fontSize: 14, fontWeight: '600', color: '#1f2937', marginBottom: 2 },
+  arbitrationAnswerTitle: { fontSize: 12, color: '#6b7280' },
+  arbitrationAnswerPreview: { fontSize: 13, color: '#6b7280', lineHeight: 18 },
+  
+  // 仲裁区块
+  arbitrationSection: { marginBottom: 20 },
+  arbitrationSectionHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
+  arbitrationLabel: { fontSize: 15, fontWeight: '600', color: '#374151' },
+  arbitrationRequired: { fontSize: 12, color: '#ef4444', fontWeight: '500' },
+  arbitrationHint: { fontSize: 12, color: '#9ca3af', marginBottom: 12, lineHeight: 16 },
+  arbitrationReasonInput: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, padding: 12, fontSize: 14, color: '#1f2937', minHeight: 120, textAlignVertical: 'top', marginBottom: 6 },
+  arbitrationCharCount: { fontSize: 11, color: '#9ca3af', textAlign: 'right' },
+  
+  // 专家计数徽章
+  expertCountBadge: { backgroundColor: '#eff6ff', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+  expertCountText: { fontSize: 12, color: '#3b82f6', fontWeight: '600' },
+  
+  expertSearchBox: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, marginBottom: 16 },
+  expertSearchInput: { flex: 1, fontSize: 14, color: '#1f2937' },
+  recommendExpertsHeader: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12 },
+  recommendExpertsTitle: { fontSize: 14, fontWeight: '600', color: '#374151' },
+  recommendExpertsCount: { fontSize: 12, color: '#9ca3af' },
+  expertsList: { gap: 10 },
+  expertItem: { flexDirection: 'row', alignItems: 'center', padding: 12, backgroundColor: '#f9fafb', borderRadius: 12, borderWidth: 1, borderColor: '#e5e7eb' },
+  expertItemSelected: { backgroundColor: '#fef2f2', borderColor: '#ef4444', borderWidth: 2 },
+  expertAvatar: { width: 44, height: 44, borderRadius: 22 },
+  expertInfo: { flex: 1, marginLeft: 12 },
+  expertNameRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 4 },
+  expertName: { fontSize: 15, fontWeight: '600', color: '#1f2937' },
+  expertTitle: { fontSize: 13, color: '#6b7280', marginBottom: 4 },
+  expertExpertiseRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  expertExpertise: { fontSize: 12, color: '#9ca3af' },
+  expertCheckbox: { width: 24, height: 24, borderRadius: 12, borderWidth: 2, borderColor: '#d1d5db', justifyContent: 'center', alignItems: 'center' },
+  expertCheckboxSelected: { backgroundColor: '#ef4444', borderColor: '#ef4444' },
+  
+  // 空状态
+  emptyExpertsList: { alignItems: 'center', paddingVertical: 40 },
+  emptyExpertsText: { fontSize: 14, color: '#9ca3af', marginTop: 12 },
+  
+  // 底部操作栏
+  arbitrationModalFooter: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 20, borderTopWidth: 1, borderTopColor: '#f3f4f6', backgroundColor: '#fff' },
+  arbitrationFooterInfo: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#fffbeb', paddingHorizontal: 12, paddingVertical: 10, borderRadius: 8, marginBottom: 12 },
+  arbitrationFooterInfoText: { flex: 1, fontSize: 12, color: '#92400e', lineHeight: 16 },
+  arbitrationFooterButtons: { flexDirection: 'row', gap: 10 },
+  submitArbitrationBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: '#ef4444', paddingVertical: 14, borderRadius: 12 },
+  submitArbitrationBtnDisabled: { backgroundColor: '#fca5a5', opacity: 0.6 },
+  submitArbitrationBtnText: { fontSize: 15, color: '#fff', fontWeight: '600' },
+  cancelArbitrationBtn: { flex: 1, backgroundColor: '#f3f4f6', paddingVertical: 14, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  cancelArbitrationBtnText: { fontSize: 15, color: '#6b7280', fontWeight: '600' },
 });
