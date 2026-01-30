@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, Modal, Dimensions, TextInput, FlatList } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, Modal, Dimensions, TextInput, FlatList, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import Avatar from '../components/Avatar';
@@ -40,7 +40,7 @@ export default function HomeScreen({ navigation }) {
   // 频道管理状态
   const [myChannels, setMyChannels] = useState(['关注', '推荐', '热榜', '同城']);
   const [channelTab, setChannelTab] = useState('my'); // my, country, industry, personal, combo
-  
+
   // 频道数据
   const channelCategories = {
     country: {
@@ -62,7 +62,7 @@ export default function HomeScreen({ navigation }) {
       subcategories: ['职业发展', '情感生活', '健康养生', '理财投资', '学习成长', '家庭关系']
     }
   };
-  
+
   // 组合频道配置
   const [showComboCreator, setShowComboCreator] = useState(false);
   const [comboStep, setComboStep] = useState(0); // 0:选择地区 1:选择类别
@@ -169,18 +169,18 @@ export default function HomeScreen({ navigation }) {
   const createComboChannel = () => {
     const { region, categoryType, category } = comboConfig;
     const parts = [];
-    
+
     if (region.country) parts.push(region.country);
     if (region.state) parts.push(region.state);
     if (region.city) parts.push(region.city);
-    
+
     if (categoryType) {
       parts.push(channelCategories[categoryType].name);
     }
     if (category) {
       parts.push(category);
     }
-    
+
     if (parts.length > 0) {
       const channelName = parts.join('·');
       addToMyChannels(channelName);
@@ -269,7 +269,7 @@ export default function HomeScreen({ navigation }) {
     setShowSocialModal(false);
   };
 
-  const filteredSocialUsers = socialUsers[socialPlatform]?.filter(user => 
+  const filteredSocialUsers = socialUsers[socialPlatform]?.filter(user =>
     user.name.toLowerCase().includes(socialSearchText.toLowerCase()) ||
     user.handle.toLowerCase().includes(socialSearchText.toLowerCase())
   ) || [];
@@ -317,8 +317,8 @@ export default function HomeScreen({ navigation }) {
     <SafeAreaView style={styles.container}>
       {/* 顶部搜索栏 */}
       <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.regionBtn} 
+        <TouchableOpacity
+          style={styles.regionBtn}
           onPress={() => setShowRegionModal(true)}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           activeOpacity={0.7}
@@ -327,24 +327,24 @@ export default function HomeScreen({ navigation }) {
           <Text style={styles.regionText} numberOfLines={1}>{getDisplayRegion()}</Text>
           <Ionicons name="chevron-down" size={14} color="#6b7280" />
         </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.searchBar} 
+        <TouchableOpacity
+          style={styles.searchBar}
           onPress={() => navigation.navigate('Search')}
           activeOpacity={0.7}
         >
           <Ionicons name="search" size={16} color="#9ca3af" />
           <Text style={styles.searchPlaceholder}>搜索问题、话题或用户</Text>
         </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.teamBtn} 
+        <TouchableOpacity
+          style={styles.teamBtn}
           onPress={() => navigation.navigate('MyTeams')}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           activeOpacity={0.7}
         >
           <Ionicons name="people-circle-outline" size={24} color="#4b5563" />
         </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.notifyBtn} 
+        <TouchableOpacity
+          style={styles.notifyBtn}
           onPress={() => navigation.navigate('Messages')}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           activeOpacity={0.7}
@@ -358,9 +358,9 @@ export default function HomeScreen({ navigation }) {
       <View style={styles.tabBarContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabBar}>
           {tabs.map(tab => (
-            <TouchableOpacity 
-              key={tab} 
-              style={styles.tabItem} 
+            <TouchableOpacity
+              key={tab}
+              style={styles.tabItem}
               onPress={() => {
                 if (tab === '关注') {
                   navigation.navigate('Follow');
@@ -404,7 +404,7 @@ export default function HomeScreen({ navigation }) {
               </View>
               <Text style={styles.localFilterLabel}>切换位置</Text>
             </TouchableOpacity>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.localFilterItem}
               onPress={() => setLocalFilter('最新')}
             >
@@ -413,7 +413,7 @@ export default function HomeScreen({ navigation }) {
               </View>
               <Text style={[styles.localFilterLabel, localFilter === '最新' && styles.localFilterLabelActive]}>最新</Text>
             </TouchableOpacity>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.localFilterItem}
               onPress={() => setLocalFilter('最热')}
             >
@@ -422,7 +422,7 @@ export default function HomeScreen({ navigation }) {
               </View>
               <Text style={[styles.localFilterLabel, localFilter === '最热' && styles.localFilterLabelActive]}>最热</Text>
             </TouchableOpacity>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.localFilterItem}
               onPress={() => { setLocalFilter('附近'); setShowNearbyModal(true); }}
             >
@@ -431,7 +431,7 @@ export default function HomeScreen({ navigation }) {
               </View>
               <Text style={[styles.localFilterLabel, localFilter === '附近' && styles.localFilterLabelActive]}>附近</Text>
             </TouchableOpacity>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.localFilterItem}
               onPress={() => setShowEmergencyModal(true)}
             >
@@ -597,31 +597,31 @@ export default function HomeScreen({ navigation }) {
 
             {/* 频道分类标签 */}
             <View style={styles.channelTabs}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[styles.channelTabItem, channelTab === 'my' && styles.channelTabItemActive]}
                 onPress={() => setChannelTab('my')}
               >
                 <Text style={[styles.channelTabText, channelTab === 'my' && styles.channelTabTextActive]}>我的频道</Text>
               </TouchableOpacity>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[styles.channelTabItem, channelTab === 'country' && styles.channelTabItemActive]}
                 onPress={() => setChannelTab('country')}
               >
                 <Text style={[styles.channelTabText, channelTab === 'country' && styles.channelTabTextActive]}>国家</Text>
               </TouchableOpacity>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[styles.channelTabItem, channelTab === 'industry' && styles.channelTabItemActive]}
                 onPress={() => setChannelTab('industry')}
               >
                 <Text style={[styles.channelTabText, channelTab === 'industry' && styles.channelTabTextActive]}>行业</Text>
               </TouchableOpacity>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[styles.channelTabItem, channelTab === 'personal' && styles.channelTabItemActive]}
                 onPress={() => setChannelTab('personal')}
               >
                 <Text style={[styles.channelTabText, channelTab === 'personal' && styles.channelTabTextActive]}>个人</Text>
               </TouchableOpacity>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[styles.channelTabItem, channelTab === 'combo' && styles.channelTabItemActive]}
                 onPress={() => setChannelTab('combo')}
               >
@@ -639,7 +639,7 @@ export default function HomeScreen({ navigation }) {
                       const isFixed = ['关注', '推荐', '热榜', '同城'].includes(channel);
                       return (
                         <View key={channel} style={styles.myChannelItem}>
-                          <TouchableOpacity 
+                          <TouchableOpacity
                             style={styles.channelTag}
                             onPress={() => {
                               setActiveTab(channel);
@@ -649,7 +649,7 @@ export default function HomeScreen({ navigation }) {
                             <Text style={styles.channelTagText}>{channel}</Text>
                           </TouchableOpacity>
                           {!isFixed && (
-                            <TouchableOpacity 
+                            <TouchableOpacity
                               style={styles.removeChannelBtn}
                               onPress={() => removeFromMyChannels(channel)}
                             >
@@ -666,7 +666,7 @@ export default function HomeScreen({ navigation }) {
               {/* 国家频道 */}
               {channelTab === 'country' && (
                 <View style={styles.channelSection}>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={styles.categoryMainBtn}
                     onPress={() => addToMyChannels('国家')}
                   >
@@ -676,11 +676,11 @@ export default function HomeScreen({ navigation }) {
                     <Text style={styles.categoryMainText}>国家问题</Text>
                     <Ionicons name="add-circle" size={20} color={channelCategories.country.color} />
                   </TouchableOpacity>
-                  
+
                   <Text style={styles.channelSectionTitle}>二级类别</Text>
                   <View style={styles.channelGrid}>
                     {channelCategories.country.subcategories.map((sub) => (
-                      <TouchableOpacity 
+                      <TouchableOpacity
                         key={sub}
                         style={[styles.channelTag, myChannels.includes(sub) && styles.channelTagAdded]}
                         onPress={() => addToMyChannels(sub)}
@@ -696,7 +696,7 @@ export default function HomeScreen({ navigation }) {
               {/* 行业频道 */}
               {channelTab === 'industry' && (
                 <View style={styles.channelSection}>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={styles.categoryMainBtn}
                     onPress={() => addToMyChannels('行业')}
                   >
@@ -706,11 +706,11 @@ export default function HomeScreen({ navigation }) {
                     <Text style={styles.categoryMainText}>行业问题</Text>
                     <Ionicons name="add-circle" size={20} color={channelCategories.industry.color} />
                   </TouchableOpacity>
-                  
+
                   <Text style={styles.channelSectionTitle}>二级类别</Text>
                   <View style={styles.channelGrid}>
                     {channelCategories.industry.subcategories.map((sub) => (
-                      <TouchableOpacity 
+                      <TouchableOpacity
                         key={sub}
                         style={[styles.channelTag, myChannels.includes(sub) && styles.channelTagAdded]}
                         onPress={() => addToMyChannels(sub)}
@@ -726,7 +726,7 @@ export default function HomeScreen({ navigation }) {
               {/* 个人频道 */}
               {channelTab === 'personal' && (
                 <View style={styles.channelSection}>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={styles.categoryMainBtn}
                     onPress={() => addToMyChannels('个人')}
                   >
@@ -736,11 +736,11 @@ export default function HomeScreen({ navigation }) {
                     <Text style={styles.categoryMainText}>个人问题</Text>
                     <Ionicons name="add-circle" size={20} color={channelCategories.personal.color} />
                   </TouchableOpacity>
-                  
+
                   <Text style={styles.channelSectionTitle}>二级类别</Text>
                   <View style={styles.channelGrid}>
                     {channelCategories.personal.subcategories.map((sub) => (
-                      <TouchableOpacity 
+                      <TouchableOpacity
                         key={sub}
                         style={[styles.channelTag, myChannels.includes(sub) && styles.channelTagAdded]}
                         onPress={() => addToMyChannels(sub)}
@@ -757,7 +757,7 @@ export default function HomeScreen({ navigation }) {
               {channelTab === 'combo' && (
                 <View style={styles.channelSection}>
                   <Text style={styles.channelSectionDesc}>创建自定义组合频道，结合地区和类别筛选</Text>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={styles.createComboBtn}
                     onPress={() => setShowComboCreator(true)}
                   >
@@ -807,7 +807,7 @@ export default function HomeScreen({ navigation }) {
               {comboStep === 0 && (
                 <View>
                   {getComboRegionOptions().map((option) => (
-                    <TouchableOpacity 
+                    <TouchableOpacity
                       key={option}
                       style={styles.regionOption}
                       onPress={() => selectComboRegion(option)}
@@ -831,7 +831,7 @@ export default function HomeScreen({ navigation }) {
                   {Object.keys(channelCategories).map((key) => {
                     const cat = channelCategories[key];
                     return (
-                      <TouchableOpacity 
+                      <TouchableOpacity
                         key={key}
                         style={[styles.categorySelectItem, comboConfig.categoryType === key && styles.categorySelectItemActive]}
                         onPress={() => setComboConfig({ ...comboConfig, categoryType: key, category: '' })}
@@ -850,7 +850,7 @@ export default function HomeScreen({ navigation }) {
                       <Text style={styles.channelSectionTitle}>选择二级类别（可选）</Text>
                       <View style={styles.channelGrid}>
                         {channelCategories[comboConfig.categoryType].subcategories.map((sub) => (
-                          <TouchableOpacity 
+                          <TouchableOpacity
                             key={sub}
                             style={[styles.channelTag, comboConfig.category === sub && styles.channelTagAdded]}
                             onPress={() => setComboConfig({ ...comboConfig, category: sub })}
@@ -863,7 +863,7 @@ export default function HomeScreen({ navigation }) {
                     </>
                   )}
 
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={[styles.comboCreateBtn, !comboConfig.categoryType && styles.comboCreateBtnDisabled]}
                     onPress={createComboChannel}
                     disabled={!comboConfig.categoryType}
@@ -897,7 +897,7 @@ export default function HomeScreen({ navigation }) {
               </View>
               <View style={{ width: 24 }} />
             </View>
-            
+
             <View style={styles.socialSearchBar}>
               <Ionicons name="search" size={18} color="#9ca3af" />
               <TextInput
@@ -909,7 +909,7 @@ export default function HomeScreen({ navigation }) {
             </View>
 
             <Text style={styles.socialRecommendTitle}>推荐用户</Text>
-            
+
             <FlatList
               data={filteredSocialUsers}
               keyExtractor={item => item.id.toString()}
@@ -957,9 +957,20 @@ const styles = StyleSheet.create({
   socialButtonsBar: { flexDirection: 'row', backgroundColor: '#fff', paddingHorizontal: 12, paddingVertical: 10, gap: 12, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
   socialButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f9fafb', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, gap: 6, borderWidth: 1, borderColor: '#e5e7eb' },
   socialButtonText: { fontSize: 13, color: '#4b5563', fontWeight: '500' },
-  list: { flex: 1, paddingTop: 12, paddingHorizontal: 12 },
-  questionCard: { backgroundColor: '#fff', borderRadius: 12, marginBottom: 12, overflow: 'hidden' },
-  cardHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, paddingTop: 4, paddingBottom: 8 },
+  list: { flex: 1, paddingTop: 0, paddingHorizontal: 0 },
+  questionCard: {
+    backgroundColor: '#ffffff',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#ebebeb',
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 12
+  },
   cardHeaderLeft: { flexDirection: 'row', alignItems: 'center', flex: 1, flexWrap: 'wrap' },
   cardHeaderRight: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   avatar: { width: 16, height: 16, borderRadius: 8 },
@@ -974,7 +985,18 @@ const styles = StyleSheet.create({
   rewardTagText: { fontSize: 10, color: '#fff', fontWeight: '600' },
   targetedTagInline: { backgroundColor: '#f5f3ff', paddingHorizontal: 5, paddingVertical: 2, borderRadius: 4 },
   targetedTagText: { fontSize: 10, color: '#8b5cf6', fontWeight: '600' },
-  questionTitle: { fontSize: 15, fontWeight: '500', color: '#1f2937', lineHeight: 22, paddingHorizontal: 12, paddingTop: 12, paddingBottom: 10 },
+  questionTitle: {
+    fontSize: 17,
+    lineHeight: 22,
+    fontWeight: '600',
+    color: '#1a1a1a',
+    letterSpacing: -0.2,
+    marginBottom: 8,
+    fontFamily: Platform.OS === 'ios' ? 'System' : 'sans-serif-medium',
+    paddingHorizontal: 0,
+    paddingTop: 0,
+    paddingBottom: 0
+  },
   singleImage: { height: 160, marginHorizontal: 12, marginBottom: 10, borderRadius: 8 },
   imageGrid: { flexDirection: 'row', paddingHorizontal: 12, paddingBottom: 10, gap: 6 },
   gridImage: { width: 100, height: 100, borderRadius: 8 },
