@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, Modal, Dimensions, TextInput, FlatList, Platform } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, Modal, Dimensions, TextInput, FlatList, Platform, ActivityIndicator, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
+import { FlashList } from '@shopify/flash-list';
 import Avatar from '../components/Avatar';
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -37,6 +38,14 @@ export default function HomeScreen({ navigation }) {
   const [selectedQuestion, setSelectedQuestion] = useState(null);
   const [regionStep, setRegionStep] = useState(0);
   const [selectedRegion, setSelectedRegion] = useState({ country: '', city: '', state: '', district: '' });
+  
+  // 列表状态
+  const [questionList, setQuestionList] = useState(questions);
+  const [refreshing, setRefreshing] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(1);
+  
   // 频道管理状态
   const [myChannels, setMyChannels] = useState(['关注', '推荐', '热榜', '同城']);
   const [channelTab, setChannelTab] = useState('my'); // my, country, industry, personal, combo
@@ -233,6 +242,67 @@ export default function HomeScreen({ navigation }) {
   const usedCount = 0; // 已使用次数
   const remainingFree = freeCount - usedCount;
 
+  // 下拉刷新
+  const onRefresh = async () => {
+    setRefreshing(true);
+    // 模拟API请求
+    setTimeout(() => {
+      // 重置数据
+      setQuestionList(questions);
+      setPage(1);
+      setHasMore(true);
+      setRefreshing(false);
+    }, 1500);
+  };
+
+  // 上拉加载更多
+  const onLoadMore = async () => {
+    if (loadingMore || !hasMore) return;
+    
+    setLoadingMore(true);
+    // 模拟API请求
+    setTimeout(() => {
+      const nextPage = page + 1;
+      // 模拟加载更多数据，这里复制现有数据并修改id
+      const moreData = questions.map((item, index) => ({
+        ...item,
+        id: item.id + nextPage * 100 + index,
+      }));
+      
+      setQuestionList([...questionList, ...moreData]);
+      setPage(nextPage);
+      
+      // 模拟到第3页就没有更多数据了
+      if (nextPage >= 3) {
+        setHasMore(false);
+      }
+      
+      setLoadingMore(false);
+    }, 1500);
+  };
+
+  // 渲染底部组件
+  const renderFooter = () => {
+    if (loadingMore) {
+      return (
+        <View style={styles.footerLoading}>
+          <ActivityIndicator size="small" color="#ef4444" />
+          <Text style={styles.footerText}>加载中...</Text>
+        </View>
+      );
+    }
+    
+    if (!hasMore) {
+      return (
+        <View style={styles.footerEnd}>
+          <Text style={styles.footerEndText}>没有更多内容了</Text>
+        </View>
+      );
+    }
+    
+    return null;
+  };
+
   // 问题类型和类别数据
   const questionTypes = ['国家问题', '行业问题', '个人问题'];
   const categoryData = {
@@ -325,7 +395,6 @@ export default function HomeScreen({ navigation }) {
         >
           <Ionicons name="location-outline" size={16} color="#ef4444" />
           <Text style={styles.regionText} numberOfLines={1}>{getDisplayRegion()}</Text>
-          <Ionicons name="chevron-down" size={14} color="#6b7280" />
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.searchBar}
@@ -394,114 +463,196 @@ export default function HomeScreen({ navigation }) {
       </View>
 
       {/* 问题卡片列表 */}
-      <ScrollView style={styles.list} showsVerticalScrollIndicator={false}>
-        {/* 同城筛选条 */}
-        <View style={[styles.localFilterBar, { display: activeTab === '同城' ? 'flex' : 'none' }]}>
-          <View style={styles.localFilterRow}>
-            <TouchableOpacity style={styles.localFilterItem} onPress={() => setShowCityModal(true)}>
-              <View style={[styles.localFilterIcon, { backgroundColor: '#e0f2fe' }]}>
-                <Ionicons name="navigate" size={22} color="#0ea5e9" />
-              </View>
-              <Text style={styles.localFilterLabel}>切换位置</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.localFilterItem}
-              onPress={() => setLocalFilter('最新')}
-            >
-              <View style={[styles.localFilterIcon, { backgroundColor: '#fef3c7' }]}>
-                <Ionicons name="time" size={22} color="#f59e0b" />
-              </View>
-              <Text style={[styles.localFilterLabel, localFilter === '最新' && styles.localFilterLabelActive]}>最新</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.localFilterItem}
-              onPress={() => setLocalFilter('最热')}
-            >
-              <View style={[styles.localFilterIcon, { backgroundColor: '#fef3c7' }]}>
-                <Ionicons name="flame" size={22} color="#f59e0b" />
-              </View>
-              <Text style={[styles.localFilterLabel, localFilter === '最热' && styles.localFilterLabelActive]}>最热</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.localFilterItem}
-              onPress={() => { setLocalFilter('附近'); setShowNearbyModal(true); }}
-            >
-              <View style={[styles.localFilterIcon, { backgroundColor: '#fee2e2' }]}>
-                <Ionicons name="location" size={22} color="#ef4444" />
-              </View>
-              <Text style={[styles.localFilterLabel, localFilter === '附近' && styles.localFilterLabelActive]}>附近</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.localFilterItem}
-              onPress={() => setShowEmergencyModal(true)}
-            >
-              <View style={[styles.localFilterIcon, { backgroundColor: '#fee2e2' }]}>
-                <Ionicons name="alert-circle" size={22} color="#ef4444" />
-              </View>
-              <Text style={styles.localFilterLabel}>紧急求助</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {questions.map(item => {
-          const isLiked = likedItems[item.id];
-          return (
-            <TouchableOpacity key={item.id} style={styles.questionCard} onPress={() => navigation.navigate('QuestionDetail', { id: item.id })}>
-              {/* 问题标题 */}
-              <Text style={styles.questionTitle}>
-                {item.type === 'reward' && item.reward && (
-                  <View style={styles.rewardTagInline}>
-                    <Text style={styles.rewardTagText}>${item.reward}</Text>
+      <View style={styles.listContainer}>
+        <FlashList
+          data={questionList}
+          estimatedItemSize={300}
+          keyExtractor={(item) => item.id.toString()}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={['#ef4444']}
+              tintColor="#ef4444"
+            />
+          }
+          onEndReached={onLoadMore}
+          onEndReachedThreshold={0.3}
+          ListHeaderComponent={() => (
+            /* 同城筛选条 */
+            <View style={[styles.localFilterBar, { display: activeTab === '同城' ? 'flex' : 'none' }]}>
+              <View style={styles.localFilterRow}>
+                <TouchableOpacity style={styles.localFilterItem} onPress={() => setShowCityModal(true)}>
+                  <View style={[styles.localFilterIcon, { backgroundColor: '#e0f2fe' }]}>
+                    <Ionicons name="navigate" size={22} color="#0ea5e9" />
                   </View>
-                )}
-                {item.type === 'targeted' && (
-                  <View style={styles.targetedTagInline}>
-                    <Text style={styles.targetedTagText}>定向</Text>
+                  <Text style={styles.localFilterLabel}>切换位置</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.localFilterItem}
+                  onPress={() => setLocalFilter('最新')}
+                >
+                  <View style={[styles.localFilterIcon, { backgroundColor: '#fef3c7' }]}>
+                    <Ionicons name="time" size={22} color="#f59e0b" />
                   </View>
-                )}
-                {(item.type === 'reward' || item.type === 'targeted') && ' '}
-                {item.title}
-              </Text>
-
-              {/* 图片 */}
-              {item.image && <Image source={{ uri: item.image }} style={styles.singleImage} />}
-              {item.images && (
-                <View style={styles.imageGrid}>
-                  {item.images.map((img, idx) => <Image key={idx} source={{ uri: img }} style={styles.gridImage} />)}
-                </View>
-              )}
-
-              {/* 头像、姓名、时间、地区 - 全部放在一行,右侧放点赞和评论 */}
-              <View style={styles.cardHeader}>
-                <View style={styles.cardHeaderLeft}>
-                  <Avatar uri={item.avatar} name={item.author} size={24} />
-                  <Text style={styles.authorName}>{item.author}</Text>
-                  {item.verified && <Ionicons name="checkmark-circle" size={10} color="#3b82f6" style={{ marginLeft: 2 }} />}
-                  <Text style={styles.metaSeparator}>·</Text>
-                  <Text style={styles.postTime}>{item.time}</Text>
-                  <Text style={styles.metaSeparator}>·</Text>
-                  <Ionicons name="location-outline" size={9} color="#9ca3af" />
-                  <Text style={styles.locationText}>{item.country} · {item.city}</Text>
-                </View>
-                <View style={styles.cardHeaderRight}>
-                  <TouchableOpacity style={styles.headerActionBtn} onPress={() => toggleLike(item.id)}>
-                    <Ionicons name={isLiked ? "thumbs-up" : "thumbs-up-outline"} size={14} color={isLiked ? "#ef4444" : "#9ca3af"} />
-                    <Text style={[styles.headerActionText, isLiked && { color: '#ef4444' }]}>{formatNumber(item.likes + (isLiked ? 1 : 0))}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.headerActionBtn}>
-                    <Ionicons name="chatbubble-outline" size={14} color="#9ca3af" />
-                    <Text style={styles.headerActionText}>{item.answers}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.headerMoreBtn} onPress={() => openActionModal(item)}>
-                    <Ionicons name="ellipsis-horizontal" size={16} color="#9ca3af" />
-                  </TouchableOpacity>
-                </View>
+                  <Text style={[styles.localFilterLabel, localFilter === '最新' && styles.localFilterLabelActive]}>最新</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.localFilterItem}
+                  onPress={() => setLocalFilter('最热')}
+                >
+                  <View style={[styles.localFilterIcon, { backgroundColor: '#fef3c7' }]}>
+                    <Ionicons name="flame" size={22} color="#f59e0b" />
+                  </View>
+                  <Text style={[styles.localFilterLabel, localFilter === '最热' && styles.localFilterLabelActive]}>最热</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.localFilterItem}
+                  onPress={() => { setLocalFilter('附近'); setShowNearbyModal(true); }}
+                >
+                  <View style={[styles.localFilterIcon, { backgroundColor: '#fee2e2' }]}>
+                    <Ionicons name="location" size={22} color="#ef4444" />
+                  </View>
+                  <Text style={[styles.localFilterLabel, localFilter === '附近' && styles.localFilterLabelActive]}>附近</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.localFilterItem}
+                  onPress={() => setShowEmergencyModal(true)}
+                >
+                  <View style={[styles.localFilterIcon, { backgroundColor: '#fee2e2' }]}>
+                    <Ionicons name="alert-circle" size={22} color="#ef4444" />
+                  </View>
+                  <Text style={styles.localFilterLabel}>紧急求助</Text>
+                </TouchableOpacity>
               </View>
-            </TouchableOpacity>
-          );
-        })}
-        <View style={{ height: 20 }} />
-      </ScrollView>
+            </View>
+          )}
+          ListFooterComponent={renderFooter}
+          renderItem={({ item, index }) => {
+            const isLiked = likedItems[item.id];
+            const isFirstItem = index === 0;
+            const isLastItem = index === questionList.length - 1;
+            return (
+              <TouchableOpacity style={[styles.questionCard, isFirstItem && styles.firstQuestionCard]} onPress={() => navigation.navigate('QuestionDetail', { id: item.id })}>
+                <View style={[styles.questionCardInner, isLastItem && styles.lastQuestionCardInner]}>
+                  {/* 问题标题 */}
+                  <View style={styles.questionTitleContainer}>
+                    {item.type === 'reward' && item.reward && (
+                      <View style={styles.rewardTagInline}>
+                        <Text style={styles.rewardTagText}>${item.reward}</Text>
+                      </View>
+                    )}
+                    {item.type === 'targeted' && (
+                      <View style={styles.targetedTagInline}>
+                        <Text style={styles.targetedTagText}>定向</Text>
+                      </View>
+                    )}
+                    <Text style={styles.questionTitle}>{item.title}</Text>
+                  </View>
+
+                  {/* 图片 */}
+                  {item.image && <Image source={{ uri: item.image }} style={styles.singleImage} resizeMode="cover" />}
+                  {item.images && item.images.length > 0 && (
+                    <View style={styles.imagesContainer}>
+                      {/* 1张图片：大图显示 */}
+                      {item.images.length === 1 && (
+                        <Image source={{ uri: item.images[0] }} style={styles.singleImage} resizeMode="cover" />
+                      )}
+                      
+                      {/* 2张图片：左右各一张 */}
+                      {item.images.length === 2 && (
+                        <View style={styles.twoImagesGrid}>
+                          <Image source={{ uri: item.images[0] }} style={styles.twoImageItem} resizeMode="cover" />
+                          <Image source={{ uri: item.images[1] }} style={styles.twoImageItem} resizeMode="cover" />
+                        </View>
+                      )}
+                      
+                      {/* 3张图片：横向三张 */}
+                      {item.images.length === 3 && (
+                        <View style={styles.threeImagesGrid}>
+                          <Image source={{ uri: item.images[0] }} style={styles.threeImageItem} resizeMode="cover" />
+                          <Image source={{ uri: item.images[1] }} style={styles.threeImageItem} resizeMode="cover" />
+                          <Image source={{ uri: item.images[2] }} style={styles.threeImageItem} resizeMode="cover" />
+                        </View>
+                      )}
+                      
+                      {/* 4张图片：2x2网格 */}
+                      {item.images.length === 4 && (
+                        <View style={styles.fourImagesGrid}>
+                          {item.images.map((img, idx) => (
+                            <Image key={idx} source={{ uri: img }} style={styles.fourImageItem} resizeMode="cover" />
+                          ))}
+                        </View>
+                      )}
+                      
+                      {/* 5-6张图片：3列布局 */}
+                      {item.images.length >= 5 && item.images.length <= 6 && (
+                        <View style={styles.multiImagesGrid}>
+                          {item.images.map((img, idx) => (
+                            <Image key={idx} source={{ uri: img }} style={styles.multiImageItem} resizeMode="cover" />
+                          ))}
+                        </View>
+                      )}
+                      
+                      {/* 7-9张图片：3x3网格 */}
+                      {item.images.length >= 7 && item.images.length <= 9 && (
+                        <View style={styles.nineImagesGrid}>
+                          {item.images.slice(0, 9).map((img, idx) => (
+                            <Image key={idx} source={{ uri: img }} style={styles.nineImageItem} resizeMode="cover" />
+                          ))}
+                        </View>
+                      )}
+                      
+                      {/* 超过9张：显示前9张，最后一张显示+N */}
+                      {item.images.length > 9 && (
+                        <View style={styles.nineImagesGrid}>
+                          {item.images.slice(0, 8).map((img, idx) => (
+                            <Image key={idx} source={{ uri: img }} style={styles.nineImageItem} resizeMode="cover" />
+                          ))}
+                          <View style={styles.moreImagesWrapper}>
+                            <Image source={{ uri: item.images[8] }} style={styles.nineImageItem} resizeMode="cover" />
+                            <View style={styles.moreImagesOverlay}>
+                              <Text style={styles.moreImagesText}>+{item.images.length - 8}</Text>
+                            </View>
+                          </View>
+                        </View>
+                      )}
+                    </View>
+                  )}
+
+                  {/* 头像、姓名、时间、地区 - 全部放在一行,右侧放点赞和评论 */}
+                  <View style={styles.cardHeader}>
+                    <View style={styles.cardHeaderLeft}>
+                      <Avatar uri={item.avatar} name={item.author} size={24} />
+                      <Text style={styles.authorName}>{item.author}</Text>
+                      {item.verified && <Ionicons name="checkmark-circle" size={10} color="#3b82f6" style={{ marginLeft: 2 }} />}
+                      <Text style={styles.metaSeparator}>·</Text>
+                      <Text style={styles.postTime}>{item.time}</Text>
+                      <Text style={styles.metaSeparator}>·</Text>
+                      <Ionicons name="location-outline" size={9} color="#9ca3af" />
+                      <Text style={styles.locationText}>{item.country} · {item.city}</Text>
+                    </View>
+                    <View style={styles.cardHeaderRight}>
+                      <TouchableOpacity style={styles.headerActionBtn} onPress={() => toggleLike(item.id)}>
+                        <Ionicons name={isLiked ? "thumbs-up" : "thumbs-up-outline"} size={14} color={isLiked ? "#ef4444" : "#9ca3af"} />
+                        <Text style={[styles.headerActionText, isLiked && { color: '#ef4444' }]}>{formatNumber(item.likes + (isLiked ? 1 : 0))}</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.headerActionBtn}>
+                        <Ionicons name="chatbubble-outline" size={14} color="#9ca3af" />
+                        <Text style={styles.headerActionText}>{item.answers}</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.headerMoreBtn} onPress={() => openActionModal(item)}>
+                        <Ionicons name="ellipsis-horizontal" size={16} color="#9ca3af" />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            );
+          }}
+        />
+      </View>
 
       {/* 区域选择弹窗 */}
       <Modal visible={showRegionModal} transparent animationType="slide">
@@ -584,7 +735,7 @@ export default function HomeScreen({ navigation }) {
         </TouchableOpacity>
       </Modal>
 
-      {/* 我的频道弹窗 - 完整版本 */}
+      {/* 我的频道弹窗 - 列表展示版本 */}
       <Modal visible={showChannelModal} transparent animationType="slide">
         <View style={styles.channelModalOverlay}>
           <View style={styles.channelModal}>
@@ -595,177 +746,152 @@ export default function HomeScreen({ navigation }) {
               </TouchableOpacity>
             </View>
 
-            {/* 频道分类标签 */}
-            <View style={styles.channelTabs}>
-              <TouchableOpacity
-                style={[styles.channelTabItem, channelTab === 'my' && styles.channelTabItemActive]}
-                onPress={() => setChannelTab('my')}
-              >
-                <Text style={[styles.channelTabText, channelTab === 'my' && styles.channelTabTextActive]}>我的频道</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.channelTabItem, channelTab === 'country' && styles.channelTabItemActive]}
-                onPress={() => setChannelTab('country')}
-              >
-                <Text style={[styles.channelTabText, channelTab === 'country' && styles.channelTabTextActive]}>国家</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.channelTabItem, channelTab === 'industry' && styles.channelTabItemActive]}
-                onPress={() => setChannelTab('industry')}
-              >
-                <Text style={[styles.channelTabText, channelTab === 'industry' && styles.channelTabTextActive]}>行业</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.channelTabItem, channelTab === 'personal' && styles.channelTabItemActive]}
-                onPress={() => setChannelTab('personal')}
-              >
-                <Text style={[styles.channelTabText, channelTab === 'personal' && styles.channelTabTextActive]}>个人</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.channelTabItem, channelTab === 'combo' && styles.channelTabItemActive]}
-                onPress={() => setChannelTab('combo')}
-              >
-                <Text style={[styles.channelTabText, channelTab === 'combo' && styles.channelTabTextActive]}>组合</Text>
-              </TouchableOpacity>
-            </View>
-
             <ScrollView style={styles.channelScrollView}>
               {/* 我的频道 */}
-              {channelTab === 'my' && (
-                <View style={styles.channelSection}>
-                  <Text style={styles.channelSectionTitle}>已添加的频道</Text>
-                  <View style={styles.channelGrid}>
-                    {myChannels.map((channel) => {
-                      const isFixed = ['关注', '推荐', '热榜', '同城'].includes(channel);
-                      return (
-                        <View key={channel} style={styles.myChannelItem}>
+              <View style={styles.channelSection}>
+                <Text style={styles.channelCategoryTitle}>我的频道</Text>
+                <Text style={styles.channelSectionTitle}>已添加的频道</Text>
+                <View style={styles.channelGrid}>
+                  {myChannels.map((channel) => {
+                    const isFixed = ['关注', '推荐', '热榜', '同城'].includes(channel);
+                    return (
+                      <View key={channel} style={styles.myChannelItem}>
+                        <TouchableOpacity
+                          style={styles.channelTag}
+                          onPress={() => {
+                            setActiveTab(channel);
+                            setShowChannelModal(false);
+                          }}
+                        >
+                          <Text style={styles.channelTagText}>{channel}</Text>
+                        </TouchableOpacity>
+                        {!isFixed && (
                           <TouchableOpacity
-                            style={styles.channelTag}
-                            onPress={() => {
-                              setActiveTab(channel);
-                              setShowChannelModal(false);
-                            }}
+                            style={styles.removeChannelBtn}
+                            onPress={() => removeFromMyChannels(channel)}
                           >
-                            <Text style={styles.channelTagText}>{channel}</Text>
+                            <Ionicons name="close-circle" size={16} color="#ef4444" />
                           </TouchableOpacity>
-                          {!isFixed && (
-                            <TouchableOpacity
-                              style={styles.removeChannelBtn}
-                              onPress={() => removeFromMyChannels(channel)}
-                            >
-                              <Ionicons name="close-circle" size={16} color="#ef4444" />
-                            </TouchableOpacity>
-                          )}
-                        </View>
-                      );
-                    })}
-                  </View>
+                        )}
+                      </View>
+                    );
+                  })}
                 </View>
-              )}
+              </View>
+
+              {/* 分隔线 */}
+              <View style={styles.channelDivider} />
 
               {/* 国家频道 */}
-              {channelTab === 'country' && (
-                <View style={styles.channelSection}>
-                  <TouchableOpacity
-                    style={styles.categoryMainBtn}
-                    onPress={() => addToMyChannels('国家')}
-                  >
-                    <View style={[styles.categoryIcon, { backgroundColor: channelCategories.country.color + '20' }]}>
-                      <Ionicons name={channelCategories.country.icon} size={24} color={channelCategories.country.color} />
-                    </View>
-                    <Text style={styles.categoryMainText}>国家问题</Text>
-                    <Ionicons name="add-circle" size={20} color={channelCategories.country.color} />
-                  </TouchableOpacity>
-
-                  <Text style={styles.channelSectionTitle}>二级类别</Text>
-                  <View style={styles.channelGrid}>
-                    {channelCategories.country.subcategories.map((sub) => (
-                      <TouchableOpacity
-                        key={sub}
-                        style={[styles.channelTag, myChannels.includes(sub) && styles.channelTagAdded]}
-                        onPress={() => addToMyChannels(sub)}
-                      >
-                        <Text style={[styles.channelTagText, myChannels.includes(sub) && styles.channelTagTextAdded]}>{sub}</Text>
-                        {myChannels.includes(sub) && <Ionicons name="checkmark-circle" size={14} color="#22c55e" style={{ marginLeft: 4 }} />}
-                      </TouchableOpacity>
-                    ))}
+              <View style={styles.channelSection}>
+                <Text style={styles.channelCategoryTitle}>国家</Text>
+                <TouchableOpacity
+                  style={styles.categoryMainBtn}
+                  onPress={() => addToMyChannels('国家')}
+                >
+                  <View style={[styles.categoryIcon, { backgroundColor: channelCategories.country.color + '20' }]}>
+                    <Ionicons name={channelCategories.country.icon} size={24} color={channelCategories.country.color} />
                   </View>
+                  <Text style={styles.categoryMainText}>国家问题</Text>
+                  <Ionicons name="add-circle" size={20} color={channelCategories.country.color} />
+                </TouchableOpacity>
+
+                <Text style={styles.channelSectionTitle}>二级类别</Text>
+                <View style={styles.channelGrid}>
+                  {channelCategories.country.subcategories.map((sub) => (
+                    <TouchableOpacity
+                      key={sub}
+                      style={[styles.channelTag, myChannels.includes(sub) && styles.channelTagAdded]}
+                      onPress={() => addToMyChannels(sub)}
+                    >
+                      <Text style={[styles.channelTagText, myChannels.includes(sub) && styles.channelTagTextAdded]}>{sub}</Text>
+                      {myChannels.includes(sub) && <Ionicons name="checkmark-circle" size={14} color="#22c55e" style={{ marginLeft: 4 }} />}
+                    </TouchableOpacity>
+                  ))}
                 </View>
-              )}
+              </View>
+
+              {/* 分隔线 */}
+              <View style={styles.channelDivider} />
 
               {/* 行业频道 */}
-              {channelTab === 'industry' && (
-                <View style={styles.channelSection}>
-                  <TouchableOpacity
-                    style={styles.categoryMainBtn}
-                    onPress={() => addToMyChannels('行业')}
-                  >
-                    <View style={[styles.categoryIcon, { backgroundColor: channelCategories.industry.color + '20' }]}>
-                      <Ionicons name={channelCategories.industry.icon} size={24} color={channelCategories.industry.color} />
-                    </View>
-                    <Text style={styles.categoryMainText}>行业问题</Text>
-                    <Ionicons name="add-circle" size={20} color={channelCategories.industry.color} />
-                  </TouchableOpacity>
-
-                  <Text style={styles.channelSectionTitle}>二级类别</Text>
-                  <View style={styles.channelGrid}>
-                    {channelCategories.industry.subcategories.map((sub) => (
-                      <TouchableOpacity
-                        key={sub}
-                        style={[styles.channelTag, myChannels.includes(sub) && styles.channelTagAdded]}
-                        onPress={() => addToMyChannels(sub)}
-                      >
-                        <Text style={[styles.channelTagText, myChannels.includes(sub) && styles.channelTagTextAdded]}>{sub}</Text>
-                        {myChannels.includes(sub) && <Ionicons name="checkmark-circle" size={14} color="#22c55e" style={{ marginLeft: 4 }} />}
-                      </TouchableOpacity>
-                    ))}
+              <View style={styles.channelSection}>
+                <Text style={styles.channelCategoryTitle}>行业</Text>
+                <TouchableOpacity
+                  style={styles.categoryMainBtn}
+                  onPress={() => addToMyChannels('行业')}
+                >
+                  <View style={[styles.categoryIcon, { backgroundColor: channelCategories.industry.color + '20' }]}>
+                    <Ionicons name={channelCategories.industry.icon} size={24} color={channelCategories.industry.color} />
                   </View>
+                  <Text style={styles.categoryMainText}>行业问题</Text>
+                  <Ionicons name="add-circle" size={20} color={channelCategories.industry.color} />
+                </TouchableOpacity>
+
+                <Text style={styles.channelSectionTitle}>二级类别</Text>
+                <View style={styles.channelGrid}>
+                  {channelCategories.industry.subcategories.map((sub) => (
+                    <TouchableOpacity
+                      key={sub}
+                      style={[styles.channelTag, myChannels.includes(sub) && styles.channelTagAdded]}
+                      onPress={() => addToMyChannels(sub)}
+                    >
+                      <Text style={[styles.channelTagText, myChannels.includes(sub) && styles.channelTagTextAdded]}>{sub}</Text>
+                      {myChannels.includes(sub) && <Ionicons name="checkmark-circle" size={14} color="#22c55e" style={{ marginLeft: 4 }} />}
+                    </TouchableOpacity>
+                  ))}
                 </View>
-              )}
+              </View>
+
+              {/* 分隔线 */}
+              <View style={styles.channelDivider} />
 
               {/* 个人频道 */}
-              {channelTab === 'personal' && (
-                <View style={styles.channelSection}>
-                  <TouchableOpacity
-                    style={styles.categoryMainBtn}
-                    onPress={() => addToMyChannels('个人')}
-                  >
-                    <View style={[styles.categoryIcon, { backgroundColor: channelCategories.personal.color + '20' }]}>
-                      <Ionicons name={channelCategories.personal.icon} size={24} color={channelCategories.personal.color} />
-                    </View>
-                    <Text style={styles.categoryMainText}>个人问题</Text>
-                    <Ionicons name="add-circle" size={20} color={channelCategories.personal.color} />
-                  </TouchableOpacity>
-
-                  <Text style={styles.channelSectionTitle}>二级类别</Text>
-                  <View style={styles.channelGrid}>
-                    {channelCategories.personal.subcategories.map((sub) => (
-                      <TouchableOpacity
-                        key={sub}
-                        style={[styles.channelTag, myChannels.includes(sub) && styles.channelTagAdded]}
-                        onPress={() => addToMyChannels(sub)}
-                      >
-                        <Text style={[styles.channelTagText, myChannels.includes(sub) && styles.channelTagTextAdded]}>{sub}</Text>
-                        {myChannels.includes(sub) && <Ionicons name="checkmark-circle" size={14} color="#22c55e" style={{ marginLeft: 4 }} />}
-                      </TouchableOpacity>
-                    ))}
+              <View style={styles.channelSection}>
+                <Text style={styles.channelCategoryTitle}>个人</Text>
+                <TouchableOpacity
+                  style={styles.categoryMainBtn}
+                  onPress={() => addToMyChannels('个人')}
+                >
+                  <View style={[styles.categoryIcon, { backgroundColor: channelCategories.personal.color + '20' }]}>
+                    <Ionicons name={channelCategories.personal.icon} size={24} color={channelCategories.personal.color} />
                   </View>
+                  <Text style={styles.categoryMainText}>个人问题</Text>
+                  <Ionicons name="add-circle" size={20} color={channelCategories.personal.color} />
+                </TouchableOpacity>
+
+                <Text style={styles.channelSectionTitle}>二级类别</Text>
+                <View style={styles.channelGrid}>
+                  {channelCategories.personal.subcategories.map((sub) => (
+                    <TouchableOpacity
+                      key={sub}
+                      style={[styles.channelTag, myChannels.includes(sub) && styles.channelTagAdded]}
+                      onPress={() => addToMyChannels(sub)}
+                    >
+                      <Text style={[styles.channelTagText, myChannels.includes(sub) && styles.channelTagTextAdded]}>{sub}</Text>
+                      {myChannels.includes(sub) && <Ionicons name="checkmark-circle" size={14} color="#22c55e" style={{ marginLeft: 4 }} />}
+                    </TouchableOpacity>
+                  ))}
                 </View>
-              )}
+              </View>
+
+              {/* 分隔线 */}
+              <View style={styles.channelDivider} />
 
               {/* 组合频道 */}
-              {channelTab === 'combo' && (
-                <View style={styles.channelSection}>
-                  <Text style={styles.channelSectionDesc}>创建自定义组合频道，结合地区和类别筛选</Text>
-                  <TouchableOpacity
-                    style={styles.createComboBtn}
-                    onPress={() => setShowComboCreator(true)}
-                  >
-                    <Ionicons name="add-circle" size={24} color="#ef4444" />
-                    <Text style={styles.createComboBtnText}>创建组合频道</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
+              <View style={styles.channelSection}>
+                <Text style={styles.channelCategoryTitle}>组合</Text>
+                <Text style={styles.channelSectionDesc}>创建自定义组合频道，结合地区和类别筛选</Text>
+                <TouchableOpacity
+                  style={styles.createComboBtn}
+                  onPress={() => setShowComboCreator(true)}
+                >
+                  <Ionicons name="add-circle" size={24} color="#ef4444" />
+                  <Text style={styles.createComboBtnText}>创建组合频道</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={{ height: 40 }} />
             </ScrollView>
           </View>
         </View>
@@ -939,31 +1065,52 @@ export default function HomeScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f3f4f6' },
-  header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 8, backgroundColor: '#fff' },
+  header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 8, backgroundColor: '#ffffff' },
   regionBtn: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 6, backgroundColor: '#fef2f2', borderRadius: 16, marginRight: 8, maxWidth: 100 },
-  regionText: { fontSize: 12, color: '#ef4444', marginHorizontal: 4, fontWeight: '500' },
-  searchBar: { flex: 1, flexDirection: 'row', alignItems: 'center', backgroundColor: '#f3f4f6', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 8 },
-  searchPlaceholder: { marginLeft: 6, color: '#9ca3af', fontSize: 13 },
-  teamBtn: { padding: 6, marginLeft: 8 },
-  notifyBtn: { padding: 6, marginLeft: 0, position: 'relative' },
+  regionText: { fontSize: 12, color: '#ef4444', marginLeft: 4, fontWeight: '500', lineHeight: 16, includeFontPadding: false },
+  searchBar: { flex: 1, height: 36, backgroundColor: '#f5f5f5', borderRadius: 18, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, marginHorizontal: 10 },
+  searchPlaceholder: { fontSize: 14, color: '#999999', marginLeft: 6 },
+  teamBtn: { flexDirection: 'row', alignItems: 'center', padding: 6, marginLeft: 8 },
+  notifyBtn: { flexDirection: 'row', alignItems: 'center', padding: 6, marginLeft: 0, position: 'relative' },
   badge: { position: 'absolute', top: 6, right: 6, width: 8, height: 8, backgroundColor: '#ef4444', borderRadius: 4 },
-  tabBarContainer: { flexDirection: 'row', backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
+  tabBarContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#ffffff', height: 44, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: '#ebebeb' },
   tabBar: { flex: 1 },
-  tabItem: { paddingHorizontal: 16, paddingVertical: 12, position: 'relative' },
-  tabText: { fontSize: 14, color: '#6b7280' },
+  tabItem: { paddingHorizontal: 12, height: '100%', justifyContent: 'center', alignItems: 'center', position: 'relative' },
+  tabText: { fontSize: 16, color: '#505050', fontWeight: '400', paddingBottom: 4 },
   tabTextActive: { color: '#ef4444', fontWeight: '600' },
-  tabIndicator: { position: 'absolute', bottom: 0, left: 16, right: 16, height: 2, backgroundColor: '#ef4444', borderRadius: 1 },
-  tabMenuBtn: { paddingHorizontal: 12, justifyContent: 'center', borderLeftWidth: 1, borderLeftColor: '#f3f4f6' },
+  tabIndicator: { position: 'absolute', bottom: 0, width: 16, height: 2.5, borderRadius: 2, backgroundColor: '#f04444' },
+  tabMenuBtn: { flexDirection: 'row', alignItems: 'center', height: '100%', backgroundColor: '#ffffff', paddingHorizontal: 12 },
   socialButtonsBar: { flexDirection: 'row', backgroundColor: '#fff', paddingHorizontal: 12, paddingVertical: 10, gap: 12, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
   socialButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f9fafb', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, gap: 6, borderWidth: 1, borderColor: '#e5e7eb' },
   socialButtonText: { fontSize: 13, color: '#4b5563', fontWeight: '500' },
+  listContainer: { flex: 1 },
   list: { flex: 1, paddingTop: 0, paddingHorizontal: 0 },
+  footerLoading: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingVertical: 20 },
+  footerText: { marginLeft: 8, fontSize: 14, color: '#9ca3af' },
+  footerEnd: { paddingVertical: 20, alignItems: 'center' },
+  footerEndText: { fontSize: 14, color: '#9ca3af' },
   questionCard: {
     backgroundColor: '#ffffff',
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingTop: 0,
+    paddingBottom: 14,
+    borderBottomWidth: 0,
+  },
+  firstQuestionCard: {
+    paddingTop: 14,
+  },
+  questionCardInner: {
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: '#ebebeb',
+    paddingBottom: 14,
+  },
+  lastQuestionCardInner: {
+    borderBottomWidth: 0,
+  },
+  questionTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 8,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -971,33 +1118,107 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 12
   },
-  cardHeaderLeft: { flexDirection: 'row', alignItems: 'center', flex: 1, flexWrap: 'wrap' },
-  cardHeaderRight: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  cardHeaderLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
+  cardHeaderRight: { flexDirection: 'row', alignItems: 'center' },
   avatar: { width: 16, height: 16, borderRadius: 8 },
-  authorName: { fontSize: 10, fontWeight: '500', color: '#9ca3af', marginLeft: 4 },
-  metaSeparator: { fontSize: 8, color: '#d1d5db', marginHorizontal: 3 },
-  postTime: { fontSize: 9, color: '#9ca3af' },
-  locationText: { fontSize: 9, color: '#9ca3af', marginLeft: 1 },
-  headerActionBtn: { flexDirection: 'row', alignItems: 'center', gap: 2 },
-  headerActionText: { fontSize: 10, color: '#9ca3af' },
-  headerMoreBtn: { padding: 2 },
-  rewardTagInline: { backgroundColor: '#ef4444', paddingHorizontal: 5, paddingVertical: 2, borderRadius: 4 },
-  rewardTagText: { fontSize: 10, color: '#fff', fontWeight: '600' },
-  targetedTagInline: { backgroundColor: '#f5f3ff', paddingHorizontal: 5, paddingVertical: 2, borderRadius: 4 },
-  targetedTagText: { fontSize: 10, color: '#8b5cf6', fontWeight: '600' },
+  authorName: { fontSize: 12, color: '#999999', marginLeft: 4, fontFamily: Platform.OS === 'ios' ? 'Helvetica' : 'sans-serif' },
+  metaSeparator: { fontSize: 12, color: '#999999', marginHorizontal: 3, fontFamily: Platform.OS === 'ios' ? 'Helvetica' : 'sans-serif' },
+  postTime: { fontSize: 12, color: '#999999', fontFamily: Platform.OS === 'ios' ? 'Helvetica' : 'sans-serif' },
+  locationText: { fontSize: 12, color: '#999999', marginLeft: 1, fontFamily: Platform.OS === 'ios' ? 'Helvetica' : 'sans-serif' },
+  headerActionBtn: { flexDirection: 'row', alignItems: 'center', marginLeft: 16 },
+  headerActionText: { fontSize: 12, color: '#666666', marginLeft: 4 },
+  headerMoreBtn: { padding: 2, marginLeft: 16 },
+  rewardTagInline: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(240, 68, 68, 0.08)', paddingHorizontal: 4, paddingVertical: 1, borderRadius: 2, marginRight: 6, marginTop: 2 },
+  rewardTagText: { fontSize: 10, color: '#f04444', fontWeight: '700', textTransform: 'uppercase', includeFontPadding: false },
+  targetedTagInline: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(147, 51, 234, 0.08)', paddingHorizontal: 4, paddingVertical: 1, borderRadius: 2, marginRight: 6, marginTop: 2 },
+  targetedTagText: { fontSize: 10, color: '#9333ea', fontWeight: '700', textTransform: 'uppercase', includeFontPadding: false },
   questionTitle: {
     fontSize: 17,
     lineHeight: 22,
     fontWeight: '600',
     color: '#1a1a1a',
     letterSpacing: -0.2,
-    marginBottom: 8,
     fontFamily: Platform.OS === 'ios' ? 'System' : 'sans-serif-medium',
-    paddingHorizontal: 0,
-    paddingTop: 0,
-    paddingBottom: 0
+    flex: 1,
   },
-  singleImage: { height: 160, marginHorizontal: 12, marginBottom: 10, borderRadius: 8 },
+  imagesContainer: {
+    marginBottom: 12,
+  },
+  singleImage: { 
+    width: '100%', 
+    height: 200, 
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  twoImagesGrid: {
+    flexDirection: 'row',
+    gap: 4,
+  },
+  twoImageItem: {
+    flex: 1,
+    height: 180,
+    borderRadius: 6,
+  },
+  threeImagesGrid: {
+    flexDirection: 'row',
+    gap: 4,
+  },
+  threeImageItem: {
+    flex: 1,
+    height: 120,
+    borderRadius: 6,
+  },
+  fourImagesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 4,
+  },
+  fourImageItem: {
+    width: '49%',
+    height: 120,
+    borderRadius: 6,
+  },
+  multiImagesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 4,
+  },
+  multiImageItem: {
+    width: '32.5%',
+    height: 100,
+    borderRadius: 6,
+  },
+  nineImagesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 4,
+  },
+  nineImageItem: {
+    width: '32.5%',
+    height: 100,
+    borderRadius: 6,
+  },
+  moreImagesWrapper: {
+    width: '32.5%',
+    height: 100,
+    position: 'relative',
+  },
+  moreImagesOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 6,
+  },
+  moreImagesText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '600',
+  },
   imageGrid: { flexDirection: 'row', paddingHorizontal: 12, paddingBottom: 10, gap: 6 },
   gridImage: { width: 100, height: 100, borderRadius: 8 },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
@@ -1026,10 +1247,12 @@ const styles = StyleSheet.create({
   channelTabItemActive: { borderBottomColor: '#ef4444' },
   channelTabText: { fontSize: 14, color: '#6b7280' },
   channelTabTextActive: { color: '#ef4444', fontWeight: '600' },
-  channelSection: { marginBottom: 20 },
-  channelSectionTitle: { fontSize: 13, fontWeight: '600', color: '#6b7280', marginBottom: 12, marginTop: 8 },
-  channelSectionDesc: { fontSize: 13, color: '#9ca3af', marginBottom: 16, lineHeight: 18 },
-  channelGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 20 },
+  channelSection: { marginBottom: 0 },
+  channelCategoryTitle: { fontSize: 16, fontWeight: '600', color: '#1f2937', marginBottom: 8, marginTop: 4 },
+  channelSectionTitle: { fontSize: 13, fontWeight: '600', color: '#6b7280', marginBottom: 8, marginTop: 4 },
+  channelDivider: { height: 8, backgroundColor: '#f3f4f6', marginVertical: 12 },
+  channelSectionDesc: { fontSize: 13, color: '#9ca3af', marginBottom: 12, lineHeight: 18 },
+  channelGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 8 },
   myChannelItem: { position: 'relative' },
   channelTag: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f3f4f6', paddingVertical: 8, paddingHorizontal: 16, borderRadius: 6 },
   channelTagAdded: { backgroundColor: '#dcfce7', borderWidth: 1, borderColor: '#22c55e' },
