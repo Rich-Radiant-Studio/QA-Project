@@ -19,6 +19,8 @@ const routes = [
   { path: '/reports', name: 'Reports', component: () => import('@/views/Reports.vue') },
   { path: '/permissions', name: 'Permissions', component: () => import('@/views/Permissions.vue') },
   { path: '/settings', name: 'Settings', component: () => import('@/views/Settings.vue') },
+  { path: '/question-bank', name: 'QuestionBank', component: () => import('@/views/QuestionBank.vue') },
+  { path: '/exam-management', name: 'ExamManagement', component: () => import('@/views/ExamManagement.vue') },
 ]
 
 export default createRouter({

@@ -68,6 +68,7 @@ const isActive = (path) => route.path === path
 const expandedGroups = reactive({
   '内容管理': true,
   '运营管理': true,
+  '智慧系统': true,
   '系统管理': false,
 })
 
@@ -98,6 +99,13 @@ const menuGroups = [
       { path: '/regions', name: '地区管理', icon: 'fas fa-map-marker-alt' },
       { path: '/messages', name: '消息推送', icon: 'fas fa-bell' },
       { path: '/reports', name: '举报管理', icon: 'fas fa-flag', badge: '8' },
+    ]
+  },
+  {
+    name: '智慧系统',
+    items: [
+      { path: '/question-bank', name: '题库管理', icon: 'fas fa-database', badge: '15' },
+      { path: '/exam-management', name: '考核管理', icon: 'fas fa-clipboard-list' },
     ]
   },
   {

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>全球地区数据 - 快速访问</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      max-width: 900px;
+      width: 100%;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 40px;
+      text-align: center;
+    }
+    .header h1 {
+      font-size: 36px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+    }
+    .header p {
+      font-size: 18px;
+      opacity: 0.9;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .stat {
+      padding: 30px 20px;
+      text-align: center;
+      border-right: 1px solid #e5e7eb;
+    }
+    .stat:last-child {
+      border-right: none;
+    }
+    .stat-number {
+      font-size: 32px;
+      font-weight: bold;
+      color: #667eea;
+      margin-bottom: 8px;
+    }
+    .stat-label {
+      font-size: 14px;
+      color: #6b7280;
+    }
+    .content {
+      padding: 40px;
+    }
+    .section {
+      margin-bottom: 30px;
+    }
+    .section h2 {
+      font-size: 24px;
+      color: #1f2937;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin-top: 20px;
+    }
+    .feature {
+      background: #f9fafb;
+      padding: 20px;
+      border-radius: 10px;
+      border-left: 4px solid #667eea;
+    }
+    .feature h3 {
+      font-size: 16px;
+      color: #1f2937;
+      margin-bottom: 8px;
+    }
+    .feature p {
+      font-size: 14px;
+      color: #6b7280;
+      line-height: 1.6;
+    }
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin-top: 30px;
+    }
+    .btn {
+      display: block;
+      padding: 18px 30px;
+      text-align: center;
+      text-decoration: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.3s;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+    }
+    .btn-secondary {
+      background: white;
+      color: #667eea;
+      border: 2px solid #667eea;
+    }
+    .btn-secondary:hover {
+      background: #667eea;
+      color: white;
+    }
+    .info-box {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+    .info-box h3 {
+      color: #1e40af;
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+    .info-box ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    .info-box li {
+      color: #1e40af;
+      font-size: 14px;
+      padding: 5px 0;
+      padding-left: 25px;
+      position: relative;
+    }
+    .info-box li:before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      font-weight: bold;
+    }
+    .countries {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    .country-tag {
+      background: #f3f4f6;
+      padding: 8px 15px;
+      border-radius: 20px;
+      font-size: 14px;
+      color: #374151;
+    }
+    @media (max-width: 768px) {
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .stat {
+        border-right: none;
+        border-bottom: 1px solid #e5e7eb;
+      }
+      .feature-grid {
+        grid-template-columns: 1fr;
+      }
+      .buttons {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>
+        <span>🌍</span>
+        <span>全球地区数据</span>
+      </h1>
+      <p>覆盖全球 250+ 个国家，155,000+ 条完整数据</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-number">250+</div>
+        <div class="stat-label">国家/地区</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">5,000+</div>
+        <div class="stat-label">州/省</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">150,000+</div>
+        <div class="stat-label">城市</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">155,000+</div>
+        <div class="stat-label">总数据量</div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="section">
+        <h2>🎯 核心特性</h2>
+        <div class="feature-grid">
+          <div class="feature">
+            <h3>📊 数据完整</h3>
+            <p>使用 country-state-city npm 包，包含全球所有国家的完整三级地区数据</p>
+          </div>
+          <div class="feature">
+            <h3>🔄 自动更新</h3>
+            <p>通过 npm 包管理，数据始终保持最新，无需手动维护</p>
+          </div>
+          <div class="feature">
+            <h3>🔍 智能搜索</h3>
+            <p>支持中英文搜索，实时过滤，快速定位目标地区</p>
+          </div>
+          <div class="feature">
+            <h3>🌐 国际化</h3>
+            <p>包含国旗 emoji、ISO 代码、地理坐标等丰富信息</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🌏 覆盖范围</h2>
+        <div class="countries">
+          <span class="country-tag">🇨🇳 中国</span>
+          <span class="country-tag">🇺🇸 美国</span>
+          <span class="country-tag">🇯🇵 日本</span>
+          <span class="country-tag">🇬🇧 英国</span>
+          <span class="country-tag">🇩🇪 德国</span>
+          <span class="country-tag">🇫🇷 法国</span>
+          <span class="country-tag">🇰🇷 韩国</span>
+          <span class="country-tag">🇮🇳 印度</span>
+          <span class="country-tag">🇧🇷 巴西</span>
+          <span class="country-tag">🇷🇺 俄罗斯</span>
+          <span class="country-tag">🇮🇹 意大利</span>
+          <span class="country-tag">🇪🇸 西班牙</span>
+          <span class="country-tag">🇨🇦 加拿大</span>
+          <span class="country-tag">🇦🇺 澳大利亚</span>
+          <span class="country-tag">🇲🇽 墨西哥</span>
+          <span class="country-tag">🇮🇩 印尼</span>
+          <span class="country-tag">🇹🇭 泰国</span>
+          <span class="country-tag">🇸🇬 新加坡</span>
+          <span class="country-tag">+ 230 个国家</span>
+        </div>
+      </div>
+
+      <div class="info-box">
+        <h3>✨ 技术实现</h3>
+        <ul>
+          <li>使用 country-state-city npm 包</li>
+          <li>Element Plus 级联选择器组件</li>
+          <li>Vue 3 Composition API</li>
+          <li>支持懒加载和缓存优化</li>
+          <li>包含完整的 TypeScript 类型定义</li>
+        </ul>
+      </div>
+
+      <div class="buttons">
+        <a href="https://uproariously-bardiest-lindsey.ngrok-free.dev/users" class="btn btn-primary" target="_blank">
+          🚀 立即体验
+        </a>
+        <a href="http://localhost:3001/users" class="btn btn-secondary" target="_blank">
+          💻 本地访问
+        </a>
+      </div>
+
+      <div class="info-box" style="margin-top: 20px; background: #fef3c7; border-color: #fcd34d;">
+        <h3 style="color: #92400e;">📝 使用说明</h3>
+        <ul>
+          <li style="color: #92400e;">登录信息：admin / admin123</li>
+          <li style="color: #92400e;">进入用户管理页面</li>
+          <li style="color: #92400e;">点击"添加用户"按钮</li>
+          <li style="color: #92400e;">在"所在地"字段体验全球地区选择器</li>
+          <li style="color: #92400e;">支持搜索、清除、悬停展开等功能</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    console.log('🌍 全球地区数据系统')
+    console.log('📊 数据规模：')
+    console.log('  - 国家/地区：250+')
+    console.log('  - 州/省：5,000+')
+    console.log('  - 城市：150,000+')
+    console.log('  - 总数据量：155,000+')
+    console.log('🔗 访问地址：')
+    console.log('  - 公网：https://uproariously-bardiest-lindsey.ngrok-free.dev/users')
+    console.log('  - 本地：http://localhost:3001/users')
+  </script>
+</body>
+</html>

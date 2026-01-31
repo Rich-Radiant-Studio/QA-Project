@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>全球地区数据测试 - 中文版</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', Arial, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    .container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 40px;
+      text-align: center;
+    }
+    .header h1 {
+      font-size: 36px;
+      margin: 0 0 10px 0;
+    }
+    .header p {
+      font-size: 18px;
+      opacity: 0.9;
+      margin: 0;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .stat {
+      padding: 30px 20px;
+      text-align: center;
+      border-right: 1px solid #e5e7eb;
+    }
+    .stat:last-child {
+      border-right: none;
+    }
+    .stat-number {
+      font-size: 32px;
+      font-weight: bold;
+      color: #667eea;
+      margin-bottom: 8px;
+    }
+    .stat-label {
+      font-size: 14px;
+      color: #6b7280;
+    }
+    .content {
+      padding: 40px;
+    }
+    .section {
+      margin-bottom: 30px;
+    }
+    .section h2 {
+      font-size: 24px;
+      color: #1f2937;
+      margin-bottom: 15px;
+    }
+    .country-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+    .country-card {
+      background: #f9fafb;
+      padding: 15px;
+      border-radius: 10px;
+      border-left: 4px solid #667eea;
+      transition: all 0.3s;
+    }
+    .country-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+    }
+    .country-card .flag {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+    .country-card .name-cn {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 4px;
+    }
+    .country-card .name-en {
+      font-size: 12px;
+      color: #6b7280;
+    }
+    .info-box {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+    .info-box h3 {
+      color: #1e40af;
+      font-size: 16px;
+      margin: 0 0 10px 0;
+    }
+    .info-box ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+    }
+    .info-box li {
+      color: #1e40af;
+      font-size: 14px;
+      padding: 5px 0;
+      padding-left: 25px;
+      position: relative;
+    }
+    .info-box li:before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      font-weight: bold;
+    }
+    .highlight {
+      background: #fef3c7;
+      border-color: #fcd34d;
+    }
+    .highlight h3 {
+      color: #92400e;
+    }
+    .highlight li {
+      color: #92400e;
+    }
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin-top: 30px;
+    }
+    .btn {
+      display: block;
+      padding: 18px 30px;
+      text-align: center;
+      text-decoration: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+    }
+    .btn-secondary {
+      background: white;
+      color: #667eea;
+      border: 2px solid #667eea;
+    }
+    .btn-secondary:hover {
+      background: #667eea;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🌍 全球地区数据 - 中文版</h1>
+      <p>支持中文显示，覆盖全球 250+ 个国家，155,000+ 条完整数据</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-number">250+</div>
+        <div class="stat-label">国家/地区</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">5,000+</div>
+        <div class="stat-label">州/省</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">150,000+</div>
+        <div class="stat-label">城市</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">155,000+</div>
+        <div class="stat-label">总数据量</div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="section">
+        <h2>🎯 核心特性</h2>
+        <div class="info-box">
+          <h3>✨ 中文显示支持</h3>
+          <ul>
+            <li>使用 i18n-iso-countries 包提供中文翻译</li>
+            <li>国家名称显示为中文（如：中国、美国、日本）</li>
+            <li>支持中英文双语搜索</li>
+            <li>中国自动排在列表第一位</li>
+            <li>其他国家按中文拼音排序</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🌏 主要国家示例（中文显示）</h2>
+        <div class="country-grid">
+          <div class="country-card">
+            <div class="flag">🇨🇳</div>
+            <div class="name-cn">中国</div>
+            <div class="name-en">China</div>
+          </div>
+          <div class="country-card">
+            <div class="flag">🇺🇸</div>
+            <div class="name-cn">美国</div>
+            <div class="name-en">United States</div>
+          </div>
+          <div class="country-card">
+            <div class="flag">🇯🇵</div>
+            <div class="name-cn">日本</div>
+            <div class="name-en">Japan</div>
+          </div>
+          <div class="country-card">
+            <div class="flag">🇬🇧</div>
+            <div class="name-cn">英国</div>
+            <div class="name-en">United Kingdom</div>
+          </div>
+          <div class="country-card">
+            <div class="flag">🇩🇪</div>
+            <div class="name-cn">德国</div>
+            <div class="name-en">Germany</div>
+          </div>
+          <div class="country-card">
+            <div class="flag">🇫🇷</div>
+            <div class="name-cn">法国</div>
+            <div class="name-en">France</div>
+          </div>
+          <div class="country-card">
+            <div class="flag">🇰🇷</div>
+            <div class="name-cn">韩国</div>
+            <div class="name-en">South Korea</div>
+          </div>
+          <div class="country-card">
+            <div class="flag">🇮🇳</div>
+            <div class="name-cn">印度</div>
+            <div class="name-en">India</div>
+          </div>
+          <div class="country-card">
+            <div class="flag">🇧🇷</div>
+            <div class="name-cn">巴西</div>
+            <div class="name-en">Brazil</div>
+          </div>
+          <div class="country-card">
+            <div class="flag">🇷🇺</div>
+            <div class="name-cn">俄罗斯</div>
+            <div class="name-en">Russia</div>
+          </div>
+          <div class="country-card">
+            <div class="flag">🇮🇹</div>
+            <div class="name-cn">意大利</div>
+            <div class="name-en">Italy</div>
+          </div>
+          <div class="country-card">
+            <div class="flag">🇪🇸</div>
+            <div class="name-cn">西班牙</div>
+            <div class="name-en">Spain</div>
+          </div>
+          <div class="country-card">
+            <div class="flag">🇨🇦</div>
+            <div class="name-cn">加拿大</div>
+            <div class="name-en">Canada</div>
+          </div>
+          <div class="country-card">
+            <div class="flag">🇦🇺</div>
+            <div class="name-cn">澳大利亚</div>
+            <div class="name-en">Australia</div>
+          </div>
+          <div class="country-card">
+            <div class="flag">🇲🇽</div>
+            <div class="name-cn">墨西哥</div>
+            <div class="name-en">Mexico</div>
+          </div>
+          <div class="country-card">
+            <div class="flag">🇮🇩</div>
+            <div class="name-cn">印度尼西亚</div>
+            <div class="name-en">Indonesia</div>
+          </div>
+          <div class="country-card">
+            <div class="flag">🇹🇭</div>
+            <div class="name-cn">泰国</div>
+            <div class="name-en">Thailand</div>
+          </div>
+          <div class="country-card">
+            <div class="flag">🇸🇬</div>
+            <div class="name-cn">新加坡</div>
+            <div class="name-en">Singapore</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>📦 技术实现</h2>
+        <div class="info-box">
+          <h3>🔧 使用的 npm 包</h3>
+          <ul>
+            <li>country-state-city：提供全球地区数据</li>
+            <li>i18n-iso-countries：提供国家名称的中文翻译</li>
+            <li>支持 100+ 种语言的国家名称</li>
+            <li>基于 ISO 3166 国际标准</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="info-box highlight">
+        <h3>🚀 立即体验</h3>
+        <ul>
+          <li>访问 Admin 后台用户管理页面</li>
+          <li>点击"添加用户"按钮</li>
+          <li>在"所在地"字段查看中文显示效果</li>
+          <li>尝试搜索"中国"、"美国"等中文关键词</li>
+          <li>体验中英文双语搜索功能</li>
+        </ul>
+      </div>
+
+      <div class="buttons">
+        <a href="https://uproariously-bardiest-lindsey.ngrok-free.dev/users" class="btn btn-primary" target="_blank">
+          🚀 公网访问
+        </a>
+        <a href="http://localhost:3001/users" class="btn btn-secondary" target="_blank">
+          💻 本地访问
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    console.log('🌍 全球地区数据系统 - 中文版')
+    console.log('✨ 特性：')
+    console.log('  - 国家名称中文显示')
+    console.log('  - 支持中英文搜索')
+    console.log('  - 中国自动排第一')
+    console.log('  - 其他国家按拼音排序')
+    console.log('📊 数据规模：')
+    console.log('  - 国家/地区：250+')
+    console.log('  - 州/省：5,000+')
+    console.log('  - 城市：150,000+')
+    console.log('  - 总数据量：155,000+')
+  </script>
+</body>
+</html>

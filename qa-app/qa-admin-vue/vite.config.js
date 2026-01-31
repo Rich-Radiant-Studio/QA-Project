@@ -11,6 +11,13 @@ export default defineConfig({
   },
   server: {
     port: 3001,
-    open: true
+    open: true,
+    host: true,
+    allowedHosts: [
+      'uproariously-bardiest-lindsey.ngrok-free.dev',
+      '.ngrok-free.dev',
+      '.ngrok.io',
+      'localhost'
+    ]
   }
 })

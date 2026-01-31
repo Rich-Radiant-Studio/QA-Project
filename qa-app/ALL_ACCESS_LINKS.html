@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>问答平台 - 所有服务访问</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        .header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+        .header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+        .services {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+        }
+        .service-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .service-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .service-icon {
+            font-size: 48px;
+        }
+        .service-title {
+            flex: 1;
+        }
+        .service-title h2 {
+            font-size: 24px;
+            color: #1f2937;
+            margin-bottom: 5px;
+        }
+        .service-title p {
+            font-size: 14px;
+            color: #6b7280;
+        }
+        .status-badge {
+            background: #22c55e;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .link-section {
+            margin-bottom: 20px;
+        }
+        .link-section:last-child {
+            margin-bottom: 0;
+        }
+        .link-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #6b7280;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        .link-item {
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .link-item:hover {
+            border-color: #667eea;
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+        .link-item-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .link-item-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        .link-item-url {
+            font-size: 13px;
+            color: #667eea;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        .badge-new {
+            background: #fef3c7;
+            color: #f59e0b;
+        }
+        .badge-hot {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+        .info-box {
+            background: #eff6ff;
+            border: 2px solid #dbeafe;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        .info-box-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 8px;
+        }
+        .info-box-content {
+            font-size: 13px;
+            color: #1e40af;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .stat-item {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        @media (max-width: 768px) {
+            .services {
+                grid-template-columns: 1fr;
+            }
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 问答平台 - 所有服务</h1>
+            <p>Native App + Admin 后台管理系统</p>
+        </div>
+
+        <div class="services">
+            <!-- Native App -->
+            <div class="service-card">
+                <div class="service-header">
+                    <div class="service-icon">📱</div>
+                    <div class="service-title">
+                        <h2>Native App</h2>
+                        <p>移动端应用（React Native + Expo）</p>
+                    </div>
+                    <span class="status-badge">✅ 运行中</span>
+                </div>
+
+                <div class="link-section">
+                    <div class="link-section-title">Expo Go 访问（推荐）</div>
+                    <div class="link-item" onclick="copyText('exp://atllyxa-anonymous-8081.exp.direct')">
+                        <div class="link-item-header">
+                            <span class="link-item-title">📱 Expo 地址</span>
+                            <span class="badge badge-hot">复制</span>
+                        </div>
+                        <div class="link-item-url">exp://atllyxa-anonymous-8081.exp.direct</div>
+                    </div>
+                </div>
+
+                <div class="link-section">
+                    <div class="link-section-title">Web 浏览器访问</div>
+                    <div class="link-item" onclick="window.open('http://localhost:8081', '_blank')">
+                        <div class="link-item-header">
+                            <span class="link-item-title">🌐 本地访问</span>
+                        </div>
+                        <div class="link-item-url">http://localhost:8081</div>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-box-title">📱 使用说明</div>
+                    <div class="info-box-content">
+                        1. 下载 Expo Go App（iOS/Android）<br>
+                        2. 打开 App，扫描二维码或输入地址<br>
+                        3. 开始使用题库和考核功能
+                    </div>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value">25+</div>
+                        <div class="stat-label">功能页面</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">127</div>
+                        <div class="stat-label">题库数量</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">3580</div>
+                        <div class="stat-label">题目总数</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin 后台 -->
+            <div class="service-card">
+                <div class="service-header">
+                    <div class="service-icon">🖥️</div>
+                    <div class="service-title">
+                        <h2>Admin 后台</h2>
+                        <p>管理系统（Vue 3 + Element Plus）</p>
+                    </div>
+                    <span class="status-badge">✅ 运行中</span>
+                </div>
+
+                <div class="link-section">
+                    <div class="link-section-title">公网访问（推荐）</div>
+                    <div class="link-item" onclick="window.open('https://uproariously-bardiest-lindsey.ngrok-free.dev', '_blank')">
+                        <div class="link-item-header">
+                            <span class="link-item-title">🚀 公网地址</span>
+                            <span class="badge badge-hot">HOT</span>
+                        </div>
+                        <div class="link-item-url">https://uproariously-bardiest-lindsey.ngrok-free.dev</div>
+                    </div>
+                </div>
+
+                <div class="link-section">
+                    <div class="link-section-title">新功能快速访问</div>
+                    <div class="link-item" onclick="window.open('https://uproariously-bardiest-lindsey.ngrok-free.dev/question-bank', '_blank')">
+                        <div class="link-item-header">
+                            <span class="link-item-title">📚 题库管理</span>
+                            <span class="badge badge-new">NEW</span>
+                            <span class="badge badge-hot">15 待审核</span>
+                        </div>
+                        <div class="link-item-url">/question-bank</div>
+                    </div>
+                    <div class="link-item" onclick="window.open('https://uproariously-bardiest-lindsey.ngrok-free.dev/exam-management', '_blank')">
+                        <div class="link-item-header">
+                            <span class="link-item-title">📋 考核管理</span>
+                            <span class="badge badge-new">NEW</span>
+                        </div>
+                        <div class="link-item-url">/exam-management</div>
+                    </div>
+                </div>
+
+                <div class="link-section">
+                    <div class="link-section-title">本地访问</div>
+                    <div class="link-item" onclick="window.open('http://localhost:3001', '_blank')">
+                        <div class="link-item-header">
+                            <span class="link-item-title">💻 本地地址</span>
+                        </div>
+                        <div class="link-item-url">http://localhost:3001</div>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-box-title">🔐 登录信息</div>
+                    <div class="info-box-content">
+                        👤 用户名：<strong>admin</strong><br>
+                        🔑 密码：<strong>admin123</strong>
+                    </div>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value">15</div>
+                        <div class="stat-label">待审核题库</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">78.5%</div>
+                        <div class="stat-label">考核通过率</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">3580</div>
+                        <div class="stat-label">考核次数</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('已复制到剪贴板：\n' + text);
+            }).catch(() => {
+                prompt('请手动复制以下地址：', text);
+            });
+        }
+
+        console.log('问答平台 - 所有服务访问页面');
+        console.log('Native App: exp://atllyxa-anonymous-8081.exp.direct');
+        console.log('Admin 后台: https://uproariously-bardiest-lindsey.ngrok-free.dev');
+    </script>
+</body>
+</html>
