@@ -231,17 +231,34 @@ function MainTabs({ showEmergencyModal, onLogout }) {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
+        tabBarIcon: ({ focused, color }) => {
           let iconName;
           if (route.name === '首页') iconName = focused ? 'home' : 'home-outline';
           else if (route.name === '活动') iconName = focused ? 'gift' : 'gift-outline';
           else if (route.name === '发布') iconName = focused ? 'add-circle' : 'add-circle-outline';
           else if (route.name === '紧急求助') iconName = focused ? 'warning' : 'warning-outline';
           else if (route.name === '我的') iconName = focused ? 'person' : 'person-outline';
-          return <Ionicons name={iconName} size={size} color={color} />;
+          return <Ionicons name={iconName} size={24} color={color} />;
         },
-        tabBarActiveTintColor: '#ef4444',
-        tabBarInactiveTintColor: 'gray',
+        tabBarActiveTintColor: '#f04444',
+        tabBarInactiveTintColor: '#8a8a8a',
+        tabBarLabelStyle: {
+          fontSize: 10,
+          fontWeight: '400',
+        },
+        tabBarIconStyle: {
+          marginBottom: 2,
+        },
+        tabBarStyle: {
+          backgroundColor: '#ffffff',
+          height: Platform.OS === 'ios' ? 84 : 65,
+          paddingBottom: Platform.OS === 'ios' ? 30 : 8,
+          paddingTop: 8,
+          borderTopWidth: StyleSheet.hairlineWidth,
+          borderTopColor: '#e8e8e8',
+          elevation: 0,
+          shadowOpacity: 0,
+        },
         headerShown: false,
       })}
     >
