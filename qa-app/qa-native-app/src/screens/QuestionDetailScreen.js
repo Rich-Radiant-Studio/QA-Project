@@ -28,6 +28,7 @@ const answers = [
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=answer2', 
     verified: false, 
     adopted: false, 
+    adoptedCount: 3, // 被采纳的次数
     title: '数据分析师 · 3年经验', 
     content: '我也是文科转行的，现在在做数据分析。给你几点建议：\n\n1. 不要一开始就啃书，先跟着视频教程敲代码\n2. 多做项目，边学边练\n3. 加入一些学习群，有问题可以随时问', 
     likes: 89, 
@@ -152,7 +153,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
   const [showReportModal, setShowReportModal] = useState(false);
   const [answerText, setAnswerText] = useState('');
   const [showActivityModal, setShowActivityModal] = useState(false);
-  const [activityForm, setActivityForm] = useState({ title: '', description: '', startDate: '', startTime: '', endDate: '', endTime: '', location: '', maxParticipants: '', activityType: '线上活动' });
+  const [activityForm, setActivityForm] = useState({ title: '', description: '', startDate: '', startTime: '', endDate: '', endTime: '', location: '', maxParticipants: '', contact: '', activityType: '线上活动' });
   const [commentLiked, setCommentLiked] = useState({});
   const [sortFilter, setSortFilter] = useState('精选'); // 精选 or 最新
   const [inviteTab, setInviteTab] = useState('本站'); // 本站, 推特, Facebook
@@ -273,7 +274,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
     }
     alert('活动创建成功！');
     setShowActivityModal(false);
-    setActivityForm({ title: '', description: '', startDate: '', startTime: '', endDate: '', endTime: '', location: '', maxParticipants: '', activityType: '线上活动' });
+    setActivityForm({ title: '', description: '', startDate: '', startTime: '', endDate: '', endTime: '', location: '', maxParticipants: '', contact: '', activityType: '线上活动' });
   };
 
   // 检查是否需要打开回答弹窗
@@ -548,7 +549,6 @@ export default function QuestionDetailScreen({ navigation, route }) {
           <View style={styles.rewardInfoCard}>
             <View style={styles.rewardInfoLeft}>
               <View style={styles.rewardAmountRow}>
-                <Ionicons name="cash-outline" size={16} color="#ef4444" />
                 <Text style={styles.rewardAmountText}>${currentReward}</Text>
               </View>
               <TouchableOpacity 
@@ -1132,11 +1132,19 @@ export default function QuestionDetailScreen({ navigation, route }) {
                   </View>
                 )}
                 
-                {/* 已采纳标签 */}
+                {/* 作者已采纳标签 */}
                 {answer.adopted && (
-                  <View style={styles.adoptedBadgeCompact}>
+                  <View style={styles.authorAdoptedBadge}>
                     <Ionicons name="checkmark-circle" size={14} color="#22c55e" />
-                    <Text style={styles.adoptedBadgeCompactText}>已采纳</Text>
+                    <Text style={styles.authorAdoptedBadgeText}>作者已采纳</Text>
+                  </View>
+                )}
+                
+                {/* 已采纳数量标签 - 显示其他采纳数 */}
+                {answer.adoptedCount && answer.adoptedCount > 0 && (
+                  <View style={styles.adoptedCountBadge}>
+                    <Ionicons name="checkmark-done-circle" size={14} color="#3b82f6" />
+                    <Text style={styles.adoptedCountBadgeText}>已采纳 x{answer.adoptedCount}</Text>
                   </View>
                 )}
                 
@@ -2160,6 +2168,20 @@ export default function QuestionDetailScreen({ navigation, route }) {
               </View>
             </View>
 
+            <View style={styles.formGroup}>
+              <Text style={styles.formLabel}>联系方式</Text>
+              <View style={styles.formInputWithIcon}>
+                <Ionicons name="call-outline" size={18} color="#6b7280" />
+                <TextInput
+                  style={styles.formInputInner}
+                  placeholder="请输入联系方式（手机号/微信/邮箱）"
+                  placeholderTextColor="#bbb"
+                  value={activityForm.contact}
+                  onChangeText={(text) => setActivityForm({...activityForm, contact: text})}
+                />
+              </View>
+            </View>
+
             <View style={{ height: 40 }} />
           </ScrollView>
         </SafeAreaView>
@@ -2997,6 +3019,12 @@ const styles = StyleSheet.create({
   // 紧凑版标签样式
   adoptedBadgeCompact: { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: '#f0fdf4', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10, borderWidth: 1, borderColor: '#bbf7d0' },
   adoptedBadgeCompactText: { fontSize: 11, color: '#22c55e', fontWeight: '600' },
+  // 作者已采纳标签样式
+  authorAdoptedBadge: { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: '#f0fdf4', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10, borderWidth: 1, borderColor: '#bbf7d0' },
+  authorAdoptedBadgeText: { fontSize: 11, color: '#22c55e', fontWeight: '600' },
+  // 已采纳数量标签样式
+  adoptedCountBadge: { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: '#eff6ff', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10, borderWidth: 1, borderColor: '#bfdbfe' },
+  adoptedCountBadgeText: { fontSize: 11, color: '#3b82f6', fontWeight: '600' },
   inviterBadgeCompact: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#eff6ff', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10, borderWidth: 1, borderColor: '#bfdbfe' },
   inviterTextCompact: { fontSize: 10, color: '#3b82f6', fontWeight: '500' },
   arbitrationPendingBadgeCompact: { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: '#fffbeb', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10, borderWidth: 1, borderColor: '#fde68a' },

@@ -15,6 +15,7 @@ import ProfileScreen from './src/screens/ProfileScreen';
 import QuestionDetailScreen from './src/screens/QuestionDetailScreen';
 import FollowScreen from './src/screens/FollowScreen';
 import HotListScreen from './src/screens/HotListScreen';
+import IncomeRankingScreen from './src/screens/IncomeRankingScreen';
 import GroupChatScreen from './src/screens/GroupChatScreen';
 import AnswerDetailScreen from './src/screens/AnswerDetailScreen';
 import SupplementDetailScreen from './src/screens/SupplementDetailScreen';
@@ -327,6 +328,7 @@ export default function App() {
         <Stack.Screen name="QuestionActivityList" component={QuestionActivityListScreen} />
         <Stack.Screen name="Follow" component={FollowScreen} />
         <Stack.Screen name="HotList" component={HotListScreen} />
+        <Stack.Screen name="IncomeRanking" component={IncomeRankingScreen} />
         <Stack.Screen name="Messages" component={MessagesScreen} />
         <Stack.Screen name="GroupChat" component={GroupChatScreen} />
         <Stack.Screen name="AnswerDetail" component={AnswerDetailScreen} />

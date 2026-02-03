@@ -1,7 +1,55 @@
 import { useState, useMemo } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+
+// 区域数据
+const regionData = {
+  countries: [
+    { id: 'cn', name: '中国', flag: '🇨🇳' },
+    { id: 'us', name: '美国', flag: '🇺🇸' },
+    { id: 'jp', name: '日本', flag: '🇯🇵' },
+    { id: 'kr', name: '韩国', flag: '🇰🇷' },
+    { id: 'uk', name: '英国', flag: '🇬🇧' },
+    { id: 'fr', name: '法国', flag: '🇫🇷' },
+    { id: 'de', name: '德国', flag: '🇩🇪' },
+    { id: 'ca', name: '加拿大', flag: '🇨🇦' },
+    { id: 'au', name: '澳大利亚', flag: '🇦🇺' },
+    { id: 'sg', name: '新加坡', flag: '🇸🇬' },
+  ],
+  cities: {
+    cn: [
+      { id: 'beijing', name: '北京' },
+      { id: 'shanghai', name: '上海' },
+      { id: 'guangzhou', name: '广州' },
+      { id: 'shenzhen', name: '深圳' },
+      { id: 'hangzhou', name: '杭州' },
+      { id: 'chengdu', name: '成都' },
+      { id: 'wuhan', name: '武汉' },
+      { id: 'xian', name: '西安' },
+      { id: 'chongqing', name: '重庆' },
+      { id: 'nanjing', name: '南京' },
+    ],
+    us: [
+      { id: 'newyork', name: '纽约' },
+      { id: 'losangeles', name: '洛杉矶' },
+      { id: 'chicago', name: '芝加哥' },
+      { id: 'houston', name: '休斯顿' },
+      { id: 'sanfrancisco', name: '旧金山' },
+    ],
+    jp: [
+      { id: 'tokyo', name: '东京' },
+      { id: 'osaka', name: '大阪' },
+      { id: 'kyoto', name: '京都' },
+      { id: 'yokohama', name: '横滨' },
+    ],
+    kr: [
+      { id: 'seoul', name: '首尔' },
+      { id: 'busan', name: '釜山' },
+      { id: 'incheon', name: '仁川' },
+    ],
+  }
+};
 
 const hotTabs = ['全站热榜', '国家热榜', '行业热榜', '个人热榜'];
 
@@ -191,6 +239,9 @@ function SubTabItem({ label, isActive, onPress }) {
 export default function HotListScreen({ navigation }) {
   const [activeTab, setActiveTab] = useState('全站热榜');
   const [activeSubTab, setActiveSubTab] = useState('');
+  const [showRegionModal, setShowRegionModal] = useState(false);
+  const [selectedRegion, setSelectedRegion] = useState({ type: 'country', id: 'cn', name: '中国', flag: '🇨🇳' });
+  const [regionType, setRegionType] = useState('country'); // 'country' or 'city'
 
   // 计算当前显示的二级标签
   const visibleSubTabs = subTabsData[activeTab] || [];
@@ -212,6 +263,24 @@ export default function HotListScreen({ navigation }) {
 
   const handleItemPress = (item) => {
     navigation.navigate('QuestionDetail', { id: item.id });
+  };
+
+  const handleRegionSelect = (type, item) => {
+    if (type === 'country') {
+      setSelectedRegion({ type: 'country', id: item.id, name: item.name, flag: item.flag });
+      setRegionType('country');
+    } else {
+      setSelectedRegion({ type: 'city', id: item.id, name: item.name, countryId: selectedRegion.id });
+      setRegionType('city');
+    }
+    setShowRegionModal(false);
+  };
+
+  const getCitiesForSelectedCountry = () => {
+    if (selectedRegion.type === 'country') {
+      return regionData.cities[selectedRegion.id] || [];
+    }
+    return regionData.cities[selectedRegion.countryId] || [];
   };
 
   return (
@@ -236,7 +305,7 @@ export default function HotListScreen({ navigation }) {
       </View>
 
       <View style={styles.tabBar}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabBarContent}>
           {hotTabs.map((tab) => (
             <TouchableOpacity 
               key={tab} 
@@ -246,6 +315,17 @@ export default function HotListScreen({ navigation }) {
               <Text style={[styles.tabText, activeTab === tab && styles.tabTextActive]}>{tab}</Text>
             </TouchableOpacity>
           ))}
+          {activeTab === '全站热榜' && (
+            <TouchableOpacity 
+              style={styles.regionTabBtn}
+              onPress={() => setShowRegionModal(true)}
+            >
+              <Text style={styles.regionTabText}>
+                {selectedRegion.flag} {selectedRegion.name}
+              </Text>
+              <Ionicons name="chevron-down" size={14} color="#6b7280" />
+            </TouchableOpacity>
+          )}
         </ScrollView>
       </View>
 
@@ -280,6 +360,101 @@ export default function HotListScreen({ navigation }) {
         ))}
         <View style={styles.listFooter} />
       </ScrollView>
+
+      {/* 区域选择弹窗 */}
+      <Modal
+        visible={showRegionModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowRegionModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <TouchableOpacity 
+            style={styles.modalBackdrop} 
+            activeOpacity={1}
+            onPress={() => setShowRegionModal(false)}
+          />
+          <View style={styles.regionModal}>
+            <View style={styles.regionModalHandle} />
+            <View style={styles.regionModalHeader}>
+              <Text style={styles.regionModalTitle}>选择区域</Text>
+              <TouchableOpacity onPress={() => setShowRegionModal(false)}>
+                <Ionicons name="close" size={24} color="#6b7280" />
+              </TouchableOpacity>
+            </View>
+            
+            <View style={styles.regionTypeTabs}>
+              <TouchableOpacity 
+                style={[styles.regionTypeTab, regionType === 'country' && styles.regionTypeTabActive]}
+                onPress={() => setRegionType('country')}
+              >
+                <Text style={[styles.regionTypeTabText, regionType === 'country' && styles.regionTypeTabTextActive]}>
+                  国家
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.regionTypeTab, regionType === 'city' && styles.regionTypeTabActive]}
+                onPress={() => setRegionType('city')}
+              >
+                <Text style={[styles.regionTypeTabText, regionType === 'city' && styles.regionTypeTabTextActive]}>
+                  城市
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={styles.regionList}>
+              {regionType === 'country' ? (
+                <View style={styles.regionGrid}>
+                  {regionData.countries.map((country) => (
+                    <TouchableOpacity
+                      key={country.id}
+                      style={[
+                        styles.regionItem,
+                        selectedRegion.id === country.id && selectedRegion.type === 'country' && styles.regionItemActive
+                      ]}
+                      onPress={() => handleRegionSelect('country', country)}
+                    >
+                      <Text style={styles.regionFlag}>{country.flag}</Text>
+                      <Text style={[
+                        styles.regionName,
+                        selectedRegion.id === country.id && selectedRegion.type === 'country' && styles.regionNameActive
+                      ]}>
+                        {country.name}
+                      </Text>
+                      {selectedRegion.id === country.id && selectedRegion.type === 'country' && (
+                        <Ionicons name="checkmark-circle" size={16} color="#ef4444" style={styles.regionCheck} />
+                      )}
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              ) : (
+                <View style={styles.regionGrid}>
+                  {getCitiesForSelectedCountry().map((city) => (
+                    <TouchableOpacity
+                      key={city.id}
+                      style={[
+                        styles.regionItem,
+                        selectedRegion.id === city.id && selectedRegion.type === 'city' && styles.regionItemActive
+                      ]}
+                      onPress={() => handleRegionSelect('city', city)}
+                    >
+                      <Text style={[
+                        styles.regionCityName,
+                        selectedRegion.id === city.id && selectedRegion.type === 'city' && styles.regionNameActive
+                      ]}>
+                        {city.name}
+                      </Text>
+                      {selectedRegion.id === city.id && selectedRegion.type === 'city' && (
+                        <Ionicons name="checkmark-circle" size={16} color="#ef4444" style={styles.regionCheck} />
+                      )}
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -291,10 +466,13 @@ const styles = StyleSheet.create({
   headerTitle: { fontSize: 18, fontWeight: 'bold', color: '#1f2937' },
   refreshBtn: { padding: 4 },
   tabBar: { borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
+  tabBarContent: { flexDirection: 'row', alignItems: 'center' },
   tabItem: { paddingHorizontal: 16, paddingVertical: 12 },
   tabItemActive: { borderBottomWidth: 2, borderBottomColor: '#ef4444' },
   tabText: { fontSize: 15, color: '#6b7280' },
   tabTextActive: { color: '#ef4444', fontWeight: '600' },
+  regionTabBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 12, paddingVertical: 6, marginLeft: 8, marginRight: 16, backgroundColor: '#f9fafb', borderRadius: 16, borderWidth: 1, borderColor: '#e5e7eb' },
+  regionTabText: { fontSize: 13, color: '#374151', fontWeight: '500' },
   subTabBar: { backgroundColor: '#fafafa', paddingVertical: 10, paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
   subTabItem: { paddingHorizontal: 14, paddingVertical: 6, marginRight: 10, borderRadius: 16, backgroundColor: '#fff', borderWidth: 1, borderColor: '#e5e7eb' },
   subTabItemActive: { backgroundColor: '#ef4444', borderColor: '#ef4444' },
@@ -320,4 +498,26 @@ const styles = StyleSheet.create({
   authorAvatar: { width: 18, height: 18, borderRadius: 9 },
   authorName: { fontSize: 12, color: '#6b7280', marginLeft: 6 },
   answerCount: { fontSize: 11, color: '#9ca3af', marginLeft: 8 },
+  
+  // 区域选择弹窗样式
+  modalOverlay: { flex: 1, justifyContent: 'flex-end' },
+  modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' },
+  regionModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '80%' },
+  regionModalHandle: { width: 40, height: 4, backgroundColor: '#e5e7eb', borderRadius: 2, alignSelf: 'center', marginTop: 12, marginBottom: 8 },
+  regionModalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
+  regionModalTitle: { fontSize: 17, fontWeight: '600', color: '#1f2937' },
+  regionTypeTabs: { flexDirection: 'row', paddingHorizontal: 16, paddingVertical: 12, gap: 12, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
+  regionTypeTab: { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 8, backgroundColor: '#f9fafb' },
+  regionTypeTabActive: { backgroundColor: '#ef4444' },
+  regionTypeTabText: { fontSize: 14, color: '#6b7280', fontWeight: '500' },
+  regionTypeTabTextActive: { color: '#fff', fontWeight: '600' },
+  regionList: { maxHeight: 400 },
+  regionGrid: { flexDirection: 'row', flexWrap: 'wrap', padding: 12 },
+  regionItem: { width: '30%', margin: '1.66%', paddingVertical: 16, paddingHorizontal: 8, alignItems: 'center', borderRadius: 12, backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', position: 'relative' },
+  regionItemActive: { backgroundColor: '#fef2f2', borderColor: '#ef4444' },
+  regionFlag: { fontSize: 32, marginBottom: 8 },
+  regionName: { fontSize: 13, color: '#374151', fontWeight: '500', textAlign: 'center' },
+  regionCityName: { fontSize: 14, color: '#374151', fontWeight: '500', textAlign: 'center' },
+  regionNameActive: { color: '#ef4444', fontWeight: '600' },
+  regionCheck: { position: 'absolute', top: 8, right: 8 },
 });

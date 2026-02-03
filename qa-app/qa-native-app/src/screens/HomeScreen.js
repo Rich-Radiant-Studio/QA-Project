@@ -9,13 +9,27 @@ const { width: screenWidth } = Dimensions.get('window');
 
 const questions = [
   { id: 1, title: '如何在三个月内从零基础学会Python编程?有没有系统的学习路线推荐?', type: 'reward', reward: 50, likes: 128, dislikes: 12, answers: 56, shares: 34, bookmarks: 89, author: '张三丰', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user1', time: '2小时前', image: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=600&h=300&fit=crop', solvedPercent: 65, country: '中国', city: '北京' },
-  { id: 2, title: '第一次养猫需要准备什么?有哪些新手容易踩的坑?', type: 'free', likes: 256, dislikes: 8, answers: 89, shares: 56, bookmarks: 120, author: '李小明', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user2', time: '5小时前', images: ['https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=200&h=200&fit=crop', 'https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=200&h=200&fit=crop', 'https://images.unsplash.com/photo-1495360010541-f48722b34f7d?w=200&h=200&fit=crop'], solvedPercent: 80, country: '美国', city: '纽约' },
+  { id: 2, title: '第一次养猫需要准备什么?有哪些新手容易踩的坑?', type: 'paid', paidAmount: 9.9, likes: 256, dislikes: 8, answers: 89, shares: 56, bookmarks: 120, author: '李小明', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user2', time: '5小时前', images: ['https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=200&h=200&fit=crop', 'https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=200&h=200&fit=crop', 'https://images.unsplash.com/photo-1495360010541-f48722b34f7d?w=200&h=200&fit=crop'], solvedPercent: 80, country: '美国', city: '纽约', isPaid: false },
   { id: 3, title: '长期失眠应该怎么调理?吃褪黑素有用吗?求专业医生解答', type: 'targeted', likes: 512, dislikes: 5, answers: 234, shares: 78, bookmarks: 156, author: '王医生', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user3', time: '昨天 18:30', verified: true, solvedPercent: 45, country: '日本', city: '东京' },
   { id: 4, title: '35岁程序员如何规划职业发展?是继续技术深耕还是转管理?', type: 'reward', reward: 100, likes: 1200, dislikes: 23, answers: 456, shares: 234, bookmarks: 567, author: '程序员小李', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user4', time: '3小时前', image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&h=300&fit=crop', solvedPercent: 30, country: '中国', city: '上海' },
   { id: 5, title: '有什么简单又好吃的家常菜推荐?最好是新手也能做的那种', type: 'free', likes: 368, dislikes: 6, answers: 127, shares: 45, bookmarks: 98, author: '美食达人', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user5', time: '6小时前', images: ['https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&h=200&fit=crop', 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=200&h=200&fit=crop'], solvedPercent: 92, country: '英国', city: '伦敦' },
 ];
 
-const tabs = ['关注', '推荐', '热榜', '同城', '国家', '行业', '个人', '职场', '教育'];
+const tabs = ['关注', '话题', '推荐', '热榜', '收入榜', '同城', '国家', '行业', '个人', '职场', '教育'];
+
+// 话题数据
+const topicsData = [
+  { id: 1, name: '#Python学习', icon: 'code-slash', color: '#3b82f6', followers: '25.6万', questions: '12.3万', description: '分享Python学习经验和技巧', isFollowed: true },
+  { id: 2, name: '#家常菜谱', icon: 'restaurant', color: '#f97316', followers: '18.9万', questions: '8.6万', description: '美味家常菜做法分享', isFollowed: false },
+  { id: 3, name: '#职业发展', icon: 'briefcase', color: '#8b5cf6', followers: '32.1万', questions: '15.8万', description: '职场经验与职业规划', isFollowed: true },
+  { id: 4, name: '#健康养生', icon: 'fitness', color: '#22c55e', followers: '45.2万', questions: '21.3万', description: '健康生活方式分享', isFollowed: false },
+  { id: 5, name: '#数码科技', icon: 'phone-portrait', color: '#06b6d4', followers: '28.7万', questions: '13.5万', description: '数码产品评测与讨论', isFollowed: true },
+  { id: 6, name: '#旅游攻略', icon: 'airplane', color: '#ec4899', followers: '22.4万', questions: '10.2万', description: '旅游经验与攻略分享', isFollowed: false },
+  { id: 7, name: '#理财投资', icon: 'cash', color: '#f59e0b', followers: '19.8万', questions: '9.5万', description: '理财知识与投资经验', isFollowed: true },
+  { id: 8, name: '#摄影技巧', icon: 'camera', color: '#6366f1', followers: '16.3万', questions: '7.8万', description: '摄影技术交流与作品分享', isFollowed: false },
+  { id: 9, name: '#读书笔记', icon: 'book', color: '#14b8a6', followers: '14.7万', questions: '6.9万', description: '读书心得与好书推荐', isFollowed: true },
+  { id: 10, name: '#运动健身', icon: 'barbell', color: '#ef4444', followers: '38.5万', questions: '18.6万', description: '健身经验与运动技巧', isFollowed: false },
+];
 
 // 区域数据
 const regionData = {
@@ -38,6 +52,9 @@ export default function HomeScreen({ navigation }) {
   const [selectedQuestion, setSelectedQuestion] = useState(null);
   const [regionStep, setRegionStep] = useState(0);
   const [selectedRegion, setSelectedRegion] = useState({ country: '', city: '', state: '', district: '' });
+  
+  // 话题关注状态
+  const [topicFollowState, setTopicFollowState] = useState({});
   
   // 列表状态
   const [questionList, setQuestionList] = useState(questions);
@@ -346,6 +363,7 @@ export default function HomeScreen({ navigation }) {
 
   const toggleLike = (id) => setLikedItems(prev => ({ ...prev, [id]: !prev[id] }));
   const toggleBookmark = (id) => setBookmarkedItems(prev => ({ ...prev, [id]: !prev[id] }));
+  const toggleFollowTopic = (topicId) => setTopicFollowState(prev => ({ ...prev, [topicId]: !prev[topicId] }));
   const formatNumber = (num) => num >= 1000 ? (num / 1000).toFixed(1) + 'k' : num;
 
   const openActionModal = (item) => { setSelectedQuestion(item); setShowActionModal(true); };
@@ -435,6 +453,8 @@ export default function HomeScreen({ navigation }) {
                   navigation.navigate('Follow');
                 } else if (tab === '热榜') {
                   navigation.navigate('HotList');
+                } else if (tab === '收入榜') {
+                  navigation.navigate('IncomeRanking');
                 } else {
                   setActiveTab(tab);
                 }
@@ -463,71 +483,72 @@ export default function HomeScreen({ navigation }) {
       </View>
 
       {/* 问题卡片列表 */}
-      <View style={styles.listContainer}>
-        <FlashList
-          data={questionList}
-          estimatedItemSize={300}
-          keyExtractor={(item) => item.id.toString()}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              colors={['#ef4444']}
-              tintColor="#ef4444"
-            />
-          }
-          onEndReached={onLoadMore}
-          onEndReachedThreshold={0.3}
-          ListHeaderComponent={() => (
-            /* 同城筛选条 */
-            <View style={[styles.localFilterBar, { display: activeTab === '同城' ? 'flex' : 'none' }]}>
-              <View style={styles.localFilterRow}>
-                <TouchableOpacity style={styles.localFilterItem} onPress={() => setShowCityModal(true)}>
-                  <View style={[styles.localFilterIcon, { backgroundColor: '#e0f2fe' }]}>
-                    <Ionicons name="navigate" size={22} color="#0ea5e9" />
-                  </View>
-                  <Text style={styles.localFilterLabel}>切换位置</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.localFilterItem}
-                  onPress={() => setLocalFilter('最新')}
-                >
-                  <View style={[styles.localFilterIcon, { backgroundColor: '#fef3c7' }]}>
-                    <Ionicons name="time" size={22} color="#f59e0b" />
-                  </View>
-                  <Text style={[styles.localFilterLabel, localFilter === '最新' && styles.localFilterLabelActive]}>最新</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.localFilterItem}
-                  onPress={() => setLocalFilter('最热')}
-                >
-                  <View style={[styles.localFilterIcon, { backgroundColor: '#fef3c7' }]}>
-                    <Ionicons name="flame" size={22} color="#f59e0b" />
-                  </View>
-                  <Text style={[styles.localFilterLabel, localFilter === '最热' && styles.localFilterLabelActive]}>最热</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.localFilterItem}
-                  onPress={() => { setLocalFilter('附近'); setShowNearbyModal(true); }}
-                >
-                  <View style={[styles.localFilterIcon, { backgroundColor: '#fee2e2' }]}>
-                    <Ionicons name="location" size={22} color="#ef4444" />
-                  </View>
-                  <Text style={[styles.localFilterLabel, localFilter === '附近' && styles.localFilterLabelActive]}>附近</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.localFilterItem}
-                  onPress={() => setShowEmergencyModal(true)}
-                >
-                  <View style={[styles.localFilterIcon, { backgroundColor: '#fee2e2' }]}>
-                    <Ionicons name="alert-circle" size={22} color="#ef4444" />
-                  </View>
-                  <Text style={styles.localFilterLabel}>紧急求助</Text>
-                </TouchableOpacity>
+      {activeTab !== '话题' ? (
+        <View style={styles.listContainer}>
+          <FlashList
+            data={questionList}
+            estimatedItemSize={300}
+            keyExtractor={(item) => item.id.toString()}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={['#ef4444']}
+                tintColor="#ef4444"
+              />
+            }
+            onEndReached={onLoadMore}
+            onEndReachedThreshold={0.3}
+            ListHeaderComponent={() => (
+              /* 同城筛选条 */
+              <View style={[styles.localFilterBar, { display: activeTab === '同城' ? 'flex' : 'none' }]}>
+                <View style={styles.localFilterRow}>
+                  <TouchableOpacity style={styles.localFilterItem} onPress={() => setShowCityModal(true)}>
+                    <View style={[styles.localFilterIcon, { backgroundColor: '#e0f2fe' }]}>
+                      <Ionicons name="navigate" size={22} color="#0ea5e9" />
+                    </View>
+                    <Text style={styles.localFilterLabel}>切换位置</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.localFilterItem}
+                    onPress={() => setLocalFilter('最新')}
+                  >
+                    <View style={[styles.localFilterIcon, { backgroundColor: '#fef3c7' }]}>
+                      <Ionicons name="time" size={22} color="#f59e0b" />
+                    </View>
+                    <Text style={[styles.localFilterLabel, localFilter === '最新' && styles.localFilterLabelActive]}>最新</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.localFilterItem}
+                    onPress={() => setLocalFilter('最热')}
+                  >
+                    <View style={[styles.localFilterIcon, { backgroundColor: '#fef3c7' }]}>
+                      <Ionicons name="flame" size={22} color="#f59e0b" />
+                    </View>
+                    <Text style={[styles.localFilterLabel, localFilter === '最热' && styles.localFilterLabelActive]}>最热</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.localFilterItem}
+                    onPress={() => { setLocalFilter('附近'); setShowNearbyModal(true); }}
+                  >
+                    <View style={[styles.localFilterIcon, { backgroundColor: '#fee2e2' }]}>
+                      <Ionicons name="location" size={22} color="#ef4444" />
+                    </View>
+                    <Text style={[styles.localFilterLabel, localFilter === '附近' && styles.localFilterLabelActive]}>附近</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.localFilterItem}
+                    onPress={() => setShowEmergencyModal(true)}
+                  >
+                    <View style={[styles.localFilterIcon, { backgroundColor: '#fee2e2' }]}>
+                      <Ionicons name="alert-circle" size={22} color="#ef4444" />
+                    </View>
+                    <Text style={styles.localFilterLabel}>紧急求助</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
-          )}
+            )}
           ListFooterComponent={renderFooter}
           renderItem={({ item, index }) => {
             const isLiked = likedItems[item.id];
@@ -548,8 +569,34 @@ export default function HomeScreen({ navigation }) {
                         <Text style={styles.targetedTagText}>定向</Text>
                       </View>
                     )}
+                    {item.type === 'paid' && (
+                      <View style={styles.paidTagInline}>
+                        <Ionicons name="lock-closed" size={10} color="#fff" />
+                        <Text style={styles.paidTagText}>付费</Text>
+                      </View>
+                    )}
                     <Text style={styles.questionTitle}>{item.title}</Text>
                   </View>
+
+                  {/* 付费查看按钮 */}
+                  {item.type === 'paid' && !item.isPaid && (
+                    <TouchableOpacity 
+                      style={styles.paidViewButton}
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        alert(`支付 $${item.paidAmount} 查看完整内容`);
+                      }}
+                    >
+                      <View style={styles.paidViewContent}>
+                        <Ionicons name="lock-closed-outline" size={20} color="#f59e0b" />
+                        <Text style={styles.paidViewText}>付费查看完整内容</Text>
+                      </View>
+                      <View style={styles.paidViewPrice}>
+                        <Text style={styles.paidViewPriceText}>${item.paidAmount}</Text>
+                        <Ionicons name="chevron-forward" size={16} color="#f59e0b" />
+                      </View>
+                    </TouchableOpacity>
+                  )}
 
                   {/* 图片 */}
                   {item.image && <Image source={{ uri: item.image }} style={styles.singleImage} resizeMode="cover" />}
@@ -653,6 +700,40 @@ export default function HomeScreen({ navigation }) {
           }}
         />
       </View>
+      ) : (
+        /* 话题列表 */
+        <ScrollView style={styles.topicsContainer} showsVerticalScrollIndicator={false}>
+          <View style={styles.topicsSection}>
+            {topicsData.map(topic => {
+              const isFollowed = topic.isFollowed !== undefined ? topic.isFollowed : false;
+              const currentFollowState = topicFollowState[topic.id];
+              const displayFollowed = currentFollowState !== undefined ? currentFollowState : isFollowed;
+              
+              return (
+                <TouchableOpacity key={topic.id} style={styles.topicCard}>
+                  <View style={[styles.topicIcon, { backgroundColor: topic.color + '20' }]}>
+                    <Ionicons name={topic.icon} size={24} color={topic.color} />
+                  </View>
+                  <View style={styles.topicInfo}>
+                    <Text style={styles.topicName}>{topic.name}</Text>
+                    <Text style={styles.topicDesc}>{topic.description}</Text>
+                    <Text style={styles.topicStats}>{topic.followers} 关注 · {topic.questions} 问题</Text>
+                  </View>
+                  <TouchableOpacity 
+                    style={[styles.topicFollowBtn, displayFollowed && styles.topicFollowBtnActive]}
+                    onPress={() => toggleFollowTopic(topic.id)}
+                  >
+                    <Text style={[styles.topicFollowBtnText, displayFollowed && styles.topicFollowBtnTextActive]}>
+                      {displayFollowed ? '已关注' : '+ 关注'}
+                    </Text>
+                  </TouchableOpacity>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+          <View style={{ height: 20 }} />
+        </ScrollView>
+      )}
 
       {/* 区域选择弹窗 */}
       <Modal visible={showRegionModal} transparent animationType="slide">
@@ -1132,6 +1213,13 @@ const styles = StyleSheet.create({
   rewardTagText: { fontSize: 10, color: '#f04444', fontWeight: '700', textTransform: 'uppercase', includeFontPadding: false },
   targetedTagInline: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(147, 51, 234, 0.08)', paddingHorizontal: 4, paddingVertical: 1, borderRadius: 2, marginRight: 6, marginTop: 2 },
   targetedTagText: { fontSize: 10, color: '#9333ea', fontWeight: '700', textTransform: 'uppercase', includeFontPadding: false },
+  paidTagInline: { flexDirection: 'row', alignItems: 'center', gap: 2, backgroundColor: '#f59e0b', paddingHorizontal: 4, paddingVertical: 1, borderRadius: 2, marginRight: 6, marginTop: 2 },
+  paidTagText: { fontSize: 10, color: '#fff', fontWeight: '700', textTransform: 'uppercase', includeFontPadding: false },
+  paidViewButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#fffbeb', borderWidth: 1, borderColor: '#fef3c7', borderRadius: 8, paddingHorizontal: 16, paddingVertical: 12, marginBottom: 12, borderStyle: 'dashed' },
+  paidViewContent: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  paidViewText: { fontSize: 14, color: '#92400e', fontWeight: '500' },
+  paidViewPrice: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  paidViewPriceText: { fontSize: 16, color: '#f59e0b', fontWeight: '700' },
   questionTitle: {
     fontSize: 17,
     lineHeight: 22,
@@ -1298,4 +1386,18 @@ const styles = StyleSheet.create({
   localFilterIcon: { width: 48, height: 48, borderRadius: 24, justifyContent: 'center', alignItems: 'center', marginBottom: 6 },
   localFilterLabel: { fontSize: 12, color: '#4b5563' },
   localFilterLabelActive: { color: '#ef4444', fontWeight: '500' },
+  
+  // 话题列表样式
+  topicsContainer: { flex: 1, backgroundColor: '#f3f4f6' },
+  topicsSection: { backgroundColor: '#fff', marginTop: 8, padding: 12 },
+  topicCard: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
+  topicIcon: { width: 48, height: 48, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
+  topicInfo: { flex: 1, marginLeft: 12 },
+  topicName: { fontSize: 15, fontWeight: '500', color: '#1f2937' },
+  topicDesc: { fontSize: 12, color: '#6b7280', marginTop: 2 },
+  topicStats: { fontSize: 11, color: '#9ca3af', marginTop: 4 },
+  topicFollowBtn: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: 16, backgroundColor: '#f3f4f6' },
+  topicFollowBtnText: { fontSize: 12, color: '#6b7280', fontWeight: '500' },
+  topicFollowBtnActive: { backgroundColor: '#fef2f2' },
+  topicFollowBtnTextActive: { color: '#ef4444' },
 });
