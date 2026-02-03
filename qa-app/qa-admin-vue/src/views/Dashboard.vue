@@ -1,121 +1,416 @@
 <template>
   <div>
-    <!-- 统计卡片 -->
-    <div class="grid grid-cols-4 gap-6 mb-6">
-      <StatCard title="总用户数" value="125,680" :change="12.5" icon="fas fa-users" iconBg="bg-blue-100" iconColor="text-blue-500" />
-      <StatCard title="问题总数" value="45,230" :change="8.3" icon="fas fa-question" iconBg="bg-green-100" iconColor="text-green-500" />
-      <StatCard title="回答总数" value="189,450" :change="15.2" icon="fas fa-comment-dots" iconBg="bg-purple-100" iconColor="text-purple-500" />
-      <StatCard title="悬赏总额" value="$568,900" :change="-3.1" icon="fas fa-coins" iconBg="bg-yellow-100" iconColor="text-yellow-500" />
-    </div>
-    <div class="grid grid-cols-5 gap-6 mb-6">
-      <StatCard title="今日新增用户" value="1,256" icon="fas fa-user-plus" iconBg="bg-red-100" iconColor="text-red-500" />
-      <StatCard title="今日新增问题" value="568" icon="fas fa-plus-circle" iconBg="bg-indigo-100" iconColor="text-indigo-500" />
-      <StatCard title="活动进行中" value="45" valueClass="text-green-500" icon="fas fa-calendar-alt" iconBg="bg-green-100" iconColor="text-green-500" />
-      <StatCard title="紧急求助待处理" value="23" valueClass="text-red-500" icon="fas fa-exclamation-triangle" iconBg="bg-red-100" iconColor="text-red-500" />
-      <StatCard title="问题解决率" value="78.5%" icon="fas fa-check-circle" iconBg="bg-teal-100" iconColor="text-teal-500" />
-    </div>
-
-    <div class="grid grid-cols-3 gap-6 mb-6">
-      <!-- 最新问题 -->
-      <div class="col-span-2 bg-white rounded-xl shadow-sm">
-        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-          <h2 class="font-bold">最新问题</h2>
-          <router-link to="/questions" class="text-red-500 text-sm">查看全部</router-link>
-        </div>
-        <div class="divide-y divide-gray-100">
-          <div v-for="q in latestQuestions" :key="q.id" class="px-6 py-4 flex items-center">
-            <img :src="q.avatar" class="w-10 h-10 rounded-full">
-            <div class="ml-4 flex-1">
-              <div class="flex items-center">
-                <span class="font-medium text-sm">{{ q.title }}</span>
-                <span :class="['ml-2 px-2 py-0.5 text-white text-xs rounded-full', q.typeClass]">{{ q.type }}</span>
-              </div>
-              <div class="text-xs text-gray-400 mt-1">{{ q.author }} · {{ q.time }}</div>
-            </div>
-            <span :class="['px-2 py-1 text-xs rounded', q.statusClass]">{{ q.status }}</span>
-          </div>
-        </div>
+    <!-- 待处理事项 -->
+    <div class="bg-gradient-to-r from-red-50 to-purple-50 rounded-xl shadow-sm mb-6 border border-red-100">
+      <div class="px-5 py-3 border-b border-red-100/50">
+        <h2 class="font-semibold text-base flex items-center text-gray-800">
+          <i class="fas fa-bell text-red-500 mr-2"></i>
+          待处理事项
+        </h2>
       </div>
-
-      <!-- 待处理事项 -->
-      <div class="bg-white rounded-xl shadow-sm">
-        <div class="px-6 py-4 border-b border-gray-100">
-          <h2 class="font-bold">待处理事项</h2>
-        </div>
-        <div class="p-4 space-y-3">
+      <div class="p-5">
+        <div class="grid grid-cols-3 gap-4">
           <router-link v-for="item in pendingItems" :key="item.title" :to="item.link"
-            :class="['flex items-center p-3 rounded-lg', item.bgColor]">
-            <div :class="['w-8 h-8 rounded-full flex items-center justify-center', item.iconBg]">
-              <i :class="[item.icon, 'text-white text-sm']"></i>
+            class="bg-white rounded-lg p-4 transition-all hover:shadow-lg hover:-translate-y-1 border border-gray-100">
+            <div class="flex items-center justify-between mb-3">
+              <div :class="['w-11 h-11 rounded-xl flex items-center justify-center shadow-sm', item.iconBg]">
+                <i :class="[item.icon, 'text-white text-lg']"></i>
+              </div>
+              <div :class="['text-3xl font-bold', item.countColor]">{{ item.count }}</div>
             </div>
-            <div class="ml-3 flex-1">
-              <div class="text-sm font-medium">{{ item.title }}</div>
-              <div class="text-xs text-gray-500">{{ item.desc }}</div>
-            </div>
-            <span :class="['font-bold', item.countColor]">{{ item.count }}</span>
+            <div class="text-sm font-medium text-gray-700">{{ item.title }}</div>
+            <div class="text-xs text-gray-500 mt-1">{{ item.desc }}</div>
           </router-link>
         </div>
       </div>
     </div>
 
-    <div class="grid grid-cols-3 gap-6">
-      <!-- 热门活动 -->
-      <div class="bg-white rounded-xl shadow-sm">
-        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-          <h2 class="font-bold">热门活动</h2>
-          <router-link to="/activities" class="text-red-500 text-sm">查看全部</router-link>
-        </div>
-        <div class="p-4 space-y-3">
-          <div v-for="activity in hotActivities" :key="activity.id" class="flex items-center">
-            <img :src="activity.image" class="w-16 h-10 rounded object-cover">
-            <div class="ml-3 flex-1">
-              <div class="text-sm font-medium line-clamp-1">{{ activity.title }}</div>
-              <div class="text-xs text-gray-400">{{ activity.participants }} 人参与</div>
-            </div>
-            <span :class="['px-2 py-0.5 text-xs rounded', activity.type === 'online' ? 'bg-purple-100 text-purple-600' : 'bg-orange-100 text-orange-600']">
-              {{ activity.type === 'online' ? '线上' : '线下' }}
-            </span>
+    <!-- 用户数据 -->
+    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl shadow-lg p-6 mb-6 border border-blue-100">
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+            <i class="fas fa-users text-white text-xl"></i>
           </div>
+          <div>
+            <h2 class="text-xl font-bold text-gray-800">用户数据</h2>
+            <p class="text-xs text-gray-500">User Statistics</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 bg-white rounded-lg p-2 shadow-sm">
+          <button 
+            v-for="filter in timeFilters" 
+            :key="filter.value"
+            @click="selectedTimeFilter = filter.value"
+            :class="[
+              'px-3 py-1.5 rounded-md text-xs font-medium transition-all',
+              selectedTimeFilter === filter.value 
+                ? 'bg-blue-500 text-white shadow-md' 
+                : 'text-gray-600 hover:bg-gray-100'
+            ]"
+          >
+            {{ filter.label }}
+          </button>
+          <div class="w-px h-6 bg-gray-200 mx-1"></div>
+          <input 
+            v-if="selectedTimeFilter === 'day'"
+            type="date" 
+            v-model="selectedDate"
+            class="px-3 py-1.5 border-0 bg-gray-50 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <input 
+            v-else-if="selectedTimeFilter === 'month'"
+            type="month" 
+            v-model="selectedMonth"
+            class="px-3 py-1.5 border-0 bg-gray-50 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <select 
+            v-else-if="selectedTimeFilter === 'year'"
+            v-model="selectedYear"
+            class="px-3 py-1.5 border-0 bg-gray-50 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option v-for="year in yearOptions" :key="year" :value="year">{{ year }}年</option>
+          </select>
         </div>
       </div>
-
-      <!-- 紧急求助 -->
-      <div class="bg-white rounded-xl shadow-sm">
-        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-          <h2 class="font-bold text-red-500"><i class="fas fa-exclamation-triangle mr-2"></i>紧急求助</h2>
-          <router-link to="/emergency" class="text-red-500 text-sm">查看全部</router-link>
+      <div class="grid grid-cols-4 gap-4 mb-5">
+        <StatCard title="用户总数" value="125,680" :change="12.5" icon="fas fa-users" iconBg="bg-blue-100" iconColor="text-blue-500" />
+        <StatCard title="今日新增" value="1,256" icon="fas fa-user-plus" iconBg="bg-blue-100" iconColor="text-blue-500" />
+        <StatCard title="本月新增" value="15,680" icon="fas fa-user-friends" iconBg="bg-blue-100" iconColor="text-blue-500" />
+        <StatCard title="今年新增" value="45,230" icon="fas fa-users-cog" iconBg="bg-blue-100" iconColor="text-blue-500" />
+      </div>
+      <div class="bg-white rounded-xl shadow-sm p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-semibold text-gray-700">用户增长趋势</h3>
+          <span class="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">{{ getChartPeriodText() }}</span>
         </div>
-        <div class="p-4 space-y-3">
-          <div v-for="emergency in emergencyList" :key="emergency.id" class="p-3 bg-red-50 rounded-lg">
-            <div class="flex items-center">
-              <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
-              <span class="ml-2 text-sm font-medium">{{ emergency.title }}</span>
-            </div>
-            <div class="text-xs text-gray-500 mt-1 line-clamp-1">{{ emergency.description }}</div>
-            <div class="flex items-center justify-between mt-2">
-              <span class="text-xs text-gray-400"><i class="fas fa-map-marker-alt mr-1"></i>{{ emergency.location }}</span>
-              <span class="text-xs text-red-500">{{ emergency.time }}</span>
-            </div>
-          </div>
+        <div style="height: 200px; position: relative;">
+          <canvas ref="userChart"></canvas>
         </div>
       </div>
+    </div>
 
-      <!-- 热榜概览 -->
-      <div class="bg-white rounded-xl shadow-sm">
-        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-          <h2 class="font-bold"><i class="fas fa-fire text-red-500 mr-2"></i>热榜 TOP5</h2>
-          <router-link to="/hotlist" class="text-red-500 text-sm">查看全部</router-link>
-        </div>
-        <div class="divide-y divide-gray-50">
-          <div v-for="(item, idx) in hotList" :key="item.id" class="px-4 py-3 flex items-start">
-            <div :class="['w-5 h-5 rounded flex items-center justify-center text-white text-xs font-bold', getRankBg(idx + 1)]">
-              {{ idx + 1 }}
-            </div>
-            <div class="ml-3 flex-1">
-              <div class="text-sm line-clamp-1">{{ item.title }}</div>
-              <div class="text-xs text-red-500 mt-1">{{ item.hot }} 热度</div>
-            </div>
+    <!-- 问题数据 -->
+    <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl shadow-lg p-6 mb-6 border border-green-100">
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
+            <i class="fas fa-question-circle text-white text-xl"></i>
           </div>
+          <div>
+            <h2 class="text-xl font-bold text-gray-800">问题数据</h2>
+            <p class="text-xs text-gray-500">Question Statistics</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 bg-white rounded-lg p-2 shadow-sm">
+          <button 
+            v-for="filter in timeFilters" 
+            :key="filter.value"
+            @click="selectedTimeFilter = filter.value"
+            :class="[
+              'px-3 py-1.5 rounded-md text-xs font-medium transition-all',
+              selectedTimeFilter === filter.value 
+                ? 'bg-green-500 text-white shadow-md' 
+                : 'text-gray-600 hover:bg-gray-100'
+            ]"
+          >
+            {{ filter.label }}
+          </button>
+          <div class="w-px h-6 bg-gray-200 mx-1"></div>
+          <input 
+            v-if="selectedTimeFilter === 'day'"
+            type="date" 
+            v-model="selectedDate"
+            class="px-3 py-1.5 border-0 bg-gray-50 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+          <input 
+            v-else-if="selectedTimeFilter === 'month'"
+            type="month" 
+            v-model="selectedMonth"
+            class="px-3 py-1.5 border-0 bg-gray-50 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+          <select 
+            v-else-if="selectedTimeFilter === 'year'"
+            v-model="selectedYear"
+            class="px-3 py-1.5 border-0 bg-gray-50 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-green-500"
+          >
+            <option v-for="year in yearOptions" :key="year" :value="year">{{ year }}年</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid grid-cols-4 gap-4 mb-5">
+        <StatCard title="问题总数" value="45,230" :change="8.3" icon="fas fa-question" iconBg="bg-green-100" iconColor="text-green-500" />
+        <StatCard title="今日新增" value="568" icon="fas fa-plus-circle" iconBg="bg-green-100" iconColor="text-green-500" />
+        <StatCard title="本月新增" value="6,890" icon="fas fa-question-circle" iconBg="bg-green-100" iconColor="text-green-500" />
+        <StatCard title="今年新增" value="18,450" icon="fas fa-clipboard-question" iconBg="bg-green-100" iconColor="text-green-500" />
+      </div>
+      <div class="bg-white rounded-xl shadow-sm p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-semibold text-gray-700">问题增长趋势</h3>
+          <span class="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">{{ getChartPeriodText() }}</span>
+        </div>
+        <div style="height: 200px; position: relative;">
+          <canvas ref="questionChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- 回答数据 -->
+    <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl shadow-lg p-6 mb-6 border border-purple-100">
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+            <i class="fas fa-comment-dots text-white text-xl"></i>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-gray-800">回答数据</h2>
+            <p class="text-xs text-gray-500">Answer Statistics</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 bg-white rounded-lg p-2 shadow-sm">
+          <button 
+            v-for="filter in timeFilters" 
+            :key="filter.value"
+            @click="selectedTimeFilter = filter.value"
+            :class="[
+              'px-3 py-1.5 rounded-md text-xs font-medium transition-all',
+              selectedTimeFilter === filter.value 
+                ? 'bg-purple-500 text-white shadow-md' 
+                : 'text-gray-600 hover:bg-gray-100'
+            ]"
+          >
+            {{ filter.label }}
+          </button>
+          <div class="w-px h-6 bg-gray-200 mx-1"></div>
+          <input 
+            v-if="selectedTimeFilter === 'day'"
+            type="date" 
+            v-model="selectedDate"
+            class="px-3 py-1.5 border-0 bg-gray-50 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-purple-500"
+          />
+          <input 
+            v-else-if="selectedTimeFilter === 'month'"
+            type="month" 
+            v-model="selectedMonth"
+            class="px-3 py-1.5 border-0 bg-gray-50 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-purple-500"
+          />
+          <select 
+            v-else-if="selectedTimeFilter === 'year'"
+            v-model="selectedYear"
+            class="px-3 py-1.5 border-0 bg-gray-50 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-purple-500"
+          >
+            <option v-for="year in yearOptions" :key="year" :value="year">{{ year }}年</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid grid-cols-4 gap-4 mb-5">
+        <StatCard title="回答总数" value="189,450" :change="15.2" icon="fas fa-comment-dots" iconBg="bg-purple-100" iconColor="text-purple-500" />
+        <StatCard title="今日新增" value="2,345" icon="fas fa-comment-medical" iconBg="bg-purple-100" iconColor="text-purple-500" />
+        <StatCard title="本月新增" value="28,560" icon="fas fa-comments" iconBg="bg-purple-100" iconColor="text-purple-500" />
+        <StatCard title="今年新增" value="76,890" icon="fas fa-comment-alt" iconBg="bg-purple-100" iconColor="text-purple-500" />
+      </div>
+      <div class="bg-white rounded-xl shadow-sm p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-semibold text-gray-700">回答增长趋势</h3>
+          <span class="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">{{ getChartPeriodText() }}</span>
+        </div>
+        <div style="height: 200px; position: relative;">
+          <canvas ref="answerChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- 团队数据 -->
+    <div class="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-2xl shadow-lg p-6 mb-6 border border-indigo-100">
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+            <i class="fas fa-users-cog text-white text-xl"></i>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-gray-800">团队数据</h2>
+            <p class="text-xs text-gray-500">Team Statistics</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 bg-white rounded-lg p-2 shadow-sm">
+          <button 
+            v-for="filter in timeFilters" 
+            :key="filter.value"
+            @click="selectedTimeFilter = filter.value"
+            :class="[
+              'px-3 py-1.5 rounded-md text-xs font-medium transition-all',
+              selectedTimeFilter === filter.value 
+                ? 'bg-indigo-500 text-white shadow-md' 
+                : 'text-gray-600 hover:bg-gray-100'
+            ]"
+          >
+            {{ filter.label }}
+          </button>
+          <div class="w-px h-6 bg-gray-200 mx-1"></div>
+          <input 
+            v-if="selectedTimeFilter === 'day'"
+            type="date" 
+            v-model="selectedDate"
+            class="px-3 py-1.5 border-0 bg-gray-50 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+          <input 
+            v-else-if="selectedTimeFilter === 'month'"
+            type="month" 
+            v-model="selectedMonth"
+            class="px-3 py-1.5 border-0 bg-gray-50 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+          <select 
+            v-else-if="selectedTimeFilter === 'year'"
+            v-model="selectedYear"
+            class="px-3 py-1.5 border-0 bg-gray-50 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            <option v-for="year in yearOptions" :key="year" :value="year">{{ year }}年</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid grid-cols-4 gap-4 mb-5">
+        <StatCard title="团队总数" value="3,458" :change="22.3" icon="fas fa-users-cog" iconBg="bg-indigo-100" iconColor="text-indigo-500" />
+        <StatCard title="今日新增" value="89" icon="fas fa-user-friends" iconBg="bg-indigo-100" iconColor="text-indigo-500" />
+        <StatCard title="本月新增" value="456" icon="fas fa-users" iconBg="bg-indigo-100" iconColor="text-indigo-500" />
+        <StatCard title="今年新增" value="1,234" icon="fas fa-user-plus" iconBg="bg-indigo-100" iconColor="text-indigo-500" />
+      </div>
+      <div class="bg-white rounded-xl shadow-sm p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-semibold text-gray-700">团队增长趋势</h3>
+          <span class="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">{{ getChartPeriodText() }}</span>
+        </div>
+        <div style="height: 200px; position: relative;">
+          <canvas ref="teamChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- 活动数据 -->
+    <div class="bg-gradient-to-br from-orange-50 to-red-50 rounded-2xl shadow-lg p-6 mb-6 border border-orange-100">
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
+            <i class="fas fa-calendar-alt text-white text-xl"></i>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-gray-800">活动数据</h2>
+            <p class="text-xs text-gray-500">Activity Statistics</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 bg-white rounded-lg p-2 shadow-sm">
+          <button 
+            v-for="filter in timeFilters" 
+            :key="filter.value"
+            @click="selectedTimeFilter = filter.value"
+            :class="[
+              'px-3 py-1.5 rounded-md text-xs font-medium transition-all',
+              selectedTimeFilter === filter.value 
+                ? 'bg-orange-500 text-white shadow-md' 
+                : 'text-gray-600 hover:bg-gray-100'
+            ]"
+          >
+            {{ filter.label }}
+          </button>
+          <div class="w-px h-6 bg-gray-200 mx-1"></div>
+          <input 
+            v-if="selectedTimeFilter === 'day'"
+            type="date" 
+            v-model="selectedDate"
+            class="px-3 py-1.5 border-0 bg-gray-50 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-orange-500"
+          />
+          <input 
+            v-else-if="selectedTimeFilter === 'month'"
+            type="month" 
+            v-model="selectedMonth"
+            class="px-3 py-1.5 border-0 bg-gray-50 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-orange-500"
+          />
+          <select 
+            v-else-if="selectedTimeFilter === 'year'"
+            v-model="selectedYear"
+            class="px-3 py-1.5 border-0 bg-gray-50 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-orange-500"
+          >
+            <option v-for="year in yearOptions" :key="year" :value="year">{{ year }}年</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid grid-cols-4 gap-4 mb-5">
+        <StatCard title="活动总数" value="1,256" :change="18.5" icon="fas fa-calendar-alt" iconBg="bg-orange-100" iconColor="text-orange-500" />
+        <StatCard title="今日新增" value="45" icon="fas fa-calendar-plus" iconBg="bg-orange-100" iconColor="text-orange-500" />
+        <StatCard title="本月新增" value="234" icon="fas fa-calendar-check" iconBg="bg-orange-100" iconColor="text-orange-500" />
+        <StatCard title="今年新增" value="678" icon="fas fa-calendar-day" iconBg="bg-orange-100" iconColor="text-orange-500" />
+      </div>
+      <div class="bg-white rounded-xl shadow-sm p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-semibold text-gray-700">活动增长趋势</h3>
+          <span class="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">{{ getChartPeriodText() }}</span>
+        </div>
+        <div style="height: 200px; position: relative;">
+          <canvas ref="activityChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- 悬赏数据 -->
+    <div class="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-2xl shadow-lg p-6 mb-6 border border-yellow-100">
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl flex items-center justify-center shadow-lg">
+            <i class="fas fa-coins text-white text-xl"></i>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-gray-800">悬赏数据</h2>
+            <p class="text-xs text-gray-500">Reward Statistics</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 bg-white rounded-lg p-2 shadow-sm">
+          <button 
+            v-for="filter in timeFilters" 
+            :key="filter.value"
+            @click="selectedTimeFilter = filter.value"
+            :class="[
+              'px-3 py-1.5 rounded-md text-xs font-medium transition-all',
+              selectedTimeFilter === filter.value 
+                ? 'bg-yellow-500 text-white shadow-md' 
+                : 'text-gray-600 hover:bg-gray-100'
+            ]"
+          >
+            {{ filter.label }}
+          </button>
+          <div class="w-px h-6 bg-gray-200 mx-1"></div>
+          <input 
+            v-if="selectedTimeFilter === 'day'"
+            type="date" 
+            v-model="selectedDate"
+            class="px-3 py-1.5 border-0 bg-gray-50 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-yellow-500"
+          />
+          <input 
+            v-else-if="selectedTimeFilter === 'month'"
+            type="month" 
+            v-model="selectedMonth"
+            class="px-3 py-1.5 border-0 bg-gray-50 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-yellow-500"
+          />
+          <select 
+            v-else-if="selectedTimeFilter === 'year'"
+            v-model="selectedYear"
+            class="px-3 py-1.5 border-0 bg-gray-50 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-yellow-500"
+          >
+            <option v-for="year in yearOptions" :key="year" :value="year">{{ year }}年</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid grid-cols-4 gap-4 mb-5">
+        <StatCard title="悬赏总额" value="$568,900" :change="6.8" icon="fas fa-coins" iconBg="bg-yellow-100" iconColor="text-yellow-500" />
+        <StatCard title="今日新增" value="$12,560" icon="fas fa-dollar-sign" iconBg="bg-yellow-100" iconColor="text-yellow-500" />
+        <StatCard title="本月新增" value="$156,780" icon="fas fa-money-bill-wave" iconBg="bg-yellow-100" iconColor="text-yellow-500" />
+        <StatCard title="今年新增" value="$423,450" icon="fas fa-hand-holding-usd" iconBg="bg-yellow-100" iconColor="text-yellow-500" />
+      </div>
+      <div class="bg-white rounded-xl shadow-sm p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-semibold text-gray-700">悬赏金额趋势</h3>
+          <span class="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">{{ getChartPeriodText() }}</span>
+        </div>
+        <div style="height: 200px; position: relative;">
+          <canvas ref="rewardChart"></canvas>
         </div>
       </div>
     </div>
@@ -123,50 +418,229 @@
 </template>
 
 <script setup>
+import { ref, onMounted, nextTick, watch, computed } from 'vue'
 import StatCard from '@/components/StatCard.vue'
+import Chart from 'chart.js/auto'
 
-const getRankBg = (rank) => {
-  if (rank === 1) return 'bg-red-500'
-  if (rank === 2) return 'bg-orange-500'
-  if (rank === 3) return 'bg-yellow-500'
-  return 'bg-gray-400'
-}
+const userChart = ref(null)
+const questionChart = ref(null)
+const answerChart = ref(null)
+const rewardChart = ref(null)
+const activityChart = ref(null)
+const teamChart = ref(null)
 
-const latestQuestions = [
-  { id: 1, title: '如何在三个月内从零基础学会Python编程？', type: '悬赏 $50', typeClass: 'bg-gradient-to-r from-red-500 to-orange-500',
-    author: '张三丰', time: '2小时前', status: '待审核', statusClass: 'bg-yellow-100 text-yellow-600', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user1' },
-  { id: 2, title: '第一次养猫需要准备什么？', type: '公开', typeClass: 'bg-gradient-to-r from-green-500 to-teal-500',
-    author: '李小龙', time: '5小时前', status: '已通过', statusClass: 'bg-green-100 text-green-600', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user2' },
-  { id: 3, title: '长期失眠应该怎么调理？', type: '定向', typeClass: 'bg-gradient-to-r from-blue-500 to-cyan-500',
-    author: '王医生', time: '昨天', status: '已通过', statusClass: 'bg-green-100 text-green-600', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user3' },
-  { id: 4, title: '35岁程序员如何规划职业发展？', type: '悬赏 $100', typeClass: 'bg-gradient-to-r from-red-500 to-orange-500',
-    author: '程序员小明', time: '3小时前', status: '已拒绝', statusClass: 'bg-red-100 text-red-600', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user4' },
+// 时间筛选器
+const selectedTimeFilter = ref('day')
+const timeFilters = [
+  { label: '按日', value: 'day', icon: 'fas fa-calendar-day' },
+  { label: '按月', value: 'month', icon: 'fas fa-calendar-alt' },
+  { label: '按年', value: 'year', icon: 'fas fa-calendar' }
 ]
+
+// 日期选择
+const today = new Date()
+const selectedDate = ref(today.toISOString().split('T')[0])
+const selectedMonth = ref(`${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`)
+const selectedYear = ref(today.getFullYear().toString())
+
+// 年份选项（最近10年）
+const yearOptions = computed(() => {
+  const currentYear = today.getFullYear()
+  const years = []
+  for (let i = 0; i < 10; i++) {
+    years.push(currentYear - i)
+  }
+  return years
+})
 
 const pendingItems = [
-  { title: '举报待处理', desc: '23条举报需要审核', count: 23, icon: 'fas fa-flag', iconBg: 'bg-red-500', bgColor: 'bg-red-50', countColor: 'text-red-500', link: '/reports' },
-  { title: '问题待审核', desc: '15个问题等待审核', count: 15, icon: 'fas fa-question', iconBg: 'bg-yellow-500', bgColor: 'bg-yellow-50', countColor: 'text-yellow-500', link: '/questions' },
-  { title: '紧急求助', desc: '8个紧急求助待处理', count: 8, icon: 'fas fa-exclamation-triangle', iconBg: 'bg-red-500', bgColor: 'bg-red-50', countColor: 'text-red-500', link: '/emergency' },
-  { title: '活动待审核', desc: '12个活动待审核', count: 12, icon: 'fas fa-calendar-alt', iconBg: 'bg-blue-500', bgColor: 'bg-blue-50', countColor: 'text-blue-500', link: '/activities' },
-  { title: '提现申请', desc: '6个提现待处理', count: 6, icon: 'fas fa-money-bill', iconBg: 'bg-purple-500', bgColor: 'bg-purple-50', countColor: 'text-purple-500', link: '/finance' },
+  { title: '举报待处理', desc: '需要审核', count: 23, icon: 'fas fa-flag', iconBg: 'bg-red-500', bgColor: 'bg-red-50', countColor: 'text-red-500', link: '/reports' },
+  { title: '紧急求助', desc: '待处理', count: 8, icon: 'fas fa-exclamation-triangle', iconBg: 'bg-red-500', bgColor: 'bg-red-50', countColor: 'text-red-500', link: '/emergency' },
+  { title: '提现申请', desc: '待处理', count: 6, icon: 'fas fa-money-bill', iconBg: 'bg-purple-500', bgColor: 'bg-purple-50', countColor: 'text-purple-500', link: '/finance' },
 ]
 
-const hotActivities = [
-  { id: 1, title: '新人答题挑战赛', participants: 12580, type: 'online', image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=200&h=120&fit=crop' },
-  { id: 2, title: 'Python学习打卡活动', participants: 8956, type: 'online', image: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=200&h=120&fit=crop' },
-  { id: 3, title: '程序员线下交流会', participants: 156, type: 'offline', image: 'https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=200&h=120&fit=crop' },
-]
+// 存储图表实例
+const chartInstances = ref({})
 
-const emergencyList = [
-  { id: 1, title: '老人走失急寻', description: '我父亲今天下午2点从家里出门后一直没有回来...', location: '北京市朝阳区', time: '10分钟前' },
-  { id: 2, title: '急需O型血', description: '家人手术急需O型血，医院血库告急...', location: '广州市天河区', time: '30分钟前' },
-]
+// 获取图表周期文本
+const getChartPeriodText = () => {
+  if (selectedTimeFilter.value === 'day') {
+    return `日期：${selectedDate.value}`
+  } else if (selectedTimeFilter.value === 'month') {
+    const [year, month] = selectedMonth.value.split('-')
+    return `月份：${year}年${month}月`
+  } else {
+    return `年份：${selectedYear.value}年`
+  }
+}
 
-const hotList = [
-  { id: 1, title: '如何在三个月内从零基础学会Python编程？', hot: '1856万' },
-  { id: 2, title: '35岁程序员如何规划职业发展？', hot: '1523万' },
-  { id: 3, title: '2026年最值得学习的编程语言是什么？', hot: '1245万' },
-  { id: 4, title: '第一次养猫需要准备什么？', hot: '986万' },
-  { id: 5, title: '长期失眠应该怎么调理？', hot: '876万' },
-]
+// 生成日期标签
+const generateLabels = (type) => {
+  const labels = []
+  
+  if (type === 'day') {
+    // 显示选中日期前后30天
+    const date = new Date(selectedDate.value)
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(date)
+      d.setDate(d.getDate() - i)
+      labels.push(`${d.getMonth() + 1}/${d.getDate()}`)
+    }
+  } else if (type === 'month') {
+    // 显示选中月份所在年的12个月
+    const [year] = selectedMonth.value.split('-')
+    for (let i = 1; i <= 12; i++) {
+      labels.push(`${i}月`)
+    }
+  } else if (type === 'year') {
+    // 显示选中年份前后5年
+    const year = parseInt(selectedYear.value)
+    for (let i = 4; i >= 0; i--) {
+      labels.push(`${year - i}年`)
+    }
+  }
+  
+  return labels
+}
+
+// 生成模拟数据
+const generateData = (base, variance, type) => {
+  const data = []
+  const count = type === 'day' ? 30 : type === 'month' ? 12 : 5
+  
+  for (let i = 0; i < count; i++) {
+    data.push(Math.floor(base + Math.random() * variance))
+  }
+  return data
+}
+
+// 创建图表
+const createChart = (canvas, label, baseValue, variance, color) => {
+  if (!canvas) {
+    console.error('Canvas element not found for', label)
+    return null
+  }
+  
+  try {
+    const chart = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels: generateLabels(selectedTimeFilter.value),
+        datasets: [{
+          label: label,
+          data: generateData(baseValue, variance, selectedTimeFilter.value),
+          borderColor: color,
+          backgroundColor: color + '20',
+          tension: 0.4,
+          fill: true,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            mode: 'index',
+            intersect: false,
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            padding: 12,
+            titleColor: '#fff',
+            bodyColor: '#fff',
+            borderColor: color,
+            borderWidth: 1
+          }
+        },
+        scales: {
+          x: {
+            grid: {
+              display: false
+            },
+            ticks: {
+              maxTicksLimit: 10,
+              font: {
+                size: 11
+              }
+            }
+          },
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(0, 0, 0, 0.05)'
+            },
+            ticks: {
+              font: {
+                size: 11
+              }
+            }
+          }
+        },
+        interaction: {
+          mode: 'nearest',
+          axis: 'x',
+          intersect: false
+        }
+      }
+    })
+    
+    console.log('Chart created successfully:', label)
+    return chart
+  } catch (error) {
+    console.error('Error creating chart:', label, error)
+    return null
+  }
+}
+
+// 更新所有图表
+const updateAllCharts = () => {
+  Object.values(chartInstances.value).forEach(chart => {
+    if (chart) chart.destroy()
+  })
+  
+  chartInstances.value = {
+    user: createChart(userChart.value, '每日新增用户', 800, 600, '#3b82f6'),
+    question: createChart(questionChart.value, '每日新增问题', 300, 200, '#10b981'),
+    answer: createChart(answerChart.value, '每日新增回答', 1200, 800, '#8b5cf6'),
+    reward: createChart(rewardChart.value, '每日悬赏金额 ($)', 15000, 10000, '#f59e0b'),
+    activity: createChart(activityChart.value, '每日新增活动', 30, 20, '#f97316'),
+    team: createChart(teamChart.value, '每日新增团队', 80, 50, '#6366f1')
+  }
+}
+
+// 监听筛选条件变化
+watch(selectedTimeFilter, () => {
+  updateAllCharts()
+})
+
+watch(selectedDate, () => {
+  if (selectedTimeFilter.value === 'day') {
+    updateAllCharts()
+  }
+})
+
+watch(selectedMonth, () => {
+  if (selectedTimeFilter.value === 'month') {
+    updateAllCharts()
+  }
+})
+
+watch(selectedYear, () => {
+  if (selectedTimeFilter.value === 'year') {
+    updateAllCharts()
+  }
+})
+
+onMounted(async () => {
+  await nextTick()
+  setTimeout(() => {
+    console.log('Initializing charts...')
+    updateAllCharts()
+    console.log('All charts initialized')
+  }, 100)
+})
 </script>
