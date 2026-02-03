@@ -12,7 +12,6 @@ const stats = [
 ];
 
 const menuItems = [
-  { icon: 'time', label: '浏览历史', value: '', color: '#3b82f6' },
   { icon: 'document-text', label: '我的草稿', value: '3', color: '#22c55e' },
   { icon: 'people', label: '我的群聊', value: '5', color: '#a855f7' },
   { icon: 'people-circle', label: '我的团队', value: '2', color: '#f59e0b' },
@@ -32,7 +31,7 @@ const myAnswers = [
   { id: 4, questionTitle: '如何克服拖延症？', content: '拖延症的根本原因是对任务的恐惧，可以尝试番茄工作法...', likes: 98, comments: 8, adopted: false, time: '2天前' },
 ];
 
-const contentTabs = ['我的提问 (56)', '我的回答 (234)', '我的收藏 (892)'];
+const contentTabs = ['提问 (56)', '回答 (234)', '收藏 (892)', '浏览历史 (156)'];
 
 // 收藏数据
 const favoritesData = {
@@ -65,7 +64,7 @@ const draftsList = [
 ];
 
 export default function ProfileScreen({ navigation, onLogout }) {
-  const [activeTab, setActiveTab] = useState('我的提问 (56)');
+  const [activeTab, setActiveTab] = useState('提问 (56)');
   const [showFavoritesModal, setShowFavoritesModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [showDraftsModal, setShowDraftsModal] = useState(false);
@@ -330,8 +329,8 @@ export default function ProfileScreen({ navigation, onLogout }) {
             ))}
           </View>
           
-          {/* 我的提问列表 */}
-          <View style={{ display: activeTab === '我的提问 (56)' ? 'flex' : 'none' }}>
+          {/* 提问列表 */}
+          <View style={{ display: activeTab === '提问 (56)' ? 'flex' : 'none' }}>
             {myQuestions.map(q => (
               <TouchableOpacity key={q.id} style={styles.questionItem} onPress={() => handleQuestionPress(q)}>
                 <View style={styles.questionHeader}>
@@ -368,8 +367,8 @@ export default function ProfileScreen({ navigation, onLogout }) {
             ))}
           </View>
 
-          {/* 我的回答列表 */}
-          <View style={{ display: activeTab === '我的回答 (234)' ? 'flex' : 'none' }}>
+          {/* 回答列表 */}
+          <View style={{ display: activeTab === '回答 (234)' ? 'flex' : 'none' }}>
             {myAnswers.map(a => (
               <TouchableOpacity key={a.id} style={styles.answerItem} onPress={() => navigation.navigate('AnswerDetail', { answer: a })}>
                 <View style={styles.answerHeader}>
@@ -398,8 +397,8 @@ export default function ProfileScreen({ navigation, onLogout }) {
             ))}
           </View>
 
-          {/* 我的收藏列表 */}
-          <View style={{ display: activeTab === '我的收藏 (892)' ? 'flex' : 'none' }}>
+          {/* 收藏列表 */}
+          <View style={{ display: activeTab === '收藏 (892)' ? 'flex' : 'none' }}>
             {/* 收藏分类标签 */}
             <View style={styles.favoriteTabsInline}>
               <TouchableOpacity 
@@ -436,6 +435,22 @@ export default function ProfileScreen({ navigation, onLogout }) {
                   <View style={styles.favoriteItemMeta}>
                     <Text style={styles.favoriteItemAuthor}>{item.author}</Text>
                     <Text style={styles.favoriteItemTime}>{item.time}</Text>
+                  </View>
+                </View>
+                <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          {/* 浏览历史列表 */}
+          <View style={{ display: activeTab === '浏览历史 (156)' ? 'flex' : 'none' }}>
+            {historyList.map(item => (
+              <TouchableOpacity key={item.id} style={styles.historyItem} onPress={() => handleHistoryPress(item)}>
+                <View style={styles.historyItemContent}>
+                  <Text style={styles.historyItemTitle}>{item.title}</Text>
+                  <View style={styles.historyItemMeta}>
+                    <Text style={styles.historyItemAuthor}>{item.author}</Text>
+                    <Text style={styles.historyItemTime}>浏览于 {item.time}</Text>
                   </View>
                 </View>
                 <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
@@ -668,6 +683,15 @@ const styles = StyleSheet.create({
   favoriteItemContent: { flex: 1 },
   favoriteItemTitle: { fontSize: 14, color: '#1f2937', lineHeight: 20, marginBottom: 6 },
   favoriteItemMeta: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  favoriteItemAuthor: { fontSize: 12, color: '#9ca3af' },
+  favoriteItemTime: { fontSize: 12, color: '#9ca3af' },
+  // 浏览历史样式
+  historyItem: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
+  historyItemContent: { flex: 1 },
+  historyItemTitle: { fontSize: 14, color: '#1f2937', lineHeight: 20, marginBottom: 6 },
+  historyItemMeta: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  historyItemAuthor: { fontSize: 12, color: '#9ca3af' },
+  historyItemTime: { fontSize: 12, color: '#9ca3af' },
   favoriteItemAuthor: { fontSize: 12, color: '#6b7280' },
   favoriteItemTime: { fontSize: 12, color: '#9ca3af' },
 });

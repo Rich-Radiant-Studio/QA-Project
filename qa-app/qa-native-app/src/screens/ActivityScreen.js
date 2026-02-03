@@ -36,6 +36,7 @@ export default function ActivityScreen({ navigation, route }) {
     endTime: '',
     address: '',
     image: '',
+    contact: '',
     organizerType: teamId ? 'team' : 'personal', // 如果从团队进入，默认选择团队
     teamId: teamId || null,
     teamName: teamName || ''
@@ -141,6 +142,7 @@ export default function ActivityScreen({ navigation, route }) {
       endTime: '', 
       address: '', 
       image: '',
+      contact: '',
       organizerType: 'personal',
       teamId: null,
       teamName: ''
@@ -487,6 +489,15 @@ export default function ActivityScreen({ navigation, route }) {
               <Ionicons name="image-outline" size={32} color="#9ca3af" />
               <Text style={styles.imageUploadText}>点击上传活动封面图</Text>
             </TouchableOpacity>
+
+            {/* 联系方式 */}
+            <Text style={styles.inputLabel}>联系方式</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="请输入联系方式（手机号/微信/邮箱）"
+              value={newActivity.contact}
+              onChangeText={(text) => setNewActivity({ ...newActivity, contact: text })}
+            />
             
             <View style={{ height: 40 }} />
           </ScrollView>

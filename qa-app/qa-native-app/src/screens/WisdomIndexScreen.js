@@ -120,7 +120,7 @@ export default function WisdomIndexScreen({ navigation }) {
             onPress={() => navigation.navigate('WisdomExam')}
           >
             <Ionicons name="school" size={20} color="#fff" />
-            <Text style={styles.primaryBtnText}>每日智慧考核</Text>
+            <Text style={styles.primaryBtnText}>每日智慧提升</Text>
           </TouchableOpacity>
 
           <View style={styles.secondaryBtns}>
