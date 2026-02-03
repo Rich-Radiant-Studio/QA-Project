@@ -45,7 +45,6 @@ export default function HomeScreen({ navigation }) {
   const [bookmarkedItems, setBookmarkedItems] = useState({});
   const [showRegionModal, setShowRegionModal] = useState(false);
   const [showActionModal, setShowActionModal] = useState(false);
-  const [showChannelModal, setShowChannelModal] = useState(false);
   const [showSocialModal, setShowSocialModal] = useState(false);
   const [socialPlatform, setSocialPlatform] = useState('');
   const [socialSearchText, setSocialSearchText] = useState('');
@@ -63,41 +62,9 @@ export default function HomeScreen({ navigation }) {
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
   
-  // 频道管理状态
-  const [myChannels, setMyChannels] = useState(['关注', '推荐', '热榜', '同城']);
-  const [channelTab, setChannelTab] = useState('my'); // my, country, industry, personal, combo
 
-  // 频道数据
-  const channelCategories = {
-    country: {
-      name: '国家',
-      icon: 'business',
-      color: '#3b82f6',
-      subcategories: ['政策法规', '社会民生', '经济发展', '教育医疗', '环境保护', '基础设施']
-    },
-    industry: {
-      name: '行业',
-      icon: 'briefcase',
-      color: '#22c55e',
-      subcategories: ['互联网', '金融', '制造业', '医疗健康', '教育培训', '房地产', '餐饮服务', '交通运输']
-    },
-    personal: {
-      name: '个人',
-      icon: 'person',
-      color: '#8b5cf6',
-      subcategories: ['职业发展', '情感生活', '健康养生', '理财投资', '学习成长', '家庭关系']
-    }
-  };
 
-  // 组合频道配置
-  const [showComboCreator, setShowComboCreator] = useState(false);
-  const [comboStep, setComboStep] = useState(0); // 0:选择地区 1:选择类别
-  const [comboConfig, setComboConfig] = useState({
-    region: { country: '', city: '', state: '' },
-    categoryType: '', // country/industry/personal
-    category: ''
-  });
-  const [comboRegionStep, setComboRegionStep] = useState(0); // 0:国家 1:省份 2:城市
+
   // 同城筛选状态
   const [localCity, setLocalCity] = useState('北京');
   const [localFilter, setLocalFilter] = useState('最新');
@@ -155,72 +122,7 @@ export default function HomeScreen({ navigation }) {
     }
   };
 
-  // 频道管理函数
-  const addToMyChannels = (channel) => {
-    if (!myChannels.includes(channel)) {
-      setMyChannels([...myChannels, channel]);
-    }
-  };
 
-  const removeFromMyChannels = (channel) => {
-    // 保留固定频道
-    const fixedChannels = ['关注', '推荐', '热榜', '同城'];
-    if (!fixedChannels.includes(channel)) {
-      setMyChannels(myChannels.filter(c => c !== channel));
-    }
-  };
-
-  // 组合频道创建
-  const getComboRegionOptions = () => {
-    if (comboRegionStep === 0) return cityRegionData.countries;
-    if (comboRegionStep === 1) return cityRegionData.states[comboConfig.region.country] || [];
-    if (comboRegionStep === 2) return cityRegionData.cities[comboConfig.region.state] || [];
-    return [];
-  };
-
-  const selectComboRegion = (value) => {
-    if (comboRegionStep === 0) {
-      setComboConfig({ ...comboConfig, region: { country: value, state: '', city: '' } });
-      setComboRegionStep(1);
-    } else if (comboRegionStep === 1) {
-      setComboConfig({ ...comboConfig, region: { ...comboConfig.region, state: value, city: '' } });
-      setComboRegionStep(2);
-    } else {
-      setComboConfig({ ...comboConfig, region: { ...comboConfig.region, city: value } });
-      setComboStep(1);
-      setComboRegionStep(0);
-    }
-  };
-
-  const createComboChannel = () => {
-    const { region, categoryType, category } = comboConfig;
-    const parts = [];
-
-    if (region.country) parts.push(region.country);
-    if (region.state) parts.push(region.state);
-    if (region.city) parts.push(region.city);
-
-    if (categoryType) {
-      parts.push(channelCategories[categoryType].name);
-    }
-    if (category) {
-      parts.push(category);
-    }
-
-    if (parts.length > 0) {
-      const channelName = parts.join('·');
-      addToMyChannels(channelName);
-      setComboConfig({ region: { country: '', city: '', state: '' }, categoryType: '', category: '' });
-      setShowComboCreator(false);
-      setComboStep(0);
-    }
-  };
-
-  const getComboRegionDisplay = () => {
-    const { country, state, city } = comboConfig.region;
-    const parts = [country, state, city].filter(Boolean);
-    return parts.length > 0 ? parts.join(' · ') : '选择地区';
-  };
 
   // 同城功能
   const getCitySelectOptions = () => {
@@ -389,17 +291,7 @@ export default function HomeScreen({ navigation }) {
     return parts.length > 0 ? parts.join(' · ') : '全球';
   };
 
-  const removeChannel = (channel) => {
-    if (myChannels.length > 1) {
-      setMyChannels(myChannels.filter(c => c !== channel));
-      setRecommendChannels([...recommendChannels, channel]);
-    }
-  };
 
-  const addChannel = (channel) => {
-    setRecommendChannels(recommendChannels.filter(c => c !== channel));
-    setMyChannels([...myChannels, channel]);
-  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -465,7 +357,7 @@ export default function HomeScreen({ navigation }) {
             </TouchableOpacity>
           ))}
         </ScrollView>
-        <TouchableOpacity style={styles.tabMenuBtn} onPress={() => setShowChannelModal(true)}>
+        <TouchableOpacity style={styles.tabMenuBtn} onPress={() => navigation.navigate('ChannelManage')}>
           <Ionicons name="menu" size={20} color="#6b7280" />
         </TouchableOpacity>
       </View>
@@ -814,274 +706,6 @@ export default function HomeScreen({ navigation }) {
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
-      </Modal>
-
-      {/* 我的频道弹窗 - 列表展示版本 */}
-      <Modal visible={showChannelModal} transparent animationType="slide">
-        <View style={styles.channelModalOverlay}>
-          <View style={styles.channelModal}>
-            <View style={styles.channelHeader}>
-              <Text style={styles.channelTitle}>频道管理</Text>
-              <TouchableOpacity style={styles.closeBtn} onPress={() => setShowChannelModal(false)}>
-                <Ionicons name="close" size={24} color="#6b7280" />
-              </TouchableOpacity>
-            </View>
-
-            <ScrollView style={styles.channelScrollView}>
-              {/* 我的频道 */}
-              <View style={styles.channelSection}>
-                <Text style={styles.channelCategoryTitle}>我的频道</Text>
-                <Text style={styles.channelSectionTitle}>已添加的频道</Text>
-                <View style={styles.channelGrid}>
-                  {myChannels.map((channel) => {
-                    const isFixed = ['关注', '推荐', '热榜', '同城'].includes(channel);
-                    return (
-                      <View key={channel} style={styles.myChannelItem}>
-                        <TouchableOpacity
-                          style={styles.channelTag}
-                          onPress={() => {
-                            setActiveTab(channel);
-                            setShowChannelModal(false);
-                          }}
-                        >
-                          <Text style={styles.channelTagText}>{channel}</Text>
-                        </TouchableOpacity>
-                        {!isFixed && (
-                          <TouchableOpacity
-                            style={styles.removeChannelBtn}
-                            onPress={() => removeFromMyChannels(channel)}
-                          >
-                            <Ionicons name="close-circle" size={16} color="#ef4444" />
-                          </TouchableOpacity>
-                        )}
-                      </View>
-                    );
-                  })}
-                </View>
-              </View>
-
-              {/* 分隔线 */}
-              <View style={styles.channelDivider} />
-
-              {/* 国家频道 */}
-              <View style={styles.channelSection}>
-                <Text style={styles.channelCategoryTitle}>国家</Text>
-                <TouchableOpacity
-                  style={styles.categoryMainBtn}
-                  onPress={() => addToMyChannels('国家')}
-                >
-                  <View style={[styles.categoryIcon, { backgroundColor: channelCategories.country.color + '20' }]}>
-                    <Ionicons name={channelCategories.country.icon} size={24} color={channelCategories.country.color} />
-                  </View>
-                  <Text style={styles.categoryMainText}>国家问题</Text>
-                  <Ionicons name="add-circle" size={20} color={channelCategories.country.color} />
-                </TouchableOpacity>
-
-                <Text style={styles.channelSectionTitle}>二级类别</Text>
-                <View style={styles.channelGrid}>
-                  {channelCategories.country.subcategories.map((sub) => (
-                    <TouchableOpacity
-                      key={sub}
-                      style={[styles.channelTag, myChannels.includes(sub) && styles.channelTagAdded]}
-                      onPress={() => addToMyChannels(sub)}
-                    >
-                      <Text style={[styles.channelTagText, myChannels.includes(sub) && styles.channelTagTextAdded]}>{sub}</Text>
-                      {myChannels.includes(sub) && <Ionicons name="checkmark-circle" size={14} color="#22c55e" style={{ marginLeft: 4 }} />}
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-
-              {/* 分隔线 */}
-              <View style={styles.channelDivider} />
-
-              {/* 行业频道 */}
-              <View style={styles.channelSection}>
-                <Text style={styles.channelCategoryTitle}>行业</Text>
-                <TouchableOpacity
-                  style={styles.categoryMainBtn}
-                  onPress={() => addToMyChannels('行业')}
-                >
-                  <View style={[styles.categoryIcon, { backgroundColor: channelCategories.industry.color + '20' }]}>
-                    <Ionicons name={channelCategories.industry.icon} size={24} color={channelCategories.industry.color} />
-                  </View>
-                  <Text style={styles.categoryMainText}>行业问题</Text>
-                  <Ionicons name="add-circle" size={20} color={channelCategories.industry.color} />
-                </TouchableOpacity>
-
-                <Text style={styles.channelSectionTitle}>二级类别</Text>
-                <View style={styles.channelGrid}>
-                  {channelCategories.industry.subcategories.map((sub) => (
-                    <TouchableOpacity
-                      key={sub}
-                      style={[styles.channelTag, myChannels.includes(sub) && styles.channelTagAdded]}
-                      onPress={() => addToMyChannels(sub)}
-                    >
-                      <Text style={[styles.channelTagText, myChannels.includes(sub) && styles.channelTagTextAdded]}>{sub}</Text>
-                      {myChannels.includes(sub) && <Ionicons name="checkmark-circle" size={14} color="#22c55e" style={{ marginLeft: 4 }} />}
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-
-              {/* 分隔线 */}
-              <View style={styles.channelDivider} />
-
-              {/* 个人频道 */}
-              <View style={styles.channelSection}>
-                <Text style={styles.channelCategoryTitle}>个人</Text>
-                <TouchableOpacity
-                  style={styles.categoryMainBtn}
-                  onPress={() => addToMyChannels('个人')}
-                >
-                  <View style={[styles.categoryIcon, { backgroundColor: channelCategories.personal.color + '20' }]}>
-                    <Ionicons name={channelCategories.personal.icon} size={24} color={channelCategories.personal.color} />
-                  </View>
-                  <Text style={styles.categoryMainText}>个人问题</Text>
-                  <Ionicons name="add-circle" size={20} color={channelCategories.personal.color} />
-                </TouchableOpacity>
-
-                <Text style={styles.channelSectionTitle}>二级类别</Text>
-                <View style={styles.channelGrid}>
-                  {channelCategories.personal.subcategories.map((sub) => (
-                    <TouchableOpacity
-                      key={sub}
-                      style={[styles.channelTag, myChannels.includes(sub) && styles.channelTagAdded]}
-                      onPress={() => addToMyChannels(sub)}
-                    >
-                      <Text style={[styles.channelTagText, myChannels.includes(sub) && styles.channelTagTextAdded]}>{sub}</Text>
-                      {myChannels.includes(sub) && <Ionicons name="checkmark-circle" size={14} color="#22c55e" style={{ marginLeft: 4 }} />}
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-
-              {/* 分隔线 */}
-              <View style={styles.channelDivider} />
-
-              {/* 组合频道 */}
-              <View style={styles.channelSection}>
-                <Text style={styles.channelCategoryTitle}>组合</Text>
-                <Text style={styles.channelSectionDesc}>创建自定义组合频道，结合地区和类别筛选</Text>
-                <TouchableOpacity
-                  style={styles.createComboBtn}
-                  onPress={() => setShowComboCreator(true)}
-                >
-                  <Ionicons name="add-circle" size={24} color="#ef4444" />
-                  <Text style={styles.createComboBtnText}>创建组合频道</Text>
-                </TouchableOpacity>
-              </View>
-
-              <View style={{ height: 40 }} />
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
-
-      {/* 组合频道创建弹窗 */}
-      <Modal visible={showComboCreator} transparent animationType="slide">
-        <View style={styles.modalOverlay}>
-          <View style={styles.comboCreatorModal}>
-            <View style={styles.modalHeader}>
-              <TouchableOpacity onPress={() => {
-                if (comboStep === 1) {
-                  setComboStep(0);
-                } else if (comboRegionStep > 0) {
-                  setComboRegionStep(comboRegionStep - 1);
-                } else {
-                  setShowComboCreator(false);
-                  setComboStep(0);
-                  setComboRegionStep(0);
-                }
-              }}>
-                <Ionicons name="arrow-back" size={24} color="#1f2937" />
-              </TouchableOpacity>
-              <Text style={styles.modalTitle}>
-                {comboStep === 0 ? (comboRegionStep === 0 ? '选择国家' : comboRegionStep === 1 ? '选择省份' : '选择城市') : '选择类别'}
-              </Text>
-              <TouchableOpacity onPress={() => {
-                setShowComboCreator(false);
-                setComboStep(0);
-                setComboRegionStep(0);
-                setComboConfig({ region: { country: '', city: '', state: '' }, categoryType: '', category: '' });
-              }}>
-                <Text style={styles.resetText}>重置</Text>
-              </TouchableOpacity>
-            </View>
-
-            <ScrollView style={styles.comboCreatorContent}>
-              {/* 步骤1: 选择地区 */}
-              {comboStep === 0 && (
-                <View>
-                  {getComboRegionOptions().map((option) => (
-                    <TouchableOpacity
-                      key={option}
-                      style={styles.regionOption}
-                      onPress={() => selectComboRegion(option)}
-                    >
-                      <Text style={styles.regionOptionText}>{option}</Text>
-                      <Ionicons name="chevron-forward" size={18} color="#9ca3af" />
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-
-              {/* 步骤2: 选择类别 */}
-              {comboStep === 1 && (
-                <View>
-                  <View style={styles.comboSummary}>
-                    <Text style={styles.comboSummaryLabel}>已选地区：</Text>
-                    <Text style={styles.comboSummaryValue}>{getComboRegionDisplay()}</Text>
-                  </View>
-
-                  <Text style={styles.channelSectionTitle}>选择问题类型</Text>
-                  {Object.keys(channelCategories).map((key) => {
-                    const cat = channelCategories[key];
-                    return (
-                      <TouchableOpacity
-                        key={key}
-                        style={[styles.categorySelectItem, comboConfig.categoryType === key && styles.categorySelectItemActive]}
-                        onPress={() => setComboConfig({ ...comboConfig, categoryType: key, category: '' })}
-                      >
-                        <View style={[styles.categoryIcon, { backgroundColor: cat.color + '20' }]}>
-                          <Ionicons name={cat.icon} size={20} color={cat.color} />
-                        </View>
-                        <Text style={styles.categorySelectText}>{cat.name}问题</Text>
-                        {comboConfig.categoryType === key && <Ionicons name="checkmark-circle" size={20} color={cat.color} />}
-                      </TouchableOpacity>
-                    );
-                  })}
-
-                  {comboConfig.categoryType && (
-                    <>
-                      <Text style={styles.channelSectionTitle}>选择二级类别（可选）</Text>
-                      <View style={styles.channelGrid}>
-                        {channelCategories[comboConfig.categoryType].subcategories.map((sub) => (
-                          <TouchableOpacity
-                            key={sub}
-                            style={[styles.channelTag, comboConfig.category === sub && styles.channelTagAdded]}
-                            onPress={() => setComboConfig({ ...comboConfig, category: sub })}
-                          >
-                            <Text style={[styles.channelTagText, comboConfig.category === sub && styles.channelTagTextAdded]}>{sub}</Text>
-                            {comboConfig.category === sub && <Ionicons name="checkmark-circle" size={14} color="#22c55e" style={{ marginLeft: 4 }} />}
-                          </TouchableOpacity>
-                        ))}
-                      </View>
-                    </>
-                  )}
-
-                  <TouchableOpacity
-                    style={[styles.comboCreateBtn, !comboConfig.categoryType && styles.comboCreateBtnDisabled]}
-                    onPress={createComboChannel}
-                    disabled={!comboConfig.categoryType}
-                  >
-                    <Text style={styles.comboCreateBtnText}>创建频道</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-            </ScrollView>
-          </View>
-        </View>
       </Modal>
 
       {/* 社交平台用户选择弹窗 */}
