@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>测试中国地区中文化</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+      background: #f5f5f5;
+    }
+    h1 {
+      color: #333;
+      border-bottom: 3px solid #409eff;
+      padding-bottom: 10px;
+    }
+    .stats {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .stats h2 {
+      margin-top: 0;
+      color: #409eff;
+    }
+    .province-section {
+      background: white;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .province-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #409eff;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e4e7ed;
+    }
+    .cities {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .city {
+      padding: 8px 12px;
+      background: #f0f9ff;
+      border-radius: 4px;
+      font-size: 14px;
+      border-left: 3px solid #409eff;
+    }
+    .city.english {
+      background: #fee;
+      border-left-color: #f56c6c;
+      color: #f56c6c;
+    }
+    .warning {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    .success {
+      background: #d4edda;
+      border: 1px solid #28a745;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>🇨🇳 中国地区中文化测试</h1>
+  
+  <div class="stats">
+    <h2>📊 统计信息</h2>
+    <div id="stats"></div>
+  </div>
+
+  <div id="warning"></div>
+  
+  <div id="provinces"></div>
+
+  <script type="module">
+    import { regionData } from './src/data/regions-full-cn.js'
+
+    // 查找中国数据
+    const chinaData = regionData.find(country => country.value === 'CN')
+    
+    if (!chinaData) {
+      document.getElementById('warning').innerHTML = '<div class="warning">⚠️ 未找到中国数据！</div>'
+    } else {
+      let totalProvinces = 0
+      let totalCities = 0
+      let englishCities = []
+      
+      // 统计信息
+      chinaData.children.forEach(province => {
+        totalProvinces++
+        if (province.children) {
+          province.children.forEach(city => {
+            totalCities++
+            // 检查是否包含英文（简单判断：是否包含拉丁字母）
+            if (/[a-zA-Z]/.test(city.label)) {
+              englishCities.push({
+                province: province.label,
+                city: city.label
+              })
+            }
+          })
+        }
+      })
+
+      // 显示统计
+      const statsHtml = `
+        <p><strong>省份/直辖市/自治区数量：</strong> ${totalProvinces}</p>
+        <p><strong>城市/地区总数：</strong> ${totalCities}</p>
+        <p><strong>未中文化的城市：</strong> ${englishCities.length}</p>
+      `
+      document.getElementById('stats').innerHTML = statsHtml
+
+      // 显示警告或成功信息
+      if (englishCities.length > 0) {
+        const warningHtml = `
+          <div class="warning">
+            <h3>⚠️ 发现 ${englishCities.length} 个未完全中文化的城市</h3>
+            <p>以下城市仍显示为英文，需要添加到映射表中：</p>
+            <ul>
+              ${englishCities.slice(0, 20).map(item => 
+                `<li><strong>${item.province}</strong> - ${item.city}</li>`
+              ).join('')}
+              ${englishCities.length > 20 ? `<li>...还有 ${englishCities.length - 20} 个</li>` : ''}
+            </ul>
+          </div>
+        `
+        document.getElementById('warning').innerHTML = warningHtml
+      } else {
+        document.getElementById('warning').innerHTML = `
+          <div class="success">
+            <h3>✅ 所有中国城市已完全中文化！</h3>
+            <p>共 ${totalProvinces} 个省级行政区，${totalCities} 个城市/地区，全部显示为中文。</p>
+          </div>
+        `
+      }
+
+      // 显示所有省份和城市
+      const provincesHtml = chinaData.children.map(province => {
+        const citiesHtml = province.children
+          ? province.children.map(city => {
+              const hasEnglish = /[a-zA-Z]/.test(city.label)
+              return `<div class="city ${hasEnglish ? 'english' : ''}">${city.label}</div>`
+            }).join('')
+          : '<div class="city">无下级城市</div>'
+        
+        return `
+          <div class="province-section">
+            <div class="province-title">${province.label} (${province.children ? province.children.length : 0} 个城市)</div>
+            <div class="cities">${citiesHtml}</div>
+          </div>
+        `
+      }).join('')
+
+      document.getElementById('provinces').innerHTML = provincesHtml
+    }
+  </script>
+</body>
+</html>
