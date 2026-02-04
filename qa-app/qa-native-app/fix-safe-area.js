@@ -29,7 +29,7 @@ files.forEach(file => {
   }
   
   let content = fs.readFileSync(filePath, 'utf8');
-  
+
   // 检查是否已经使用了正确的导入
   if (content.includes("from 'react-native-safe-area-context'")) {
     console.log(`✅ 已更新: ${file}`);
