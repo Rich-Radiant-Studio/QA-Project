@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 const routes = [
   { path: '/', name: 'Dashboard', component: () => import('@/views/Dashboard.vue') },
   { path: '/users', name: 'Users', component: () => import('@/views/Users.vue') },
+  { path: '/occupations', name: 'Occupations', component: () => import('@/views/Occupations.vue') },
   { path: '/questions', name: 'Questions', component: () => import('@/views/Questions.vue') },
   { path: '/categories', name: 'Categories', component: () => import('@/views/Categories.vue') },
   { path: '/answers', name: 'Answers', component: () => import('@/views/Answers.vue') },

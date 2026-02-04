@@ -23,14 +23,13 @@
             <el-option label="审核中" value="pending" />
             <el-option label="未认证" value="unverified" />
           </el-select>
-          <el-select v-model="occupationFilter" placeholder="职业" clearable style="width: 140px">
-            <el-option label="软件工程师" value="软件工程师" />
-            <el-option label="产品经理" value="产品经理" />
-            <el-option label="医生" value="医生" />
-            <el-option label="教师" value="教师" />
-            <el-option label="律师" value="律师" />
-            <el-option label="设计师" value="设计师" />
-            <el-option label="学生" value="学生" />
+          <el-select v-model="occupationFilter" placeholder="职业" clearable style="width: 140px" filterable>
+            <el-option 
+              v-for="occupation in occupationFilterOptions" 
+              :key="occupation.value" 
+              :label="occupation.label" 
+              :value="occupation.value"
+            />
           </el-select>
           <el-select v-model="locationFilter" placeholder="所在地" clearable style="width: 140px">
             <el-option label="北京" value="北京" />
@@ -387,7 +386,8 @@
       :close-on-click-modal="false"
       :lock-scroll="true"
       width="950px"
-      top="5vh"
+      class="user-form-dialog"
+      destroy-on-close
     >
       <template #header>
         <div class="flex items-center gap-3">
@@ -401,19 +401,18 @@
         </div>
       </template>
 
-      <div class="max-h-[70vh] overflow-y-auto custom-scrollbar px-1">
+      <div class="user-form-content">
         <el-form :model="userForm" label-width="90px" label-position="left">
-          <div class="grid grid-cols-2 gap-x-6">
-            <!-- 左列 - 基本信息 -->
-            <div class="space-y-1">
-              <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg px-3 py-2 mb-3 border border-blue-100">
-                <h4 class="text-sm font-semibold text-gray-700 flex items-center">
-                  <i class="fas fa-user text-blue-500 mr-2 text-xs"></i>
-                  基本信息
-                </h4>
-              </div>
-
-              <el-form-item label="用户类型" class="mb-4">
+          <!-- 模块1: 基本信息 -->
+          <div class="mb-4">
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg px-3 py-2 mb-3 border border-blue-100">
+              <h4 class="text-sm font-semibold text-gray-700 flex items-center">
+                <i class="fas fa-user text-blue-500 mr-2 text-xs"></i>
+                基本信息
+              </h4>
+            </div>
+            <div class="grid grid-cols-2 gap-x-6">
+              <el-form-item label="用户类型" class="mb-3">
                 <el-select v-model="userForm.userType" placeholder="请选择用户类型" style="width: 100%">
                   <el-option 
                     v-for="type in userTypeOptions" 
@@ -429,7 +428,7 @@
                 </el-select>
               </el-form-item>
 
-              <el-form-item label="用户名" class="mb-4">
+              <el-form-item label="用户名" class="mb-3">
                 <el-input 
                   v-model="userForm.name" 
                   :placeholder="userForm.userType === 'individual' ? '请输入用户名' : userForm.userType === 'business' ? '请输入企业名称' : '请输入机构名称'" 
@@ -438,7 +437,7 @@
                 />
               </el-form-item>
 
-              <el-form-item label="性别" class="mb-4" v-if="userForm.userType === 'individual'">
+              <el-form-item label="性别" class="mb-3" v-if="userForm.userType === 'individual'">
                 <el-radio-group v-model="userForm.gender" class="w-full">
                   <el-radio label="male" class="mr-4">
                     <i class="fas fa-mars text-blue-500 mr-1"></i>男
@@ -452,7 +451,7 @@
                 </el-radio-group>
               </el-form-item>
 
-              <el-form-item label="生日" class="mb-4" v-if="userForm.userType === 'individual'">
+              <el-form-item label="生日" class="mb-3" v-if="userForm.userType === 'individual'">
                 <el-date-picker
                   v-model="userForm.birthday"
                   type="date"
@@ -465,16 +464,30 @@
                 />
               </el-form-item>
 
-              <el-form-item label="职业" class="mb-4">
-                <el-input 
-                  v-model="userForm.occupation" 
-                  placeholder="请输入职业" 
-                  prefix-icon="Briefcase"
+              <el-form-item label="职业" class="mb-3">
+                <el-cascader
+                  v-model="userForm.occupationCodes"
+                  :options="occupationCascaderOptions"
+                  :props="{ 
+                    expandTrigger: 'hover', 
+                    value: 'value', 
+                    label: 'label', 
+                    children: 'children',
+                    emitPath: true
+                  }"
+                  placeholder="请选择职业分类"
                   clearable
+                  filterable
+                  style="width: 100%"
+                  @change="handleOccupationChange"
                 />
+                <div v-if="userForm.occupation" class="text-xs text-gray-500 mt-1.5 bg-blue-50 rounded px-2 py-1 border border-blue-100">
+                  <i class="fas fa-briefcase text-blue-500 mr-1"></i>
+                  已选择：<span class="font-medium text-gray-700">{{ userForm.occupation }}</span>
+                </div>
               </el-form-item>
 
-              <el-form-item label="所在地" class="mb-4">
+              <el-form-item label="所在地" class="mb-3">
                 <el-cascader
                   v-model="userForm.locationValues"
                   :options="regionData"
@@ -491,7 +504,7 @@
                 </div>
               </el-form-item>
 
-              <el-form-item label="手机号" class="mb-4">
+              <el-form-item label="手机号" class="mb-3">
                 <el-input 
                   v-model="userForm.phone" 
                   placeholder="请输入手机号" 
@@ -501,7 +514,7 @@
                 />
               </el-form-item>
 
-              <el-form-item label="邮箱" class="mb-4">
+              <el-form-item label="邮箱" class="mb-3">
                 <el-input 
                   v-model="userForm.email" 
                   placeholder="请输入邮箱地址" 
@@ -511,7 +524,7 @@
                 />
               </el-form-item>
 
-              <el-form-item label="个人简介" class="mb-4">
+              <el-form-item label="个人简介" class="mb-3">
                 <el-input 
                   v-model="userForm.bio" 
                   type="textarea" 
@@ -521,39 +534,19 @@
                   show-word-limit
                 />
               </el-form-item>
-
-              <el-form-item label="密码" v-if="!isEdit" class="mb-4">
-                <el-input 
-                  v-model="userForm.password" 
-                  type="password" 
-                  placeholder="请输入密码" 
-                  show-password
-                  prefix-icon="Lock"
-                />
-              </el-form-item>
-
-              <el-form-item label="重置密码" v-if="isEdit" class="mb-4">
-                <el-input 
-                  v-model="userForm.newPassword" 
-                  type="password" 
-                  placeholder="留空则不修改密码" 
-                  show-password
-                  prefix-icon="Lock"
-                  clearable
-                />
-              </el-form-item>
             </div>
+          </div>
 
-            <!-- 右列 - 账号设置 -->
-            <div class="space-y-1">
-              <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg px-3 py-2 mb-3 border border-purple-100">
-                <h4 class="text-sm font-semibold text-gray-700 flex items-center">
-                  <i class="fas fa-cog text-purple-500 mr-2 text-xs"></i>
-                  账号设置
-                </h4>
-              </div>
-
-              <el-form-item label="头像" class="mb-4">
+          <!-- 模块2: 账号设置 -->
+          <div class="mb-4">
+            <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg px-3 py-2 mb-3 border border-purple-100">
+              <h4 class="text-sm font-semibold text-gray-700 flex items-center">
+                <i class="fas fa-cog text-purple-500 mr-2 text-xs"></i>
+                账号设置
+              </h4>
+            </div>
+            <div class="grid grid-cols-2 gap-x-6">
+              <el-form-item label="头像" class="mb-3">
                 <div>
                   <el-upload
                     class="avatar-uploader-modern"
@@ -580,7 +573,7 @@
                 </div>
               </el-form-item>
 
-              <el-form-item label="第三方账号" class="mb-4">
+              <el-form-item label="第三方账号" class="mb-3">
                 <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
                   <div class="flex items-center gap-4 mb-2">
                     <el-checkbox v-model="userForm.wechatBound" disabled>
@@ -599,166 +592,28 @@
                 </div>
               </el-form-item>
 
-              <el-form-item label="认证状态" class="mb-4">
-                <div class="flex items-center gap-3">
-                  <el-switch 
-                    v-model="userForm.verified" 
-                    active-text="已认证" 
-                    inactive-text="未认证"
-                    :active-icon="Check"
-                    :inactive-icon="Close"
-                  />
-                  <span v-if="userForm.verified" class="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
-                    <i class="fas fa-check-circle mr-1"></i>认证用户
-                  </span>
-                </div>
+              <el-form-item label="密码" v-if="!isEdit" class="mb-3">
+                <el-input 
+                  v-model="userForm.password" 
+                  type="password" 
+                  placeholder="请输入密码" 
+                  show-password
+                  prefix-icon="Lock"
+                />
               </el-form-item>
 
-              <!-- 认证信息部分 -->
-              <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg px-3 py-2 mb-3 mt-4 border border-green-100">
-                <h4 class="text-sm font-semibold text-gray-700 flex items-center">
-                  <i class="fas fa-id-card text-green-500 mr-2 text-xs"></i>
-                  认证信息
-                </h4>
-              </div>
+              <el-form-item label="重置密码" v-if="isEdit" class="mb-3">
+                <el-input 
+                  v-model="userForm.newPassword" 
+                  type="password" 
+                  placeholder="留空则不修改密码" 
+                  show-password
+                  prefix-icon="Lock"
+                  clearable
+                />
+              </el-form-item>
 
-              <!-- Individual (个人) 认证 -->
-              <div v-if="userForm.userType === 'individual'" class="space-y-3">
-                <el-form-item label="证件类型" class="mb-4">
-                  <el-select v-model="userForm.verification.idType" placeholder="请选择证件类型" style="width: 100%">
-                    <el-option 
-                      v-for="type in idTypeOptions" 
-                      :key="type.value" 
-                      :label="type.label" 
-                      :value="type.value"
-                    />
-                  </el-select>
-                </el-form-item>
-
-                <el-form-item label="证件号码" class="mb-4">
-                  <el-input 
-                    v-model="userForm.verification.idNumber" 
-                    placeholder="请输入证件号码" 
-                    clearable
-                  />
-                </el-form-item>
-
-                <el-form-item label="证件照片" class="mb-4">
-                  <div class="text-xs text-gray-500 mb-2">
-                    <i class="fas fa-info-circle text-blue-500 mr-1"></i>
-                    请上传证件正反面照片
-                  </div>
-                  <div class="grid grid-cols-2 gap-2">
-                    <el-input 
-                      v-model="userForm.verification.idFrontImage" 
-                      placeholder="正面照片URL" 
-                      size="small"
-                    />
-                    <el-input 
-                      v-model="userForm.verification.idBackImage" 
-                      placeholder="反面照片URL" 
-                      size="small"
-                    />
-                  </div>
-                </el-form-item>
-              </div>
-
-              <!-- Business (企业) 认证 -->
-              <div v-if="userForm.userType === 'business'" class="space-y-3">
-                <el-form-item label="企业名称" class="mb-4">
-                  <el-input 
-                    v-model="userForm.verification.businessName" 
-                    placeholder="请输入企业全称" 
-                    clearable
-                  />
-                </el-form-item>
-
-                <el-form-item label="注册号" class="mb-4">
-                  <el-input 
-                    v-model="userForm.verification.businessRegistrationNumber" 
-                    placeholder="Business Registration Number" 
-                    clearable
-                  />
-                </el-form-item>
-
-                <el-form-item label="税号" class="mb-4">
-                  <el-input 
-                    v-model="userForm.verification.taxId" 
-                    placeholder="Tax ID / EIN" 
-                    clearable
-                  />
-                </el-form-item>
-
-                <el-form-item label="营业执照" class="mb-4">
-                  <el-input 
-                    v-model="userForm.verification.businessLicense" 
-                    placeholder="营业执照URL" 
-                    clearable
-                  />
-                </el-form-item>
-
-                <el-form-item label="企业地址" class="mb-4">
-                  <el-input 
-                    v-model="userForm.verification.businessAddress" 
-                    type="textarea"
-                    :rows="2"
-                    placeholder="请输入企业注册地址" 
-                  />
-                </el-form-item>
-              </div>
-
-              <!-- Government (政府机构) 认证 -->
-              <div v-if="userForm.userType === 'government'" class="space-y-3">
-                <el-form-item label="机构名称" class="mb-4">
-                  <el-input 
-                    v-model="userForm.verification.agencyName" 
-                    placeholder="请输入政府机构全称" 
-                    clearable
-                  />
-                </el-form-item>
-
-                <el-form-item label="机构ID" class="mb-4">
-                  <el-input 
-                    v-model="userForm.verification.agencyId" 
-                    placeholder="Agency Identification Number" 
-                    clearable
-                  />
-                </el-form-item>
-
-                <el-form-item label="部门名称" class="mb-4">
-                  <el-input 
-                    v-model="userForm.verification.departmentName" 
-                    placeholder="Department Name" 
-                    clearable
-                  />
-                </el-form-item>
-
-                <el-form-item label="官方文件" class="mb-4">
-                  <el-input 
-                    v-model="userForm.verification.officialDocument" 
-                    placeholder="官方授权文件URL" 
-                    clearable
-                  />
-                </el-form-item>
-
-                <el-form-item label="授权人" class="mb-4">
-                  <el-input 
-                    v-model="userForm.verification.authorizedPersonName" 
-                    placeholder="Authorized Person Name" 
-                    clearable
-                  />
-                </el-form-item>
-
-                <el-form-item label="职位" class="mb-4">
-                  <el-input 
-                    v-model="userForm.verification.authorizedPersonTitle" 
-                    placeholder="Title/Position" 
-                    clearable
-                  />
-                </el-form-item>
-              </div>
-
-              <el-form-item label="账户状态" class="mb-4">
+              <el-form-item label="账户状态" class="mb-3">
                 <el-select v-model="userForm.status" placeholder="请选择状态" style="width: 100%">
                   <el-option label="正常" value="active">
                     <span class="flex items-center">
@@ -780,6 +635,182 @@
                   </el-option>
                 </el-select>
               </el-form-item>
+            </div>
+          </div>
+
+          <!-- 模块3: 认证信息 -->
+          <div class="mb-4">
+            <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg px-3 py-2 mb-3 border border-green-100">
+              <h4 class="text-sm font-semibold text-gray-700 flex items-center">
+                <i class="fas fa-id-card text-green-500 mr-2 text-xs"></i>
+                认证信息
+              </h4>
+            </div>
+            <div class="grid grid-cols-2 gap-x-6">
+              <!-- Individual (个人) 认证 -->
+              <template v-if="userForm.userType === 'individual'">
+                <el-form-item label="证件类型" class="mb-3">
+                  <el-select v-model="userForm.verification.idType" placeholder="请选择证件类型" style="width: 100%">
+                    <el-option 
+                      v-for="type in idTypeOptions" 
+                      :key="type.value" 
+                      :label="type.label" 
+                      :value="type.value"
+                    />
+                  </el-select>
+                </el-form-item>
+
+                <el-form-item label="证件号码" class="mb-3">
+                  <el-input 
+                    v-model="userForm.verification.idNumber" 
+                    placeholder="请输入证件号码" 
+                    clearable
+                  />
+                </el-form-item>
+
+                <el-form-item label="证件正面" class="mb-3">
+                  <el-upload
+                    class="id-card-uploader"
+                    :show-file-list="false"
+                    :before-upload="beforeIdCardUpload"
+                    :http-request="(file) => handleIdCardUpload(file, 'front')"
+                    accept="image/*"
+                  >
+                    <img v-if="userForm.verification.idFrontImage" :src="userForm.verification.idFrontImage" class="id-card-image" />
+                    <div v-else class="id-card-uploader-icon">
+                      <i class="fas fa-id-card text-gray-400 mb-1"></i>
+                      <div class="text-xs text-gray-500">上传正面</div>
+                    </div>
+                  </el-upload>
+                </el-form-item>
+
+                <el-form-item label="证件反面" class="mb-3">
+                  <el-upload
+                    class="id-card-uploader"
+                    :show-file-list="false"
+                    :before-upload="beforeIdCardUpload"
+                    :http-request="(file) => handleIdCardUpload(file, 'back')"
+                    accept="image/*"
+                  >
+                    <img v-if="userForm.verification.idBackImage" :src="userForm.verification.idBackImage" class="id-card-image" />
+                    <div v-else class="id-card-uploader-icon">
+                      <i class="fas fa-id-card text-gray-400 mb-1"></i>
+                      <div class="text-xs text-gray-500">上传反面</div>
+                    </div>
+                  </el-upload>
+                </el-form-item>
+              </template>
+
+              <!-- Business (企业) 认证 -->
+              <template v-if="userForm.userType === 'business'">
+                <el-form-item label="企业名称" class="mb-3">
+                  <el-input 
+                    v-model="userForm.verification.businessName" 
+                    placeholder="请输入企业全称" 
+                    clearable
+                  />
+                </el-form-item>
+
+                <el-form-item label="注册号" class="mb-3">
+                  <el-input 
+                    v-model="userForm.verification.businessRegistrationNumber" 
+                    placeholder="Business Registration Number" 
+                    clearable
+                  />
+                </el-form-item>
+
+                <el-form-item label="税号" class="mb-3">
+                  <el-input 
+                    v-model="userForm.verification.taxId" 
+                    placeholder="Tax ID / EIN" 
+                    clearable
+                  />
+                </el-form-item>
+
+                <el-form-item label="营业执照" class="mb-3">
+                  <el-upload
+                    class="business-license-uploader"
+                    :show-file-list="false"
+                    :before-upload="beforeBusinessLicenseUpload"
+                    :http-request="handleBusinessLicenseUpload"
+                    accept="image/*"
+                  >
+                    <img v-if="userForm.verification.businessLicense" :src="userForm.verification.businessLicense" class="business-license-image" />
+                    <div v-else class="business-license-uploader-icon">
+                      <i class="fas fa-file-contract text-gray-400 mb-1"></i>
+                      <div class="text-xs text-gray-500">上传营业执照</div>
+                    </div>
+                  </el-upload>
+                </el-form-item>
+
+                <el-form-item label="企业地址" class="mb-3 col-span-2">
+                  <el-input 
+                    v-model="userForm.verification.businessAddress" 
+                    type="textarea"
+                    :rows="2"
+                    placeholder="请输入企业注册地址" 
+                  />
+                </el-form-item>
+              </template>
+
+              <!-- Government (政府机构) 认证 -->
+              <template v-if="userForm.userType === 'government'">
+                <el-form-item label="机构名称" class="mb-3">
+                  <el-input 
+                    v-model="userForm.verification.agencyName" 
+                    placeholder="请输入政府机构全称" 
+                    clearable
+                  />
+                </el-form-item>
+
+                <el-form-item label="机构ID" class="mb-3">
+                  <el-input 
+                    v-model="userForm.verification.agencyId" 
+                    placeholder="Agency Identification Number" 
+                    clearable
+                  />
+                </el-form-item>
+
+                <el-form-item label="部门名称" class="mb-3">
+                  <el-input 
+                    v-model="userForm.verification.departmentName" 
+                    placeholder="Department Name" 
+                    clearable
+                  />
+                </el-form-item>
+
+                <el-form-item label="官方文件" class="mb-3">
+                  <el-upload
+                    class="official-document-uploader"
+                    :show-file-list="false"
+                    :before-upload="beforeOfficialDocumentUpload"
+                    :http-request="handleOfficialDocumentUpload"
+                    accept="image/*"
+                  >
+                    <img v-if="userForm.verification.officialDocument" :src="userForm.verification.officialDocument" class="official-document-image" />
+                    <div v-else class="official-document-uploader-icon">
+                      <i class="fas fa-file-alt text-gray-400 mb-1"></i>
+                      <div class="text-xs text-gray-500">上传官方文件</div>
+                    </div>
+                  </el-upload>
+                </el-form-item>
+
+                <el-form-item label="授权人" class="mb-3">
+                  <el-input 
+                    v-model="userForm.verification.authorizedPersonName" 
+                    placeholder="Authorized Person Name" 
+                    clearable
+                  />
+                </el-form-item>
+
+                <el-form-item label="职位" class="mb-3">
+                  <el-input 
+                    v-model="userForm.verification.authorizedPersonTitle" 
+                    placeholder="Title/Position" 
+                    clearable
+                  />
+                </el-form-item>
+              </template>
             </div>
           </div>
         </el-form>
@@ -843,6 +874,12 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { Check, Close } from '@element-plus/icons-vue'
 import StatCard from '@/components/StatCard.vue'
 import { regionData, getRegionLabel, getRegionStats } from '@/data/regions-full-cn.js'
+import { 
+  majorGroups, 
+  minorGroups, 
+  broadOccupations, 
+  detailedOccupations 
+} from '@/data/occupations-soc.js'
 
 // 获取地区数据统计
 const regionStats = getRegionStats()
@@ -874,6 +911,7 @@ const userForm = ref({
   gender: 'male',
   birthday: '',
   occupation: '',
+  occupationCodes: [], // 职业级联选择器的值数组 [一级, 二级, 三级, 四级]
   location: '',
   locationValues: [], // 级联选择器的值数组 [国家, 省份, 城市]
   phone: '',
@@ -923,6 +961,163 @@ const idTypeOptions = [
   { value: 'national_id', label: 'National ID Card (身份证)' },
   { value: 'state_id', label: 'State ID (州身份证)' }
 ]
+
+// 职业选项
+// 职业选项 - 从职业管理模块动态生成级联数据结构
+const occupationCascaderOptions = computed(() => {
+  const options = []
+  
+  // 遍历所有一级类别
+  majorGroups.forEach(major => {
+    const majorOption = {
+      value: major.code,
+      label: `${major.nameCN}`,
+      children: []
+    }
+    
+    // 获取该一级类别下的所有二级类别
+    const minors = minorGroups[major.code] || []
+    
+    minors.forEach(minor => {
+      const minorOption = {
+        value: minor.code,
+        label: minor.nameCN,
+        children: []
+      }
+      
+      // 获取该二级类别下的所有三级类别
+      const broads = broadOccupations[minor.code] || []
+      
+      if (broads.length > 0) {
+        broads.forEach(broad => {
+          const broadOption = {
+            value: broad.code,
+            label: broad.nameCN,
+            children: []
+          }
+          
+          // 获取该三级类别下的所有四级详细职业
+          const details = detailedOccupations[broad.code] || []
+          
+          if (details.length > 0) {
+            details.forEach(detail => {
+              broadOption.children.push({
+                value: detail.code,
+                label: detail.nameCN,
+                description: detail.description
+              })
+            })
+          }
+          
+          // 如果三级类别有子项或者没有子项但可以作为最终选择
+          if (broadOption.children.length > 0) {
+            minorOption.children.push(broadOption)
+          } else {
+            // 如果没有四级，三级本身可以被选择
+            minorOption.children.push({
+              value: broad.code,
+              label: broad.nameCN
+            })
+          }
+        })
+      }
+      
+      // 如果二级类别有子项，添加到一级类别
+      if (minorOption.children.length > 0) {
+        majorOption.children.push(minorOption)
+      } else {
+        // 如果二级类别没有子项，可以直接选择
+        majorOption.children.push({
+          value: minor.code,
+          label: minor.nameCN
+        })
+      }
+    })
+    
+    // 只添加有子项的一级类别
+    if (majorOption.children.length > 0) {
+      options.push(majorOption)
+    }
+  })
+  
+  return options
+})
+
+// 扁平化的职业列表（用于筛选器）
+const occupationFilterOptions = computed(() => {
+  const options = []
+  
+  majorGroups.forEach(major => {
+    const minors = minorGroups[major.code] || []
+    
+    minors.forEach(minor => {
+      const broads = broadOccupations[minor.code] || []
+      
+      broads.forEach(broad => {
+        const details = detailedOccupations[broad.code] || []
+        
+        if (details.length > 0) {
+          details.forEach(detail => {
+            options.push({
+              value: detail.nameCN,
+              label: detail.nameCN
+            })
+          })
+        } else {
+          options.push({
+            value: broad.nameCN,
+            label: broad.nameCN
+          })
+        }
+      })
+      
+      if (broads.length === 0) {
+        options.push({
+          value: minor.nameCN,
+          label: minor.nameCN
+        })
+      }
+    })
+  })
+  
+  return options
+})
+
+// 用于显示的职业完整路径
+const getOccupationLabel = (codes) => {
+  if (!codes || codes.length === 0) return ''
+  
+  const labels = []
+  
+  // 一级类别
+  if (codes[0]) {
+    const major = majorGroups.find(m => m.code === codes[0])
+    if (major) labels.push(major.nameCN)
+  }
+  
+  // 二级类别
+  if (codes[1]) {
+    const minors = minorGroups[codes[0]] || []
+    const minor = minors.find(m => m.code === codes[1])
+    if (minor) labels.push(minor.nameCN)
+  }
+  
+  // 三级类别
+  if (codes[2]) {
+    const broads = broadOccupations[codes[1]] || []
+    const broad = broads.find(b => b.code === codes[2])
+    if (broad) labels.push(broad.nameCN)
+  }
+  
+  // 四级类别
+  if (codes[3]) {
+    const details = detailedOccupations[codes[2]] || []
+    const detail = details.find(d => d.code === codes[3])
+    if (detail) labels.push(detail.nameCN)
+  }
+  
+  return labels.join(' > ')
+}
 
 const banForm = ref({
   reason: '',
@@ -1097,6 +1292,15 @@ const handleLocationChange = (values) => {
   }
 }
 
+// 处理职业选择变化
+const handleOccupationChange = (codes) => {
+  if (codes && codes.length > 0) {
+    userForm.value.occupation = getOccupationLabel(codes)
+  } else {
+    userForm.value.occupation = ''
+  }
+}
+
 // 封禁用户
 const banUser = (user) => {
   currentUser.value = user
@@ -1244,6 +1448,99 @@ const removeAvatar = () => {
   ElMessage.success('头像已删除')
 }
 
+// 证件照片上传前验证
+const beforeIdCardUpload = (file) => {
+  const isImage = file.type.startsWith('image/')
+  const isLt2M = file.size / 1024 / 1024 < 2
+
+  if (!isImage) {
+    ElMessage.error('只能上传图片文件!')
+    return false
+  }
+  if (!isLt2M) {
+    ElMessage.error('图片大小不能超过 2MB!')
+    return false
+  }
+  return true
+}
+
+// 处理证件照片上传
+const handleIdCardUpload = (options, side) => {
+  const { file } = options
+  
+  // 创建 FileReader 读取图片
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    // 将图片转换为 base64 或上传到服务器
+    if (side === 'front') {
+      userForm.value.verification.idFrontImage = e.target.result
+      ElMessage.success('证件正面上传成功')
+    } else {
+      userForm.value.verification.idBackImage = e.target.result
+      ElMessage.success('证件反面上传成功')
+    }
+  }
+  reader.readAsDataURL(file)
+}
+
+// 营业执照上传前验证
+const beforeBusinessLicenseUpload = (file) => {
+  const isImage = file.type.startsWith('image/')
+  const isLt2M = file.size / 1024 / 1024 < 2
+
+  if (!isImage) {
+    ElMessage.error('只能上传图片文件!')
+    return false
+  }
+  if (!isLt2M) {
+    ElMessage.error('图片大小不能超过 2MB!')
+    return false
+  }
+  return true
+}
+
+// 处理营业执照上传
+const handleBusinessLicenseUpload = (options) => {
+  const { file } = options
+  
+  // 创建 FileReader 读取图片
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    userForm.value.verification.businessLicense = e.target.result
+    ElMessage.success('营业执照上传成功')
+  }
+  reader.readAsDataURL(file)
+}
+
+// 官方文件上传前验证
+const beforeOfficialDocumentUpload = (file) => {
+  const isImage = file.type.startsWith('image/')
+  const isLt2M = file.size / 1024 / 1024 < 2
+
+  if (!isImage) {
+    ElMessage.error('只能上传图片文件!')
+    return false
+  }
+  if (!isLt2M) {
+    ElMessage.error('图片大小不能超过 2MB!')
+    return false
+  }
+  return true
+}
+
+// 处理官方文件上传
+const handleOfficialDocumentUpload = (options) => {
+  const { file } = options
+  
+  // 创建 FileReader 读取图片
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    userForm.value.verification.officialDocument = e.target.result
+    ElMessage.success('官方文件上传成功')
+  }
+  reader.readAsDataURL(file)
+}
+
 // 默认头像
 const defaultAvatar = 'https://api.dicebear.com/7.x/avataaars/svg?seed=default'
 </script>
@@ -1329,6 +1626,143 @@ const defaultAvatar = 'https://api.dicebear.com/7.x/avataaars/svg?seed=default'
   padding: 10px;
 }
 
+/* 证件照片上传器 */
+.id-card-uploader {
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
+  width: 100%;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+}
+
+.id-card-uploader:hover {
+  border-color: #10b981;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+}
+
+.id-card-uploader .id-card-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.id-card-uploader-icon {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 0 12px;
+  gap: 8px;
+}
+
+.id-card-uploader-icon i {
+  font-size: 16px;
+}
+
+/* 营业执照上传器 */
+.business-license-uploader {
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
+  width: 100%;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+}
+
+.business-license-uploader:hover {
+  border-color: #3b82f6;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.business-license-uploader .business-license-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.business-license-uploader-icon {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 0 12px;
+  gap: 8px;
+}
+
+.business-license-uploader-icon i {
+  font-size: 16px;
+}
+
+/* 官方文件上传器 */
+.official-document-uploader {
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
+  width: 100%;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+}
+
+.official-document-uploader:hover {
+  border-color: #8b5cf6;
+  background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
+}
+
+.official-document-uploader .official-document-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.official-document-uploader-icon {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 0 12px;
+  gap: 8px;
+}
+
+.official-document-uploader-icon i {
+  font-size: 16px;
+}
+
+/* 跨列样式 */
+.col-span-2 {
+  grid-column: span 2;
+}
+
 /* 自定义滚动条 */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
@@ -1390,6 +1824,10 @@ const defaultAvatar = 'https://api.dicebear.com/7.x/avataaars/svg?seed=default'
   color: #374151;
 }
 
+:deep(.el-form-item__content) {
+  line-height: normal;
+}
+
 /* 对话框头部样式优化 */
 :deep(.el-dialog__header) {
   padding: 20px 24px;
@@ -1398,7 +1836,50 @@ const defaultAvatar = 'https://api.dicebear.com/7.x/avataaars/svg?seed=default'
 }
 
 :deep(.el-dialog__body) {
-  padding: 24px;
+  padding: 0;
+  max-height: none;
+  overflow: hidden;
+}
+
+/* 用户表单对话框特殊样式 */
+.user-form-dialog :deep(.el-dialog) {
+  margin-top: 5vh !important;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.user-form-dialog :deep(.el-dialog__body) {
+  padding: 0;
+  overflow: hidden;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.user-form-content {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.user-form-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.user-form-content::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+.user-form-content::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%);
+  border-radius: 10px;
+  transition: all 0.3s;
+}
+
+.user-form-content::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #94a3b8 0%, #64748b 100%);
 }
 
 :deep(.el-dialog__footer) {

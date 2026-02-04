@@ -31,7 +31,17 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 const route = useRoute()
-const titles = { '/': '数据概览', '/users': '用户管理', '/questions': '问题管理', '/answers': '回答管理',
-  '/topics': '话题管理', '/messages': '消息管理', '/finance': '财务管理', '/reports': '举报管理', '/settings': '系统设置' }
+const titles = { 
+  '/': '数据概览', 
+  '/users': '用户管理', 
+  '/questions': '问题管理', 
+  '/answers': '回答管理',
+  '/topics': '话题管理', 
+  '/messages': '消息管理', 
+  '/finance': '财务管理', 
+  '/reports': '举报管理', 
+  '/settings': '系统设置',
+  '/occupations': '职业管理'
+}
 const pageTitle = computed(() => titles[route.path] || '后台管理')
 </script>
