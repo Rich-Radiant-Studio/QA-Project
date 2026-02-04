@@ -64,6 +64,22 @@
             </div>
           </template>
         </el-table-column>
+        <el-table-column label="用户类型" width="140">
+          <template #default="{ row }">
+            <span v-if="row.userType === 'individual'" class="inline-flex items-center px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">
+              <i class="fas fa-user mr-1"></i>
+              Individual
+            </span>
+            <span v-else-if="row.userType === 'business'" class="inline-flex items-center px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700">
+              <i class="fas fa-building mr-1"></i>
+              Business
+            </span>
+            <span v-else-if="row.userType === 'government'" class="inline-flex items-center px-2 py-1 text-xs rounded-full bg-purple-100 text-purple-700">
+              <i class="fas fa-landmark mr-1"></i>
+              Government
+            </span>
+          </template>
+        </el-table-column>
         <el-table-column label="职业" width="120">
           <template #default="{ row }">
             <div class="text-sm text-gray-700">{{ row.occupation || '-' }}</div>
@@ -198,6 +214,20 @@
                 基本信息
               </h3>
               <div class="space-y-1">
+                <div class="flex items-center justify-between py-0.5 border-b border-gray-100">
+                  <span class="text-xs text-gray-500">用户类型</span>
+                  <span class="text-xs font-medium text-gray-800">
+                    <span v-if="currentUser.userType === 'individual'" class="inline-flex items-center px-1.5 py-0.5 rounded-full bg-green-100 text-green-700">
+                      <i class="fas fa-user mr-1"></i>Individual
+                    </span>
+                    <span v-else-if="currentUser.userType === 'business'" class="inline-flex items-center px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-700">
+                      <i class="fas fa-building mr-1"></i>Business
+                    </span>
+                    <span v-else-if="currentUser.userType === 'government'" class="inline-flex items-center px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-700">
+                      <i class="fas fa-landmark mr-1"></i>Government
+                    </span>
+                  </span>
+                </div>
                 <div class="flex items-center justify-between py-0.5 border-b border-gray-100">
                   <span class="text-xs text-gray-500">职业</span>
                   <span class="text-xs font-medium text-gray-800">{{ currentUser.occupation || '-' }}</span>
@@ -383,16 +413,32 @@
                 </h4>
               </div>
 
+              <el-form-item label="用户类型" class="mb-4">
+                <el-select v-model="userForm.userType" placeholder="请选择用户类型" style="width: 100%">
+                  <el-option 
+                    v-for="type in userTypeOptions" 
+                    :key="type.value" 
+                    :label="type.label" 
+                    :value="type.value"
+                  >
+                    <span class="flex items-center">
+                      <i :class="[type.icon, 'mr-2']"></i>
+                      <span>{{ type.label }}</span>
+                    </span>
+                  </el-option>
+                </el-select>
+              </el-form-item>
+
               <el-form-item label="用户名" class="mb-4">
                 <el-input 
                   v-model="userForm.name" 
-                  placeholder="请输入用户名" 
+                  :placeholder="userForm.userType === 'individual' ? '请输入用户名' : userForm.userType === 'business' ? '请输入企业名称' : '请输入机构名称'" 
                   prefix-icon="User"
                   clearable
                 />
               </el-form-item>
 
-              <el-form-item label="性别" class="mb-4">
+              <el-form-item label="性别" class="mb-4" v-if="userForm.userType === 'individual'">
                 <el-radio-group v-model="userForm.gender" class="w-full">
                   <el-radio label="male" class="mr-4">
                     <i class="fas fa-mars text-blue-500 mr-1"></i>男
@@ -406,7 +452,7 @@
                 </el-radio-group>
               </el-form-item>
 
-              <el-form-item label="生日" class="mb-4">
+              <el-form-item label="生日" class="mb-4" v-if="userForm.userType === 'individual'">
                 <el-date-picker
                   v-model="userForm.birthday"
                   type="date"
@@ -568,6 +614,150 @@
                 </div>
               </el-form-item>
 
+              <!-- 认证信息部分 -->
+              <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg px-3 py-2 mb-3 mt-4 border border-green-100">
+                <h4 class="text-sm font-semibold text-gray-700 flex items-center">
+                  <i class="fas fa-id-card text-green-500 mr-2 text-xs"></i>
+                  认证信息
+                </h4>
+              </div>
+
+              <!-- Individual (个人) 认证 -->
+              <div v-if="userForm.userType === 'individual'" class="space-y-3">
+                <el-form-item label="证件类型" class="mb-4">
+                  <el-select v-model="userForm.verification.idType" placeholder="请选择证件类型" style="width: 100%">
+                    <el-option 
+                      v-for="type in idTypeOptions" 
+                      :key="type.value" 
+                      :label="type.label" 
+                      :value="type.value"
+                    />
+                  </el-select>
+                </el-form-item>
+
+                <el-form-item label="证件号码" class="mb-4">
+                  <el-input 
+                    v-model="userForm.verification.idNumber" 
+                    placeholder="请输入证件号码" 
+                    clearable
+                  />
+                </el-form-item>
+
+                <el-form-item label="证件照片" class="mb-4">
+                  <div class="text-xs text-gray-500 mb-2">
+                    <i class="fas fa-info-circle text-blue-500 mr-1"></i>
+                    请上传证件正反面照片
+                  </div>
+                  <div class="grid grid-cols-2 gap-2">
+                    <el-input 
+                      v-model="userForm.verification.idFrontImage" 
+                      placeholder="正面照片URL" 
+                      size="small"
+                    />
+                    <el-input 
+                      v-model="userForm.verification.idBackImage" 
+                      placeholder="反面照片URL" 
+                      size="small"
+                    />
+                  </div>
+                </el-form-item>
+              </div>
+
+              <!-- Business (企业) 认证 -->
+              <div v-if="userForm.userType === 'business'" class="space-y-3">
+                <el-form-item label="企业名称" class="mb-4">
+                  <el-input 
+                    v-model="userForm.verification.businessName" 
+                    placeholder="请输入企业全称" 
+                    clearable
+                  />
+                </el-form-item>
+
+                <el-form-item label="注册号" class="mb-4">
+                  <el-input 
+                    v-model="userForm.verification.businessRegistrationNumber" 
+                    placeholder="Business Registration Number" 
+                    clearable
+                  />
+                </el-form-item>
+
+                <el-form-item label="税号" class="mb-4">
+                  <el-input 
+                    v-model="userForm.verification.taxId" 
+                    placeholder="Tax ID / EIN" 
+                    clearable
+                  />
+                </el-form-item>
+
+                <el-form-item label="营业执照" class="mb-4">
+                  <el-input 
+                    v-model="userForm.verification.businessLicense" 
+                    placeholder="营业执照URL" 
+                    clearable
+                  />
+                </el-form-item>
+
+                <el-form-item label="企业地址" class="mb-4">
+                  <el-input 
+                    v-model="userForm.verification.businessAddress" 
+                    type="textarea"
+                    :rows="2"
+                    placeholder="请输入企业注册地址" 
+                  />
+                </el-form-item>
+              </div>
+
+              <!-- Government (政府机构) 认证 -->
+              <div v-if="userForm.userType === 'government'" class="space-y-3">
+                <el-form-item label="机构名称" class="mb-4">
+                  <el-input 
+                    v-model="userForm.verification.agencyName" 
+                    placeholder="请输入政府机构全称" 
+                    clearable
+                  />
+                </el-form-item>
+
+                <el-form-item label="机构ID" class="mb-4">
+                  <el-input 
+                    v-model="userForm.verification.agencyId" 
+                    placeholder="Agency Identification Number" 
+                    clearable
+                  />
+                </el-form-item>
+
+                <el-form-item label="部门名称" class="mb-4">
+                  <el-input 
+                    v-model="userForm.verification.departmentName" 
+                    placeholder="Department Name" 
+                    clearable
+                  />
+                </el-form-item>
+
+                <el-form-item label="官方文件" class="mb-4">
+                  <el-input 
+                    v-model="userForm.verification.officialDocument" 
+                    placeholder="官方授权文件URL" 
+                    clearable
+                  />
+                </el-form-item>
+
+                <el-form-item label="授权人" class="mb-4">
+                  <el-input 
+                    v-model="userForm.verification.authorizedPersonName" 
+                    placeholder="Authorized Person Name" 
+                    clearable
+                  />
+                </el-form-item>
+
+                <el-form-item label="职位" class="mb-4">
+                  <el-input 
+                    v-model="userForm.verification.authorizedPersonTitle" 
+                    placeholder="Title/Position" 
+                    clearable
+                  />
+                </el-form-item>
+              </div>
+
               <el-form-item label="账户状态" class="mb-4">
                 <el-select v-model="userForm.status" placeholder="请选择状态" style="width: 100%">
                   <el-option label="正常" value="active">
@@ -693,8 +883,46 @@ const userForm = ref({
   wechatBound: false,
   appleBound: false,
   verified: false,
-  status: 'active'
+  status: 'active',
+  // 新增字段
+  userType: 'individual', // individual, business, government
+  // 认证信息
+  verification: {
+    // Individual (个人) 认证
+    idType: '', // passport, drivers_license, national_id
+    idNumber: '',
+    idFrontImage: '',
+    idBackImage: '',
+    // Business (企业) 认证
+    businessName: '',
+    businessRegistrationNumber: '',
+    taxId: '',
+    businessLicense: '',
+    businessAddress: '',
+    // Government (政府机构) 认证
+    agencyName: '',
+    agencyId: '',
+    departmentName: '',
+    officialDocument: '',
+    authorizedPersonName: '',
+    authorizedPersonTitle: ''
+  }
 })
+
+// 用户类型选项
+const userTypeOptions = [
+  { value: 'individual', label: 'Individual (个人)', icon: 'fas fa-user' },
+  { value: 'business', label: 'Business/Corporation (企业)', icon: 'fas fa-building' },
+  { value: 'government', label: 'Government Agency (政府机构)', icon: 'fas fa-landmark' }
+]
+
+// 个人证件类型选项
+const idTypeOptions = [
+  { value: 'passport', label: 'Passport (护照)' },
+  { value: 'drivers_license', label: 'Driver\'s License (驾驶执照)' },
+  { value: 'national_id', label: 'National ID Card (身份证)' },
+  { value: 'state_id', label: 'State ID (州身份证)' }
+]
 
 const banForm = ref({
   reason: '',
@@ -703,16 +931,16 @@ const banForm = ref({
 })
 
 const users = ref([
-  { id: '12345678', name: '张三丰', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user1', bio: '热爱学习，乐于分享。专注于前端开发和用户体验设计。', gender: 'male', birthday: '1990-01-01', verified: true, verificationStatus: 'verified', occupation: '软件工程师', location: '北京市朝阳区', phone: '138****8888', email: 'zhangsan@example.com', wechatBound: true, appleBound: false, registerDate: '2024-01-15', questions: 56, answers: 234, balance: '$256.50', status: 'active' },
-  { id: '12345679', name: '李小龙', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user2', bio: '产品思维，用户至上。', gender: 'male', birthday: '1988-05-20', verified: false, verificationStatus: 'unverified', occupation: '产品经理', location: '上海市浦东新区', phone: '139****6666', email: '', wechatBound: false, appleBound: true, registerDate: '2024-01-10', questions: 23, answers: 89, balance: '$128.00', status: 'active' },
-  { id: '12345680', name: '王医生', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user3', bio: '医者仁心，救死扶伤。', gender: 'male', birthday: '1985-03-15', verified: true, verificationStatus: 'verified', occupation: '医生', location: '广州市天河区', phone: '136****9999', email: 'wangdoc@example.com', wechatBound: true, appleBound: true, registerDate: '2023-12-20', questions: 12, answers: 456, balance: '$1,250.00', status: 'active' },
-  { id: '12345681', name: '违规用户001', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user4', bio: '', gender: 'other', birthday: '', verified: false, verificationStatus: 'unverified', occupation: '自由职业', location: '深圳市南山区', phone: '', email: '', wechatBound: false, appleBound: false, registerDate: '2024-01-05', questions: 5, answers: 12, balance: '$0.00', status: 'banned' },
-  { id: '12345682', name: '美食达人', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user5', bio: '探索美食，分享生活。', gender: 'female', birthday: '1995-08-08', verified: false, verificationStatus: 'pending', occupation: '美食博主', location: '成都市武侯区', phone: '137****7777', email: 'foodlover@example.com', wechatBound: true, appleBound: false, registerDate: '2024-01-12', questions: 45, answers: 178, balance: '$520.00', status: 'pending' },
-  { id: '12345683', name: '程序员小明', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user6', bio: '代码改变世界。', gender: 'male', birthday: '1992-11-11', verified: true, verificationStatus: 'verified', occupation: '前端开发', location: '杭州市西湖区', phone: '135****5555', email: 'xiaoming@example.com', wechatBound: true, appleBound: true, registerDate: '2023-11-08', questions: 89, answers: 567, balance: '$2,340.00', status: 'active' },
-  { id: '12345684', name: '设计师小红', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user7', bio: '设计让生活更美好。', gender: 'female', birthday: '1993-06-18', verified: true, verificationStatus: 'verified', occupation: 'UI设计师', location: '南京市鼓楼区', phone: '134****4444', email: 'xiaohong@example.com', wechatBound: true, appleBound: false, registerDate: '2023-10-15', questions: 34, answers: 289, balance: '$890.00', status: 'active' },
-  { id: '12345685', name: '教师张老师', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user8', bio: '教书育人，传道授业。', gender: 'female', birthday: '1980-09-10', verified: true, verificationStatus: 'verified', occupation: '高中教师', location: '武汉市洪山区', phone: '133****3333', email: 'teacher.zhang@example.com', wechatBound: true, appleBound: false, registerDate: '2023-09-20', questions: 67, answers: 423, balance: '$1,560.00', status: 'active' },
-  { id: '12345686', name: '律师李律', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user9', bio: '法律是正义的最后防线。', gender: 'male', birthday: '1982-04-25', verified: true, verificationStatus: 'verified', occupation: '律师', location: '重庆市渝中区', phone: '132****2222', email: 'lawyer.li@example.com', wechatBound: true, appleBound: true, registerDate: '2023-08-12', questions: 23, answers: 678, balance: '$3,200.00', status: 'active' },
-  { id: '12345687', name: '学生小王', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user10', bio: '好好学习，天天向上。', gender: 'male', birthday: '2002-12-01', verified: false, verificationStatus: 'pending', occupation: '大学生', location: '西安市雁塔区', phone: '131****1111', email: 'student.wang@example.com', wechatBound: false, appleBound: false, registerDate: '2024-01-18', questions: 12, answers: 45, balance: '$50.00', status: 'active' },
+  { id: '12345678', name: '张三丰', userType: 'individual', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user1', bio: '热爱学习，乐于分享。专注于前端开发和用户体验设计。', gender: 'male', birthday: '1990-01-01', verified: true, verificationStatus: 'verified', occupation: '软件工程师', location: '北京市朝阳区', phone: '138****8888', email: 'zhangsan@example.com', wechatBound: true, appleBound: false, registerDate: '2024-01-15', questions: 56, answers: 234, balance: '$256.50', status: 'active' },
+  { id: '12345679', name: '李小龙', userType: 'individual', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user2', bio: '产品思维，用户至上。', gender: 'male', birthday: '1988-05-20', verified: false, verificationStatus: 'unverified', occupation: '产品经理', location: '上海市浦东新区', phone: '139****6666', email: '', wechatBound: false, appleBound: true, registerDate: '2024-01-10', questions: 23, answers: 89, balance: '$128.00', status: 'active' },
+  { id: '12345680', name: 'ABC科技公司', userType: 'business', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=company1', bio: '专注于企业级软件解决方案', gender: 'other', birthday: '', verified: true, verificationStatus: 'verified', occupation: '科技公司', location: '广州市天河区', phone: '136****9999', email: 'contact@abc-tech.com', wechatBound: true, appleBound: true, registerDate: '2023-12-20', questions: 12, answers: 456, balance: '$1,250.00', status: 'active' },
+  { id: '12345681', name: '违规用户001', userType: 'individual', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user4', bio: '', gender: 'other', birthday: '', verified: false, verificationStatus: 'unverified', occupation: '自由职业', location: '深圳市南山区', phone: '', email: '', wechatBound: false, appleBound: false, registerDate: '2024-01-05', questions: 5, answers: 12, balance: '$0.00', status: 'banned' },
+  { id: '12345682', name: '美食达人', userType: 'individual', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user5', bio: '探索美食，分享生活。', gender: 'female', birthday: '1995-08-08', verified: false, verificationStatus: 'pending', occupation: '美食博主', location: '成都市武侯区', phone: '137****7777', email: 'foodlover@example.com', wechatBound: true, appleBound: false, registerDate: '2024-01-12', questions: 45, answers: 178, balance: '$520.00', status: 'pending' },
+  { id: '12345683', name: '市政府办公室', userType: 'government', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=gov1', bio: '为人民服务', gender: 'other', birthday: '', verified: true, verificationStatus: 'verified', occupation: '政府机构', location: '杭州市西湖区', phone: '135****5555', email: 'office@hz-gov.cn', wechatBound: true, appleBound: true, registerDate: '2023-11-08', questions: 89, answers: 567, balance: '$2,340.00', status: 'active' },
+  { id: '12345684', name: '设计师小红', userType: 'individual', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user7', bio: '设计让生活更美好。', gender: 'female', birthday: '1993-06-18', verified: true, verificationStatus: 'verified', occupation: 'UI设计师', location: '南京市鼓楼区', phone: '134****4444', email: 'xiaohong@example.com', wechatBound: true, appleBound: false, registerDate: '2023-10-15', questions: 34, answers: 289, balance: '$890.00', status: 'active' },
+  { id: '12345685', name: '教师张老师', userType: 'individual', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user8', bio: '教书育人，传道授业。', gender: 'female', birthday: '1980-09-10', verified: true, verificationStatus: 'verified', occupation: '高中教师', location: '武汉市洪山区', phone: '133****3333', email: 'teacher.zhang@example.com', wechatBound: true, appleBound: false, registerDate: '2023-09-20', questions: 67, answers: 423, balance: '$1,560.00', status: 'active' },
+  { id: '12345686', name: 'XYZ律师事务所', userType: 'business', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=company2', bio: '专业法律服务机构', gender: 'other', birthday: '', verified: true, verificationStatus: 'verified', occupation: '律师事务所', location: '重庆市渝中区', phone: '132****2222', email: 'contact@xyz-law.com', wechatBound: true, appleBound: true, registerDate: '2023-08-12', questions: 23, answers: 678, balance: '$3,200.00', status: 'active' },
+  { id: '12345687', name: '学生小王', userType: 'individual', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user10', bio: '好好学习，天天向上。', gender: 'male', birthday: '2002-12-01', verified: false, verificationStatus: 'pending', occupation: '大学生', location: '西安市雁塔区', phone: '131****1111', email: 'student.wang@example.com', wechatBound: false, appleBound: false, registerDate: '2024-01-18', questions: 12, answers: 45, balance: '$50.00', status: 'active' },
 ])
 
 // 统计卡片点击
@@ -752,7 +980,7 @@ const editUser = (user) => {
     birthday: user.birthday || '',
     occupation: user.occupation,
     location: user.location,
-    locationValues: user.locationValues || [], // 如果有保存的值数组就使用
+    locationValues: user.locationValues || [],
     phone: user.phone || '',
     email: user.email || '',
     password: '',
@@ -760,7 +988,25 @@ const editUser = (user) => {
     wechatBound: user.wechatBound || false,
     appleBound: user.appleBound || false,
     verified: user.verified,
-    status: user.status
+    status: user.status,
+    userType: user.userType || 'individual',
+    verification: user.verification || {
+      idType: '',
+      idNumber: '',
+      idFrontImage: '',
+      idBackImage: '',
+      businessName: '',
+      businessRegistrationNumber: '',
+      taxId: '',
+      businessLicense: '',
+      businessAddress: '',
+      agencyName: '',
+      agencyId: '',
+      departmentName: '',
+      officialDocument: '',
+      authorizedPersonName: '',
+      authorizedPersonTitle: ''
+    }
   }
   showDetailDialog.value = false
   showAddUserDialog.value = true
@@ -818,7 +1064,25 @@ const resetForm = () => {
     wechatBound: false,
     appleBound: false,
     verified: false,
-    status: 'active'
+    status: 'active',
+    userType: 'individual',
+    verification: {
+      idType: '',
+      idNumber: '',
+      idFrontImage: '',
+      idBackImage: '',
+      businessName: '',
+      businessRegistrationNumber: '',
+      taxId: '',
+      businessLicense: '',
+      businessAddress: '',
+      agencyName: '',
+      agencyId: '',
+      departmentName: '',
+      officialDocument: '',
+      authorizedPersonName: '',
+      authorizedPersonTitle: ''
+    }
   }
   isEdit.value = false
   currentUser.value = null

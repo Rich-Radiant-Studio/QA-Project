@@ -25,7 +25,8 @@
       "statusBar": {
         "backgroundColor": "#ffffff",
         "barStyle": "dark-content"
-      }
+      },
+      "usesCleartextTraffic": true
     },
     "web": {
       "bundler": "metro"
