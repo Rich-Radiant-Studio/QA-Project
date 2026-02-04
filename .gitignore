@@ -1,0 +1,115 @@
+# OSX
+.DS_Store
+
+# Xcode
+build/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata
+*.xccheckout
+*.moved-aside
+DerivedData
+*.hmap
+*.ipa
+*.xcuserstate
+project.xcworkspace
+
+# Android/IntelliJ
+build/
+.idea
+.gradle
+local.properties
+*.iml
+*.hprof
+.cxx/
+*.keystore
+!debug.keystore
+
+# node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# Bundle artifacts
+*.jsbundle
+
+# CocoaPods
+/ios/Pods/
+
+# Expo
+.expo/
+.expo-shared/
+dist/
+web-build/
+
+# Temporary files
+*.log
+*.tmp
+*.temp
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+
+# Documentation and guide files
+*_GUIDE.md
+*_FIX*.md
+*_FEATURE.md
+*_UPDATE.md
+*_COMPLETE.md
+*_SUMMARY.md
+*_ISSUE*.md
+*_QUICK*.md
+PUBLIC_ACCESS_GUIDE.md
+QRCODE_GUIDE.md
+SERVER_STATUS.md
+RESTART_COMPLETE.md
+模拟器访问说明.md
+公网访问说明.md
+工作日报*.md
+今日工作日报.md
+
+# QR codes and images
+*.png
+!assets/*.png
+expo-qrcode.png
+expo-public-qrcode.png
+expo-tunnel-page.html
+qrcode-page.html
+
+# Generated files
+generate-*.js
+save-qrcode.js
+fix-*.js
+
+# Backup and temporary files
+*.bak
+*.backup
+temp_*.txt
+
+# Compressed files
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz
+*.tar.gz
+*.tgz
