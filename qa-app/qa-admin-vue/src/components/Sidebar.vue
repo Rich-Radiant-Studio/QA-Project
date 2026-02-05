@@ -2,10 +2,13 @@
   <aside class="w-64 bg-gray-900 text-white flex-shrink-0 flex flex-col">
     <div class="p-4 border-b border-gray-700">
       <div class="flex items-center">
-        <div class="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center">
-          <i class="fas fa-question-circle text-xl"></i>
+        <div class="w-10 h-10 bg-gradient-to-br from-red-500 to-orange-500 rounded-lg flex items-center justify-center shadow-lg">
+          <i class="fas fa-hands-helping text-xl text-white"></i>
         </div>
-        <span class="ml-3 font-bold text-lg">问答管理后台</span>
+        <div class="ml-3">
+          <div class="font-bold text-lg">Problem to Hero</div>
+          <div class="text-xs text-gray-400">管理后台</div>
+        </div>
       </div>
     </div>
     <nav class="flex-1 overflow-y-auto p-4">
@@ -81,6 +84,7 @@ const menuGroups = [
     name: '内容管理',
     items: [
       { path: '/users', name: '用户管理', icon: 'fas fa-users' },
+      { path: '/occupations', name: '职业管理', icon: 'fas fa-briefcase' },
       { path: '/questions', name: '问题管理', icon: 'fas fa-question', badge: '15' },
       { path: '/categories', name: '问题类别', icon: 'fas fa-folder-tree' },
       { path: '/answers', name: '回答管理', icon: 'fas fa-comment-dots' },

@@ -117,3 +117,7 @@ temp_*.txt
 =======
 node_modules
 >>>>>>> 73e1d72d749f0dcc281b42fcf07016f238fb81a4
+*.properties
+*.jar
+*.xml
+qa-app/

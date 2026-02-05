@@ -52,25 +52,51 @@
             {{ filter.label }}
           </button>
           <div class="w-px h-6 bg-gray-200 mx-1"></div>
-          <input 
+          <el-date-picker
             v-if="selectedTimeFilter === 'day'"
-            type="date" 
-            v-model="selectedDate"
-            class="px-3 py-1.5 border-0 bg-gray-50 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+            v-model="dateRange"
+            type="daterange"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            size="small"
+            style="width: 240px"
+            format="YYYY/MM/DD"
+            value-format="YYYY-MM-DD"
           />
-          <input 
+          <el-date-picker
             v-else-if="selectedTimeFilter === 'month'"
-            type="month" 
-            v-model="selectedMonth"
-            class="px-3 py-1.5 border-0 bg-gray-50 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+            v-model="monthRange"
+            type="monthrange"
+            range-separator="至"
+            start-placeholder="开始月份"
+            end-placeholder="结束月份"
+            size="small"
+            style="width: 240px"
+            format="YYYY/MM"
+            value-format="YYYY-MM"
           />
-          <select 
-            v-else-if="selectedTimeFilter === 'year'"
-            v-model="selectedYear"
-            class="px-3 py-1.5 border-0 bg-gray-50 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option v-for="year in yearOptions" :key="year" :value="year">{{ year }}年</option>
-          </select>
+          <div v-else-if="selectedTimeFilter === 'year'" class="flex items-center gap-2">
+            <el-date-picker
+              v-model="yearRangeStart"
+              type="year"
+              placeholder="开始年份"
+              size="small"
+              style="width: 110px"
+              format="YYYY"
+              value-format="YYYY"
+            />
+            <span class="text-gray-400 text-xs">至</span>
+            <el-date-picker
+              v-model="yearRangeEnd"
+              type="year"
+              placeholder="结束年份"
+              size="small"
+              style="width: 110px"
+              format="YYYY"
+              value-format="YYYY"
+            />
+          </div>
         </div>
       </div>
       <div class="grid grid-cols-4 gap-4 mb-5">
@@ -117,25 +143,51 @@
             {{ filter.label }}
           </button>
           <div class="w-px h-6 bg-gray-200 mx-1"></div>
-          <input 
+          <el-date-picker
             v-if="selectedTimeFilter === 'day'"
-            type="date" 
-            v-model="selectedDate"
-            class="px-3 py-1.5 border-0 bg-gray-50 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-green-500"
+            v-model="dateRange"
+            type="daterange"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            size="small"
+            style="width: 240px"
+            format="YYYY/MM/DD"
+            value-format="YYYY-MM-DD"
           />
-          <input 
+          <el-date-picker
             v-else-if="selectedTimeFilter === 'month'"
-            type="month" 
-            v-model="selectedMonth"
-            class="px-3 py-1.5 border-0 bg-gray-50 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-green-500"
+            v-model="monthRange"
+            type="monthrange"
+            range-separator="至"
+            start-placeholder="开始月份"
+            end-placeholder="结束月份"
+            size="small"
+            style="width: 240px"
+            format="YYYY/MM"
+            value-format="YYYY-MM"
           />
-          <select 
-            v-else-if="selectedTimeFilter === 'year'"
-            v-model="selectedYear"
-            class="px-3 py-1.5 border-0 bg-gray-50 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-green-500"
-          >
-            <option v-for="year in yearOptions" :key="year" :value="year">{{ year }}年</option>
-          </select>
+          <div v-else-if="selectedTimeFilter === 'year'" class="flex items-center gap-2">
+            <el-date-picker
+              v-model="yearRangeStart"
+              type="year"
+              placeholder="开始年份"
+              size="small"
+              style="width: 110px"
+              format="YYYY"
+              value-format="YYYY"
+            />
+            <span class="text-gray-400 text-xs">至</span>
+            <el-date-picker
+              v-model="yearRangeEnd"
+              type="year"
+              placeholder="结束年份"
+              size="small"
+              style="width: 110px"
+              format="YYYY"
+              value-format="YYYY"
+            />
+          </div>
         </div>
       </div>
       <div class="grid grid-cols-4 gap-4 mb-5">
@@ -182,25 +234,51 @@
             {{ filter.label }}
           </button>
           <div class="w-px h-6 bg-gray-200 mx-1"></div>
-          <input 
+          <el-date-picker
             v-if="selectedTimeFilter === 'day'"
-            type="date" 
-            v-model="selectedDate"
-            class="px-3 py-1.5 border-0 bg-gray-50 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-purple-500"
+            v-model="dateRange"
+            type="daterange"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            size="small"
+            style="width: 240px"
+            format="YYYY/MM/DD"
+            value-format="YYYY-MM-DD"
           />
-          <input 
+          <el-date-picker
             v-else-if="selectedTimeFilter === 'month'"
-            type="month" 
-            v-model="selectedMonth"
-            class="px-3 py-1.5 border-0 bg-gray-50 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-purple-500"
+            v-model="monthRange"
+            type="monthrange"
+            range-separator="至"
+            start-placeholder="开始月份"
+            end-placeholder="结束月份"
+            size="small"
+            style="width: 240px"
+            format="YYYY/MM"
+            value-format="YYYY-MM"
           />
-          <select 
-            v-else-if="selectedTimeFilter === 'year'"
-            v-model="selectedYear"
-            class="px-3 py-1.5 border-0 bg-gray-50 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-purple-500"
-          >
-            <option v-for="year in yearOptions" :key="year" :value="year">{{ year }}年</option>
-          </select>
+          <div v-else-if="selectedTimeFilter === 'year'" class="flex items-center gap-2">
+            <el-date-picker
+              v-model="yearRangeStart"
+              type="year"
+              placeholder="开始年份"
+              size="small"
+              style="width: 110px"
+              format="YYYY"
+              value-format="YYYY"
+            />
+            <span class="text-gray-400 text-xs">至</span>
+            <el-date-picker
+              v-model="yearRangeEnd"
+              type="year"
+              placeholder="结束年份"
+              size="small"
+              style="width: 110px"
+              format="YYYY"
+              value-format="YYYY"
+            />
+          </div>
         </div>
       </div>
       <div class="grid grid-cols-4 gap-4 mb-5">
@@ -247,25 +325,51 @@
             {{ filter.label }}
           </button>
           <div class="w-px h-6 bg-gray-200 mx-1"></div>
-          <input 
+          <el-date-picker
             v-if="selectedTimeFilter === 'day'"
-            type="date" 
-            v-model="selectedDate"
-            class="px-3 py-1.5 border-0 bg-gray-50 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            v-model="dateRange"
+            type="daterange"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            size="small"
+            style="width: 240px"
+            format="YYYY/MM/DD"
+            value-format="YYYY-MM-DD"
           />
-          <input 
+          <el-date-picker
             v-else-if="selectedTimeFilter === 'month'"
-            type="month" 
-            v-model="selectedMonth"
-            class="px-3 py-1.5 border-0 bg-gray-50 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            v-model="monthRange"
+            type="monthrange"
+            range-separator="至"
+            start-placeholder="开始月份"
+            end-placeholder="结束月份"
+            size="small"
+            style="width: 240px"
+            format="YYYY/MM"
+            value-format="YYYY-MM"
           />
-          <select 
-            v-else-if="selectedTimeFilter === 'year'"
-            v-model="selectedYear"
-            class="px-3 py-1.5 border-0 bg-gray-50 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            <option v-for="year in yearOptions" :key="year" :value="year">{{ year }}年</option>
-          </select>
+          <div v-else-if="selectedTimeFilter === 'year'" class="flex items-center gap-2">
+            <el-date-picker
+              v-model="yearRangeStart"
+              type="year"
+              placeholder="开始年份"
+              size="small"
+              style="width: 110px"
+              format="YYYY"
+              value-format="YYYY"
+            />
+            <span class="text-gray-400 text-xs">至</span>
+            <el-date-picker
+              v-model="yearRangeEnd"
+              type="year"
+              placeholder="结束年份"
+              size="small"
+              style="width: 110px"
+              format="YYYY"
+              value-format="YYYY"
+            />
+          </div>
         </div>
       </div>
       <div class="grid grid-cols-4 gap-4 mb-5">
@@ -312,25 +416,51 @@
             {{ filter.label }}
           </button>
           <div class="w-px h-6 bg-gray-200 mx-1"></div>
-          <input 
+          <el-date-picker
             v-if="selectedTimeFilter === 'day'"
-            type="date" 
-            v-model="selectedDate"
-            class="px-3 py-1.5 border-0 bg-gray-50 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-orange-500"
+            v-model="dateRange"
+            type="daterange"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            size="small"
+            style="width: 240px"
+            format="YYYY/MM/DD"
+            value-format="YYYY-MM-DD"
           />
-          <input 
+          <el-date-picker
             v-else-if="selectedTimeFilter === 'month'"
-            type="month" 
-            v-model="selectedMonth"
-            class="px-3 py-1.5 border-0 bg-gray-50 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-orange-500"
+            v-model="monthRange"
+            type="monthrange"
+            range-separator="至"
+            start-placeholder="开始月份"
+            end-placeholder="结束月份"
+            size="small"
+            style="width: 240px"
+            format="YYYY/MM"
+            value-format="YYYY-MM"
           />
-          <select 
-            v-else-if="selectedTimeFilter === 'year'"
-            v-model="selectedYear"
-            class="px-3 py-1.5 border-0 bg-gray-50 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-orange-500"
-          >
-            <option v-for="year in yearOptions" :key="year" :value="year">{{ year }}年</option>
-          </select>
+          <div v-else-if="selectedTimeFilter === 'year'" class="flex items-center gap-2">
+            <el-date-picker
+              v-model="yearRangeStart"
+              type="year"
+              placeholder="开始年份"
+              size="small"
+              style="width: 110px"
+              format="YYYY"
+              value-format="YYYY"
+            />
+            <span class="text-gray-400 text-xs">至</span>
+            <el-date-picker
+              v-model="yearRangeEnd"
+              type="year"
+              placeholder="结束年份"
+              size="small"
+              style="width: 110px"
+              format="YYYY"
+              value-format="YYYY"
+            />
+          </div>
         </div>
       </div>
       <div class="grid grid-cols-4 gap-4 mb-5">
@@ -377,25 +507,51 @@
             {{ filter.label }}
           </button>
           <div class="w-px h-6 bg-gray-200 mx-1"></div>
-          <input 
+          <el-date-picker
             v-if="selectedTimeFilter === 'day'"
-            type="date" 
-            v-model="selectedDate"
-            class="px-3 py-1.5 border-0 bg-gray-50 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-yellow-500"
+            v-model="dateRange"
+            type="daterange"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            size="small"
+            style="width: 240px"
+            format="YYYY/MM/DD"
+            value-format="YYYY-MM-DD"
           />
-          <input 
+          <el-date-picker
             v-else-if="selectedTimeFilter === 'month'"
-            type="month" 
-            v-model="selectedMonth"
-            class="px-3 py-1.5 border-0 bg-gray-50 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-yellow-500"
+            v-model="monthRange"
+            type="monthrange"
+            range-separator="至"
+            start-placeholder="开始月份"
+            end-placeholder="结束月份"
+            size="small"
+            style="width: 240px"
+            format="YYYY/MM"
+            value-format="YYYY-MM"
           />
-          <select 
-            v-else-if="selectedTimeFilter === 'year'"
-            v-model="selectedYear"
-            class="px-3 py-1.5 border-0 bg-gray-50 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-yellow-500"
-          >
-            <option v-for="year in yearOptions" :key="year" :value="year">{{ year }}年</option>
-          </select>
+          <div v-else-if="selectedTimeFilter === 'year'" class="flex items-center gap-2">
+            <el-date-picker
+              v-model="yearRangeStart"
+              type="year"
+              placeholder="开始年份"
+              size="small"
+              style="width: 110px"
+              format="YYYY"
+              value-format="YYYY"
+            />
+            <span class="text-gray-400 text-xs">至</span>
+            <el-date-picker
+              v-model="yearRangeEnd"
+              type="year"
+              placeholder="结束年份"
+              size="small"
+              style="width: 110px"
+              format="YYYY"
+              value-format="YYYY"
+            />
+          </div>
         </div>
       </div>
       <div class="grid grid-cols-4 gap-4 mb-5">
@@ -437,21 +593,23 @@ const timeFilters = [
   { label: '按年', value: 'year', icon: 'fas fa-calendar' }
 ]
 
-// 日期选择
+// 日期范围选择
 const today = new Date()
-const selectedDate = ref(today.toISOString().split('T')[0])
-const selectedMonth = ref(`${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`)
-const selectedYear = ref(today.getFullYear().toString())
+const thirtyDaysAgo = new Date(today)
+thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
-// 年份选项（最近10年）
-const yearOptions = computed(() => {
-  const currentYear = today.getFullYear()
-  const years = []
-  for (let i = 0; i < 10; i++) {
-    years.push(currentYear - i)
-  }
-  return years
-})
+const dateRange = ref([
+  thirtyDaysAgo.toISOString().split('T')[0],
+  today.toISOString().split('T')[0]
+])
+
+const monthRange = ref([
+  `${today.getFullYear()}-01`,
+  `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`
+])
+
+const yearRangeStart = ref((today.getFullYear() - 4).toString())
+const yearRangeEnd = ref(today.getFullYear().toString())
 
 const pendingItems = [
   { title: '举报待处理', desc: '需要审核', count: 23, icon: 'fas fa-flag', iconBg: 'bg-red-500', bgColor: 'bg-red-50', countColor: 'text-red-500', link: '/reports' },
@@ -465,12 +623,22 @@ const chartInstances = ref({})
 // 获取图表周期文本
 const getChartPeriodText = () => {
   if (selectedTimeFilter.value === 'day') {
-    return `日期：${selectedDate.value}`
+    if (dateRange.value && dateRange.value.length === 2) {
+      return `日期：${dateRange.value[0]} 至 ${dateRange.value[1]}`
+    }
+    return '日期：未选择'
   } else if (selectedTimeFilter.value === 'month') {
-    const [year, month] = selectedMonth.value.split('-')
-    return `月份：${year}年${month}月`
+    if (monthRange.value && monthRange.value.length === 2) {
+      const [startYear, startMonth] = monthRange.value[0].split('-')
+      const [endYear, endMonth] = monthRange.value[1].split('-')
+      return `月份：${startYear}年${startMonth}月 至 ${endYear}年${endMonth}月`
+    }
+    return '月份：未选择'
   } else {
-    return `年份：${selectedYear.value}年`
+    if (yearRangeStart.value && yearRangeEnd.value) {
+      return `年份：${yearRangeStart.value}年 至 ${yearRangeEnd.value}年`
+    }
+    return '年份：未选择'
   }
 }
 
@@ -479,24 +647,44 @@ const generateLabels = (type) => {
   const labels = []
   
   if (type === 'day') {
-    // 显示选中日期前后30天
-    const date = new Date(selectedDate.value)
-    for (let i = 29; i >= 0; i--) {
-      const d = new Date(date)
-      d.setDate(d.getDate() - i)
-      labels.push(`${d.getMonth() + 1}/${d.getDate()}`)
+    // 显示选中日期范围内的所有日期
+    if (dateRange.value && dateRange.value.length === 2) {
+      const startDate = new Date(dateRange.value[0])
+      const endDate = new Date(dateRange.value[1])
+      const currentDate = new Date(startDate)
+      
+      while (currentDate <= endDate) {
+        labels.push(`${currentDate.getMonth() + 1}/${currentDate.getDate()}`)
+        currentDate.setDate(currentDate.getDate() + 1)
+      }
     }
   } else if (type === 'month') {
-    // 显示选中月份所在年的12个月
-    const [year] = selectedMonth.value.split('-')
-    for (let i = 1; i <= 12; i++) {
-      labels.push(`${i}月`)
+    // 显示选中月份范围内的所有月份
+    if (monthRange.value && monthRange.value.length === 2) {
+      const [startYear, startMonth] = monthRange.value[0].split('-').map(Number)
+      const [endYear, endMonth] = monthRange.value[1].split('-').map(Number)
+      
+      let year = startYear
+      let month = startMonth
+      
+      while (year < endYear || (year === endYear && month <= endMonth)) {
+        labels.push(`${year}年${month}月`)
+        month++
+        if (month > 12) {
+          month = 1
+          year++
+        }
+      }
     }
   } else if (type === 'year') {
-    // 显示选中年份前后5年
-    const year = parseInt(selectedYear.value)
-    for (let i = 4; i >= 0; i--) {
-      labels.push(`${year - i}年`)
+    // 显示选中年份范围内的所有年份
+    if (yearRangeStart.value && yearRangeEnd.value) {
+      const startYear = parseInt(yearRangeStart.value)
+      const endYear = parseInt(yearRangeEnd.value)
+      
+      for (let year = startYear; year <= endYear; year++) {
+        labels.push(`${year}年`)
+      }
     }
   }
   
@@ -617,19 +805,19 @@ watch(selectedTimeFilter, () => {
   updateAllCharts()
 })
 
-watch(selectedDate, () => {
+watch(dateRange, () => {
   if (selectedTimeFilter.value === 'day') {
     updateAllCharts()
   }
-})
+}, { deep: true })
 
-watch(selectedMonth, () => {
+watch(monthRange, () => {
   if (selectedTimeFilter.value === 'month') {
     updateAllCharts()
   }
-})
+}, { deep: true })
 
-watch(selectedYear, () => {
+watch([yearRangeStart, yearRangeEnd], () => {
   if (selectedTimeFilter.value === 'year') {
     updateAllCharts()
   }
