@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -51,12 +51,13 @@ const regionData = {
   }
 };
 
-const hotTabs = ['全站热榜', '国家热榜', '行业热榜', '个人热榜'];
+const hotTabs = ['全站热榜', '国家热榜', '行业热榜', '企业热榜', '个人热榜'];
 
 const subTabsData = {
   '全站热榜': ['科技数码', 'Python编程', '职场发展', '健康养生', '美食烹饪', '旅游出行'],
   '国家热榜': ['政策法规', '社会民生', '经济发展', '教育医疗', '环境保护', '基础设施'],
   '行业热榜': ['互联网', '金融', '医疗健康', '教育培训', '房地产', '制造业', '餐饮服务'],
+  '企业热榜': ['科技公司', '金融机构', '制造企业', '互联网公司', '零售企业', '服务行业'],
   '个人热榜': ['职业发展', '情感生活', '健康养生', '理财投资', '学习成长', '家庭关系'],
 };
 
@@ -105,6 +106,13 @@ const hotListData = {
     { id: 'hy3', rank: 3, title: '医疗健康行业有哪些创业机会？', hot: '1876万', tag: '新', tagColor: '#22c55e', author: '创业导师', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=hy3', answers: 2345, isUp: false },
     { id: 'hy4', rank: 4, title: '金融科技如何改变传统银行？', hot: '1543万', tag: '', tagColor: '', author: '金融专家', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=hy4', answers: 1987, isUp: true },
     { id: 'hy5', rank: 5, title: '教育培训行业转型方向在哪？', hot: '1234万', tag: '', tagColor: '', author: '教育从业者', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=hy5', answers: 1654, isUp: false },
+  ],
+  '企业热榜': [
+    { id: 'qy1', rank: 1, title: '华为2026年新品发布会有哪些亮点？', hot: '2234万', tag: '热', tagColor: '#ef4444', author: '科技观察', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=qy1', answers: 3987, isUp: true },
+    { id: 'qy2', rank: 2, title: '阿里巴巴组织架构调整意味着什么？', hot: '1987万', tag: '热', tagColor: '#ef4444', author: '互联网分析', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=qy2', answers: 3234, isUp: true },
+    { id: 'qy3', rank: 3, title: '比亚迪新能源汽车销量为何持续增长？', hot: '1765万', tag: '新', tagColor: '#22c55e', author: '汽车评论', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=qy3', answers: 2876, isUp: false },
+    { id: 'qy4', rank: 4, title: '字节跳动裁员传闻是真的吗？', hot: '1543万', tag: '', tagColor: '', author: '职场内幕', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=qy4', answers: 2345, isUp: true },
+    { id: 'qy5', rank: 5, title: '小米造车进展如何？', hot: '1321万', tag: '', tagColor: '', author: '数码博主', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=qy5', answers: 1987, isUp: false },
   ],
   '个人热榜': [
     { id: 'gr1', rank: 1, title: '30岁转行还来得及吗？', hot: '1987万', tag: '热', tagColor: '#ef4444', author: '职场导师', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=gr1', answers: 3567, isUp: true },
@@ -155,6 +163,30 @@ const hotListData = {
   ],
   '餐饮服务': [
     { id: 'cy1', rank: 1, title: '开餐饮店需要注意什么？', hot: '1321万', tag: '热', tagColor: '#ef4444', author: '餐饮老板', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=cy1', answers: 1876, isUp: true },
+  ],
+  '科技公司': [
+    { id: 'kjgs1', rank: 1, title: '华为Mate 60系列为何能突破封锁？', hot: '2456万', tag: '热', tagColor: '#ef4444', author: '科技评论', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=kjgs1', answers: 4321, isUp: true },
+    { id: 'kjgs2', rank: 2, title: '苹果Vision Pro值得购买吗？', hot: '2134万', tag: '热', tagColor: '#ef4444', author: '数码达人', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=kjgs2', answers: 3876, isUp: true },
+  ],
+  '金融机构': [
+    { id: 'jrjg1', rank: 1, title: '银行存款利率为何持续下降？', hot: '1987万', tag: '热', tagColor: '#ef4444', author: '金融观察', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=jrjg1', answers: 3234, isUp: true },
+    { id: 'jrjg2', rank: 2, title: '保险公司理赔难是真的吗？', hot: '1654万', tag: '', tagColor: '', author: '保险专家', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=jrjg2', answers: 2567, isUp: false },
+  ],
+  '制造企业': [
+    { id: 'zzqy1', rank: 1, title: '比亚迪如何超越特斯拉？', hot: '2234万', tag: '热', tagColor: '#ef4444', author: '汽车分析', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=zzqy1', answers: 3987, isUp: true },
+    { id: 'zzqy2', rank: 2, title: '宁德时代电池技术有多强？', hot: '1876万', tag: '新', tagColor: '#22c55e', author: '新能源观察', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=zzqy2', answers: 2987, isUp: true },
+  ],
+  '互联网公司': [
+    { id: 'hlwgs1', rank: 1, title: '字节跳动为何能持续创新？', hot: '2098万', tag: '热', tagColor: '#ef4444', author: '互联网观察', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=hlwgs1', answers: 3654, isUp: true },
+    { id: 'hlwgs2', rank: 2, title: '阿里云在全球市场表现如何？', hot: '1765万', tag: '', tagColor: '', author: '云计算专家', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=hlwgs2', answers: 2876, isUp: false },
+  ],
+  '零售企业': [
+    { id: 'lsqy1', rank: 1, title: '盒马鲜生的商业模式能复制吗？', hot: '1543万', tag: '热', tagColor: '#ef4444', author: '零售分析', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=lsqy1', answers: 2345, isUp: true },
+    { id: 'lsqy2', rank: 2, title: '传统超市如何应对电商冲击？', hot: '1321万', tag: '', tagColor: '', author: '商业观察', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=lsqy2', answers: 1987, isUp: false },
+  ],
+  '服务行业': [
+    { id: 'fwhy1', rank: 1, title: '海底捞服务为何这么好？', hot: '1654万', tag: '热', tagColor: '#ef4444', author: '餐饮观察', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=fwhy1', answers: 2567, isUp: true },
+    { id: 'fwhy2', rank: 2, title: '美团外卖如何提升配送效率？', hot: '1432万', tag: '新', tagColor: '#22c55e', author: '物流专家', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=fwhy2', answers: 2134, isUp: true },
   ],
   '职业发展': [
     { id: 'zy1', rank: 1, title: '如何写一份优秀的简历？', hot: '1765万', tag: '热', tagColor: '#ef4444', author: 'HR总监', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=zy1', answers: 3234, isUp: true },
@@ -242,6 +274,8 @@ export default function HotListScreen({ navigation }) {
   const [showRegionModal, setShowRegionModal] = useState(false);
   const [selectedRegion, setSelectedRegion] = useState({ type: 'country', id: 'cn', name: '中国', flag: '🇨🇳' });
   const [regionType, setRegionType] = useState('country'); // 'country' or 'city'
+  const tabScrollViewRef = useRef(null);
+  const tabLayouts = useRef({});
 
   // 计算当前显示的二级标签
   const visibleSubTabs = subTabsData[activeTab] || [];
@@ -255,6 +289,16 @@ export default function HotListScreen({ navigation }) {
   const handleTabPress = (tab) => {
     setActiveTab(tab);
     setActiveSubTab('');
+    
+    // 滚动到选中的标签
+    const tabIndex = hotTabs.indexOf(tab);
+    if (tabScrollViewRef.current && tabLayouts.current[tab]) {
+      const layout = tabLayouts.current[tab];
+      tabScrollViewRef.current.scrollTo({
+        x: layout.x - 16, // 减去左边距，让标签更居中
+        animated: true
+      });
+    }
   };
 
   const handleSubTabPress = (sub) => {
@@ -305,28 +349,40 @@ export default function HotListScreen({ navigation }) {
       </View>
 
       <View style={styles.tabBar}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabBarContent}>
-          {hotTabs.map((tab) => (
-            <TouchableOpacity 
-              key={tab} 
-              style={[styles.tabItem, activeTab === tab && styles.tabItemActive]}
-              onPress={() => handleTabPress(tab)}
-            >
-              <Text style={[styles.tabText, activeTab === tab && styles.tabTextActive]}>{tab}</Text>
-            </TouchableOpacity>
-          ))}
-          {activeTab === '全站热榜' && (
-            <TouchableOpacity 
-              style={styles.regionTabBtn}
-              onPress={() => setShowRegionModal(true)}
-            >
-              <Text style={styles.regionTabText}>
-                {selectedRegion.flag} {selectedRegion.name}
-              </Text>
-              <Ionicons name="chevron-down" size={14} color="#6b7280" />
-            </TouchableOpacity>
-          )}
-        </ScrollView>
+        <View style={{ flex: 1 }}>
+          <ScrollView 
+            ref={tabScrollViewRef}
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            bounces={true}
+            alwaysBounceHorizontal={true}
+            scrollEnabled={true}
+          >
+            <View style={styles.tabBarContent}>
+              {hotTabs.map((tab) => (
+                <TouchableOpacity 
+                  key={tab} 
+                  style={[styles.tabItem, activeTab === tab && styles.tabItemActive]}
+                  onPress={() => handleTabPress(tab)}
+                  onLayout={(e) => {
+                    tabLayouts.current[tab] = e.nativeEvent.layout;
+                  }}
+                >
+                  <Text style={[styles.tabText, activeTab === tab && styles.tabTextActive]}>{tab}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </ScrollView>
+        </View>
+        <TouchableOpacity 
+          style={styles.regionTabBtn}
+          onPress={() => setShowRegionModal(true)}
+        >
+          <Text style={styles.regionTabText}>
+            {selectedRegion.flag} {selectedRegion.name}
+          </Text>
+          <Ionicons name="chevron-down" size={14} color="#6b7280" />
+        </TouchableOpacity>
       </View>
 
       {hasSubTabs && (
@@ -461,12 +517,12 @@ export default function HotListScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#e5e7eb' },
   backBtn: { padding: 4 },
   headerTitle: { fontSize: 18, fontWeight: 'bold', color: '#1f2937' },
   refreshBtn: { padding: 4 },
-  tabBar: { borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
-  tabBarContent: { flexDirection: 'row', alignItems: 'center' },
+  tabBar: { flexDirection: 'row', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
+  tabBarContent: { flexDirection: 'row', alignItems: 'center', paddingRight: 16 },
   tabItem: { paddingHorizontal: 16, paddingVertical: 12 },
   tabItemActive: { borderBottomWidth: 2, borderBottomColor: '#ef4444' },
   tabText: { fontSize: 15, color: '#6b7280' },

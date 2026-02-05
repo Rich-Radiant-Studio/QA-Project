@@ -9,7 +9,7 @@ const { width: screenWidth } = Dimensions.get('window');
 
 const questions = [
   { id: 1, title: '如何在三个月内从零基础学会Python编程?有没有系统的学习路线推荐?', type: 'reward', reward: 50, likes: 128, dislikes: 12, answers: 56, shares: 34, bookmarks: 89, author: '张三丰', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user1', time: '2小时前', image: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=600&h=300&fit=crop', solvedPercent: 65, country: '中国', city: '北京' },
-  { id: 2, title: '第一次养猫需要准备什么?有哪些新手容易踩的坑?', type: 'paid', paidAmount: 9.9, likes: 256, dislikes: 8, answers: 89, shares: 56, bookmarks: 120, author: '李小明', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user2', time: '5小时前', images: ['https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=200&h=200&fit=crop', 'https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=200&h=200&fit=crop', 'https://images.unsplash.com/photo-1495360010541-f48722b34f7d?w=200&h=200&fit=crop'], solvedPercent: 80, country: '美国', city: '纽约', isPaid: false },
+  { id: 2, title: '第一次养猫需要准备什么?有哪些新手容易踩的坑?', type: 'paid', paidAmount: 9.9, likes: 256, dislikes: 8, answers: 89, shares: 56, bookmarks: 120, author: '李小明', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user2', time: '5小时前', images: ['https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=200&h=200&fit=crop', 'https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=200&h=200&fit=crop', 'https://images.unsplash.com/photo-1495360010541-f48722b34f7d?w=200&h=200&fit=crop'], solvedPercent: 80, country: '美国', city: '纽约州', state: '纽约市', isPaid: false },
   { id: 3, title: '长期失眠应该怎么调理?吃褪黑素有用吗?求专业医生解答', type: 'targeted', likes: 512, dislikes: 5, answers: 234, shares: 78, bookmarks: 156, author: '王医生', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user3', time: '昨天 18:30', verified: true, solvedPercent: 45, country: '日本', city: '东京' },
   { id: 4, title: '35岁程序员如何规划职业发展?是继续技术深耕还是转管理?', type: 'reward', reward: 100, likes: 1200, dislikes: 23, answers: 456, shares: 234, bookmarks: 567, author: '程序员小李', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user4', time: '3小时前', image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&h=300&fit=crop', solvedPercent: 30, country: '中国', city: '上海' },
   { id: 5, title: '有什么简单又好吃的家常菜推荐?最好是新手也能做的那种', type: 'free', likes: 368, dislikes: 6, answers: 127, shares: 45, bookmarks: 98, author: '美食达人', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user5', time: '6小时前', images: ['https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&h=200&fit=crop', 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=200&h=200&fit=crop'], solvedPercent: 92, country: '英国', city: '伦敦' },
@@ -33,8 +33,9 @@ const topicsData = [
 
 // 区域数据
 const regionData = {
-  countries: ['英国', '法国', '德国', '意大利', '西班牙', '荷兰', '瑞士', '瑞典', '挪威', '丹麦', '芬兰', '比利时', '奥地利', '葡萄牙', '希腊', '波兰', '捷克', '爱尔兰', '匈牙利', '罗马尼亚'],
+  countries: ['美国', '英国', '法国', '德国', '意大利', '西班牙', '荷兰', '瑞士', '瑞典', '挪威', '丹麦', '芬兰', '比利时', '奥地利', '葡萄牙', '希腊', '波兰', '捷克', '爱尔兰', '匈牙利', '罗马尼亚'],
   cities: { 
+    '美国': ['纽约州', '加利福尼亚州', '德克萨斯州', '佛罗里达州', '伊利诺伊州', '宾夕法尼亚州', '俄亥俄州', '华盛顿州', '马萨诸塞州', '亚利桑那州'],
     '英国': ['伦敦', '曼彻斯特', '伯明翰', '利物浦', '爱丁堡', '格拉斯哥', '布里斯托', '利兹', '谢菲尔德', '纽卡斯尔'], 
     '法国': ['巴黎', '马赛', '里昂', '图卢兹', '尼斯', '南特', '斯特拉斯堡', '蒙彼利埃', '波尔多', '里尔'],
     '德国': ['柏林', '慕尼黑', '汉堡', '法兰克福', '科隆', '斯图加特', '杜塞尔多夫', '多特蒙德', '埃森', '莱比锡'],
@@ -57,6 +58,16 @@ const regionData = {
     '罗马尼亚': ['布加勒斯特', '克卢日', '蒂米什瓦拉', '雅西', '康斯坦察', '克拉约瓦', '布拉索夫', '加拉茨', '普洛耶什蒂', '布勒伊拉']
   },
   states: { 
+    '纽约州': ['纽约市', '布法罗', '罗切斯特', '扬克斯', '锡拉丘兹', '奥尔巴尼', '新罗谢尔', '弗农山', '斯克内克塔迪', '尤蒂卡'],
+    '加利福尼亚州': ['洛杉矶', '圣地亚哥', '圣何塞', '旧金山', '弗雷斯诺', '萨克拉门托', '长滩', '奥克兰', '贝克斯菲尔德', '阿纳海姆'],
+    '德克萨斯州': ['休斯顿', '圣安东尼奥', '达拉斯', '奥斯汀', '沃思堡', '埃尔帕索', '阿灵顿', '科珀斯克里斯蒂', '普莱诺', '拉雷多'],
+    '佛罗里达州': ['杰克逊维尔', '迈阿密', '坦帕', '奥兰多', '圣彼得堡', '海厄利亚', '塔拉哈西', '劳德代尔堡', '彭布罗克派恩斯', '好莱坞'],
+    '伊利诺伊州': ['芝加哥', '奥罗拉', '罗克福德', '乔利埃特', '内珀维尔', '斯普林菲尔德', '皮奥里亚', '埃尔金', '沃基根', '西塞罗'],
+    '宾夕法尼亚州': ['费城', '匹兹堡', '阿伦敦', '伊利', '雷丁', '斯克兰顿', '贝瑟利恒', '兰开斯特', '哈里斯堡', '阿尔图纳'],
+    '俄亥俄州': ['哥伦布', '克利夫兰', '辛辛那提', '托莱多', '阿克伦', '代顿', '帕尔马', '扬斯敦', '坎顿', '洛雷恩'],
+    '华盛顿州': ['西雅图', '斯波坎', '塔科马', '温哥华', '贝尔维尤', '肯特', '埃弗里特', '伦顿', '斯波坎谷', '联邦路'],
+    '马萨诸塞州': ['波士顿', '伍斯特', '斯普林菲尔德', '洛厄尔', '剑桥', '新贝德福德', '布罗克顿', '昆西', '林恩', '福尔里弗'],
+    '亚利桑那州': ['凤凰城', '图森', '梅萨', '钱德勒', '格伦代尔', '斯科茨代尔', '吉尔伯特', '坦佩', '皮奥里亚', '惊奇城'],
     '伦敦': ['威斯敏斯特', '肯辛顿', '切尔西', '卡姆登', '伊斯灵顿', '哈克尼', '陶尔哈姆莱茨', '格林威治', '刘易舍姆', '南华克'], 
     '曼彻斯特': ['市中心', '索尔福德', '特拉福德', '斯托克波特', '奥尔德姆', '罗奇代尔', '博尔顿', '伯里', '维根', '坦姆赛德'],
     '巴黎': ['第1区', '第2区', '第3区', '第4区', '第5区', '第6区', '第7区', '第8区', '第9区', '第10区', '第11区', '第12区', '第13区', '第14区', '第15区', '第16区', '第17区', '第18区', '第19区', '第20区'],
@@ -84,6 +95,9 @@ const regionData = {
     '布加勒斯特': ['第1区', '第2区', '第3区', '第4区', '第5区', '第6区']
   },
   districts: { 
+    '纽约市': ['曼哈顿', '布鲁克林', '皇后区', '布朗克斯', '史坦顿岛'],
+    '洛杉矶': ['好莱坞', '比佛利山庄', '圣莫尼卡', '威尼斯', '市中心', '银湖', '回声公园', '韦斯特伍德', '布伦特伍德', '帕萨迪纳'],
+    '芝加哥': ['卢普区', '林肯公园', '威克公园', '湖景', '洛根广场', '海德公园', '南环', '西环', '北环', '河北'],
     '威斯敏斯特': ['科文特花园', '梅费尔', '圣詹姆斯', '贝尔格拉维亚', '皮姆利科', '帕丁顿', '马里波恩'], 
     '肯辛顿': ['南肯辛顿', '诺丁山', '荷兰公园', '伯爵宫', '切尔西'], 
     '第1区': ['卢浮宫', '旺多姆广场', '协和广场', '杜乐丽花园'],
@@ -116,6 +130,73 @@ export default function HomeScreen({ navigation }) {
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
   
+  // 时间格式化函数
+  const formatTime = (timeStr) => {
+    // 如果已经是格式化的字符串（如"2小时前"），需要解析
+    const now = new Date();
+    let targetTime;
+    
+    // 解析不同格式的时间字符串
+    if (timeStr.includes('小时前')) {
+      const hours = parseInt(timeStr);
+      targetTime = new Date(now.getTime() - hours * 60 * 60 * 1000);
+    } else if (timeStr.includes('分钟前')) {
+      const minutes = parseInt(timeStr);
+      targetTime = new Date(now.getTime() - minutes * 60 * 1000);
+    } else if (timeStr.includes('昨天')) {
+      targetTime = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    } else {
+      // 假设是时间戳或其他格式
+      targetTime = new Date(timeStr);
+    }
+    
+    const diff = now - targetTime;
+    const minutes = Math.floor(diff / (1000 * 60));
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    
+    if (days >= 1) {
+      return '昨天';
+    } else if (hours >= 1) {
+      return `${hours}小时前`;
+    } else if (minutes >= 1) {
+      return `${minutes}分钟前`;
+    } else {
+      return '刚刚';
+    }
+  };
+
+  // 根据选择的区域层级显示地区信息
+  const getLocationDisplay = (item) => {
+    // 始终根据问题本身的地区数据来显示
+    // 如果没有选择任何区域，只显示国家
+    if (!selectedRegion.country) {
+      return item.country;
+    }
+    
+    // 如果只选择了国家，显示城市（省份/州）
+    if (selectedRegion.country && !selectedRegion.city) {
+      return item.city || item.country;
+    }
+    
+    // 如果选择了城市（省份/州），显示州/区（如果有的话）
+    if (selectedRegion.city && !selectedRegion.state) {
+      return item.state || item.city || item.country;
+    }
+    
+    // 如果选择了州/区，显示最后一层（区）
+    if (selectedRegion.state && !selectedRegion.district) {
+      return item.district || item.state || item.city;
+    }
+    
+    // 如果选择了最后一层，显示最后一层的名字
+    if (selectedRegion.district) {
+      return item.district || item.state || item.city;
+    }
+    
+    // 默认显示国家
+    return item.country;
+  };
 
 
 
@@ -396,7 +477,7 @@ export default function HomeScreen({ navigation }) {
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           activeOpacity={0.7}
         >
-          <Ionicons name="people-circle-outline" size={24} color="#4b5563" />
+          <Ionicons name="person-add-outline" size={22} color="#4b5563" />
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.notifyBtn}
@@ -525,25 +606,31 @@ export default function HomeScreen({ navigation }) {
             return (
               <TouchableOpacity style={[styles.questionCard, isFirstItem && styles.firstQuestionCard]} onPress={() => navigation.navigate('QuestionDetail', { id: item.id })}>
                 <View style={[styles.questionCardInner, isLastItem && styles.lastQuestionCardInner]}>
-                  {/* 问题标题 */}
-                  <View style={styles.questionTitleContainer}>
-                    {item.type === 'reward' && item.reward && (
-                      <View style={styles.rewardTagInline}>
-                        <Text style={styles.rewardTagText}>${item.reward}</Text>
-                      </View>
-                    )}
-                    {item.type === 'targeted' && (
-                      <View style={styles.targetedTagInline}>
-                        <Text style={styles.targetedTagText}>定向</Text>
-                      </View>
-                    )}
-                    {item.type === 'paid' && (
-                      <View style={styles.paidTagInline}>
-                        <Ionicons name="lock-closed" size={10} color="#fff" />
-                        <Text style={styles.paidTagText}>付费</Text>
-                      </View>
-                    )}
-                    <Text style={styles.questionTitle}>{item.title}</Text>
+                  {/* 问题标题和标签 */}
+                  <View style={styles.questionTitleWrapper}>
+                    <Text style={styles.questionTitle}>
+                      {(item.type === 'reward' && item.reward) || (item.type === 'targeted' && item.reward) || item.type === 'paid' ? (
+                        <>
+                          {item.type === 'reward' && item.reward && (
+                            <Text style={styles.rewardTagInline}> ${item.reward} </Text>
+                          )}
+                          {item.type === 'targeted' && (
+                            <>
+                              {item.reward && item.reward > 0 ? (
+                                <Text style={styles.targetedTagInline}> ${item.reward} </Text>
+                              ) : (
+                                <Text style={styles.targetedTagInline}> 定向 </Text>
+                              )}
+                            </>
+                          )}
+                          {item.type === 'paid' && (
+                            <Text style={styles.paidTagInline}> 付费 </Text>
+                          )}
+                          {'  '}
+                        </>
+                      ) : null}
+                      {item.title}
+                    </Text>
                   </View>
 
                   {/* 付费查看按钮 */}
@@ -639,14 +726,14 @@ export default function HomeScreen({ navigation }) {
                   {/* 头像、姓名、时间、地区 - 全部放在一行,右侧放点赞和评论 */}
                   <View style={styles.cardHeader}>
                     <View style={styles.cardHeaderLeft}>
-                      <Avatar uri={item.avatar} name={item.author} size={24} />
+                      <Avatar uri={item.avatar} name={item.author} size={17} />
                       <Text style={styles.authorName}>{item.author}</Text>
                       {item.verified && <Ionicons name="checkmark-circle" size={10} color="#3b82f6" style={{ marginLeft: 2 }} />}
                       <Text style={styles.metaSeparator}>·</Text>
-                      <Text style={styles.postTime}>{item.time}</Text>
+                      <Text style={styles.postTime}>{formatTime(item.time)}</Text>
                       <Text style={styles.metaSeparator}>·</Text>
                       <Ionicons name="location-outline" size={9} color="#9ca3af" />
-                      <Text style={styles.locationText}>{item.country} · {item.city}</Text>
+                      <Text style={styles.locationText}>{getLocationDisplay(item)}</Text>
                     </View>
                     <View style={styles.cardHeaderRight}>
                       <TouchableOpacity style={styles.headerActionBtn} onPress={() => toggleLike(item.id)}>
@@ -917,8 +1004,8 @@ const styles = StyleSheet.create({
   regionText: { fontSize: 12, color: '#ef4444', marginLeft: 4, fontWeight: '500', lineHeight: 16, includeFontPadding: false, maxWidth: 56 },
   searchBar: { flex: 1, height: 36, backgroundColor: '#f5f5f5', borderRadius: 18, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, marginHorizontal: 10 },
   searchPlaceholder: { fontSize: 14, color: '#999999', marginLeft: 6 },
-  teamBtn: { flexDirection: 'row', alignItems: 'center', padding: 6, marginLeft: 8 },
-  notifyBtn: { flexDirection: 'row', alignItems: 'center', padding: 6, marginLeft: 0, position: 'relative' },
+  teamBtn: { flexDirection: 'row', alignItems: 'center', padding: 6, marginLeft: 4 },
+  notifyBtn: { flexDirection: 'row', alignItems: 'center', padding: 6, marginLeft: 4, position: 'relative' },
   badge: { position: 'absolute', top: 6, right: 6, width: 8, height: 8, backgroundColor: '#ef4444', borderRadius: 4 },
   tabBarContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#ffffff', height: 44, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: '#ebebeb' },
   tabBar: { flex: 1 },
@@ -930,7 +1017,7 @@ const styles = StyleSheet.create({
   socialButtonsBar: { flexDirection: 'row', backgroundColor: '#fff', paddingHorizontal: 12, paddingVertical: 10, gap: 12, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
   socialButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f9fafb', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, gap: 6, borderWidth: 1, borderColor: '#e5e7eb' },
   socialButtonText: { fontSize: 13, color: '#4b5563', fontWeight: '500' },
-  listContainer: { flex: 1 },
+  listContainer: { flex: 1, backgroundColor: '#ffffff' },
   list: { flex: 1, paddingTop: 0, paddingHorizontal: 0 },
   footerLoading: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingVertical: 20 },
   footerText: { marginLeft: 8, fontSize: 14, color: '#9ca3af' },
@@ -941,31 +1028,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 0,
     paddingBottom: 0,
-    borderBottomWidth: 0,
   },
   firstQuestionCard: {
-    paddingTop: 14,
+    paddingTop: 0,
   },
   questionCardInner: {
+    paddingTop: 10,
+    paddingBottom: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e5e5',
-    paddingBottom: 14,
-    paddingTop: 14,
+    borderBottomColor: '#e8e8e8',
   },
   lastQuestionCardInner: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e5e5',
+    paddingTop: 10,
+    paddingBottom: 10,
+    borderBottomWidth: 0,
   },
-  questionTitleContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
+  questionTitleWrapper: {
     marginBottom: 8,
   },
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: 12
+    marginTop: 4
   },
   cardHeaderLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
   cardHeaderRight: { flexDirection: 'row', alignItems: 'center' },
@@ -977,13 +1062,41 @@ const styles = StyleSheet.create({
   headerActionBtn: { flexDirection: 'row', alignItems: 'center', marginLeft: 16 },
   headerActionText: { fontSize: 12, color: '#666666', marginLeft: 4 },
   headerMoreBtn: { padding: 2, marginLeft: 16 },
-  rewardTagInline: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(240, 68, 68, 0.08)', paddingHorizontal: 4, paddingVertical: 1, borderRadius: 2, marginRight: 6, marginTop: 2 },
-  rewardTagText: { fontSize: 10, color: '#f04444', fontWeight: '700', textTransform: 'uppercase', includeFontPadding: false },
-  targetedTagInline: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(147, 51, 234, 0.08)', paddingHorizontal: 4, paddingVertical: 1, borderRadius: 2, marginRight: 6, marginTop: 2 },
-  targetedTagText: { fontSize: 10, color: '#9333ea', fontWeight: '700', textTransform: 'uppercase', includeFontPadding: false },
-  paidTagInline: { flexDirection: 'row', alignItems: 'center', gap: 2, backgroundColor: '#f59e0b', paddingHorizontal: 4, paddingVertical: 1, borderRadius: 2, marginRight: 6, marginTop: 2 },
+  rewardTagInline: { 
+    backgroundColor: 'transparent', 
+    paddingHorizontal: 0, 
+    paddingVertical: 0, 
+    borderRadius: 0,
+    fontSize: 19, 
+    color: '#ef4444', 
+    fontWeight: '600',
+    includeFontPadding: false,
+    lineHeight: 22,
+  },
+  targetedTagInline: { 
+    backgroundColor: 'transparent', 
+    paddingHorizontal: 0, 
+    paddingVertical: 0, 
+    borderRadius: 0,
+    fontSize: 19, 
+    color: '#8b5cf6', 
+    fontWeight: '600',
+    includeFontPadding: false,
+    lineHeight: 22,
+  },
+  paidTagInline: { 
+    backgroundColor: 'transparent', 
+    paddingHorizontal: 0, 
+    paddingVertical: 0, 
+    borderRadius: 0,
+    fontSize: 18, 
+    color: '#f59e0b', 
+    fontWeight: '600',
+    includeFontPadding: false,
+    lineHeight: 22,
+  },
   paidTagText: { fontSize: 10, color: '#fff', fontWeight: '700', textTransform: 'uppercase', includeFontPadding: false },
-  paidViewButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#fffbeb', borderWidth: 1, borderColor: '#fef3c7', borderRadius: 8, paddingHorizontal: 16, paddingVertical: 12, marginBottom: 12, borderStyle: 'dashed' },
+  paidViewButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#fffbeb', borderWidth: 1, borderColor: '#fef3c7', borderRadius: 8, paddingHorizontal: 16, paddingVertical: 12, marginBottom: 6, borderStyle: 'dashed' },
   paidViewContent: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   paidViewText: { fontSize: 14, color: '#92400e', fontWeight: '500' },
   paidViewPrice: { flexDirection: 'row', alignItems: 'center', gap: 4 },
@@ -995,16 +1108,16 @@ const styles = StyleSheet.create({
     color: '#1a1a1a',
     letterSpacing: -0.2,
     fontFamily: Platform.OS === 'ios' ? 'System' : 'sans-serif-medium',
-    flex: 1,
+    textAlign: 'left',
   },
   imagesContainer: {
-    marginBottom: 12,
+    marginBottom: 6,
   },
   singleImage: { 
     width: '100%', 
     height: 200, 
     borderRadius: 8,
-    marginBottom: 12,
+    marginBottom: 6,
   },
   twoImagesGrid: {
     flexDirection: 'row',

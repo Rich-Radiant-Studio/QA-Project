@@ -92,21 +92,21 @@ export default function FollowScreen({ navigation }) {
         <View style={{ display: activeTab === '问题' ? 'flex' : 'none' }}>
           {followedQuestions.map(item => (
             <TouchableOpacity key={item.id} style={styles.questionCard} onPress={() => navigation.navigate('QuestionDetail', { id: item.id })}>
-              <View style={styles.questionHeader}>
-                <Avatar uri={item.avatar} name={item.author} size={40} />
-                <View style={styles.questionAuthorInfo}>
-                  <View style={styles.authorNameRow}>
-                    <Text style={styles.authorName}>{item.author}</Text>
-                    {item.verified && <Ionicons name="checkmark-circle" size={14} color="#3b82f6" />}
-                  </View>
+              <Text style={styles.questionTitle}>
+                {item.type === 'reward' && item.reward && (
+                  <Text style={styles.rewardTagInline}> ${item.reward} </Text>
+                )}
+                {item.title}
+              </Text>
+              <View style={styles.questionHeaderRow}>
+                <View style={styles.questionHeaderLeft}>
+                  <Avatar uri={item.avatar} name={item.author} size={17} />
+                  <Text style={styles.authorName}>{item.author}</Text>
+                  {item.verified && <Ionicons name="checkmark-circle" size={10} color="#3b82f6" style={{ marginLeft: 2 }} />}
+                  <Text style={styles.metaSeparator}>·</Text>
                   <Text style={styles.questionTime}>{item.time}</Text>
                 </View>
                 <View style={styles.rewardContainer}>
-                  {item.type === 'reward' && (
-                    <View style={styles.rewardAmountContainer}>
-                      <Text style={styles.rewardAmount}>${item.reward}</Text>
-                    </View>
-                  )}
                   {item.answerTypes && item.answerTypes.map((answerType, index) => (
                     <View 
                       key={index}
@@ -115,14 +115,16 @@ export default function FollowScreen({ navigation }) {
                         answerType === 'public' ? styles.publicTag : styles.targetedTag
                       ]}
                     >
-                      <Text style={styles.answerTypeText}>
+                      <Text style={[
+                        styles.answerTypeText,
+                        { color: answerType === 'public' ? '#16a34a' : '#9333ea' }
+                      ]}>
                         {answerType === 'public' ? '公开' : '定向'}
                       </Text>
                     </View>
                   ))}
                 </View>
               </View>
-              <Text style={styles.questionTitle}>{item.title}</Text>
               <View style={styles.questionFooter}>
                 <View style={styles.questionStats}>
                   <TouchableOpacity style={styles.statBtn} onPress={() => toggleLike(item.id)}>
@@ -252,7 +254,7 @@ export default function FollowScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f3f4f6' },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#fff', paddingHorizontal: 16, paddingVertical: 12 },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#fff', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#e5e7eb' },
   backBtn: { padding: 4 },
   headerTitle: { fontSize: 18, fontWeight: 'bold', color: '#1f2937' },
   tabBar: { flexDirection: 'row', backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
@@ -263,28 +265,57 @@ const styles = StyleSheet.create({
   content: { flex: 1 },
   // 问题卡片样式
   questionCard: { backgroundColor: '#fff', marginTop: 8, padding: 12 },
-  questionHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
+  questionTitle: { fontSize: 15, fontWeight: '500', color: '#1f2937', lineHeight: 22, marginBottom: 10 },
+  rewardTagInline: { 
+    backgroundColor: 'transparent', 
+    fontSize: 19, 
+    color: '#ef4444', 
+    fontWeight: '600',
+    lineHeight: 22,
+  },
+  questionHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 0 },
+  questionHeaderLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
+  questionHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 0 },
   questionAvatar: { width: 40, height: 40, borderRadius: 20 },
   questionAuthorInfo: { flex: 1, marginLeft: 10 },
   authorNameRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  authorName: { fontSize: 14, fontWeight: '500', color: '#1f2937' },
-  questionTime: { fontSize: 12, color: '#9ca3af', marginTop: 2 },
+  authorName: { fontSize: 12, color: '#999999', marginLeft: 4 },
+  questionTime: { fontSize: 12, color: '#999999' },
+  metaSeparator: { fontSize: 12, color: '#999999', marginHorizontal: 3 },
   typeTag: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
   typeTagText: { color: '#fff', fontSize: 11, fontWeight: '500' },
   // 新的悬赏容器样式
   rewardContainer: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   rewardAmount: { fontSize: 16, fontWeight: 'bold', color: '#ef4444' },
-  answerTypeTag: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
-  answerTypeText: { color: '#fff', fontSize: 11, fontWeight: '500' },
-  publicTag: { backgroundColor: '#22c55e' },
-  targetedTag: { backgroundColor: '#8b5cf6' },
-  questionTitle: { fontSize: 15, fontWeight: '500', color: '#1f2937', lineHeight: 22 },
-  questionFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#f3f4f6' },
+  answerTypeTag: { 
+    paddingHorizontal: 8, 
+    paddingVertical: 3, 
+    borderRadius: 4,
+    borderWidth: 1,
+  },
+  answerTypeText: { fontSize: 10, fontWeight: '500' },
+  publicTag: { 
+    backgroundColor: '#dcfce7',
+    borderColor: '#86efac',
+  },
+  targetedTag: { 
+    backgroundColor: '#f3e8ff',
+    borderColor: '#d8b4fe',
+  },
+  questionFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8, paddingTop: 8, borderTopWidth: 1, borderTopColor: '#f3f4f6' },
   questionStats: { flexDirection: 'row', gap: 16 },
   statBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  statText: { fontSize: 13, color: '#6b7280' },
-  answerBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#ef4444', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 14, gap: 4 },
-  answerBtnText: { fontSize: 12, color: '#fff', fontWeight: '500' },
+  statText: { fontSize: 12, color: '#6b7280' },
+  answerBtn: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: '#ef4444',
+    paddingHorizontal: 12, 
+    paddingVertical: 5, 
+    borderRadius: 14, 
+    gap: 3 
+  },
+  answerBtnText: { fontSize: 11, color: '#fff', fontWeight: '500' },
   // 搜索框样式
   searchSection: { backgroundColor: '#fff', padding: 12, marginTop: 8 },
   searchBar: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f3f4f6', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 8 },

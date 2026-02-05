@@ -39,10 +39,21 @@ const Tab = createBottomTabNavigator();
 
 // 紧急求助弹窗组件
 function EmergencyModal({ visible, onClose, onSubmit }) {
-  const [emergencyForm, setEmergencyForm] = useState({ title: '', description: '', location: '北京市朝阳区', contact: '' });
-  const freeCount = 3; // 每日免费次数
+  const [emergencyForm, setEmergencyForm] = useState({ title: '', description: '', location: '北京市朝阳区', contact: '', rescuerCount: 1 });
+  const freeCount = 1; // 每月免费次数
   const usedCount = 0; // 已使用次数
   const remainingFree = freeCount - usedCount;
+
+  // 救援人数计费逻辑
+  const freeRescuerLimit = 5; // 免费人数上限
+  const extraRescuerFee = 2; // 超出每人费用（美元）
+  
+  const calculateRescuerFee = (count) => {
+    if (count <= freeRescuerLimit) return 0;
+    return (count - freeRescuerLimit) * extraRescuerFee;
+  };
+
+  const rescuerFee = calculateRescuerFee(emergencyForm.rescuerCount || 1);
 
   // 常用求助标题
   const quickTitles = [
@@ -56,9 +67,10 @@ function EmergencyModal({ visible, onClose, onSubmit }) {
       alert('请输入求助标题');
       return;
     }
-    alert('紧急求助已发布，附近用户将收到通知！');
+    const feeInfo = rescuerFee > 0 ? `\n需支付救援费用：$${rescuerFee}` : '';
+    alert(`紧急求助已发布！\n需要救援人数：${emergencyForm.rescuerCount}人${feeInfo}\n附近用户将收到通知！`);
     onClose();
-    setEmergencyForm({ title: '', description: '', location: '北京市朝阳区', contact: '' });
+    setEmergencyForm({ title: '', description: '', location: '北京市朝阳区', contact: '', rescuerCount: 1 });
   };
 
   return (
@@ -89,14 +101,18 @@ function EmergencyModal({ visible, onClose, onSubmit }) {
         {/* 免费次数显示 */}
         <View style={modalStyles.freeCountBanner}>
           <View style={modalStyles.freeCountLeft}>
-            <Ionicons name="gift" size={20} color="#22c55e" />
-            <Text style={modalStyles.freeCountText}>今日剩余免费次数：</Text>
-            <Text style={modalStyles.freeCountNumber}>{remainingFree}/{freeCount}</Text>
+            <Ionicons name="gift" size={20} color={remainingFree > 0 ? "#22c55e" : "#9ca3af"} />
+            <Text style={modalStyles.freeCountText}>本月免费次数：</Text>
+            <Text style={[modalStyles.freeCountNumber, remainingFree <= 0 && { color: '#9ca3af' }]}>{remainingFree}/{freeCount}</Text>
           </View>
           {remainingFree <= 0 && (
-            <View style={modalStyles.needPayTag}>
-              <Text style={modalStyles.needPayText}>需付费 ¥5</Text>
-            </View>
+            <TouchableOpacity 
+              style={modalStyles.monthlyPayButton}
+              onPress={() => alert('支付 $5 解锁本月紧急求助\n\n支付方式：\n• 信用卡\n• PayPal\n• Apple Pay\n• Google Pay')}
+            >
+              <Text style={modalStyles.monthlyPayButtonText}>支付 $5</Text>
+              <Ionicons name="arrow-forward" size={14} color="#fff" />
+            </TouchableOpacity>
           )}
         </View>
 
@@ -175,6 +191,80 @@ function EmergencyModal({ visible, onClose, onSubmit }) {
             </View>
           </View>
 
+          {/* 救援人数选择器 */}
+          <View style={modalStyles.emergencyFormGroup}>
+            <View style={modalStyles.rescuerCountHeader}>
+              <Text style={modalStyles.emergencyFormLabel}>需要救援人数</Text>
+              <View style={modalStyles.rescuerFreeTag}>
+                <Ionicons name="information-circle" size={14} color="#22c55e" />
+                <Text style={modalStyles.rescuerFreeText}>5人内免费</Text>
+              </View>
+            </View>
+            
+            <View style={modalStyles.rescuerCountInputWrapper}>
+              <TextInput
+                style={modalStyles.rescuerCountInput}
+                placeholder="请输入需要的救援人数"
+                placeholderTextColor="#bbb"
+                value={emergencyForm.rescuerCount === 0 ? '' : emergencyForm.rescuerCount.toString()}
+                onChangeText={(text) => {
+                  // 允许空字符串，方便用户删除重新输入
+                  if (text === '') {
+                    setEmergencyForm({...emergencyForm, rescuerCount: 0});
+                    return;
+                  }
+                  // 只允许数字
+                  const num = parseInt(text);
+                  if (!isNaN(num)) {
+                    const validNum = Math.max(1, Math.min(20, num));
+                    setEmergencyForm({...emergencyForm, rescuerCount: validNum});
+                  }
+                }}
+                onBlur={() => {
+                  // 失去焦点时，如果为空或0，设置为1
+                  if (emergencyForm.rescuerCount === 0) {
+                    setEmergencyForm({...emergencyForm, rescuerCount: 1});
+                  }
+                }}
+                keyboardType="number-pad"
+                maxLength={2}
+              />
+              <Text style={modalStyles.rescuerCountUnit}>人</Text>
+            </View>
+
+            {/* 费用显示 */}
+            <View style={modalStyles.rescuerFeeInfo}>
+              {rescuerFee === 0 ? (
+                <View style={modalStyles.rescuerFeeRow}>
+                  <Ionicons name="checkmark-circle" size={16} color="#22c55e" />
+                  <Text style={modalStyles.rescuerFeeTextFree}>当前人数免费</Text>
+                </View>
+              ) : (
+                <View style={modalStyles.rescuerFeeCard}>
+                  <View style={modalStyles.rescuerFeeRow}>
+                    <View style={modalStyles.rescuerFeeLeft}>
+                      <Text style={modalStyles.rescuerFeeLabel}>超出人数：</Text>
+                      <Text style={modalStyles.rescuerFeeExtra}>{emergencyForm.rescuerCount - freeRescuerLimit}人 × ${extraRescuerFee}</Text>
+                    </View>
+                    <View style={modalStyles.rescuerFeeRight}>
+                      <Text style={modalStyles.rescuerFeeTotalLabel}>需支付</Text>
+                      <Text style={modalStyles.rescuerFeeTotal}>${rescuerFee}</Text>
+                    </View>
+                  </View>
+                  <Text style={modalStyles.rescuerFeeNote}>💡 超过5人，每增加1人收费$2</Text>
+                  <TouchableOpacity 
+                    style={modalStyles.payButton}
+                    onPress={() => alert(`支付 $${rescuerFee}\n\n支付方式：\n• 信用卡\n• PayPal\n• Apple Pay\n• Google Pay`)}
+                  >
+                    <Ionicons name="card" size={18} color="#fff" />
+                    <Text style={modalStyles.payButtonText}>立即支付 ${rescuerFee}</Text>
+                    <Ionicons name="arrow-forward" size={16} color="#fff" />
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+          </View>
+
           <View style={modalStyles.emergencyTips}>
             <Text style={modalStyles.emergencyTipsTitle}>温馨提示</Text>
             <Text style={modalStyles.emergencyTipsText}>• 紧急求助将推送给附近 5km 内的用户</Text>
@@ -204,6 +294,8 @@ const modalStyles = StyleSheet.create({
   freeCountLeft: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   freeCountText: { fontSize: 14, color: '#374151' },
   freeCountNumber: { fontSize: 16, fontWeight: 'bold', color: '#22c55e' },
+  monthlyPayButton: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#ef4444', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, shadowColor: '#ef4444', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 3, elevation: 2 },
+  monthlyPayButtonText: { fontSize: 13, color: '#fff', fontWeight: '600' },
   needPayTag: { backgroundColor: '#fef3c7', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
   needPayText: { fontSize: 12, color: '#92400e', fontWeight: '500' },
   emergencyFormArea: { flex: 1, padding: 16 },
@@ -223,6 +315,28 @@ const modalStyles = StyleSheet.create({
   emergencyLocationBtnText: { fontSize: 13, color: '#3b82f6', fontWeight: '500' },
   emergencyContactInput: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 8, paddingHorizontal: 12, gap: 8 },
   emergencyContactText: { flex: 1, paddingVertical: 12, fontSize: 15, color: '#1f2937' },
+  
+  // 救援人数选择器样式
+  rescuerCountHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
+  rescuerFreeTag: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#f0fdf4', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, borderWidth: 1, borderColor: '#bbf7d0' },
+  rescuerFreeText: { fontSize: 12, color: '#16a34a', fontWeight: '500' },
+  rescuerCountInputWrapper: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 8, paddingHorizontal: 12, gap: 8 },
+  rescuerCountInput: { flex: 1, paddingVertical: 12, fontSize: 15, color: '#1f2937' },
+  rescuerCountUnit: { fontSize: 15, color: '#6b7280', fontWeight: '500' },
+  rescuerFeeInfo: { marginTop: 12 },
+  rescuerFeeRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  rescuerFeeTextFree: { fontSize: 14, color: '#22c55e', fontWeight: '500' },
+  rescuerFeeCard: { backgroundColor: '#fff7ed', borderWidth: 1, borderColor: '#fed7aa', borderRadius: 8, padding: 12 },
+  rescuerFeeLeft: { flex: 1 },
+  rescuerFeeLabel: { fontSize: 13, color: '#92400e', marginBottom: 4 },
+  rescuerFeeExtra: { fontSize: 15, color: '#ea580c', fontWeight: '600' },
+  rescuerFeeRight: { alignItems: 'flex-end' },
+  rescuerFeeTotalLabel: { fontSize: 12, color: '#92400e', marginBottom: 2 },
+  rescuerFeeTotal: { fontSize: 24, fontWeight: 'bold', color: '#ef4444' },
+  rescuerFeeNote: { fontSize: 12, color: '#92400e', marginTop: 8 },
+  payButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ef4444', paddingVertical: 12, paddingHorizontal: 16, borderRadius: 8, marginTop: 12, gap: 8, shadowColor: '#ef4444', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 3 },
+  payButtonText: { fontSize: 15, color: '#fff', fontWeight: '600' },
+  
   emergencyTips: { backgroundColor: '#fef2f2', borderRadius: 8, padding: 12, marginTop: 8 },
   emergencyTipsTitle: { fontSize: 13, fontWeight: '500', color: '#991b1b', marginBottom: 8 },
   emergencyTipsText: { fontSize: 12, color: '#b91c1c', lineHeight: 20 },

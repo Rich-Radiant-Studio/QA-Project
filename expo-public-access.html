@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QA问答平台 - 公网访问</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      padding: 48px;
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
+    }
+    h1 {
+      color: #1f2937;
+      font-size: 32px;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+    .subtitle {
+      color: #6b7280;
+      font-size: 16px;
+      margin-bottom: 32px;
+    }
+    .qrcode-wrapper {
+      background: #f9fafb;
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 32px;
+      display: inline-block;
+    }
+    .qrcode-wrapper img {
+      width: 300px;
+      height: 300px;
+      display: block;
+    }
+    .url-box {
+      background: #f3f4f6;
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      word-break: break-all;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      color: #374151;
+      border: 2px solid #e5e7eb;
+    }
+    .instructions {
+      background: #eff6ff;
+      border-left: 4px solid #3b82f6;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: left;
+      margin-bottom: 24px;
+    }
+    .instructions h3 {
+      color: #1e40af;
+      font-size: 18px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .instructions ol {
+      margin-left: 20px;
+      color: #1f2937;
+      line-height: 1.8;
+    }
+    .instructions li {
+      margin-bottom: 8px;
+    }
+    .badge {
+      display: inline-block;
+      background: #ef4444;
+      color: white;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+    .footer {
+      color: #9ca3af;
+      font-size: 14px;
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid #e5e7eb;
+    }
+    .icon {
+      font-size: 24px;
+    }
+    @media (max-width: 640px) {
+      .container {
+        padding: 32px 24px;
+      }
+      h1 {
+        font-size: 24px;
+      }
+      .qrcode-wrapper img {
+        width: 240px;
+        height: 240px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎯 QA问答平台</h1>
+    <p class="subtitle">使用 Expo Go 扫码体验</p>
+    
+    <div class="badge">✨ 公网访问链接</div>
+    
+    <div class="qrcode-wrapper">
+      <img src="expo-public-access-qrcode.png" alt="QR Code">
+    </div>
+    
+    <div class="url-box">
+      exp://atllyxa-nizizizi-8081.exp.direct
+    </div>
+    
+    <div class="instructions">
+      <h3><span class="icon">📱</span> 使用说明</h3>
+      <ol>
+        <li><strong>下载 Expo Go</strong>：在手机应用商店搜索并安装 "Expo Go"</li>
+        <li><strong>打开应用</strong>：启动 Expo Go 应用</li>
+        <li><strong>扫描二维码</strong>：使用应用内的扫码功能扫描上方二维码</li>
+        <li><strong>开始体验</strong>：等待应用加载完成即可使用</li>
+      </ol>
+    </div>
+    
+    <div class="footer">
+      <p>⚡ 由 Expo Tunnel 提供公网访问支持</p>
+      <p style="margin-top: 8px;">🔒 此链接在服务器运行期间有效</p>
+    </div>
+  </div>
+</body>
+</html>
