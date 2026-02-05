@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, Alert, Share, Modal } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, Alert, Share, Modal, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import Avatar from '../components/Avatar';
@@ -16,6 +16,7 @@ const menuItems = [
   { icon: 'people', label: '我的群聊', value: '5', color: '#a855f7' },
   { icon: 'people-circle', label: '我的团队', value: '2', color: '#f59e0b' },
   { icon: 'calendar', label: '我的活动', value: '2', color: '#ef4444' },
+  { icon: 'shield-checkmark', label: '我要认证', value: '', color: '#3b82f6' },
 ];
 
 const myQuestions = [
@@ -69,6 +70,77 @@ export default function ProfileScreen({ navigation, onLogout }) {
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [showDraftsModal, setShowDraftsModal] = useState(false);
   const [favoritesTab, setFavoritesTab] = useState('questions');
+  
+  // 认证状态: 'none' | 'personal' | 'enterprise' | 'government'
+  const [verificationType, setVerificationType] = useState('none'); // 示例：未认证（显示"去认证"按钮）
+  
+  // 认证弹窗状态
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const [verificationStep, setVerificationStep] = useState(0); // 0: 选择类型, 1: 填写信息, 2: 确认信息
+  const [selectedVerificationType, setSelectedVerificationType] = useState(''); // 'personal' | 'enterprise' | 'government'
+  const [verificationData, setVerificationData] = useState({
+    personal: {
+      name: '',
+      idType: 'idCard',
+      idNumber: '',
+      idFront: null,
+      idBack: null,
+      idHold: null,
+    },
+    enterprise: {
+      name: '',
+      creditCode: '',
+      registrationNumber: '',
+      taxNumber: '',
+      address: '',
+      license: null,
+      legalName: '',
+      legalIdNumber: '',
+      phone: '',
+    },
+    government: {
+      name: '',
+      creditCode: '',
+      type: '',
+      department: '',
+      address: '',
+      certificate: null,
+      authorization: null,
+      authorizerName: '',
+      authorizerPosition: '',
+      authorizerIdNumber: '',
+      phone: '',
+    },
+  });
+
+  // 获取认证图标和文字信息
+  const getVerificationInfo = () => {
+    switch (verificationType) {
+      case 'personal':
+        return { color: '#f59e0b', icon: 'checkmark', text: '个人认证', verified: true }; // 黄色V标 - 个人认证
+      case 'enterprise':
+        return { color: '#3b82f6', icon: 'checkmark', text: '企业认证', verified: true }; // 蓝色V标 - 企业认证
+      case 'government':
+        return { color: '#ef4444', icon: 'checkmark', text: '政府认证', verified: true }; // 红色V标 - 政府认证
+      case 'none':
+      default:
+        return { color: '#9ca3af', icon: 'close', text: '未认证', verified: false }; // 未认证 - 灰色X标
+    }
+  };
+
+  const verificationInfo = getVerificationInfo();
+
+  // 处理认证标识点击
+  const handleVerificationPress = () => {
+    if (!verificationInfo.verified) {
+      // 未认证，打开认证弹窗
+      setShowVerificationModal(true);
+      setVerificationStep(0);
+    } else {
+      // 已认证，显示认证详情
+      Alert.alert('认证信息', `您已完成${verificationInfo.text}\n认证时间：2025-12-15\n认证机构：官方认证中心`);
+    }
+  };
 
   const handleShare = async () => {
     try {
@@ -114,6 +186,11 @@ export default function ProfileScreen({ navigation, onLogout }) {
       case '我的活动':
         // 使用jumpTo跳转到活动Tab
         navigation.navigate('活动', { fromProfile: true });
+        break;
+      case '我要认证':
+        // 打开认证弹窗
+        setShowVerificationModal(true);
+        setVerificationStep(0);
         break;
       default:
         break;
@@ -196,6 +273,96 @@ export default function ProfileScreen({ navigation, onLogout }) {
     }
   };
 
+  // 认证弹窗处理函数
+  const handleSelectVerificationType = (type) => {
+    setSelectedVerificationType(type);
+    setVerificationStep(1);
+  };
+
+  const handleVerificationBack = () => {
+    if (verificationStep === 0) {
+      setShowVerificationModal(false);
+    } else {
+      setVerificationStep(verificationStep - 1);
+    }
+  };
+
+
+
+  const handleVerificationSubmit = () => {
+    // 验证数据
+    const data = verificationData[selectedVerificationType];
+    if (selectedVerificationType === 'personal') {
+      if (!data.idNumber) {
+        Alert.alert('提示', '请填写证件号码');
+        return;
+      }
+    } else if (selectedVerificationType === 'enterprise') {
+      if (!data.name || !data.registrationNumber || !data.taxNumber || !data.address) {
+        Alert.alert('提示', '请填写完整的企业信息');
+        return;
+      }
+    } else if (selectedVerificationType === 'government') {
+      if (!data.name || !data.creditCode || !data.department || !data.authorizerName || !data.authorizerPosition) {
+        Alert.alert('提示', '请填写完整的机构信息');
+        return;
+      }
+    }
+    
+    // 提交认证申请
+    Alert.alert(
+      '提交成功',
+      '您的认证申请已提交，我们将在1-3个工作日内完成审核，请耐心等待。',
+      [
+        {
+          text: '确定',
+          onPress: () => {
+            setShowVerificationModal(false);
+            setVerificationStep(0);
+            setSelectedVerificationType('');
+          }
+        }
+      ]
+    );
+  };
+
+  const handleImageUpload = (field) => {
+    // 模拟图片上传
+    Alert.alert('上传图片', '请选择图片来源', [
+      { text: '相册', onPress: () => {
+        const mockImageUrl = `https://images.unsplash.com/photo-${Math.floor(Math.random() * 1000000)}?w=800&h=600&fit=crop`;
+        setVerificationData({
+          ...verificationData,
+          [selectedVerificationType]: {
+            ...verificationData[selectedVerificationType],
+            [field]: mockImageUrl
+          }
+        });
+      }},
+      { text: '相机', onPress: () => {
+        const mockImageUrl = `https://images.unsplash.com/photo-${Math.floor(Math.random() * 1000000)}?w=800&h=600&fit=crop`;
+        setVerificationData({
+          ...verificationData,
+          [selectedVerificationType]: {
+            ...verificationData[selectedVerificationType],
+            [field]: mockImageUrl
+          }
+        });
+      }},
+      { text: '取消', style: 'cancel' }
+    ]);
+  };
+
+  const updateVerificationField = (field, value) => {
+    setVerificationData({
+      ...verificationData,
+      [selectedVerificationType]: {
+        ...verificationData[selectedVerificationType],
+        [field]: value
+      }
+    });
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -207,7 +374,7 @@ export default function ProfileScreen({ navigation, onLogout }) {
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               activeOpacity={0.7}
             >
-              <Ionicons name="share-social-outline" size={22} color="#fff" />
+              <Ionicons name="arrow-redo-outline" size={22} color="#fff" />
             </TouchableOpacity>
             <TouchableOpacity 
               style={{ marginLeft: 16 }} 
@@ -227,7 +394,33 @@ export default function ProfileScreen({ navigation, onLogout }) {
             <View style={styles.profileInfo}>
               <View style={styles.nameRow}>
                 <Text style={styles.userName}>张三</Text>
-                <Ionicons name="checkmark-circle" size={16} color="#3b82f6" />
+                
+                {/* 认证标识 */}
+                {verificationInfo.verified ? (
+                  // 已认证：显示图标 + 认证类型
+                  <TouchableOpacity 
+                    style={styles.verificationContainer}
+                    onPress={handleVerificationPress}
+                    activeOpacity={0.7}
+                  >
+                    <View style={[styles.verificationIcon, { backgroundColor: verificationInfo.color }]}>
+                      <Ionicons name={verificationInfo.icon} size={12} color="#fff" />
+                    </View>
+                    <Text style={[styles.verificationText, { color: verificationInfo.color }]}>
+                      {verificationInfo.text}
+                    </Text>
+                  </TouchableOpacity>
+                ) : (
+                  // 未认证：显示"去认证"按钮
+                  <TouchableOpacity 
+                    style={styles.verifyButton}
+                    onPress={handleVerificationPress}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={styles.verifyButtonText}>去认证</Text>
+                  </TouchableOpacity>
+                )}
+                
                 <View style={styles.levelTag}><Text style={styles.levelText}>Lv.5</Text></View>
               </View>
               <Text style={styles.userId}>ID: 12345678</Text>
@@ -567,6 +760,345 @@ export default function ProfileScreen({ navigation, onLogout }) {
           </ScrollView>
         </SafeAreaView>
       </Modal>
+
+      {/* 认证弹窗 */}
+      <Modal visible={showVerificationModal} animationType="slide">
+        <SafeAreaView style={styles.verificationModal}>
+          {/* 头部 */}
+          <View style={styles.verificationHeader}>
+            <TouchableOpacity onPress={handleVerificationBack}>
+              <Ionicons name={verificationStep === 0 ? "close" : "arrow-back"} size={24} color="#1f2937" />
+            </TouchableOpacity>
+            <Text style={styles.verificationTitle}>
+              {verificationStep === 0 ? '身份认证' : 
+               verificationStep === 1 ? `${selectedVerificationType === 'personal' ? '个人' : selectedVerificationType === 'enterprise' ? '企业' : '政府机构'}认证` :
+               '确认信息'}
+            </Text>
+            <View style={{ width: 24 }} />
+          </View>
+
+          {/* 进度条 - 移除，不再需要 */}
+
+          <ScrollView style={styles.verificationContent} showsVerticalScrollIndicator={false}>
+            {/* 步骤0: 选择认证类型 */}
+            {verificationStep === 0 && (
+              <View style={styles.typeSelectionContainer}>
+                <Text style={styles.typeSelectionTitle}>请选择您的认证类型</Text>
+                
+                <TouchableOpacity 
+                  style={styles.typeCard}
+                  onPress={() => handleSelectVerificationType('personal')}
+                >
+                  <View style={styles.typeCardLeft}>
+                    <View style={[styles.typeIcon, { backgroundColor: '#fef3c7' }]}>
+                      <Ionicons name="person" size={24} color="#f59e0b" />
+                    </View>
+                    <View style={styles.typeInfo}>
+                      <Text style={styles.typeTitle}>个人认证</Text>
+                      <Text style={styles.typeDesc}>验证个人身份，获得个人认证标识</Text>
+                    </View>
+                  </View>
+                  <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                  style={styles.typeCard}
+                  onPress={() => handleSelectVerificationType('enterprise')}
+                >
+                  <View style={styles.typeCardLeft}>
+                    <View style={[styles.typeIcon, { backgroundColor: '#dbeafe' }]}>
+                      <Ionicons name="business" size={24} color="#3b82f6" />
+                    </View>
+                    <View style={styles.typeInfo}>
+                      <Text style={styles.typeTitle}>企业认证</Text>
+                      <Text style={styles.typeDesc}>验证企业资质，获得企业认证标识</Text>
+                    </View>
+                  </View>
+                  <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                  style={styles.typeCard}
+                  onPress={() => handleSelectVerificationType('government')}
+                >
+                  <View style={styles.typeCardLeft}>
+                    <View style={[styles.typeIcon, { backgroundColor: '#fee2e2' }]}>
+                      <Ionicons name="shield-checkmark" size={24} color="#ef4444" />
+                    </View>
+                    <View style={styles.typeInfo}>
+                      <Text style={styles.typeTitle}>政府机构认证</Text>
+                      <Text style={styles.typeDesc}>验证政府身份，获得官方认证标识</Text>
+                    </View>
+                  </View>
+                  <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {/* 步骤1: 填写信息 - 个人认证 */}
+            {verificationStep === 1 && selectedVerificationType === 'personal' && (
+              <View style={styles.formContainer}>
+                {/* 证件类型 */}
+                <View style={styles.fieldContainer}>
+                  <Text style={styles.fieldLabel}>证件类型 <Text style={styles.required}>*</Text></Text>
+                  <TouchableOpacity style={styles.fieldInput}>
+                    <Text style={styles.fieldInputText}>身份证</Text>
+                    <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
+                  </TouchableOpacity>
+                </View>
+
+                {/* 证件号码 */}
+                <View style={styles.fieldContainer}>
+                  <Text style={styles.fieldLabel}>证件号码 <Text style={styles.required}>*</Text></Text>
+                  <TextInput
+                    style={styles.fieldInput}
+                    placeholder="请输入证件号码"
+                    placeholderTextColor="#9ca3af"
+                    value={verificationData.personal.idNumber}
+                    onChangeText={(text) => updateVerificationField('idNumber', text)}
+                  />
+                </View>
+
+                {/* 上传证件照片 */}
+                <View style={styles.uploadSection}>
+                  <Text style={styles.uploadSectionTitle}>上传证件照片</Text>
+                  
+                  <View style={styles.uploadGrid}>
+                    {/* 证件正面 */}
+                    <View style={styles.uploadItemWrapper}>
+                      <Text style={styles.uploadLabel}>证件正面 <Text style={styles.required}>*</Text></Text>
+                      <TouchableOpacity 
+                        style={styles.uploadBox}
+                        onPress={() => handleImageUpload('idFront')}
+                      >
+                        {verificationData.personal.idFront ? (
+                          <Image source={{ uri: verificationData.personal.idFront }} style={styles.uploadedImage} />
+                        ) : (
+                          <View style={styles.uploadPlaceholder}>
+                            <Ionicons name="camera-outline" size={40} color="#d1d5db" />
+                            <Text style={styles.uploadPlaceholderText}>点击上传</Text>
+                          </View>
+                        )}
+                      </TouchableOpacity>
+                    </View>
+
+                    {/* 证件反面 */}
+                    <View style={styles.uploadItemWrapper}>
+                      <Text style={styles.uploadLabel}>证件反面 <Text style={styles.required}>*</Text></Text>
+                      <TouchableOpacity 
+                        style={styles.uploadBox}
+                        onPress={() => handleImageUpload('idBack')}
+                      >
+                        {verificationData.personal.idBack ? (
+                          <Image source={{ uri: verificationData.personal.idBack }} style={styles.uploadedImage} />
+                        ) : (
+                          <View style={styles.uploadPlaceholder}>
+                            <Ionicons name="camera-outline" size={40} color="#d1d5db" />
+                            <Text style={styles.uploadPlaceholderText}>点击上传</Text>
+                          </View>
+                        )}
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+
+                  <View style={styles.uploadTip}>
+                    <Ionicons name="information-circle-outline" size={16} color="#6b7280" />
+                    <Text style={styles.uploadTipText}>请确保证件信息清晰可见，照片完整无遮挡</Text>
+                  </View>
+                </View>
+              </View>
+            )}
+
+            {/* 步骤1: 填写信息 - 企业认证 */}
+            {verificationStep === 1 && selectedVerificationType === 'enterprise' && (
+              <View style={styles.formContainer}>
+                {/* 企业名称 */}
+                <View style={styles.fieldContainer}>
+                  <Text style={styles.fieldLabel}>企业名称 <Text style={styles.required}>*</Text></Text>
+                  <TextInput
+                    style={styles.fieldInput}
+                    placeholder="请输入企业全称"
+                    placeholderTextColor="#9ca3af"
+                    value={verificationData.enterprise.name}
+                    onChangeText={(text) => updateVerificationField('name', text)}
+                  />
+                </View>
+
+                {/* 注册号 */}
+                <View style={styles.fieldContainer}>
+                  <Text style={styles.fieldLabel}>注册号 <Text style={styles.required}>*</Text></Text>
+                  <TextInput
+                    style={styles.fieldInput}
+                    placeholder="请输入企业注册号"
+                    placeholderTextColor="#9ca3af"
+                    value={verificationData.enterprise.registrationNumber}
+                    onChangeText={(text) => updateVerificationField('registrationNumber', text)}
+                  />
+                </View>
+
+                {/* 税号 */}
+                <View style={styles.fieldContainer}>
+                  <Text style={styles.fieldLabel}>税号 <Text style={styles.required}>*</Text></Text>
+                  <TextInput
+                    style={styles.fieldInput}
+                    placeholder="请输入纳税人识别号"
+                    placeholderTextColor="#9ca3af"
+                    value={verificationData.enterprise.taxNumber}
+                    onChangeText={(text) => updateVerificationField('taxNumber', text)}
+                  />
+                </View>
+
+                {/* 企业地址 */}
+                <View style={styles.fieldContainer}>
+                  <Text style={styles.fieldLabel}>企业地址 <Text style={styles.required}>*</Text></Text>
+                  <TextInput
+                    style={styles.fieldInput}
+                    placeholder="请输入企业注册地址"
+                    placeholderTextColor="#9ca3af"
+                    value={verificationData.enterprise.address}
+                    onChangeText={(text) => updateVerificationField('address', text)}
+                  />
+                </View>
+
+                {/* 上传营业执照 */}
+                <View style={styles.uploadSection}>
+                  <Text style={styles.uploadSectionTitle}>上传营业执照</Text>
+                  
+                  <View style={styles.uploadSingleWrapper}>
+                    <Text style={styles.uploadLabel}>营业执照 <Text style={styles.required}>*</Text></Text>
+                    <TouchableOpacity 
+                      style={styles.uploadBoxLarge}
+                      onPress={() => handleImageUpload('license')}
+                    >
+                      {verificationData.enterprise.license ? (
+                        <Image source={{ uri: verificationData.enterprise.license }} style={styles.uploadedImage} />
+                      ) : (
+                        <View style={styles.uploadPlaceholder}>
+                          <Ionicons name="camera-outline" size={40} color="#d1d5db" />
+                          <Text style={styles.uploadPlaceholderText}>点击上传</Text>
+                        </View>
+                      )}
+                    </TouchableOpacity>
+                  </View>
+
+                  <View style={styles.uploadTip}>
+                    <Ionicons name="information-circle-outline" size={16} color="#6b7280" />
+                    <Text style={styles.uploadTipText}>请上传清晰的营业执照照片，确保信息完整可见</Text>
+                  </View>
+                </View>
+              </View>
+            )}
+
+            {/* 步骤1: 填写信息 - 政府认证 */}
+            {verificationStep === 1 && selectedVerificationType === 'government' && (
+              <View style={styles.formContainer}>
+                {/* 机构名称 */}
+                <View style={styles.fieldContainer}>
+                  <Text style={styles.fieldLabel}>机构名称 <Text style={styles.required}>*</Text></Text>
+                  <TextInput
+                    style={styles.fieldInput}
+                    placeholder="请输入政府机构全称"
+                    placeholderTextColor="#9ca3af"
+                    value={verificationData.government.name}
+                    onChangeText={(text) => updateVerificationField('name', text)}
+                  />
+                </View>
+
+                {/* 机构ID */}
+                <View style={styles.fieldContainer}>
+                  <Text style={styles.fieldLabel}>机构ID <Text style={styles.required}>*</Text></Text>
+                  <TextInput
+                    style={styles.fieldInput}
+                    placeholder="请输入机构ID"
+                    placeholderTextColor="#9ca3af"
+                    value={verificationData.government.creditCode}
+                    onChangeText={(text) => updateVerificationField('creditCode', text)}
+                  />
+                </View>
+
+                {/* 部门名称 */}
+                <View style={styles.fieldContainer}>
+                  <Text style={styles.fieldLabel}>部门名称 <Text style={styles.required}>*</Text></Text>
+                  <TextInput
+                    style={styles.fieldInput}
+                    placeholder="请输入所属部门名称"
+                    placeholderTextColor="#9ca3af"
+                    value={verificationData.government.department}
+                    onChangeText={(text) => updateVerificationField('department', text)}
+                  />
+                </View>
+
+                {/* 授权人 */}
+                <View style={styles.fieldContainer}>
+                  <Text style={styles.fieldLabel}>授权人 <Text style={styles.required}>*</Text></Text>
+                  <TextInput
+                    style={styles.fieldInput}
+                    placeholder="请输入授权人姓名"
+                    placeholderTextColor="#9ca3af"
+                    value={verificationData.government.authorizerName}
+                    onChangeText={(text) => updateVerificationField('authorizerName', text)}
+                  />
+                </View>
+
+                {/* 职位 */}
+                <View style={styles.fieldContainer}>
+                  <Text style={styles.fieldLabel}>职位 <Text style={styles.required}>*</Text></Text>
+                  <TextInput
+                    style={styles.fieldInput}
+                    placeholder="请输入授权人职位"
+                    placeholderTextColor="#9ca3af"
+                    value={verificationData.government.authorizerPosition}
+                    onChangeText={(text) => updateVerificationField('authorizerPosition', text)}
+                  />
+                </View>
+
+                {/* 上传官方文件 */}
+                <View style={styles.uploadSection}>
+                  <Text style={styles.uploadSectionTitle}>上传官方文件</Text>
+                  
+                  <View style={styles.uploadSingleWrapper}>
+                    <Text style={styles.uploadLabel}>官方文件 <Text style={styles.required}>*</Text></Text>
+                    <TouchableOpacity 
+                      style={styles.uploadBoxLarge}
+                      onPress={() => handleImageUpload('certificate')}
+                    >
+                      {verificationData.government.certificate ? (
+                        <Image source={{ uri: verificationData.government.certificate }} style={styles.uploadedImage} />
+                      ) : (
+                        <View style={styles.uploadPlaceholder}>
+                          <Ionicons name="camera-outline" size={40} color="#d1d5db" />
+                          <Text style={styles.uploadPlaceholderText}>点击上传</Text>
+                        </View>
+                      )}
+                    </TouchableOpacity>
+                  </View>
+
+                  <View style={styles.uploadTip}>
+                    <Ionicons name="information-circle-outline" size={16} color="#6b7280" />
+                    <Text style={styles.uploadTipText}>请上传加盖公章的官方文件，如：组织机构代码证、事业单位法人证书等</Text>
+                  </View>
+                </View>
+              </View>
+            )}
+
+
+
+            <View style={{ height: 40 }} />
+          </ScrollView>
+
+          {/* 底部按钮 */}
+          {verificationStep > 0 && (
+            <View style={styles.verificationFooter}>
+              <TouchableOpacity 
+                style={styles.verificationSubmitBtn}
+                onPress={handleVerificationSubmit}
+              >
+                <Text style={styles.verificationSubmitText}>提交认证申请</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </SafeAreaView>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -574,7 +1106,7 @@ export default function ProfileScreen({ navigation, onLogout }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f3f4f6' },
-  headerBg: { height: 120, backgroundColor: '#ef4444', paddingTop: 40 },
+  headerBg: { height: 120, backgroundColor: '#ef4444', paddingTop: 20 },
   headerActions: { flexDirection: 'row', justifyContent: 'flex-end', paddingHorizontal: 16 },
   profileCard: { backgroundColor: '#fff', marginHorizontal: 12, marginTop: -60, borderRadius: 16, padding: 16 },
   profileHeader: { flexDirection: 'row', alignItems: 'flex-start' },
@@ -582,6 +1114,37 @@ const styles = StyleSheet.create({
   profileInfo: { flex: 1, marginLeft: 12, marginTop: 8 },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   userName: { fontSize: 18, fontWeight: 'bold', color: '#1f2937' },
+  verificationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginLeft: 4,
+  },
+  verificationIcon: { 
+    width: 16, 
+    height: 16, 
+    borderRadius: 8, 
+    alignItems: 'center', 
+    justifyContent: 'center',
+  },
+  verificationText: {
+    fontSize: 11,
+    fontWeight: '500',
+  },
+  verifyButton: {
+    backgroundColor: '#eff6ff',
+    borderWidth: 1,
+    borderColor: '#3b82f6',
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    borderRadius: 12,
+    marginLeft: 4,
+  },
+  verifyButtonText: {
+    fontSize: 11,
+    color: '#3b82f6',
+    fontWeight: '500',
+  },
   levelTag: { backgroundColor: '#fef3c7', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
   levelText: { fontSize: 10, color: '#d97706', fontWeight: '500' },
   userId: { fontSize: 12, color: '#9ca3af', marginTop: 4 },
@@ -694,4 +1257,111 @@ const styles = StyleSheet.create({
   historyItemTime: { fontSize: 12, color: '#9ca3af' },
   favoriteItemAuthor: { fontSize: 12, color: '#6b7280' },
   favoriteItemTime: { fontSize: 12, color: '#9ca3af' },
+  
+  // 认证弹窗样式
+  verificationModal: { flex: 1, backgroundColor: '#f9fafb' },
+  verificationHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#e5e7eb' },
+  verificationTitle: { fontSize: 18, fontWeight: 'bold', color: '#1f2937' },
+  progressContainer: { backgroundColor: '#fff', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
+  progressBar: { height: 4, backgroundColor: '#e5e7eb', borderRadius: 2, overflow: 'hidden' },
+  progressFill: { height: '100%', backgroundColor: '#3b82f6', borderRadius: 2 },
+  progressText: { fontSize: 12, color: '#6b7280', marginTop: 8 },
+  verificationContent: { flex: 1, backgroundColor: '#fff' },
+  
+  // 类型选择
+  typeSelectionContainer: { padding: 16 },
+  typeSelectionTitle: { fontSize: 16, fontWeight: '600', color: '#1f2937', marginBottom: 20, textAlign: 'center' },
+  typeCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#fff', padding: 16, borderRadius: 12, marginBottom: 12, borderWidth: 1, borderColor: '#e5e7eb' },
+  typeCardLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
+  typeIcon: { width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center', marginRight: 12 },
+  typeInfo: { flex: 1 },
+  typeTitle: { fontSize: 16, fontWeight: '600', color: '#1f2937', marginBottom: 4 },
+  typeDesc: { fontSize: 13, color: '#6b7280' },
+  
+  // 表单样式
+  formContainer: { flex: 1, backgroundColor: '#fff' },
+  
+  // 字段容器（每个输入项）
+  fieldContainer: { backgroundColor: '#fff', paddingHorizontal: 16, paddingVertical: 12 },
+  fieldLabel: { fontSize: 14, color: '#333', marginBottom: 10, fontWeight: '500' },
+  fieldInput: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'space-between',
+    backgroundColor: '#fff', 
+    borderRadius: 8, 
+    paddingHorizontal: 12, 
+    paddingVertical: 12,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    minHeight: 48,
+  },
+  fieldInputText: { fontSize: 15, color: '#1f2937' },
+  
+  // 上传区域
+  uploadSection: { backgroundColor: '#fff', paddingHorizontal: 16, paddingTop: 16, paddingBottom: 20 },
+  uploadSectionTitle: { fontSize: 15, color: '#333', fontWeight: '600', marginBottom: 16 },
+  uploadGrid: { flexDirection: 'row', gap: 12, marginBottom: 12 },
+  uploadItemWrapper: { flex: 1 },
+  uploadSingleWrapper: { marginBottom: 12 },
+  uploadLabel: { fontSize: 13, color: '#666', marginBottom: 8, fontWeight: '500' },
+  uploadBox: { 
+    aspectRatio: 1.4,
+    backgroundColor: '#fff', 
+    borderRadius: 8, 
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderStyle: 'dashed',
+    overflow: 'hidden',
+  },
+  uploadBoxLarge: { 
+    aspectRatio: 1.5,
+    backgroundColor: '#fff', 
+    borderRadius: 8, 
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderStyle: 'dashed',
+    overflow: 'hidden',
+  },
+  uploadPlaceholder: { 
+    flex: 1, 
+    alignItems: 'center', 
+    justifyContent: 'center',
+  },
+  uploadPlaceholderText: { fontSize: 13, color: '#9ca3af', marginTop: 8 },
+  uploadedImage: { width: '100%', height: '100%' },
+  uploadTip: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    gap: 6,
+    backgroundColor: '#fff',
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  uploadTipText: { flex: 1, fontSize: 12, color: '#6b7280', lineHeight: 18 },
+  sectionTitle: { fontSize: 16, fontWeight: '600', color: '#1f2937', marginBottom: 16, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
+  required: { color: '#ef4444' },
+  
+  // 确认信息
+  confirmContainer: { padding: 16 },
+  confirmSection: { backgroundColor: '#fff', borderRadius: 12, padding: 16, marginBottom: 16 },
+  confirmTitle: { fontSize: 16, fontWeight: '600', color: '#1f2937', marginBottom: 16, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
+  confirmItem: { paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
+  confirmLabel: { fontSize: 13, color: '#6b7280', marginBottom: 4 },
+  confirmValue: { fontSize: 15, color: '#1f2937', fontWeight: '500' },
+  uploadedImagesRow: { flexDirection: 'row', gap: 8, marginTop: 8 },
+  uploadedImageThumb: { backgroundColor: '#dbeafe', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 },
+  uploadedImageLabel: { fontSize: 12, color: '#3b82f6', fontWeight: '500' },
+  warningSection: { backgroundColor: '#fef3c7', borderRadius: 12, padding: 16, marginBottom: 16 },
+  warningTitle: { fontSize: 14, fontWeight: '600', color: '#92400e', marginBottom: 8 },
+  warningText: { fontSize: 13, color: '#78350f', marginBottom: 4 },
+  agreementRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 12 },
+  agreementText: { fontSize: 13, color: '#374151' },
+  
+  // 底部按钮
+  verificationFooter: { backgroundColor: '#fff', paddingHorizontal: 16, paddingVertical: 12, borderTopWidth: 0 },
+  verificationSubmitBtn: { backgroundColor: '#3b82f6', paddingVertical: 14, borderRadius: 8, alignItems: 'center' },
+  verificationSubmitText: { fontSize: 15, fontWeight: '600', color: '#fff' },
 });

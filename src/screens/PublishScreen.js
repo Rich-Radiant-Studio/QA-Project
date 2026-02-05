@@ -94,6 +94,9 @@ export default function PublishScreen({ navigation }) {
   const [publishIdentity, setPublishIdentity] = useState('personal'); // 'personal' or 'team'
   const [selectedTeams, setSelectedTeams] = useState([]); // 选中的团队ID数组
 
+  // 输入框高度状态
+  const [contentInputHeight, setContentInputHeight] = useState(150); // 问题描述输入框高度
+
   const toggleTopic = (topic) => {
     if (selectedTopics.includes(topic)) {
       setSelectedTopics(selectedTopics.filter(t => t !== topic));
@@ -308,11 +311,51 @@ export default function PublishScreen({ navigation }) {
               </View>
               <Switch 
                 value={allowOthersReward} 
-                onValueChange={setAllowOthersReward}
+                onValueChange={(value) => {
+                  setAllowOthersReward(value);
+                  // 如果关闭开关，重置悬赏金额
+                  if (!value) {
+                    setReward('');
+                  }
+                }}
                 trackColor={{ false: '#e5e7eb', true: '#bbf7d0' }} 
                 thumbColor={allowOthersReward ? '#22c55e' : '#fff'} 
               />
             </View>
+
+            {/* 当允许他人悬赏时，显示悬赏金额设置 */}
+            {allowOthersReward && (
+              <View style={styles.rewardAmountSection}>
+                <Text style={styles.sectionTitle}>设置悬赏金额</Text>
+                <Text style={styles.sectionDesc}>可以设置为 $0（不设悬赏）或任意金额</Text>
+                <View style={styles.quickAmounts}>
+                  {rewardAmounts.map(amount => (
+                    <TouchableOpacity
+                      key={amount}
+                      style={[styles.amountBtn, reward === String(amount) && styles.amountBtnActive]}
+                      onPress={() => setReward(String(amount))}
+                    >
+                      <Text style={[styles.amountText, reward === String(amount) && styles.amountTextActive]}>${amount}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+                <View style={styles.customAmount}>
+                  <Text style={styles.customLabel}>自定义金额：</Text>
+                  <TextInput 
+                    style={styles.customInput} 
+                    placeholder="输入金额（可以是$0）" 
+                    keyboardType="numeric" 
+                    value={reward} 
+                    onChangeText={(text) => {
+                      // 只允许输入数字和小数点
+                      const filtered = text.replace(/[^0-9.]/g, '');
+                      setReward(filtered);
+                    }}
+                  />
+                  <Text style={styles.currencySymbol}>$</Text>
+                </View>
+              </View>
+            )}
           </View>
         )}
 
@@ -479,14 +522,33 @@ export default function PublishScreen({ navigation }) {
         {/* 问题标题 */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>问题标题 <Text style={styles.required}>*</Text></Text>
-          <TextInput style={styles.titleInput} placeholder="请输入问题标题（5-50字）" value={title} onChangeText={setTitle} maxLength={50} />
+          <TextInput 
+            style={styles.titleInput} 
+            placeholder="请输入问题标题（5-50字）" 
+            placeholderTextColor="#9ca3af"
+            value={title} 
+            onChangeText={setTitle} 
+            maxLength={50} 
+          />
           <Text style={styles.charCount}>{title.length}/50</Text>
         </View>
 
         {/* 问题描述 */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>问题描述 <Text style={styles.required}>*</Text></Text>
-          <TextInput style={styles.contentInput} placeholder="详细描述你的问题，让回答者更好地理解..." value={content} onChangeText={setContent} multiline textAlignVertical="top" maxLength={2000} />
+          <TextInput 
+            style={[styles.contentInput, { height: Math.max(150, contentInputHeight) }]} 
+            placeholder="详细描述你的问题，让回答者更好地理解..." 
+            placeholderTextColor="#9ca3af"
+            value={content} 
+            onChangeText={setContent} 
+            multiline 
+            textAlignVertical="top" 
+            maxLength={2000}
+            onContentSizeChange={(event) => {
+              setContentInputHeight(event.nativeEvent.contentSize.height);
+            }}
+          />
           <Text style={styles.charCount}>{content.length}/2000</Text>
         </View>
 
@@ -812,9 +874,19 @@ const styles = StyleSheet.create({
   customLabel: { fontSize: 13, color: '#6b7280' },
   customInput: { flex: 1, marginLeft: 8, paddingHorizontal: 12, paddingVertical: 8, borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 8, fontSize: 14 },
   currencySymbol: { marginLeft: 8, fontSize: 14, color: '#6b7280' },
-  titleInput: { backgroundColor: '#f3f4f6', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 12, fontSize: 14 },
-  charCount: { textAlign: 'right', fontSize: 11, color: '#9ca3af', marginTop: 6 },
-  contentInput: { backgroundColor: '#f3f4f6', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 12, fontSize: 14, minHeight: 120 },
+  titleInput: { backgroundColor: '#f9fafb', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: '#1f2937', borderWidth: 1, borderColor: '#e5e7eb' },
+  charCount: { textAlign: 'right', fontSize: 12, color: '#9ca3af', marginTop: 8 },
+  contentInput: { 
+    backgroundColor: '#f9fafb', 
+    borderRadius: 10, 
+    paddingHorizontal: 14, 
+    paddingVertical: 14, 
+    fontSize: 15, 
+    color: '#1f2937',
+    lineHeight: 24,
+    borderWidth: 1,
+    borderColor: '#e5e7eb'
+  },
   imageGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   imageItem: { width: 80, height: 80, borderRadius: 8, backgroundColor: '#e5e7eb', position: 'relative' },
   removeImage: { position: 'absolute', top: -8, right: -8 },

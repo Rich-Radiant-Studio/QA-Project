@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, TextInput, StyleSheet, Modal } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Image, TextInput, StyleSheet, Modal, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import Avatar from '../components/Avatar';
@@ -156,10 +156,9 @@ export default function QuestionDetailScreen({ navigation, route }) {
   const [activityForm, setActivityForm] = useState({ title: '', description: '', startDate: '', startTime: '', endDate: '', endTime: '', location: '', maxParticipants: '', contact: '', activityType: '线上活动' });
   const [commentLiked, setCommentLiked] = useState({});
   const [sortFilter, setSortFilter] = useState('精选'); // 精选 or 最新
-  const [inviteTab, setInviteTab] = useState('本站'); // 本站, 推特, Facebook
+  const [inviteTab, setInviteTab] = useState('本站'); // 本站, 推特
   const [searchLocalUser, setSearchLocalUser] = useState('');
   const [searchTwitterUser, setSearchTwitterUser] = useState('');
-  const [searchFacebookUser, setSearchFacebookUser] = useState('');
   const [showSuppMoreModal, setShowSuppMoreModal] = useState(false);
   const [currentSuppId, setCurrentSuppId] = useState(null);
   const [showCommentModal, setShowCommentModal] = useState(false);
@@ -504,8 +503,8 @@ export default function QuestionDetailScreen({ navigation, route }) {
         {/* 问题内容 */}
         <View style={styles.questionSection}>
           <Text style={styles.questionTitle}>
-            <View style={styles.rewardTagInline}><Text style={styles.rewardTagText}>${currentReward}</Text></View>
-            {' '}如何在三个月内从零基础学会Python编程？有没有系统的学习路线推荐？
+            <Text style={styles.rewardTagInline}>${currentReward} </Text>
+            如何在三个月内从零基础学会Python编程？有没有系统的学习路线推荐？
           </Text>
           
           {/* 作者信息和操作按钮行 - 紧跟标题 */}
@@ -525,19 +524,19 @@ export default function QuestionDetailScreen({ navigation, route }) {
             </View>
             <View style={styles.actionButtonsRight}>
               <TouchableOpacity style={styles.smallActionBtn} onPress={() => setShowInviteModal(true)}>
-                <Ionicons name="mail-outline" size={16} color="#3b82f6" />
+                <Ionicons name="at" size={18} color="#3b82f6" />
               </TouchableOpacity>
               <TouchableOpacity style={styles.smallActionBtn} onPress={() => navigation.navigate('GroupChat', { question: currentQuestion })}>
-                <Ionicons name="chatbubbles-outline" size={16} color="#8b5cf6" />
+                <Ionicons name="chatbubbles-outline" size={18} color="#8b5cf6" />
               </TouchableOpacity>
               <TouchableOpacity style={styles.smallActionBtn} onPress={() => navigation.navigate('QuestionTeams', { 
                 questionId: currentQuestion.id,
                 questionTitle: currentQuestion.title
               })}>
-                <Ionicons name="people-circle-outline" size={16} color="#f59e0b" />
+                <Ionicons name="person-add-outline" size={18} color="#f59e0b" />
               </TouchableOpacity>
               <TouchableOpacity style={styles.smallActionBtn} onPress={() => navigation.navigate('QuestionActivityList', { questionId: currentQuestion.id, questionTitle: currentQuestion.title })}>
-                <Ionicons name="calendar-outline" size={16} color="#22c55e" />
+                <Ionicons name="calendar-outline" size={18} color="#22c55e" />
               </TouchableOpacity>
             </View>
           </View>
@@ -548,24 +547,32 @@ export default function QuestionDetailScreen({ navigation, route }) {
           {/* 悬赏信息卡片 - 移到这里，在图片之后 */}
           <View style={styles.rewardInfoCard}>
             <View style={styles.rewardInfoLeft}>
-              <View style={styles.rewardAmountRow}>
-                <Text style={styles.rewardAmountText}>${currentReward}</Text>
-              </View>
+              {/* 金额 */}
+              <Text style={styles.rewardAmountText}>${currentReward}</Text>
+              
+              {/* 追加按钮 */}
               <TouchableOpacity 
-                style={styles.rewardContributorsRow}
-                onPress={() => setShowRewardContributorsModal(true)}
+                style={styles.addRewardBtn}
+                onPress={() => setShowAddRewardModal(true)}
               >
-                <Ionicons name="people-outline" size={12} color="#9ca3af" />
-                <Text style={styles.rewardContributorsText}>{rewardContributors} 人追加</Text>
-                <Ionicons name="chevron-forward" size={12} color="#9ca3af" />
+                <Ionicons name="add" size={16} color="#fff" />
+                <Text style={styles.addRewardBtnText}>追加</Text>
               </TouchableOpacity>
+
+              {/* 采纳进度 */}
+              <View style={styles.adoptionProgressContainer}>
+                <Text style={styles.adoptionProgressText}>已采纳 65%</Text>
+              </View>
             </View>
+
+            {/* 追加人数 - 移到右侧 */}
             <TouchableOpacity 
-              style={styles.addRewardBtn}
-              onPress={() => setShowAddRewardModal(true)}
+              style={styles.rewardContributorsRow}
+              onPress={() => setShowRewardContributorsModal(true)}
             >
-              <Ionicons name="add" size={14} color="#fff" />
-              <Text style={styles.addRewardBtnText}>追加</Text>
+              <Ionicons name="people-outline" size={12} color="#9ca3af" />
+              <Text style={styles.rewardContributorsText}>{rewardContributors} 人追加</Text>
+              <Ionicons name="chevron-forward" size={12} color="#9ca3af" />
             </TouchableOpacity>
           </View>
           
@@ -736,7 +743,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
                         style={styles.suppActionBtn}
                         onPress={(e) => { e.stopPropagation(); setSuppBookmarked({ ...suppBookmarked, [item.id]: !suppBookmarked[item.id] }); }}
                       >
-                        <Ionicons name={suppBookmarked[item.id] ? "bookmark" : "bookmark-outline"} size={16} color={suppBookmarked[item.id] ? "#f59e0b" : "#6b7280"} />
+                        <Ionicons name={suppBookmarked[item.id] ? "star" : "star-outline"} size={16} color={suppBookmarked[item.id] ? "#f59e0b" : "#6b7280"} />
                         <Text style={[styles.suppActionText, suppBookmarked[item.id] && { color: '#f59e0b' }]}>{item.bookmarks + (suppBookmarked[item.id] ? 1 : 0)}</Text>
                       </TouchableOpacity>
                       <TouchableOpacity 
@@ -817,7 +824,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
                           <Text style={styles.commentActionText}>{comment.shares || 5}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.commentActionBtn}>
-                          <Ionicons name="bookmark-outline" size={14} color="#9ca3af" />
+                          <Ionicons name="star-outline" size={14} color="#9ca3af" />
                           <Text style={styles.commentActionText}>{comment.bookmarks || 8}</Text>
                         </TouchableOpacity>
                       </View>
@@ -879,13 +886,6 @@ export default function QuestionDetailScreen({ navigation, route }) {
                   <Ionicons name="logo-twitter" size={14} color={inviteTab === '推特' ? '#1DA1F2' : '#9ca3af'} />
                   <Text style={[styles.inviteSubTabText, inviteTab === '推特' && styles.inviteSubTabTextActive]}>推特</Text>
                 </TouchableOpacity>
-                <TouchableOpacity 
-                  style={[styles.inviteSubTabItem, inviteTab === 'Facebook' && styles.inviteSubTabItemActive]}
-                  onPress={() => setInviteTab('Facebook')}
-                >
-                  <Ionicons name="logo-facebook" size={14} color={inviteTab === 'Facebook' ? '#4267B2' : '#9ca3af'} />
-                  <Text style={[styles.inviteSubTabText, inviteTab === 'Facebook' && styles.inviteSubTabTextActive]}>Facebook</Text>
-                </TouchableOpacity>
               </View>
 
               {/* 搜索框 */}
@@ -894,13 +894,12 @@ export default function QuestionDetailScreen({ navigation, route }) {
                   <Ionicons name="search" size={14} color="#9ca3af" />
                   <TextInput
                     style={styles.inviteSearchInput}
-                    placeholder={inviteTab === '本站' ? '搜索用户' : inviteTab === '推特' ? '搜索推特用户' : '搜索Facebook用户'}
+                    placeholder={inviteTab === '本站' ? '搜索用户' : '搜索推特用户'}
                     placeholderTextColor="#9ca3af"
-                    value={inviteTab === '本站' ? searchLocalUser : inviteTab === '推特' ? searchTwitterUser : searchFacebookUser}
+                    value={inviteTab === '本站' ? searchLocalUser : searchTwitterUser}
                     onChangeText={(text) => {
                       if (inviteTab === '本站') setSearchLocalUser(text);
-                      else if (inviteTab === '推特') setSearchTwitterUser(text);
-                      else setSearchFacebookUser(text);
+                      else setSearchTwitterUser(text);
                     }}
                   />
                 </View>
@@ -1031,69 +1030,6 @@ export default function QuestionDetailScreen({ navigation, route }) {
                   )}
                 </View>
               )}
-
-              {/* Facebook用户内容 */}
-              {inviteTab === 'Facebook' && (
-                <View style={styles.inviteTabContent}>
-                  {/* 推荐邀请用户 - 横向滚动 */}
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.recommendScroll}>
-                    {[1, 2, 3, 4, 5].map(i => (
-                      <View key={`rec-facebook-${i}`} style={styles.recommendUserCard}>
-                        <Image source={{ uri: `https://api.dicebear.com/7.x/avataaars/svg?seed=recfacebook${i}` }} style={styles.recommendUserAvatar} />
-                        <View style={styles.recommendUserTextContainer}>
-                          <Text style={styles.recommendUserName} numberOfLines={1}>FB User{i}</Text>
-                          <Text style={styles.recommendUserDesc} numberOfLines={1}>{i * 500}好友</Text>
-                        </View>
-                        <TouchableOpacity style={[styles.recommendInviteBtn, styles.recommendInviteBtnFacebook]}>
-                          <Ionicons name="logo-facebook" size={12} color="#fff" />
-                        </TouchableOpacity>
-                      </View>
-                    ))}
-                  </ScrollView>
-
-                  {/* 已邀请用户列表 */}
-                  <Text style={styles.invitedListTitle}>已邀请</Text>
-                  {[1, 2, 3, 4, 5].slice(0, showAllInvited ? 5 : 3).map(i => (
-                    <View key={`invited-facebook-${i}`} style={styles.inviteUserCard}>
-                      <Avatar uri={`https://api.dicebear.com/7.x/avataaars/svg?seed=facebook${i}`} name={`Facebook User ${i}`} size={40} />
-                      <View style={styles.inviteUserInfo}>
-                        <Text style={styles.inviteUserName}>Facebook User {i}</Text>
-                        <Text style={styles.inviteUserDesc}>{i * 500} 好友</Text>
-                      </View>
-                      <View style={styles.invitedTag}>
-                        <Ionicons name="checkmark-circle" size={16} color="#22c55e" />
-                        <Text style={styles.invitedTagText}>已邀请</Text>
-                      </View>
-                    </View>
-                  ))}
-                  {loadingInvited && (
-                    <View style={styles.loadingIndicator}>
-                      <Text style={styles.loadingText}>加载中...</Text>
-                    </View>
-                  )}
-                  {!showAllInvited && (
-                    <TouchableOpacity 
-                      style={styles.loadMoreInvitedBtn} 
-                      onPress={() => setShowAllInvited(true)}
-                    >
-                      <Text style={styles.loadMoreInvitedText}>查看更多邀请 (2)</Text>
-                      <Ionicons name="chevron-down" size={16} color="#ef4444" />
-                    </TouchableOpacity>
-                  )}
-                  {showAllInvited && (
-                    <TouchableOpacity 
-                      style={styles.collapseBtn}
-                      onPress={() => {
-                        setShowAllInvited(false);
-                        setInvitedPage(1);
-                      }}
-                    >
-                      <Text style={styles.collapseBtnText}>收起</Text>
-                      <Ionicons name="chevron-up" size={16} color="#ef4444" />
-                    </TouchableOpacity>
-                  )}
-                </View>
-              )}
             </View>
           ) : (
             // 回答列表
@@ -1106,6 +1042,21 @@ export default function QuestionDetailScreen({ navigation, route }) {
                   <View style={styles.answerAuthorRow}>
                     <Text style={styles.answerAuthor}>{answer.author}</Text>
                     {answer.verified && <Ionicons name="checkmark-circle" size={14} color="#3b82f6" />}
+                    
+                    {/* 采纳按钮 - 放在用户名后面，所有回答都显示 */}
+                    <TouchableOpacity 
+                      style={styles.adoptAnswerBtn}
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        // 处理采纳逻辑
+                        Alert.alert('采纳答案', '确认采纳这个答案吗？', [
+                          { text: '取消', style: 'cancel' },
+                          { text: '确认', onPress: () => console.log('采纳答案') }
+                        ]);
+                      }}
+                    >
+                      <Text style={styles.adoptAnswerBtnText}>采纳</Text>
+                    </TouchableOpacity>
                   </View>
                   <Text style={styles.answerAuthorTitle}>{answer.title}</Text>
                 </View>
@@ -1135,7 +1086,6 @@ export default function QuestionDetailScreen({ navigation, route }) {
                 {/* 作者已采纳标签 */}
                 {answer.adopted && (
                   <View style={styles.authorAdoptedBadge}>
-                    <Ionicons name="checkmark-circle" size={14} color="#22c55e" />
                     <Text style={styles.authorAdoptedBadgeText}>作者已采纳</Text>
                   </View>
                 )}
@@ -1143,7 +1093,6 @@ export default function QuestionDetailScreen({ navigation, route }) {
                 {/* 已采纳数量标签 - 显示其他采纳数 */}
                 {answer.adoptedCount && answer.adoptedCount > 0 && (
                   <View style={styles.adoptedCountBadge}>
-                    <Ionicons name="checkmark-done-circle" size={14} color="#3b82f6" />
                     <Text style={styles.adoptedCountBadgeText}>已采纳 x{answer.adoptedCount}</Text>
                   </View>
                 )}
@@ -1278,7 +1227,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
                     style={styles.answerActionBtn}
                     onPress={(e) => { e.stopPropagation(); setAnswerBookmarked({ ...answerBookmarked, [answer.id]: !answerBookmarked[answer.id] }); }}
                   >
-                    <Ionicons name={answerBookmarked[answer.id] ? "bookmark" : "bookmark-outline"} size={16} color={answerBookmarked[answer.id] ? "#f59e0b" : "#6b7280"} />
+                    <Ionicons name={answerBookmarked[answer.id] ? "star" : "star-outline"} size={16} color={answerBookmarked[answer.id] ? "#f59e0b" : "#6b7280"} />
                     <Text style={[styles.answerActionText, answerBookmarked[answer.id] && { color: '#f59e0b' }]}>89</Text>
                   </TouchableOpacity>
                 </View>
@@ -1345,10 +1294,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
             activeOpacity={0.95}
           >
             <Text style={styles.recommendedQuestionTitle}>
-              <View style={styles.rewardTagInline}>
-                <Text style={styles.rewardTagText}>$30</Text>
-              </View>
-              {' '}
+              <Text style={styles.rewardTagInline}>$30 </Text>
               <View style={styles.recommendedHotTagInline}>
                 <Ionicons name="flame" size={10} color="#ef4444" />
                 <Text style={styles.recommendedHotTextInline}>热门</Text>
@@ -1396,10 +1342,8 @@ export default function QuestionDetailScreen({ navigation, route }) {
             activeOpacity={0.95}
           >
             <Text style={styles.recommendedQuestionTitle}>
-              <View style={styles.rewardTagInline}>
-                <Text style={styles.rewardTagText}>$20</Text>
-              </View>
-              {' '}如何系统学习JavaScript？从入门到精通需要掌握哪些核心知识点？
+              <Text style={styles.rewardTagInline}>$20 </Text>
+              如何系统学习JavaScript？从入门到精通需要掌握哪些核心知识点？
             </Text>
             
             <Text style={styles.recommendedQuestionContent} numberOfLines={3}>
@@ -1445,7 +1389,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
           <Text style={[styles.bottomActionText, liked.main && { color: '#ef4444' }]}>128</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.bottomActionBtn} onPress={() => setBookmarked(!bookmarked)}>
-          <Ionicons name={bookmarked ? "bookmark" : "bookmark-outline"} size={20} color={bookmarked ? "#f59e0b" : "#6b7280"} />
+          <Ionicons name={bookmarked ? "star" : "star-outline"} size={20} color={bookmarked ? "#f59e0b" : "#6b7280"} />
           <Text style={[styles.bottomActionText, bookmarked && { color: '#f59e0b' }]}>89</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.bottomActionBtn} onPress={() => {
@@ -1625,10 +1569,6 @@ export default function QuestionDetailScreen({ navigation, route }) {
               <TouchableOpacity style={styles.suppMoreActionItem}>
                 <Ionicons name="logo-twitter" size={22} color="#1DA1F2" />
                 <Text style={styles.suppMoreActionText}>@推特用户</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.suppMoreActionItem}>
-                <Ionicons name="logo-facebook" size={22} color="#4267B2" />
-                <Text style={styles.suppMoreActionText}>@Facebook用户</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.suppMoreActionItem}>
                 <Ionicons name="thumbs-down-outline" size={22} color="#6b7280" />
@@ -1835,9 +1775,6 @@ export default function QuestionDetailScreen({ navigation, route }) {
                 <Ionicons name="image-outline" size={24} color="#666" />
               </TouchableOpacity>
               <TouchableOpacity style={styles.answerToolItem}>
-                <Ionicons name="videocam-outline" size={24} color="#666" />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.answerToolItem}>
                 <Ionicons name="at-outline" size={24} color="#666" />
               </TouchableOpacity>
               <TouchableOpacity style={styles.answerToolItem}>
@@ -1953,13 +1890,6 @@ export default function QuestionDetailScreen({ navigation, route }) {
                 <Text style={[styles.invitePlatformTabText, inviteTab === '本站' && styles.invitePlatformTabTextActive]}>本站</Text>
               </TouchableOpacity>
               <TouchableOpacity 
-                style={[styles.invitePlatformTab, inviteTab === 'Facebook' && styles.invitePlatformTabActive]}
-                onPress={() => setInviteTab('Facebook')}
-              >
-                <Ionicons name="logo-facebook" size={16} color={inviteTab === 'Facebook' ? '#4267B2' : '#9ca3af'} />
-                <Text style={[styles.invitePlatformTabText, inviteTab === 'Facebook' && styles.invitePlatformTabTextActive]}>Facebook</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
                 style={[styles.invitePlatformTab, inviteTab === '推特' && styles.invitePlatformTabActive]}
                 onPress={() => setInviteTab('推特')}
               >
@@ -1974,12 +1904,11 @@ export default function QuestionDetailScreen({ navigation, route }) {
                 <Ionicons name="search" size={18} color="#9ca3af" />
                 <TextInput
                   style={styles.inviteSearchInput}
-                  placeholder={inviteTab === '本站' ? '搜索用户' : inviteTab === 'Facebook' ? '搜索Facebook用户' : '搜索推特用户'}
+                  placeholder={inviteTab === '本站' ? '搜索用户' : '搜索推特用户'}
                   placeholderTextColor="#9ca3af"
-                  value={inviteTab === '本站' ? searchLocalUser : inviteTab === 'Facebook' ? searchFacebookUser : searchTwitterUser}
+                  value={inviteTab === '本站' ? searchLocalUser : searchTwitterUser}
                   onChangeText={(text) => {
                     if (inviteTab === '本站') setSearchLocalUser(text);
-                    else if (inviteTab === 'Facebook') setSearchFacebookUser(text);
                     else setSearchTwitterUser(text);
                   }}
                 />
@@ -1997,19 +1926,6 @@ export default function QuestionDetailScreen({ navigation, route }) {
                   </View>
                   <TouchableOpacity style={styles.inviteUserBtn} onPress={() => alert(`已邀请用户${i}`)}>
                     <Ionicons name="add" size={16} color="#fff" />
-                    <Text style={styles.inviteUserBtnText}>邀请</Text>
-                  </TouchableOpacity>
-                </View>
-              ))}
-              {inviteTab === 'Facebook' && [1, 2, 3, 4, 5].map(i => (
-                <View key={`fb-${i}`} style={styles.inviteUserItem}>
-                  <Image source={{ uri: `https://api.dicebear.com/7.x/avataaars/svg?seed=fb${i}` }} style={styles.inviteUserAvatar} />
-                  <View style={styles.inviteUserInfo}>
-                    <Text style={styles.inviteUserName}>Facebook User {i}</Text>
-                    <Text style={styles.inviteUserDesc}>{i * 500} 好友</Text>
-                  </View>
-                  <TouchableOpacity style={[styles.inviteUserBtn, styles.inviteUserBtnFacebook]} onPress={() => alert(`已邀请Facebook用户${i}`)}>
-                    <Ionicons name="logo-facebook" size={16} color="#fff" />
                     <Text style={styles.inviteUserBtnText}>邀请</Text>
                   </TouchableOpacity>
                 </View>
@@ -2942,18 +2858,43 @@ const styles = StyleSheet.create({
   content: { flex: 1 },
   questionSection: { backgroundColor: '#fff', padding: 16 },
   questionTitle: { fontSize: 18, fontWeight: 'bold', color: '#1f2937', lineHeight: 26, marginBottom: 8 },
-  rewardTagInline: { backgroundColor: '#ef4444', paddingHorizontal: 5, paddingVertical: 2, borderRadius: 4 },
-  rewardTagText: { fontSize: 10, color: '#fff', fontWeight: '600' },
+  rewardTagInline: { 
+    backgroundColor: 'transparent', 
+    paddingHorizontal: 0, 
+    paddingVertical: 0, 
+    borderRadius: 0,
+    fontSize: 19, 
+    color: '#ef4444', 
+    fontWeight: '600',
+    includeFontPadding: false,
+    lineHeight: 26,
+  },
   // 悬赏信息卡片样式 - 缩小版
-  rewardInfoCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#fef2f2', borderWidth: 1, borderColor: '#fee2e2', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 8, marginBottom: 12 },
-  rewardInfoLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  rewardAmountRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  rewardAmountText: { fontSize: 16, fontWeight: '700', color: '#ef4444' },
-  rewardContributorsRow: { flexDirection: 'row', alignItems: 'center', gap: 3 },
+  rewardInfoCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#fef2f2', borderWidth: 1, borderColor: '#fee2e2', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, marginBottom: 12 },
+  rewardInfoLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  rewardAmountText: { fontSize: 24, fontWeight: '800', color: '#ef4444', letterSpacing: 0.5 },
+  addRewardBtn: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    gap: 4, 
+    backgroundColor: '#ef4444', 
+    paddingHorizontal: 14, 
+    paddingVertical: 5, 
+    borderRadius: 20,
+    minWidth: 76, 
+    justifyContent: 'center',
+    shadowColor: '#ef4444',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 3
+  },
+  addRewardBtnText: { fontSize: 14, color: '#fff', fontWeight: '700', letterSpacing: 0.3 },
+  adoptionProgressContainer: { flexDirection: 'row', alignItems: 'center', gap: 3 },
+  adoptionProgressText: { fontSize: 12, color: '#10b981', fontWeight: '600' },
+  rewardContributorsRow: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingVertical: 2 },
   rewardContributorsText: { fontSize: 11, color: '#9ca3af' },
-  addRewardBtn: { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: '#ef4444', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 14 },
-  addRewardBtnText: { fontSize: 12, color: '#fff', fontWeight: '600' },
-  questionContent: { fontSize: 14, color: '#4b5563', lineHeight: 22, marginTop: 12, marginBottom: 12 },
+  questionContent: { fontSize: 14, color: '#4b5563', lineHeight: 22, marginTop: -3, marginBottom: 12 },
   questionImage: { width: '100%', height: 180, borderRadius: 8, marginBottom: 12 },
   viewsAndTags: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
   viewsRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
@@ -2972,7 +2913,7 @@ const styles = StyleSheet.create({
   smallPostTime: { fontSize: 11, color: '#9ca3af', marginTop: 2 },
   actionButtonsRight: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   smallActionBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f9fafb', width: 32, height: 32, borderRadius: 16, borderWidth: 1, borderColor: '#e5e7eb' },
-  pkSection: { marginTop: 12, marginBottom: 12 },
+  pkSection: { marginTop: 6, marginBottom: 6 },
   pkRow: { flexDirection: 'row', alignItems: 'center' },
   pkBarWrapper: { flex: 1, position: 'relative', alignItems: 'center', justifyContent: 'center' },
   pkBar: { flexDirection: 'row', height: 36, borderRadius: 18, overflow: 'hidden', width: '100%' },
@@ -2997,7 +2938,7 @@ const styles = StyleSheet.create({
   bottomBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', paddingVertical: 12, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#f3f4f6' },
   bottomActionBtn: { flexDirection: 'column', alignItems: 'center', gap: 4 },
   bottomActionText: { fontSize: 11, color: '#6b7280', fontWeight: '500' },
-  answersSection: { marginTop: 8, backgroundColor: '#fff' },
+  answersSection: { marginTop: 0, backgroundColor: '#fff' },
   answerTabs: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
   answerTabItem: { flex: 1, paddingVertical: 12, position: 'relative', alignItems: 'center' },
   answerTabText: { fontSize: 14, color: '#6b7280' },
@@ -3046,8 +2987,24 @@ const styles = StyleSheet.create({
   answerHeader: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 12 },
   answerAvatar: { width: 40, height: 40, borderRadius: 20 },
   answerAuthorInfo: { flex: 1, marginLeft: 12 },
-  answerAuthorRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  answerAuthorRow: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
   answerAuthor: { fontSize: 14, fontWeight: '500', color: '#1f2937' },
+  // 采纳按钮样式 - 简洁设计，无图标
+  adoptAnswerBtn: { 
+    backgroundColor: '#f0fdf4', 
+    paddingHorizontal: 12, 
+    paddingVertical: 4, 
+    borderRadius: 14, 
+    borderWidth: 1.5, 
+    borderColor: '#22c55e',
+    marginLeft: 6
+  },
+  adoptAnswerBtnText: { 
+    fontSize: 12, 
+    color: '#22c55e', 
+    fontWeight: '700',
+    letterSpacing: 0.2
+  },
   adoptedTag: { backgroundColor: '#ef4444', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4 },
   adoptedTagText: { fontSize: 10, color: '#fff', fontWeight: '500' },
   answerAuthorTitle: { fontSize: 12, color: '#9ca3af', marginTop: 2 },

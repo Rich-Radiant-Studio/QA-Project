@@ -1,10 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, Modal, TextInput, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, Modal, TextInput, Alert, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
 const initialActivities = [
-  { id: 1, title: '新人答题挑战赛', desc: '连续7天回答问题，赢取100元现金奖励', image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=200&fit=crop', participants: 12580, startTime: '2026-01-10', endTime: '2026-01-20', type: 'online', tag: '热门', status: 'active', joined: false, organizer: '官方', organizerType: 'platform' },
+  { 
+    id: 1, 
+    title: '新人答题挑战赛', 
+    desc: '连续7天回答问题，赢取100元现金奖励', 
+    image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=200&fit=crop', 
+    images: [
+      'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1556761175-b413da4baf72?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=800&h=600&fit=crop',
+    ],
+    participants: 12580, 
+    startTime: '2026-01-10', 
+    endTime: '2026-01-20', 
+    type: 'online', 
+    tag: '热门', 
+    status: 'active', 
+    joined: false, 
+    organizer: '官方', 
+    organizerType: 'platform' 
+  },
   { id: 2, title: 'Python学习打卡活动', desc: '每日打卡学习Python，坚持21天获得认证徽章', image: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=400&h=200&fit=crop', participants: 8956, startTime: '2026-01-05', endTime: '2026-01-26', type: 'online', tag: '新活动', status: 'active', joined: true, progress: '12/21天', organizer: 'Python学习互助团队', organizerType: 'team' },
   { id: 3, title: '程序员线下交流会', desc: '北京站程序员面对面交流，分享技术心得', image: 'https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=400&h=200&fit=crop', participants: 156, startTime: '2026-01-25', endTime: '2026-01-25', type: 'offline', address: '北京市朝阳区望京SOHO', tag: '热门', status: 'active', joined: false, organizer: '张三', organizerType: 'personal' },
   { id: 4, title: '优质回答评选', desc: '本周最佳回答评选，获奖者可获得专属勋章', image: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=200&fit=crop', participants: 5623, startTime: '2026-01-01', endTime: '2026-01-10', type: 'online', tag: '已结束', status: 'ended', joined: true, progress: '已完成', organizer: '官方', organizerType: 'platform' },
@@ -27,6 +52,9 @@ export default function ActivityScreen({ navigation, route }) {
   const [activeTab, setActiveTab] = useState(initialTab);
   const [activities, setActivities] = useState(initialActivities);
   const [showCreateModal, setShowCreateModal] = useState(createMode || false);
+  const [showImageViewer, setShowImageViewer] = useState(false); // 图片查看器
+  const [viewerImages, setViewerImages] = useState([]); // 当前查看的图片列表
+  const [currentImageIndex, setCurrentImageIndex] = useState(0); // 当前图片索引
   const [showTeamSelector, setShowTeamSelector] = useState(false); // 团队选择器弹窗
   const [newActivity, setNewActivity] = useState({
     title: '',
@@ -36,6 +64,7 @@ export default function ActivityScreen({ navigation, route }) {
     endTime: '',
     address: '',
     image: '',
+    images: [], // 活动图片数组（最多9张）
     contact: '',
     organizerType: teamId ? 'team' : 'personal', // 如果从团队进入，默认选择团队
     teamId: teamId || null,
@@ -68,6 +97,19 @@ export default function ActivityScreen({ navigation, route }) {
         return activities.filter(a => a.joined);
       default:
         return activities;
+    }
+  };
+
+  // 处理图片点击
+  const handleImagePress = (activity) => {
+    if (activity.images && activity.images.length > 1) {
+      // 多张图片，打开图片查看器
+      setViewerImages(activity.images);
+      setCurrentImageIndex(0);
+      setShowImageViewer(true);
+    } else {
+      // 单张图片或无图片，进入活动详情页
+      Alert.alert('提示', '进入活动详情页（待开发）');
     }
   };
 
@@ -142,6 +184,7 @@ export default function ActivityScreen({ navigation, route }) {
       endTime: '', 
       address: '', 
       image: '',
+      images: [],
       contact: '',
       organizerType: 'personal',
       teamId: null,
@@ -180,6 +223,26 @@ export default function ActivityScreen({ navigation, route }) {
       case 'platform': return '#f59e0b';
       default: return '#6b7280';
     }
+  };
+
+  // 添加活动图片
+  const addActivityImage = () => {
+    if (newActivity.images.length < 9) {
+      setNewActivity({
+        ...newActivity,
+        images: [...newActivity.images, `https://images.unsplash.com/photo-${Math.floor(Math.random() * 1000000)}?w=800&h=600&fit=crop`]
+      });
+    } else {
+      Alert.alert('提示', '最多只能上传9张图片');
+    }
+  };
+
+  // 删除活动图片
+  const removeActivityImage = (index) => {
+    setNewActivity({
+      ...newActivity,
+      images: newActivity.images.filter((_, i) => i !== index)
+    });
   };
 
   const handleSelectTeam = (team) => {
@@ -256,17 +319,36 @@ export default function ActivityScreen({ navigation, route }) {
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {filteredActivities.length > 0 ? (
           filteredActivities.map(item => (
-            <TouchableOpacity key={item.id} style={styles.activityCard} activeOpacity={0.9}>
-              <Image source={{ uri: item.image }} style={styles.activityImage} />
-              <View style={styles.activityBadges}>
-                <View style={[styles.activityTag, { backgroundColor: getTagColor(item.tag) }]}>
-                  <Text style={styles.activityTagText}>{item.tag}</Text>
+            <View key={item.id} style={styles.activityCard}>
+              {/* 封面图区域 - 可点击查看图片 */}
+              <TouchableOpacity 
+                style={styles.coverImageContainer}
+                onPress={() => handleImagePress(item)}
+                activeOpacity={0.9}
+              >
+                <Image source={{ uri: item.image }} style={styles.activityImage} />
+                
+                {/* 图片数量角标 - 仅多图时显示 */}
+                {item.images && item.images.length > 1 && (
+                  <View style={styles.imageCountBadge}>
+                    <Ionicons name="images" size={14} color="#fff" />
+                    <Text style={styles.imageCountText}>1/{item.images.length}</Text>
+                  </View>
+                )}
+                
+                {/* 标签 */}
+                <View style={styles.activityBadges}>
+                  <View style={[styles.activityTag, { backgroundColor: getTagColor(item.tag) }]}>
+                    <Text style={styles.activityTagText}>{item.tag}</Text>
+                  </View>
+                  <View style={[styles.typeTag, { backgroundColor: item.type === 'online' ? '#8b5cf6' : '#f59e0b' }]}>
+                    <Ionicons name={item.type === 'online' ? 'globe-outline' : 'location-outline'} size={10} color="#fff" />
+                    <Text style={styles.typeTagText}>{item.type === 'online' ? '线上' : '线下'}</Text>
+                  </View>
                 </View>
-                <View style={[styles.typeTag, { backgroundColor: item.type === 'online' ? '#8b5cf6' : '#f59e0b' }]}>
-                  <Ionicons name={item.type === 'online' ? 'globe-outline' : 'location-outline'} size={10} color="#fff" />
-                  <Text style={styles.typeTagText}>{item.type === 'online' ? '线上' : '线下'}</Text>
-                </View>
-              </View>
+              </TouchableOpacity>
+              
+              {/* 活动信息区域 */}
               <View style={styles.activityInfo}>
                 <Text style={styles.activityTitle}>{item.title}</Text>
                 <Text style={styles.activityDesc} numberOfLines={2}>{item.desc}</Text>
@@ -306,7 +388,7 @@ export default function ActivityScreen({ navigation, route }) {
                   </Text>
                 </TouchableOpacity>
               </View>
-            </TouchableOpacity>
+            </View>
           ))
         ) : (
           <View style={styles.emptyState}>
@@ -484,11 +566,26 @@ export default function ActivityScreen({ navigation, route }) {
             )}
 
             {/* 活动图片 */}
-            <Text style={styles.inputLabel}>活动图片（选填）</Text>
-            <TouchableOpacity style={styles.imageUpload}>
-              <Ionicons name="image-outline" size={32} color="#9ca3af" />
-              <Text style={styles.imageUploadText}>点击上传活动封面图</Text>
-            </TouchableOpacity>
+            <Text style={styles.inputLabel}>活动图片（最多9张）</Text>
+            <View style={styles.imageGrid}>
+              {newActivity.images.map((img, idx) => (
+                <View key={idx} style={styles.imageItem}>
+                  <Image source={{ uri: img }} style={styles.uploadedImage} />
+                  <TouchableOpacity 
+                    style={styles.removeImage} 
+                    onPress={() => removeActivityImage(idx)}
+                  >
+                    <Ionicons name="close-circle" size={20} color="#ef4444" />
+                  </TouchableOpacity>
+                </View>
+              ))}
+              {newActivity.images.length < 9 && (
+                <TouchableOpacity style={styles.addImageBtn} onPress={addActivityImage}>
+                  <Ionicons name="add" size={24} color="#9ca3af" />
+                  <Text style={styles.addImageText}>添加图片</Text>
+                </TouchableOpacity>
+              )}
+            </View>
 
             {/* 联系方式 */}
             <Text style={styles.inputLabel}>联系方式</Text>
@@ -542,16 +639,69 @@ export default function ActivityScreen({ navigation, route }) {
           </View>
         </View>
       </Modal>
+
+      {/* 图片查看器 */}
+      <Modal visible={showImageViewer} animationType="fade" transparent>
+        <View style={styles.imageViewerContainer}>
+          {/* 顶部工具栏 */}
+          <View style={styles.imageViewerHeader}>
+            <TouchableOpacity onPress={() => setShowImageViewer(false)}>
+              <Ionicons name="close" size={28} color="#fff" />
+            </TouchableOpacity>
+            <Text style={styles.imageViewerCounter}>
+              {currentImageIndex + 1}/{viewerImages.length}
+            </Text>
+            <View style={{ width: 28 }} />
+          </View>
+
+          {/* 图片轮播 */}
+          <ScrollView
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onMomentumScrollEnd={(e) => {
+              const index = Math.round(
+                e.nativeEvent.contentOffset.x / e.nativeEvent.layoutMeasurement.width
+              );
+              setCurrentImageIndex(index);
+            }}
+            style={styles.imageViewerScroll}
+          >
+            {viewerImages.map((image, index) => (
+              <View key={index} style={styles.imageSlide}>
+                <Image
+                  source={{ uri: image }}
+                  style={styles.fullImage}
+                  resizeMode="contain"
+                />
+              </View>
+            ))}
+          </ScrollView>
+
+          {/* 底部指示器 */}
+          <View style={styles.imageViewerFooter}>
+            {viewerImages.map((_, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.imageIndicator,
+                  index === currentImageIndex && styles.imageIndicatorActive
+                ]}
+              />
+            ))}
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f3f4f6' },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, backgroundColor: '#fff', zIndex: 10 },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#e5e7eb', zIndex: 10 },
   backBtn: { padding: 8, minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center', zIndex: 20 },
   headerTitle: { fontSize: 18, fontWeight: 'bold', color: '#1f2937', flex: 1, textAlign: 'center' },
-  createBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#ef4444', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, gap: 4, minHeight: 44, minWidth: 80, justifyContent: 'center', zIndex: 20 },
+  createBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#ef4444', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20, gap: 4, minHeight: 38, minWidth: 74, justifyContent: 'center', zIndex: 20 },
   createBtnText: { color: '#fff', fontSize: 14, fontWeight: '600' },
   tabBar: { backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
   tabScroll: { paddingHorizontal: 8 },
@@ -639,6 +789,79 @@ const styles = StyleSheet.create({
   timeRow: { flexDirection: 'row', alignItems: 'center' },
   timeInput: { flex: 1 },
   timeSeparator: { marginHorizontal: 8, color: '#6b7280' },
-  imageUpload: { alignItems: 'center', justifyContent: 'center', height: 120, backgroundColor: '#f9fafb', borderRadius: 8, borderWidth: 1, borderColor: '#e5e7eb', borderStyle: 'dashed' },
-  imageUploadText: { fontSize: 13, color: '#9ca3af', marginTop: 8 },
+  // 图片上传网格
+  imageGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  imageItem: { width: 80, height: 80, borderRadius: 8, backgroundColor: '#e5e7eb', position: 'relative', overflow: 'hidden' },
+  uploadedImage: { width: '100%', height: '100%' },
+  removeImage: { position: 'absolute', top: -8, right: -8, zIndex: 10 },
+  addImageBtn: { width: 80, height: 80, borderRadius: 8, borderWidth: 2, borderStyle: 'dashed', borderColor: '#d1d5db', justifyContent: 'center', alignItems: 'center' },
+  addImageText: { fontSize: 10, color: '#9ca3af', marginTop: 4 },
+  // 封面图容器
+  coverImageContainer: { position: 'relative', width: '100%', height: 140 },
+  // 图片数量角标
+  imageCountBadge: {
+    position: 'absolute',
+    bottom: 12,
+    right: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    gap: 4,
+  },
+  imageCountText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  // 图片查看器
+  imageViewerContainer: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+  imageViewerHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingTop: 50,
+    paddingBottom: 16,
+  },
+  imageViewerCounter: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  imageViewerScroll: {
+    flex: 1,
+  },
+  imageSlide: {
+    width: Dimensions.get('window').width,
+    height: Dimensions.get('window').height - 150,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  fullImage: {
+    width: '100%',
+    height: '100%',
+  },
+  imageViewerFooter: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 20,
+    gap: 8,
+  },
+  imageIndicator: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: 'rgba(255, 255, 255, 0.4)',
+  },
+  imageIndicatorActive: {
+    backgroundColor: '#fff',
+    width: 20,
+  },
 });
