@@ -364,7 +364,7 @@ export default function ProfileScreen({ navigation, onLogout }) {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* 顶部背景 */}
         <View style={styles.headerBg}>

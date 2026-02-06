@@ -3,8 +3,8 @@ import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, Alert, Tex
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import Avatar from '../components/Avatar';
-
-const tabs = ['问题', '用户', '话题'];
+import TranslateButton from '../components/TranslateButton';
+import { useTranslation } from '../i18n/withTranslation';
 
 // 关注的用户数据
 const followedUsers = [
@@ -40,11 +40,18 @@ const followedTopics = [
 ];
 
 export default function FollowScreen({ navigation }) {
-  const [activeTab, setActiveTab] = useState('问题');
+  const { t } = useTranslation();
+  
+  // Tabs array using translation
+  const tabs = [t('follow.questions'), t('follow.users'), t('follow.topics')];
+  const [activeTab, setActiveTab] = useState(t('follow.questions'));
   const [likedItems, setLikedItems] = useState({});
   const [userFollowState, setUserFollowState] = useState({});
   const [topicFollowState, setTopicFollowState] = useState({});
   const [searchText, setSearchText] = useState('');
+  
+  // 翻译状态
+  const [translatedContent, setTranslatedContent] = useState({});
 
   const toggleLike = (id) => {
     setLikedItems(prev => ({ ...prev, [id]: !prev[id] }));
@@ -74,7 +81,7 @@ export default function FollowScreen({ navigation }) {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <Ionicons name="arrow-back" size={22} color="#4b5563" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>关注</Text>
+        <Text style={styles.headerTitle}>{t('follow.title')}</Text>
         <View style={{ width: 22 }} />
       </View>
 
@@ -89,15 +96,32 @@ export default function FollowScreen({ navigation }) {
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* 问题列表 */}
-        <View style={{ display: activeTab === '问题' ? 'flex' : 'none' }}>
+        <View style={{ display: activeTab === t('follow.questions') ? 'flex' : 'none' }}>
           {followedQuestions.map(item => (
             <TouchableOpacity key={item.id} style={styles.questionCard} onPress={() => navigation.navigate('QuestionDetail', { id: item.id })}>
-              <Text style={styles.questionTitle}>
-                {item.type === 'reward' && item.reward && (
-                  <Text style={styles.rewardTagInline}> ${item.reward} </Text>
-                )}
-                {item.title}
-              </Text>
+              <View style={styles.questionTitleWrapper}>
+                <Text style={styles.questionTitle}>
+                  {item.type === 'reward' && item.reward && (
+                    <Text style={styles.rewardTagInline}> ${item.reward} </Text>
+                  )}
+                  {translatedContent[item.id]?.title || item.title}
+                </Text>
+                
+                {/* 翻译按钮 */}
+                <TranslateButton 
+                  text={item.title}
+                  compact={false}
+                  onTranslated={(translatedText, isTranslated) => {
+                    setTranslatedContent(prev => ({
+                      ...prev,
+                      [item.id]: {
+                        ...prev[item.id],
+                        title: isTranslated ? translatedText : null
+                      }
+                    }));
+                  }}
+                />
+              </View>
               <View style={styles.questionHeaderRow}>
                 <View style={styles.questionHeaderLeft}>
                   <Avatar uri={item.avatar} name={item.author} size={17} />
@@ -119,7 +143,7 @@ export default function FollowScreen({ navigation }) {
                         styles.answerTypeText,
                         { color: answerType === 'public' ? '#16a34a' : '#9333ea' }
                       ]}>
-                        {answerType === 'public' ? '公开' : '定向'}
+                        {answerType === 'public' ? t('follow.public') : t('follow.targeted')}
                       </Text>
                     </View>
                   ))}
@@ -138,7 +162,7 @@ export default function FollowScreen({ navigation }) {
                 </View>
                 <TouchableOpacity style={styles.answerBtn} onPress={() => navigation.navigate('QuestionDetail', { id: item.id, openAnswerModal: true })}>
                   <Ionicons name="create-outline" size={14} color="#fff" />
-                  <Text style={styles.answerBtnText}>回答</Text>
+                  <Text style={styles.answerBtnText}>{t('follow.answer')}</Text>
                 </TouchableOpacity>
               </View>
             </TouchableOpacity>
@@ -146,14 +170,14 @@ export default function FollowScreen({ navigation }) {
         </View>
 
         {/* 用户列表 */}
-        <View style={{ display: activeTab === '用户' ? 'flex' : 'none' }}>
+        <View style={{ display: activeTab === t('follow.users') ? 'flex' : 'none' }}>
           {/* 搜索框 */}
           <View style={styles.searchSection}>
             <View style={styles.searchBar}>
               <Ionicons name="search" size={18} color="#9ca3af" />
               <TextInput
                 style={styles.searchInput}
-                placeholder="搜索用户..."
+                placeholder={t('follow.searchUsers')}
                 value={searchText}
                 onChangeText={setSearchText}
               />
@@ -167,7 +191,7 @@ export default function FollowScreen({ navigation }) {
 
           {/* 已关注用户 */}
           <View style={styles.userSection}>
-            <Text style={styles.sectionTitle}>已关注 ({filteredFollowedUsers.length})</Text>
+            <Text style={styles.sectionTitle}>{t('follow.followed')} ({filteredFollowedUsers.length})</Text>
             {filteredFollowedUsers.map(user => (
               <TouchableOpacity key={user.id} style={styles.userCard}>
                 <Avatar uri={user.avatar} name={user.name} size={48} />
@@ -177,14 +201,14 @@ export default function FollowScreen({ navigation }) {
                     {user.verified && <Ionicons name="checkmark-circle" size={14} color="#3b82f6" />}
                   </View>
                   <Text style={styles.userTitle}>{user.title}</Text>
-                  <Text style={styles.userStats}>{user.followers} 粉丝 · {user.questions} 问题 · {user.answers} 回答</Text>
+                  <Text style={styles.userStats}>{user.followers} {t('follow.followers')} · {user.questions} {t('home.questions')} · {user.answers} {t('home.answers')}</Text>
                 </View>
                 <TouchableOpacity 
                   style={[styles.followBtn, (userFollowState[user.id] === false) && styles.followBtnInactive]}
                   onPress={() => toggleFollowUser(user.id)}
                 >
                   <Text style={[styles.followBtnText, (userFollowState[user.id] === false) && styles.followBtnTextInactive]}>
-                    {userFollowState[user.id] === false ? '+ 关注' : '已关注'}
+                    {userFollowState[user.id] === false ? t('follow.follow') : t('follow.following')}
                   </Text>
                 </TouchableOpacity>
               </TouchableOpacity>
@@ -193,7 +217,7 @@ export default function FollowScreen({ navigation }) {
 
           {/* 推荐用户 */}
           <View style={styles.userSection}>
-            <Text style={styles.sectionTitle}>推荐关注</Text>
+            <Text style={styles.sectionTitle}>{t('follow.recommendFollow')}</Text>
             {filteredRecommendUsers.map(user => (
               <TouchableOpacity key={user.id} style={styles.userCard}>
                 <Avatar uri={user.avatar} name={user.name} size={48} />
@@ -203,14 +227,14 @@ export default function FollowScreen({ navigation }) {
                     {user.verified && <Ionicons name="checkmark-circle" size={14} color="#3b82f6" />}
                   </View>
                   <Text style={styles.userTitle}>{user.title}</Text>
-                  <Text style={styles.userStats}>{user.followers} 粉丝 · {user.questions} 问题 · {user.answers} 回答</Text>
+                  <Text style={styles.userStats}>{user.followers} {t('follow.followers')} · {user.questions} {t('home.questions')} · {user.answers} {t('home.answers')}</Text>
                 </View>
                 <TouchableOpacity 
                   style={[styles.followBtn, userFollowState[user.id] && styles.followBtnActive]}
                   onPress={() => toggleFollowUser(user.id)}
                 >
                   <Text style={[styles.followBtnText, userFollowState[user.id] && styles.followBtnTextActive]}>
-                    {userFollowState[user.id] ? '已关注' : '+ 关注'}
+                    {userFollowState[user.id] ? t('follow.following') : t('follow.follow')}
                   </Text>
                 </TouchableOpacity>
               </TouchableOpacity>
@@ -219,9 +243,9 @@ export default function FollowScreen({ navigation }) {
         </View>
 
         {/* 话题列表 */}
-        <View style={{ display: activeTab === '话题' ? 'flex' : 'none' }}>
+        <View style={{ display: activeTab === t('follow.topics') ? 'flex' : 'none' }}>
           <View style={styles.topicSection}>
-            <Text style={styles.sectionTitle}>已关注话题 ({followedTopics.length})</Text>
+            <Text style={styles.sectionTitle}>{t('follow.followedTopics')} ({followedTopics.length})</Text>
             {followedTopics.map(topic => (
               <TouchableOpacity key={topic.id} style={styles.topicCard}>
                 <View style={[styles.topicIcon, { backgroundColor: topic.color + '20' }]}>
@@ -230,14 +254,14 @@ export default function FollowScreen({ navigation }) {
                 <View style={styles.topicInfo}>
                   <Text style={styles.topicName}>{topic.name}</Text>
                   <Text style={styles.topicDesc}>{topic.description}</Text>
-                  <Text style={styles.topicStats}>{topic.followers} 关注 · {topic.questions} 问题</Text>
+                  <Text style={styles.topicStats}>{topic.followers} {t('home.followers')} · {topic.questions} {t('home.questions')}</Text>
                 </View>
                 <TouchableOpacity 
                   style={[styles.followBtn, (topicFollowState[topic.id] === false) && styles.followBtnInactive]}
                   onPress={() => toggleFollowTopic(topic.id)}
                 >
                   <Text style={[styles.followBtnText, (topicFollowState[topic.id] === false) && styles.followBtnTextInactive]}>
-                    {topicFollowState[topic.id] === false ? '+ 关注' : '已关注'}
+                    {topicFollowState[topic.id] === false ? t('follow.follow') : t('follow.following')}
                   </Text>
                 </TouchableOpacity>
               </TouchableOpacity>
@@ -265,7 +289,8 @@ const styles = StyleSheet.create({
   content: { flex: 1 },
   // 问题卡片样式
   questionCard: { backgroundColor: '#fff', marginTop: 8, padding: 12 },
-  questionTitle: { fontSize: 15, fontWeight: '500', color: '#1f2937', lineHeight: 22, marginBottom: 10 },
+  questionTitleWrapper: { marginBottom: 10 },
+  questionTitle: { fontSize: 15, fontWeight: '500', color: '#1f2937', lineHeight: 22 },
   rewardTagInline: { 
     backgroundColor: 'transparent', 
     fontSize: 19, 

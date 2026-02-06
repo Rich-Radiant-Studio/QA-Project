@@ -67,8 +67,8 @@ export default function LoginScreen({ navigation, onLogin }) {
             <View style={styles.logoCircle}>
               <Ionicons name="help-circle" size={60} color="#ef4444" />
             </View>
-            <Text style={styles.appName}>Q&A Community</Text>
-            <Text style={styles.slogan}>Share knowledge, find answers</Text>
+            <Text style={styles.appName}>Problem to Hero</Text>
+            <Text style={styles.slogan}>Turn problems into heroic solutions</Text>
           </View>
 
           {/* 切换标签 */}

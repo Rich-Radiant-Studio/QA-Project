@@ -5,7 +5,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { View, Text, Modal, TouchableOpacity, TextInput, StyleSheet, ScrollView, SafeAreaView, Platform } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
+import i18n from './src/i18n';
 
 import HomeScreen from './src/screens/HomeScreen';
 import SearchScreen from './src/screens/SearchScreen';
@@ -33,20 +34,25 @@ import ExamDetailScreen from './src/screens/ExamDetailScreen';
 import QuestionBankScreen from './src/screens/QuestionBankScreen';
 import UploadBankScreen from './src/screens/UploadBankScreen';
 import ChannelManageScreen from './src/screens/ChannelManageScreen';
+import EmergencyScreen from './src/screens/EmergencyScreen';
+import CreateActivityScreen from './src/screens/CreateActivityScreen';
+import InviteAnswerScreen from './src/screens/InviteAnswerScreen';
+import InviteTeamMemberScreen from './src/screens/InviteTeamMemberScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-// 紧急求助弹窗组件
+// Emergency Help Modal Component
 function EmergencyModal({ visible, onClose, onSubmit }) {
-  const [emergencyForm, setEmergencyForm] = useState({ title: '', description: '', location: '北京市朝阳区', contact: '', rescuerCount: 1 });
-  const freeCount = 1; // 每月免费次数
-  const usedCount = 0; // 已使用次数
+  const t = (key) => i18n.t(key);
+  const insets = useSafeAreaInsets();
+  const [emergencyForm, setEmergencyForm] = useState({ title: '', description: '', location: '', contact: '', rescuerCount: 1 });
+  const freeCount = 1;
+  const usedCount = 0;
   const remainingFree = freeCount - usedCount;
 
-  // 救援人数计费逻辑
-  const freeRescuerLimit = 5; // 免费人数上限
-  const extraRescuerFee = 2; // 超出每人费用（美元）
+  const freeRescuerLimit = 5;
+  const extraRescuerFee = 2;
   
   const calculateRescuerFee = (count) => {
     if (count <= freeRescuerLimit) return 0;
@@ -55,62 +61,60 @@ function EmergencyModal({ visible, onClose, onSubmit }) {
 
   const rescuerFee = calculateRescuerFee(emergencyForm.rescuerCount || 1);
 
-  // 常用求助标题
   const quickTitles = [
-    '人身安全求助',
-    '紧急医疗救助',
-    '财物丢失求助'
+    t('emergency.quickTitle1'),
+    t('emergency.quickTitle2'),
+    t('emergency.quickTitle3')
   ];
 
   const handleSubmit = () => {
     if (!emergencyForm.title.trim()) {
-      alert('请输入求助标题');
+      alert(t('emergency.enterTitle'));
       return;
     }
-    const feeInfo = rescuerFee > 0 ? `\n需支付救援费用：$${rescuerFee}` : '';
-    alert(`紧急求助已发布！\n需要救援人数：${emergencyForm.rescuerCount}人${feeInfo}\n附近用户将收到通知！`);
+    const feeInfo = rescuerFee > 0 ? `\n${t('emergency.needPay')}：$${rescuerFee}` : '';
+    alert(`${t('emergency.published')}\n${t('emergency.rescuersNeeded')}${emergencyForm.rescuerCount}${t('emergency.rescuerUnit')}${feeInfo}\n${t('emergency.nearbyNotified')}`);
     onClose();
-    setEmergencyForm({ title: '', description: '', location: '北京市朝阳区', contact: '', rescuerCount: 1 });
+    setEmergencyForm({ title: '', description: '', location: '', contact: '', rescuerCount: 1 });
   };
 
   return (
     <Modal visible={visible} animationType="slide">
-      <View style={modalStyles.emergencyModal}>
+      <SafeAreaView style={modalStyles.emergencyModal} edges={['top']}>
         <View style={modalStyles.emergencyHeader}>
           <TouchableOpacity onPress={onClose}>
             <Ionicons name="close" size={26} color="#333" />
           </TouchableOpacity>
           <View style={modalStyles.emergencyHeaderCenter}>
             <Ionicons name="alert-circle" size={20} color="#ef4444" />
-            <Text style={modalStyles.emergencyHeaderTitle}>紧急求助</Text>
+            <Text style={modalStyles.emergencyHeaderTitle}>{t('emergency.title')}</Text>
           </View>
           <TouchableOpacity 
             style={[modalStyles.emergencySubmitBtn, !emergencyForm.title.trim() && modalStyles.emergencySubmitBtnDisabled]}
             onPress={handleSubmit}
             disabled={!emergencyForm.title.trim()}
           >
-            <Text style={[modalStyles.emergencySubmitText, !emergencyForm.title.trim() && modalStyles.emergencySubmitTextDisabled]}>发布</Text>
+            <Text style={[modalStyles.emergencySubmitText, !emergencyForm.title.trim() && modalStyles.emergencySubmitTextDisabled]}>{t('emergency.publish')}</Text>
           </TouchableOpacity>
         </View>
 
         <View style={modalStyles.emergencyWarning}>
           <Ionicons name="warning" size={18} color="#f59e0b" />
-          <Text style={modalStyles.emergencyWarningText}>紧急求助将通知附近用户，请确保情况紧急真实</Text>
+          <Text style={modalStyles.emergencyWarningText}>{t('emergency.warning')}</Text>
         </View>
 
-        {/* 免费次数显示 */}
         <View style={modalStyles.freeCountBanner}>
           <View style={modalStyles.freeCountLeft}>
             <Ionicons name="gift" size={20} color={remainingFree > 0 ? "#22c55e" : "#9ca3af"} />
-            <Text style={modalStyles.freeCountText}>本月免费次数：</Text>
+            <Text style={modalStyles.freeCountText}>{t('emergency.freeCount')}</Text>
             <Text style={[modalStyles.freeCountNumber, remainingFree <= 0 && { color: '#9ca3af' }]}>{remainingFree}/{freeCount}</Text>
           </View>
           {remainingFree <= 0 && (
             <TouchableOpacity 
               style={modalStyles.monthlyPayButton}
-              onPress={() => alert('支付 $5 解锁本月紧急求助\n\n支付方式：\n• 信用卡\n• PayPal\n• Apple Pay\n• Google Pay')}
+              onPress={() => alert(t('emergency.monthlyUnlock'))}
             >
-              <Text style={modalStyles.monthlyPayButtonText}>支付 $5</Text>
+              <Text style={modalStyles.monthlyPayButtonText}>{t('emergency.payAmount')}</Text>
               <Ionicons name="arrow-forward" size={14} color="#fff" />
             </TouchableOpacity>
           )}
@@ -118,17 +122,16 @@ function EmergencyModal({ visible, onClose, onSubmit }) {
 
         <ScrollView style={modalStyles.emergencyFormArea} keyboardShouldPersistTaps="handled">
           <View style={modalStyles.emergencyFormGroup}>
-            <Text style={modalStyles.emergencyFormLabel}>求助标题 <Text style={{ color: '#ef4444' }}>*</Text></Text>
+            <Text style={modalStyles.emergencyFormLabel}>{t('emergency.formTitle')} <Text style={{ color: '#ef4444' }}>*</Text></Text>
             <TextInput
               style={modalStyles.emergencyFormInput}
-              placeholder="简要描述您遇到的紧急情况"
+              placeholder={t('emergency.formTitlePlaceholder')}
               placeholderTextColor="#bbb"
               value={emergencyForm.title}
               onChangeText={(text) => setEmergencyForm({...emergencyForm, title: text})}
             />
-            {/* 常用标题快捷选择 */}
             <View style={modalStyles.quickTitlesContainer}>
-              <Text style={modalStyles.quickTitlesLabel}>常用标题：</Text>
+              <Text style={modalStyles.quickTitlesLabel}>{t('emergency.quickTitles')}</Text>
               <View style={modalStyles.quickTitlesRow}>
                 {quickTitles.map((title, index) => (
                   <TouchableOpacity
@@ -144,10 +147,10 @@ function EmergencyModal({ visible, onClose, onSubmit }) {
           </View>
 
           <View style={modalStyles.emergencyFormGroup}>
-            <Text style={modalStyles.emergencyFormLabel}>详细描述</Text>
+            <Text style={modalStyles.emergencyFormLabel}>{t('emergency.description')}</Text>
             <TextInput
               style={[modalStyles.emergencyFormInput, modalStyles.emergencyFormTextarea]}
-              placeholder="请详细描述您的情况，以便他人更好地帮助您..."
+              placeholder={t('emergency.descriptionPlaceholder')}
               placeholderTextColor="#bbb"
               value={emergencyForm.description}
               onChangeText={(text) => setEmergencyForm({...emergencyForm, description: text})}
@@ -157,13 +160,13 @@ function EmergencyModal({ visible, onClose, onSubmit }) {
           </View>
 
           <View style={modalStyles.emergencyFormGroup}>
-            <Text style={modalStyles.emergencyFormLabel}>当前位置</Text>
+            <Text style={modalStyles.emergencyFormLabel}>{t('emergency.location')}</Text>
             <View style={modalStyles.emergencyLocationRow}>
               <View style={modalStyles.emergencyLocationInput}>
                 <Ionicons name="location" size={18} color="#ef4444" />
                 <TextInput
                   style={modalStyles.emergencyLocationText}
-                  placeholder="输入或获取当前位置"
+                  placeholder={t('emergency.locationPlaceholder')}
                   placeholderTextColor="#bbb"
                   value={emergencyForm.location}
                   onChangeText={(text) => setEmergencyForm({...emergencyForm, location: text})}
@@ -171,18 +174,18 @@ function EmergencyModal({ visible, onClose, onSubmit }) {
               </View>
               <TouchableOpacity style={modalStyles.emergencyLocationBtn}>
                 <Ionicons name="navigate" size={18} color="#3b82f6" />
-                <Text style={modalStyles.emergencyLocationBtnText}>定位</Text>
+                <Text style={modalStyles.emergencyLocationBtnText}>{t('emergency.locate')}</Text>
               </TouchableOpacity>
             </View>
           </View>
 
           <View style={modalStyles.emergencyFormGroup}>
-            <Text style={modalStyles.emergencyFormLabel}>联系方式</Text>
+            <Text style={modalStyles.emergencyFormLabel}>{t('emergency.contact')}</Text>
             <View style={modalStyles.emergencyContactInput}>
               <Ionicons name="call" size={18} color="#6b7280" />
               <TextInput
                 style={modalStyles.emergencyContactText}
-                placeholder="请留下您的联系电话"
+                placeholder={t('emergency.contactPlaceholder')}
                 placeholderTextColor="#bbb"
                 value={emergencyForm.contact}
                 onChangeText={(text) => setEmergencyForm({...emergencyForm, contact: text})}
@@ -191,29 +194,26 @@ function EmergencyModal({ visible, onClose, onSubmit }) {
             </View>
           </View>
 
-          {/* 救援人数选择器 */}
           <View style={modalStyles.emergencyFormGroup}>
             <View style={modalStyles.rescuerCountHeader}>
-              <Text style={modalStyles.emergencyFormLabel}>需要救援人数</Text>
+              <Text style={modalStyles.emergencyFormLabel}>{t('emergency.rescuerCount')}</Text>
               <View style={modalStyles.rescuerFreeTag}>
                 <Ionicons name="information-circle" size={14} color="#22c55e" />
-                <Text style={modalStyles.rescuerFreeText}>5人内免费</Text>
+                <Text style={modalStyles.rescuerFreeText}>{t('emergency.rescuerFree')}</Text>
               </View>
             </View>
             
             <View style={modalStyles.rescuerCountInputWrapper}>
               <TextInput
                 style={modalStyles.rescuerCountInput}
-                placeholder="请输入需要的救援人数"
+                placeholder={t('emergency.rescuerPlaceholder')}
                 placeholderTextColor="#bbb"
                 value={emergencyForm.rescuerCount === 0 ? '' : emergencyForm.rescuerCount.toString()}
                 onChangeText={(text) => {
-                  // 允许空字符串，方便用户删除重新输入
                   if (text === '') {
                     setEmergencyForm({...emergencyForm, rescuerCount: 0});
                     return;
                   }
-                  // 只允许数字
                   const num = parseInt(text);
                   if (!isNaN(num)) {
                     const validNum = Math.max(1, Math.min(20, num));
@@ -221,7 +221,6 @@ function EmergencyModal({ visible, onClose, onSubmit }) {
                   }
                 }}
                 onBlur={() => {
-                  // 失去焦点时，如果为空或0，设置为1
                   if (emergencyForm.rescuerCount === 0) {
                     setEmergencyForm({...emergencyForm, rescuerCount: 1});
                   }
@@ -229,35 +228,34 @@ function EmergencyModal({ visible, onClose, onSubmit }) {
                 keyboardType="number-pad"
                 maxLength={2}
               />
-              <Text style={modalStyles.rescuerCountUnit}>人</Text>
+              <Text style={modalStyles.rescuerCountUnit}>{t('emergency.rescuerUnit')}</Text>
             </View>
 
-            {/* 费用显示 */}
             <View style={modalStyles.rescuerFeeInfo}>
               {rescuerFee === 0 ? (
                 <View style={modalStyles.rescuerFeeRow}>
                   <Ionicons name="checkmark-circle" size={16} color="#22c55e" />
-                  <Text style={modalStyles.rescuerFeeTextFree}>当前人数免费</Text>
+                  <Text style={modalStyles.rescuerFeeTextFree}>{t('emergency.rescuerFeeTextFree')}</Text>
                 </View>
               ) : (
                 <View style={modalStyles.rescuerFeeCard}>
                   <View style={modalStyles.rescuerFeeRow}>
                     <View style={modalStyles.rescuerFeeLeft}>
-                      <Text style={modalStyles.rescuerFeeLabel}>超出人数：</Text>
-                      <Text style={modalStyles.rescuerFeeExtra}>{emergencyForm.rescuerCount - freeRescuerLimit}人 × ${extraRescuerFee}</Text>
+                      <Text style={modalStyles.rescuerFeeLabel}>{t('emergency.rescuerFeeLabel')}</Text>
+                      <Text style={modalStyles.rescuerFeeExtra}>{emergencyForm.rescuerCount - freeRescuerLimit}{t('emergency.rescuerUnit')} × ${extraRescuerFee}</Text>
                     </View>
                     <View style={modalStyles.rescuerFeeRight}>
-                      <Text style={modalStyles.rescuerFeeTotalLabel}>需支付</Text>
+                      <Text style={modalStyles.rescuerFeeTotalLabel}>{t('emergency.needPay')}</Text>
                       <Text style={modalStyles.rescuerFeeTotal}>${rescuerFee}</Text>
                     </View>
                   </View>
-                  <Text style={modalStyles.rescuerFeeNote}>💡 超过5人，每增加1人收费$2</Text>
+                  <Text style={modalStyles.rescuerFeeNote}>{t('emergency.rescuerFeeNote')}</Text>
                   <TouchableOpacity 
                     style={modalStyles.payButton}
-                    onPress={() => alert(`支付 $${rescuerFee}\n\n支付方式：\n• 信用卡\n• PayPal\n• Apple Pay\n• Google Pay`)}
+                    onPress={() => alert(`${t('emergency.pay')} $${rescuerFee}\n\n${t('emergency.paymentMethods')}`)}
                   >
                     <Ionicons name="card" size={18} color="#fff" />
-                    <Text style={modalStyles.payButtonText}>立即支付 ${rescuerFee}</Text>
+                    <Text style={modalStyles.payButtonText}>{t('emergency.payNow')} ${rescuerFee}</Text>
                     <Ionicons name="arrow-forward" size={16} color="#fff" />
                   </TouchableOpacity>
                 </View>
@@ -266,15 +264,15 @@ function EmergencyModal({ visible, onClose, onSubmit }) {
           </View>
 
           <View style={modalStyles.emergencyTips}>
-            <Text style={modalStyles.emergencyTipsTitle}>温馨提示</Text>
-            <Text style={modalStyles.emergencyTipsText}>• 紧急求助将推送给附近 5km 内的用户</Text>
-            <Text style={modalStyles.emergencyTipsText}>• 请确保描述真实准确，虚假求助将被处罚</Text>
-            <Text style={modalStyles.emergencyTipsText}>• 如遇生命危险，请优先拨打急救电话</Text>
+            <Text style={modalStyles.emergencyTipsTitle}>{t('emergency.tips')}</Text>
+            <Text style={modalStyles.emergencyTipsText}>{t('emergency.tip1')}</Text>
+            <Text style={modalStyles.emergencyTipsText}>{t('emergency.tip2')}</Text>
+            <Text style={modalStyles.emergencyTipsText}>{t('emergency.tip3')}</Text>
           </View>
 
-          <View style={{ height: 40 }} />
+          <View style={{ height: insets.bottom + 20 }} />
         </ScrollView>
-      </View>
+      </SafeAreaView>
     </Modal>
   );
 }
@@ -315,8 +313,6 @@ const modalStyles = StyleSheet.create({
   emergencyLocationBtnText: { fontSize: 13, color: '#3b82f6', fontWeight: '500' },
   emergencyContactInput: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 8, paddingHorizontal: 12, gap: 8 },
   emergencyContactText: { flex: 1, paddingVertical: 12, fontSize: 15, color: '#1f2937' },
-  
-  // 救援人数选择器样式
   rescuerCountHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
   rescuerFreeTag: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#f0fdf4', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, borderWidth: 1, borderColor: '#bbf7d0' },
   rescuerFreeText: { fontSize: 12, color: '#16a34a', fontWeight: '500' },
@@ -336,23 +332,25 @@ const modalStyles = StyleSheet.create({
   rescuerFeeNote: { fontSize: 12, color: '#92400e', marginTop: 8 },
   payButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ef4444', paddingVertical: 12, paddingHorizontal: 16, borderRadius: 8, marginTop: 12, gap: 8, shadowColor: '#ef4444', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 3 },
   payButtonText: { fontSize: 15, color: '#fff', fontWeight: '600' },
-  
   emergencyTips: { backgroundColor: '#fef2f2', borderRadius: 8, padding: 12, marginTop: 8 },
   emergencyTipsTitle: { fontSize: 13, fontWeight: '500', color: '#991b1b', marginBottom: 8 },
   emergencyTipsText: { fontSize: 12, color: '#b91c1c', lineHeight: 20 },
 });
 
-function MainTabs({ showEmergencyModal, onLogout }) {
+function MainTabs({ onLogout }) {
+  const t = (key) => i18n.t(key);
+  const insets = useSafeAreaInsets();
+  
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color }) => {
           let iconName;
-          if (route.name === '首页') iconName = focused ? 'home' : 'home-outline';
-          else if (route.name === '活动') iconName = focused ? 'gift' : 'gift-outline';
-          else if (route.name === '发布') iconName = focused ? 'add-circle' : 'add-circle-outline';
-          else if (route.name === '紧急求助') iconName = focused ? 'warning' : 'warning-outline';
-          else if (route.name === '我的') iconName = focused ? 'person' : 'person-outline';
+          if (route.name === t('tabs.home')) iconName = focused ? 'home' : 'home-outline';
+          else if (route.name === t('tabs.activity')) iconName = focused ? 'gift' : 'gift-outline';
+          else if (route.name === t('tabs.publish')) iconName = focused ? 'add-circle' : 'add-circle-outline';
+          else if (route.name === t('tabs.emergency')) iconName = focused ? 'warning' : 'warning-outline';
+          else if (route.name === t('tabs.profile')) iconName = focused ? 'person' : 'person-outline';
           return <Ionicons name={iconName} size={24} color={color} />;
         },
         tabBarActiveTintColor: '#f04444',
@@ -366,8 +364,8 @@ function MainTabs({ showEmergencyModal, onLogout }) {
         },
         tabBarStyle: {
           backgroundColor: '#ffffff',
-          height: Platform.OS === 'ios' ? 84 : 65,
-          paddingBottom: Platform.OS === 'ios' ? 30 : 8,
+          height: 60 + insets.bottom,
+          paddingBottom: insets.bottom > 0 ? insets.bottom : 8,
           paddingTop: 8,
           borderTopWidth: StyleSheet.hairlineWidth,
           borderTopColor: '#e8e8e8',
@@ -377,39 +375,19 @@ function MainTabs({ showEmergencyModal, onLogout }) {
         headerShown: false,
       })}
     >
-      <Tab.Screen name="首页" component={HomeScreen} />
-      <Tab.Screen name="活动" component={ActivityScreen} />
-      <Tab.Screen name="发布" component={PublishScreen} />
-      <Tab.Screen 
-        name="紧急求助" 
-        component={EmptyScreen}
-        listeners={{
-          tabPress: (e) => {
-            e.preventDefault();
-            showEmergencyModal();
-          },
-        }}
-      />
-      <Tab.Screen name="我的">
+      <Tab.Screen name={t('tabs.home')} component={HomeScreen} />
+      <Tab.Screen name={t('tabs.activity')} component={ActivityScreen} />
+      <Tab.Screen name={t('tabs.publish')} component={PublishScreen} />
+      <Tab.Screen name={t('tabs.emergency')} component={EmergencyScreen} />
+      <Tab.Screen name={t('tabs.profile')}>
         {(props) => <ProfileScreen {...props} onLogout={onLogout} />}
       </Tab.Screen>
     </Tab.Navigator>
   );
 }
 
-// 空屏幕组件（紧急求助不需要实际页面）
-function EmptyScreen() {
-  return <View />;
-}
-
 export default function App() {
-  const [emergencyModalVisible, setEmergencyModalVisible] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  const handleEmergencySubmit = (data) => {
-    console.log('紧急求助提交:', data);
-    alert('求助已发送！附近的人将会收到您的求助信息。');
-  };
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
 
   const handleLogin = () => {
     setIsLoggedIn(true);
@@ -434,7 +412,7 @@ export default function App() {
         <StatusBar style="dark" />
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="Main">
-            {() => <MainTabs showEmergencyModal={() => setEmergencyModalVisible(true)} onLogout={handleLogout} />}
+            {() => <MainTabs onLogout={handleLogout} />}
           </Stack.Screen>
         <Stack.Screen name="Search" component={SearchScreen} />
         <Stack.Screen name="QuestionDetail" component={QuestionDetailScreen} />
@@ -446,27 +424,21 @@ export default function App() {
         <Stack.Screen name="Messages" component={MessagesScreen} />
         <Stack.Screen name="GroupChat" component={GroupChatScreen} />
         <Stack.Screen name="AnswerDetail" component={AnswerDetailScreen} />
-        {/* 团队相关页面 */}
         <Stack.Screen name="MyTeams" component={MyTeamsScreen} />
         <Stack.Screen name="QuestionTeams" component={QuestionTeamsScreen} />
         <Stack.Screen name="TeamDetail" component={TeamDetailScreen} />
-        {/* 设置页面 */}
         <Stack.Screen name="Settings" component={SettingsScreen} />
-        {/* 频道管理页面 */}
         <Stack.Screen name="ChannelManage" component={ChannelManageScreen} />
-        {/* 智慧指数相关页面 */}
         <Stack.Screen name="WisdomIndex" component={WisdomIndexScreen} />
         <Stack.Screen name="WisdomExam" component={WisdomExamScreen} />
         <Stack.Screen name="ExamHistory" component={ExamHistoryScreen} />
         <Stack.Screen name="ExamDetail" component={ExamDetailScreen} />
         <Stack.Screen name="QuestionBank" component={QuestionBankScreen} />
         <Stack.Screen name="UploadBank" component={UploadBankScreen} />
+        <Stack.Screen name="CreateActivity" component={CreateActivityScreen} />
+        <Stack.Screen name="InviteAnswer" component={InviteAnswerScreen} />
+        <Stack.Screen name="InviteTeamMember" component={InviteTeamMemberScreen} />
       </Stack.Navigator>
-      <EmergencyModal
-        visible={emergencyModalVisible}
-        onClose={() => setEmergencyModalVisible(false)}
-        onSubmit={handleEmergencySubmit}
-      />
     </NavigationContainer>
     </SafeAreaProvider>
   );

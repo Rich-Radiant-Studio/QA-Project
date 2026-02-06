@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, Modal } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
 // 区域数据
@@ -269,6 +269,7 @@ function SubTabItem({ label, isActive, onPress }) {
 }
 
 export default function HotListScreen({ navigation }) {
+  const insets = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState('全站热榜');
   const [activeSubTab, setActiveSubTab] = useState('');
   const [showRegionModal, setShowRegionModal] = useState(false);
@@ -328,7 +329,7 @@ export default function HotListScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <TouchableOpacity 
           onPress={() => navigation.goBack()} 
@@ -349,6 +350,15 @@ export default function HotListScreen({ navigation }) {
       </View>
 
       <View style={styles.tabBar}>
+        <TouchableOpacity 
+          style={styles.regionTabBtn}
+          onPress={() => setShowRegionModal(true)}
+        >
+          <Text style={styles.regionTabText}>
+            {selectedRegion.flag} {selectedRegion.name}
+          </Text>
+          <Ionicons name="chevron-down" size={14} color="#6b7280" />
+        </TouchableOpacity>
         <View style={{ flex: 1 }}>
           <ScrollView 
             ref={tabScrollViewRef}
@@ -362,27 +372,19 @@ export default function HotListScreen({ navigation }) {
               {hotTabs.map((tab) => (
                 <TouchableOpacity 
                   key={tab} 
-                  style={[styles.tabItem, activeTab === tab && styles.tabItemActive]}
+                  style={styles.tabItem}
                   onPress={() => handleTabPress(tab)}
                   onLayout={(e) => {
                     tabLayouts.current[tab] = e.nativeEvent.layout;
                   }}
                 >
                   <Text style={[styles.tabText, activeTab === tab && styles.tabTextActive]}>{tab}</Text>
+                  {activeTab === tab && <View style={styles.tabIndicator} />}
                 </TouchableOpacity>
               ))}
             </View>
           </ScrollView>
         </View>
-        <TouchableOpacity 
-          style={styles.regionTabBtn}
-          onPress={() => setShowRegionModal(true)}
-        >
-          <Text style={styles.regionTabText}>
-            {selectedRegion.flag} {selectedRegion.name}
-          </Text>
-          <Ionicons name="chevron-down" size={14} color="#6b7280" />
-        </TouchableOpacity>
       </View>
 
       {hasSubTabs && (
@@ -424,20 +426,20 @@ export default function HotListScreen({ navigation }) {
         animationType="slide"
         onRequestClose={() => setShowRegionModal(false)}
       >
-        <View style={styles.modalOverlay}>
-          <TouchableOpacity 
-            style={styles.modalBackdrop} 
-            activeOpacity={1}
-            onPress={() => setShowRegionModal(false)}
-          />
-          <View style={styles.regionModal}>
-            <View style={styles.regionModalHandle} />
-            <View style={styles.regionModalHeader}>
-              <Text style={styles.regionModalTitle}>选择区域</Text>
-              <TouchableOpacity onPress={() => setShowRegionModal(false)}>
-                <Ionicons name="close" size={24} color="#6b7280" />
-              </TouchableOpacity>
-            </View>
+        <TouchableOpacity 
+          style={styles.modalOverlay} 
+          activeOpacity={1}
+          onPress={() => setShowRegionModal(false)}
+        >
+          <TouchableOpacity activeOpacity={1} onPress={(e) => e.stopPropagation()}>
+            <View style={[styles.regionModal, { paddingBottom: 30 }]}>
+              <View style={styles.regionModalHandle} />
+              <View style={styles.regionModalHeader}>
+                <Text style={styles.regionModalTitle}>选择区域</Text>
+                <TouchableOpacity onPress={() => setShowRegionModal(false)}>
+                  <Ionicons name="close" size={24} color="#6b7280" />
+                </TouchableOpacity>
+              </View>
             
             <View style={styles.regionTypeTabs}>
               <TouchableOpacity 
@@ -508,8 +510,9 @@ export default function HotListScreen({ navigation }) {
                 </View>
               )}
             </ScrollView>
-          </View>
-        </View>
+            </View>
+          </TouchableOpacity>
+        </TouchableOpacity>
       </Modal>
     </SafeAreaView>
   );
@@ -523,10 +526,10 @@ const styles = StyleSheet.create({
   refreshBtn: { padding: 4 },
   tabBar: { flexDirection: 'row', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
   tabBarContent: { flexDirection: 'row', alignItems: 'center', paddingRight: 16 },
-  tabItem: { paddingHorizontal: 16, paddingVertical: 12 },
-  tabItemActive: { borderBottomWidth: 2, borderBottomColor: '#ef4444' },
+  tabItem: { paddingHorizontal: 16, paddingVertical: 12, alignItems: 'center' },
   tabText: { fontSize: 15, color: '#6b7280' },
   tabTextActive: { color: '#ef4444', fontWeight: '600' },
+  tabIndicator: { position: 'absolute', bottom: 0, height: 2, backgroundColor: '#ef4444', alignSelf: 'center', width: '60%' },
   regionTabBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 12, paddingVertical: 6, marginLeft: 8, marginRight: 16, backgroundColor: '#f9fafb', borderRadius: 16, borderWidth: 1, borderColor: '#e5e7eb' },
   regionTabText: { fontSize: 13, color: '#374151', fontWeight: '500' },
   subTabBar: { backgroundColor: '#fafafa', paddingVertical: 10, paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
@@ -556,8 +559,7 @@ const styles = StyleSheet.create({
   answerCount: { fontSize: 11, color: '#9ca3af', marginLeft: 8 },
   
   // 区域选择弹窗样式
-  modalOverlay: { flex: 1, justifyContent: 'flex-end' },
-  modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' },
+  modalOverlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' },
   regionModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '80%' },
   regionModalHandle: { width: 40, height: 4, backgroundColor: '#e5e7eb', borderRadius: 2, alignSelf: 'center', marginTop: 12, marginBottom: 8 },
   regionModalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },

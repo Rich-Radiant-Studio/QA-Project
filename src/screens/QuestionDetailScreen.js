@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, TextInput, StyleSheet, Modal, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import Avatar from '../components/Avatar';
 import IdentitySelector from '../components/IdentitySelector';
@@ -156,9 +156,6 @@ export default function QuestionDetailScreen({ navigation, route }) {
   const [activityForm, setActivityForm] = useState({ title: '', description: '', startDate: '', startTime: '', endDate: '', endTime: '', location: '', maxParticipants: '', contact: '', activityType: '线上活动' });
   const [commentLiked, setCommentLiked] = useState({});
   const [sortFilter, setSortFilter] = useState('精选'); // 精选 or 最新
-  const [inviteTab, setInviteTab] = useState('本站'); // 本站, 推特
-  const [searchLocalUser, setSearchLocalUser] = useState('');
-  const [searchTwitterUser, setSearchTwitterUser] = useState('');
   const [showSuppMoreModal, setShowSuppMoreModal] = useState(false);
   const [currentSuppId, setCurrentSuppId] = useState(null);
   const [showCommentModal, setShowCommentModal] = useState(false);
@@ -172,7 +169,6 @@ export default function QuestionDetailScreen({ navigation, route }) {
   const [expandedComments, setExpandedComments] = useState({});
   const [showCommentReplyModal, setShowCommentReplyModal] = useState(false);
   const [currentCommentId, setCurrentCommentId] = useState(null);
-  const [showInviteModal, setShowInviteModal] = useState(false);
   const [isTeamMember, setIsTeamMember] = useState(false); // 是否已加入团队
   const [showProgressBar, setShowProgressBar] = useState(false); // 是否显示进度条
   const [solvedPercentage, setSolvedPercentage] = useState(65); // 已解决的百分比
@@ -198,6 +194,9 @@ export default function QuestionDetailScreen({ navigation, route }) {
   const [invitedPage, setInvitedPage] = useState(1);
   const [supplementsPage, setSupplementsPage] = useState(1);
   const [answersPage, setAnswersPage] = useState(1);
+  
+  // 获取安全区域
+  const insets = useSafeAreaInsets();
   const [commentsPage, setCommentsPage] = useState(1);
   
   const [loadingInvited, setLoadingInvited] = useState(false);
@@ -523,7 +522,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
               </View>
             </View>
             <View style={styles.actionButtonsRight}>
-              <TouchableOpacity style={styles.smallActionBtn} onPress={() => setShowInviteModal(true)}>
+              <TouchableOpacity style={styles.smallActionBtn} onPress={() => navigation.navigate('InviteAnswer')}>
                 <Ionicons name="at" size={18} color="#3b82f6" />
               </TouchableOpacity>
               <TouchableOpacity style={styles.smallActionBtn} onPress={() => navigation.navigate('GroupChat', { question: currentQuestion })}>
@@ -1416,9 +1415,10 @@ export default function QuestionDetailScreen({ navigation, route }) {
       </View>
 
       {/* 更多操作弹窗 */}
-      <Modal visible={showActionModal} transparent animationType="slide">
-        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowActionModal(false)}>
-          <View style={styles.moreActionModal}>
+      <Modal visible={showActionModal} transparent animationType="slide" onRequestClose={() => setShowActionModal(false)}>
+        <View style={styles.modalOverlay}>
+          <TouchableOpacity style={styles.modalBackdrop} activeOpacity={1} onPress={() => setShowActionModal(false)} />
+          <View style={[styles.moreActionModal, { paddingBottom: Math.max(insets.bottom, 30) }]}>
             <View style={styles.moreActionModalHandle} />
             
             {/* 纵向操作按钮 */}
@@ -1437,13 +1437,14 @@ export default function QuestionDetailScreen({ navigation, route }) {
               <Text style={styles.moreActionCancelText}>取消</Text>
             </TouchableOpacity>
           </View>
-        </TouchableOpacity>
+        </View>
       </Modal>
 
       {/* 举报弹窗 */}
-      <Modal visible={showReportModal} transparent animationType="slide">
-        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowReportModal(false)}>
-          <View style={styles.reportModal}>
+      <Modal visible={showReportModal} transparent animationType="slide" onRequestClose={() => setShowReportModal(false)}>
+        <View style={styles.modalOverlay}>
+          <TouchableOpacity style={styles.modalBackdrop} activeOpacity={1} onPress={() => setShowReportModal(false)} />
+          <View style={[styles.reportModal, { paddingBottom: Math.max(insets.bottom, 30) }]}>
             <View style={styles.reportModalHandle} />
             <Text style={styles.reportModalTitle}>举报问题</Text>
             <TouchableOpacity style={styles.reportItem} onPress={() => { setShowReportModal(false); alert('已提交举报：垃圾广告'); }}>
@@ -1468,7 +1469,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
               <Text style={styles.reportCancelText}>取消</Text>
             </TouchableOpacity>
           </View>
-        </TouchableOpacity>
+        </View>
       </Modal>
 
       {/* 补充问题评论列表弹窗 */}
@@ -1562,7 +1563,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
       {/* 补充问题更多操作弹窗 */}
       <Modal visible={showSuppMoreModal} transparent animationType="slide">
         <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowSuppMoreModal(false)}>
-          <View style={styles.suppMoreModal}>
+          <View style={[styles.suppMoreModal, { paddingBottom: insets.bottom + 30 }]}>
             <View style={styles.suppMoreModalHandle} />
             
             <View style={styles.suppMoreActionList}>
@@ -1874,80 +1875,6 @@ export default function QuestionDetailScreen({ navigation, route }) {
         </TouchableOpacity>
       </Modal>
 
-      {/* 邀请回答弹窗 */}
-      <Modal visible={showInviteModal} transparent animationType="slide">
-        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowInviteModal(false)}>
-          <View style={styles.inviteModal} onStartShouldSetResponder={() => true}>
-            <View style={styles.inviteModalHandle} />
-            <Text style={styles.inviteModalTitle}>邀请回答</Text>
-            
-            {/* 平台选择标签 */}
-            <View style={styles.invitePlatformTabs}>
-              <TouchableOpacity 
-                style={[styles.invitePlatformTab, inviteTab === '本站' && styles.invitePlatformTabActive]}
-                onPress={() => setInviteTab('本站')}
-              >
-                <Text style={[styles.invitePlatformTabText, inviteTab === '本站' && styles.invitePlatformTabTextActive]}>本站</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={[styles.invitePlatformTab, inviteTab === '推特' && styles.invitePlatformTabActive]}
-                onPress={() => setInviteTab('推特')}
-              >
-                <Ionicons name="logo-twitter" size={16} color={inviteTab === '推特' ? '#1DA1F2' : '#9ca3af'} />
-                <Text style={[styles.invitePlatformTabText, inviteTab === '推特' && styles.invitePlatformTabTextActive]}>推特</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* 搜索框 */}
-            <View style={styles.inviteSearchContainer}>
-              <View style={styles.inviteSearchBox}>
-                <Ionicons name="search" size={18} color="#9ca3af" />
-                <TextInput
-                  style={styles.inviteSearchInput}
-                  placeholder={inviteTab === '本站' ? '搜索用户' : '搜索推特用户'}
-                  placeholderTextColor="#9ca3af"
-                  value={inviteTab === '本站' ? searchLocalUser : searchTwitterUser}
-                  onChangeText={(text) => {
-                    if (inviteTab === '本站') setSearchLocalUser(text);
-                    else setSearchTwitterUser(text);
-                  }}
-                />
-              </View>
-            </View>
-
-            {/* 用户列表 */}
-            <ScrollView style={styles.inviteUserList} showsVerticalScrollIndicator={false}>
-              {inviteTab === '本站' && [1, 2, 3, 4, 5].map(i => (
-                <View key={`local-${i}`} style={styles.inviteUserItem}>
-                  <Image source={{ uri: `https://api.dicebear.com/7.x/avataaars/svg?seed=invite${i}` }} style={styles.inviteUserAvatar} />
-                  <View style={styles.inviteUserInfo}>
-                    <Text style={styles.inviteUserName}>用户{i}</Text>
-                    <Text style={styles.inviteUserDesc}>Python开发者 · {i * 10}个回答</Text>
-                  </View>
-                  <TouchableOpacity style={styles.inviteUserBtn} onPress={() => alert(`已邀请用户${i}`)}>
-                    <Ionicons name="add" size={16} color="#fff" />
-                    <Text style={styles.inviteUserBtnText}>邀请</Text>
-                  </TouchableOpacity>
-                </View>
-              ))}
-              {inviteTab === '推特' && [1, 2, 3, 4, 5].map(i => (
-                <View key={`tw-${i}`} style={styles.inviteUserItem}>
-                  <Image source={{ uri: `https://api.dicebear.com/7.x/avataaars/svg?seed=tw${i}` }} style={styles.inviteUserAvatar} />
-                  <View style={styles.inviteUserInfo}>
-                    <Text style={styles.inviteUserName}>@twitter_user{i}</Text>
-                    <Text style={styles.inviteUserDesc}>{i}k 关注者</Text>
-                  </View>
-                  <TouchableOpacity style={[styles.inviteUserBtn, styles.inviteUserBtnTwitter]} onPress={() => alert(`已邀请推特用户${i}`)}>
-                    <Ionicons name="logo-twitter" size={16} color="#fff" />
-                    <Text style={styles.inviteUserBtnText}>邀请</Text>
-                  </TouchableOpacity>
-                </View>
-              ))}
-            </ScrollView>
-          </View>
-        </TouchableOpacity>
-      </Modal>
-
       {/* 发起活动弹窗 */}
       <Modal visible={showActivityModal} animationType="slide">
         <SafeAreaView style={styles.activityModal}>
@@ -2189,7 +2116,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
       {/* 追加悬赏弹窗 */}
       <Modal visible={showAddRewardModal} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
-          <View style={styles.addRewardModal}>
+          <View style={[styles.addRewardModal, { paddingBottom: insets.bottom + 30 }]}>
             <View style={styles.addRewardModalHandle} />
             <Text style={styles.addRewardModalTitle}>追加悬赏</Text>
             
@@ -2394,7 +2321,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
             </ScrollView>
 
             {/* 底部按钮区域 - 固定在底部 */}
-            <View style={styles.superLikeFooter}>
+            <View style={[styles.superLikeFooter, { paddingBottom: insets.bottom + 20 }]}>
               {/* 确认按钮 */}
               <TouchableOpacity
                 style={[
@@ -2430,7 +2357,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
       {/* 追加悬赏人员名单弹窗 */}
       <Modal visible={showRewardContributorsModal} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
-          <View style={styles.contributorsModal}>
+          <View style={[styles.contributorsModal, { paddingBottom: insets.bottom + 20 }]}>
             <View style={styles.contributorsModalHandle} />
             <View style={styles.contributorsModalHeader}>
               <Text style={styles.contributorsModalTitle}>追加悬赏名单</Text>
@@ -2599,7 +2526,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
               <View style={{ height: 20 }} />
             </ScrollView>
 
-            <View style={styles.arbitrationModalFooter}>
+            <View style={[styles.arbitrationModalFooter, { paddingBottom: insets.bottom + 16 }]}>
               <TouchableOpacity
                 style={[
                   styles.submitArbitrationBtn,
@@ -2630,7 +2557,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
       {/* 仲裁状态弹窗 */}
       <Modal visible={showArbitrationStatusModal} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
-          <View style={styles.arbitrationStatusModal}>
+          <View style={[styles.arbitrationStatusModal, { paddingBottom: insets.bottom + 30 }]}>
             <View style={styles.arbitrationModalHandle} />
             <Text style={styles.arbitrationStatusTitle}>仲裁投票详情</Text>
 
@@ -2744,7 +2671,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
       {/* 仲裁结果弹窗 */}
       <Modal visible={showArbitrationResultModal} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
-          <View style={styles.arbitrationStatusModal}>
+          <View style={[styles.arbitrationStatusModal, { paddingBottom: insets.bottom + 30 }]}>
             <View style={styles.arbitrationModalHandle} />
             <Text style={styles.arbitrationStatusTitle}>仲裁结果</Text>
 
@@ -2900,7 +2827,7 @@ const styles = StyleSheet.create({
   viewsRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   viewsText: { fontSize: 12, color: '#9ca3af' },
   topicTags: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  topicTag: { fontSize: 12, color: '#6b7280', backgroundColor: '#f3f4f6', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+  topicTag: { fontSize: 12, color: '#6b7280', backgroundColor: '#f3f4f6', paddingHorizontal: 8, paddingVertical: 0, borderRadius: 12, lineHeight: 16, textAlignVertical: 'center', height: 20 },
   // 作者信息和操作按钮行
   authorActionsRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#f3f4f6', marginBottom: 12 },
   authorInfoLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
@@ -3047,7 +2974,7 @@ const styles = StyleSheet.create({
   suppCommentText: { fontSize: 13, color: '#6b7280', fontWeight: '500' },
   suppMoreBtn: { padding: 6 },
   // 补充问题更多弹窗
-  suppMoreModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 30 },
+  suppMoreModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20 },
   suppMoreModalHandle: { width: 40, height: 4, backgroundColor: '#e5e7eb', borderRadius: 2, alignSelf: 'center', marginTop: 12, marginBottom: 16 },
   suppMoreActionList: { paddingTop: 8 },
   suppMoreActionItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 20, borderBottomWidth: 1, borderBottomColor: '#f9fafb' },
@@ -3055,8 +2982,19 @@ const styles = StyleSheet.create({
   suppMoreCancelBtn: { marginTop: 8, marginHorizontal: 16, backgroundColor: '#f3f4f6', paddingVertical: 14, borderRadius: 12, alignItems: 'center' },
   suppMoreCancelText: { fontSize: 15, color: '#6b7280', fontWeight: '500' },
   // 更多操作弹窗样式
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-  moreActionModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 30 },
+  modalOverlay: { 
+    flex: 1, 
+    backgroundColor: 'rgba(0,0,0,0.5)', 
+    justifyContent: 'flex-end' 
+  },
+  modalBackdrop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  moreActionModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20 },
   moreActionModalHandle: { width: 40, height: 4, backgroundColor: '#e5e7eb', borderRadius: 2, alignSelf: 'center', marginTop: 12, marginBottom: 16 },
   actionListSection: { paddingTop: 8 },
   moreActionItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 20, borderBottomWidth: 1, borderBottomColor: '#f9fafb' },
@@ -3201,7 +3139,7 @@ const styles = StyleSheet.create({
   activityTypeSelectorText: { fontSize: 14, color: '#6b7280', fontWeight: '500' },
   activityTypeSelectorTextActive: { color: '#fff' },
   // 举报弹窗样式
-  reportModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 30 },
+  reportModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20 },
   reportModalHandle: { width: 40, height: 4, backgroundColor: '#e5e7eb', borderRadius: 2, alignSelf: 'center', marginTop: 12, marginBottom: 8 },
   reportModalTitle: { fontSize: 16, fontWeight: '600', color: '#1f2937', textAlign: 'center', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
   reportItem: { paddingVertical: 16, paddingHorizontal: 20, borderBottomWidth: 1, borderBottomColor: '#f9fafb' },
@@ -3246,7 +3184,7 @@ const styles = StyleSheet.create({
   inviteBtnTwitter: { backgroundColor: '#1DA1F2' },
   inviteBtnFacebook: { backgroundColor: '#4267B2' },
   // 邀请回答弹窗样式
-  inviteModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '80%', paddingBottom: 20 },
+  inviteModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '80%' },
   inviteModalHandle: { width: 40, height: 4, backgroundColor: '#e5e7eb', borderRadius: 2, alignSelf: 'center', marginTop: 12, marginBottom: 16 },
   inviteModalTitle: { fontSize: 18, fontWeight: '600', color: '#1f2937', textAlign: 'center', marginBottom: 16 },
   invitePlatformTabs: { flexDirection: 'row', paddingHorizontal: 16, marginBottom: 16, gap: 8 },
@@ -3268,7 +3206,7 @@ const styles = StyleSheet.create({
   inviteUserBtnFacebook: { backgroundColor: '#4267B2' },
   inviteUserBtnTwitter: { backgroundColor: '#1DA1F2' },
   // 团队弹窗样式
-  teamModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '85%', paddingBottom: 20 },
+  teamModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '85%' },
   teamModalHandle: { width: 40, height: 4, backgroundColor: '#e5e7eb', borderRadius: 2, alignSelf: 'center', marginTop: 12, marginBottom: 12 },
   teamHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
   teamTitle: { fontSize: 18, fontWeight: '600', color: '#1f2937' },
@@ -3356,7 +3294,7 @@ const styles = StyleSheet.create({
   collapseBtnText: { fontSize: 15, color: '#ef4444', fontWeight: '600', marginRight: 4 },
   // 追加悬赏弹窗样式
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-  addRewardModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 30 },
+  addRewardModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20 },
   addRewardModalHandle: { width: 40, height: 4, backgroundColor: '#e5e7eb', borderRadius: 2, alignSelf: 'center', marginTop: 12, marginBottom: 16 },
   addRewardModalTitle: { fontSize: 18, fontWeight: '600', color: '#1f2937', textAlign: 'center', marginBottom: 20 },
   addRewardContent: { paddingHorizontal: 20 },
@@ -3382,7 +3320,7 @@ const styles = StyleSheet.create({
   cancelAddRewardBtn: { backgroundColor: '#f3f4f6', borderRadius: 12, paddingVertical: 14, alignItems: 'center' },
   cancelAddRewardBtnText: { fontSize: 15, color: '#6b7280', fontWeight: '500' },
   // 追加悬赏人员名单弹窗样式
-  contributorsModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '70%', paddingBottom: 20 },
+  contributorsModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '70%' },
   contributorsModalHandle: { width: 40, height: 4, backgroundColor: '#e5e7eb', borderRadius: 2, alignSelf: 'center', marginTop: 12, marginBottom: 12 },
   contributorsModalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
   contributorsModalTitle: { fontSize: 18, fontWeight: '600', color: '#1f2937' },
@@ -3446,7 +3384,7 @@ const styles = StyleSheet.create({
   priceInfoTotalValue: { fontSize: 18, fontWeight: '700', color: '#f59e0b' },
   superLikeTips: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, backgroundColor: '#eff6ff', borderRadius: 8, padding: 12, marginBottom: 20 },
   superLikeTipsText: { flex: 1, fontSize: 12, color: '#6b7280', lineHeight: 18 },
-  superLikeFooter: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 20, borderTopWidth: 1, borderTopColor: '#f3f4f6', backgroundColor: '#fff' },
+  superLikeFooter: { paddingHorizontal: 20, paddingTop: 16, borderTopWidth: 1, borderTopColor: '#f3f4f6', backgroundColor: '#fff' },
   confirmSuperLikeBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: '#f59e0b', borderRadius: 12, paddingVertical: 14, marginBottom: 12 },
   confirmSuperLikeBtnDisabled: { backgroundColor: '#fcd34d' },
   confirmSuperLikeBtnText: { fontSize: 15, color: '#fff', fontWeight: '600' },
@@ -3484,14 +3422,14 @@ const styles = StyleSheet.create({
   expertExpertise: { fontSize: 11, color: '#9ca3af' },
   expertCheckbox: { width: 24, height: 24, borderRadius: 12, borderWidth: 2, borderColor: '#d1d5db', alignItems: 'center', justifyContent: 'center' },
   expertCheckboxSelected: { backgroundColor: '#3b82f6', borderColor: '#3b82f6' },
-  arbitrationModalFooter: { paddingHorizontal: 20, paddingVertical: 16, borderTopWidth: 1, borderTopColor: '#f3f4f6' },
+  arbitrationModalFooter: { paddingHorizontal: 20, paddingTop: 16, borderTopWidth: 1, borderTopColor: '#f3f4f6' },
   submitArbitrationBtn: { backgroundColor: '#ef4444', borderRadius: 12, paddingVertical: 14, alignItems: 'center', marginBottom: 10 },
   submitArbitrationBtnDisabled: { backgroundColor: '#fca5a5' },
   submitArbitrationBtnText: { fontSize: 15, color: '#fff', fontWeight: '600' },
   cancelArbitrationBtn: { backgroundColor: '#f3f4f6', borderRadius: 12, paddingVertical: 14, alignItems: 'center' },
   cancelArbitrationBtnText: { fontSize: 15, color: '#6b7280', fontWeight: '500' },
   // 仲裁状态弹窗样式
-  arbitrationStatusModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingHorizontal: 20, paddingBottom: 30 },
+  arbitrationStatusModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingHorizontal: 20 },
   arbitrationStatusTitle: { fontSize: 18, fontWeight: '600', color: '#1f2937', textAlign: 'center', marginTop: 20, marginBottom: 20 },
   votingProgress: { backgroundColor: '#f9fafb', borderRadius: 12, padding: 16, marginBottom: 20 },
   votingProgressBar: { flexDirection: 'row', height: 8, borderRadius: 4, overflow: 'hidden', backgroundColor: '#e5e7eb', marginBottom: 12 },

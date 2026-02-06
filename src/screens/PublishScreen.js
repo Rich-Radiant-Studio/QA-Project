@@ -236,7 +236,7 @@ export default function PublishScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <TouchableOpacity 
           onPress={() => navigation.goBack()}

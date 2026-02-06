@@ -113,23 +113,29 @@ export default function MyTeamsScreen({ navigation }) {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity 
-          onPress={() => navigation.goBack()} 
-          style={styles.backBtn}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          activeOpacity={0.7}
-        >
-          <Ionicons name="arrow-back" size={24} color="#374151" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>我的团队</Text>
-        <TouchableOpacity 
-          onPress={handleCreateTeam} 
-          style={styles.createBtn}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.createBtnText}>创建</Text>
-        </TouchableOpacity>
+        <View style={styles.headerLeft}>
+          <TouchableOpacity 
+            onPress={() => navigation.goBack()} 
+            style={styles.backBtn}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="arrow-back" size={24} color="#374151" />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.headerCenter}>
+          <Text style={styles.headerTitle}>我的团队</Text>
+        </View>
+        <View style={styles.headerRight}>
+          <TouchableOpacity 
+            onPress={handleCreateTeam} 
+            style={styles.createBtn}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.createBtnText}>创建</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -298,9 +304,12 @@ export default function MyTeamsScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f9fafb' },
+  container: { flex: 1, backgroundColor: '#fff' },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
-  backBtn: { padding: 4 },
+  headerLeft: { width: 40, alignItems: 'flex-start' },
+  headerCenter: { flex: 1, alignItems: 'center' },
+  headerRight: { width: 80, alignItems: 'flex-end' },
+  backBtn: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
   headerTitle: { fontSize: 17, fontWeight: '600', color: '#1f2937' },
   createBtn: { backgroundColor: '#ef4444', paddingHorizontal: 16, paddingVertical: 6, borderRadius: 16 },
   createBtnText: { fontSize: 14, color: '#fff', fontWeight: '600' },
@@ -335,7 +344,7 @@ const styles = StyleSheet.create({
   createModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '80%' },
   createModalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
   createModalTitle: { fontSize: 17, fontWeight: '600', color: '#1f2937' },
-  createModalContent: { flex: 1, paddingHorizontal: 16, paddingTop: 16 },
+  createModalContent: { maxHeight: 400, paddingHorizontal: 16, paddingTop: 16 },
   formGroup: { marginBottom: 20 },
   formLabel: { fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 8 },
   formHint: { fontSize: 12, color: '#9ca3af', marginBottom: 12 },

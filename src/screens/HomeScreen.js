@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, Modal, Dimensions, TextInput, FlatList, Platform, ActivityIndicator, RefreshControl } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { FlashList } from '@shopify/flash-list';
 import Avatar from '../components/Avatar';
+import TranslateButton from '../components/TranslateButton';
+import { useTranslation } from '../i18n/withTranslation';
+import { getRegionData } from '../data/regionData';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -15,7 +18,7 @@ const questions = [
   { id: 5, title: '有什么简单又好吃的家常菜推荐?最好是新手也能做的那种', type: 'free', likes: 368, dislikes: 6, answers: 127, shares: 45, bookmarks: 98, author: '美食达人', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user5', time: '6小时前', images: ['https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&h=200&fit=crop', 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=200&h=200&fit=crop'], solvedPercent: 92, country: '英国', city: '伦敦' },
 ];
 
-const tabs = ['关注', '话题', '推荐', '热榜', '收入榜', '同城', '国家', '行业', '个人', '职场', '教育'];
+// tabs array will be moved inside component to use translation
 
 // 话题数据
 const topicsData = [
@@ -31,84 +34,39 @@ const topicsData = [
   { id: 10, name: '#运动健身', icon: 'barbell', color: '#ef4444', followers: '38.5万', questions: '18.6万', description: '健身经验与运动技巧', isFollowed: false },
 ];
 
-// 区域数据
-const regionData = {
-  countries: ['美国', '英国', '法国', '德国', '意大利', '西班牙', '荷兰', '瑞士', '瑞典', '挪威', '丹麦', '芬兰', '比利时', '奥地利', '葡萄牙', '希腊', '波兰', '捷克', '爱尔兰', '匈牙利', '罗马尼亚'],
-  cities: { 
-    '美国': ['纽约州', '加利福尼亚州', '德克萨斯州', '佛罗里达州', '伊利诺伊州', '宾夕法尼亚州', '俄亥俄州', '华盛顿州', '马萨诸塞州', '亚利桑那州'],
-    '英国': ['伦敦', '曼彻斯特', '伯明翰', '利物浦', '爱丁堡', '格拉斯哥', '布里斯托', '利兹', '谢菲尔德', '纽卡斯尔'], 
-    '法国': ['巴黎', '马赛', '里昂', '图卢兹', '尼斯', '南特', '斯特拉斯堡', '蒙彼利埃', '波尔多', '里尔'],
-    '德国': ['柏林', '慕尼黑', '汉堡', '法兰克福', '科隆', '斯图加特', '杜塞尔多夫', '多特蒙德', '埃森', '莱比锡'],
-    '意大利': ['罗马', '米兰', '那不勒斯', '都灵', '佛罗伦萨', '威尼斯', '博洛尼亚', '热那亚', '巴勒莫', '维罗纳'],
-    '西班牙': ['马德里', '巴塞罗那', '瓦伦西亚', '塞维利亚', '萨拉戈萨', '马拉加', '毕尔巴鄂', '格拉纳达', '阿利坎特', '科尔多瓦'],
-    '荷兰': ['阿姆斯特丹', '鹿特丹', '海牙', '乌得勒支', '埃因霍温', '蒂尔堡', '格罗宁根', '阿尔梅勒', '布雷达', '奈梅亨'],
-    '瑞士': ['苏黎世', '日内瓦', '巴塞尔', '伯尔尼', '洛桑', '卢塞恩', '圣加仑', '卢加诺', '比尔', '图恩'],
-    '瑞典': ['斯德哥尔摩', '哥德堡', '马尔默', '乌普萨拉', '韦斯特罗斯', '厄勒布鲁', '林雪平', '赫尔辛堡', '延雪平', '诺尔雪平'],
-    '挪威': ['奥斯陆', '卑尔根', '特隆赫姆', '斯塔万格', '克里斯蒂安桑', '腓特烈斯塔', '特罗姆瑟', '桑内斯', '德拉门', '阿伦达尔'],
-    '丹麦': ['哥本哈根', '奥胡斯', '欧登塞', '奥尔堡', '埃斯比约', '罗斯基勒', '科灵', '霍森斯', '赫尔辛格', '腓特烈堡'],
-    '芬兰': ['赫尔辛基', '埃斯波', '坦佩雷', '万塔', '奥卢', '图尔库', '于韦斯屈莱', '拉赫蒂', '库奥皮奥', '波里'],
-    '比利时': ['布鲁塞尔', '安特卫普', '根特', '沙勒罗瓦', '列日', '布鲁日', '那慕尔', '鲁汶', '蒙斯', '梅赫伦'],
-    '奥地利': ['维也纳', '格拉茨', '林茨', '萨尔茨堡', '因斯布鲁克', '克拉根福', '菲拉赫', '韦尔斯', '圣珀尔滕', '多恩比恩'],
-    '葡萄牙': ['里斯本', '波尔图', '布拉加', '科英布拉', '丰沙尔', '塞图巴尔', '吉马良斯', '阿尔马达', '阿威罗', '埃武拉'],
-    '希腊': ['雅典', '塞萨洛尼基', '帕特雷', '伊拉克利翁', '拉里萨', '沃洛斯', '罗德岛', '约阿尼纳', '哈尼亚', '哈尔基斯'],
-    '波兰': ['华沙', '克拉科夫', '罗兹', '弗罗茨瓦夫', '波兹南', '格但斯克', '什切青', '比得哥什', '卢布林', '卡托维兹'],
-    '捷克': ['布拉格', '布尔诺', '俄斯特拉发', '比尔森', '利贝雷茨', '奥洛穆茨', '乌斯季', '赫拉德茨', '帕尔杜比采', '哈维若夫'],
-    '爱尔兰': ['都柏林', '科克', '利默里克', '戈尔韦', '沃特福德', '德罗赫达', '邓多克', '斯沃兹', '布雷', '恩尼斯'],
-    '匈牙利': ['布达佩斯', '德布勒森', '塞格德', '米什科尔茨', '佩奇', '杰尔', '尼赖吉哈佐', '凯奇凯梅特', '塞克什白堡', '松博特海伊'],
-    '罗马尼亚': ['布加勒斯特', '克卢日', '蒂米什瓦拉', '雅西', '康斯坦察', '克拉约瓦', '布拉索夫', '加拉茨', '普洛耶什蒂', '布勒伊拉']
-  },
-  states: { 
-    '纽约州': ['纽约市', '布法罗', '罗切斯特', '扬克斯', '锡拉丘兹', '奥尔巴尼', '新罗谢尔', '弗农山', '斯克内克塔迪', '尤蒂卡'],
-    '加利福尼亚州': ['洛杉矶', '圣地亚哥', '圣何塞', '旧金山', '弗雷斯诺', '萨克拉门托', '长滩', '奥克兰', '贝克斯菲尔德', '阿纳海姆'],
-    '德克萨斯州': ['休斯顿', '圣安东尼奥', '达拉斯', '奥斯汀', '沃思堡', '埃尔帕索', '阿灵顿', '科珀斯克里斯蒂', '普莱诺', '拉雷多'],
-    '佛罗里达州': ['杰克逊维尔', '迈阿密', '坦帕', '奥兰多', '圣彼得堡', '海厄利亚', '塔拉哈西', '劳德代尔堡', '彭布罗克派恩斯', '好莱坞'],
-    '伊利诺伊州': ['芝加哥', '奥罗拉', '罗克福德', '乔利埃特', '内珀维尔', '斯普林菲尔德', '皮奥里亚', '埃尔金', '沃基根', '西塞罗'],
-    '宾夕法尼亚州': ['费城', '匹兹堡', '阿伦敦', '伊利', '雷丁', '斯克兰顿', '贝瑟利恒', '兰开斯特', '哈里斯堡', '阿尔图纳'],
-    '俄亥俄州': ['哥伦布', '克利夫兰', '辛辛那提', '托莱多', '阿克伦', '代顿', '帕尔马', '扬斯敦', '坎顿', '洛雷恩'],
-    '华盛顿州': ['西雅图', '斯波坎', '塔科马', '温哥华', '贝尔维尤', '肯特', '埃弗里特', '伦顿', '斯波坎谷', '联邦路'],
-    '马萨诸塞州': ['波士顿', '伍斯特', '斯普林菲尔德', '洛厄尔', '剑桥', '新贝德福德', '布罗克顿', '昆西', '林恩', '福尔里弗'],
-    '亚利桑那州': ['凤凰城', '图森', '梅萨', '钱德勒', '格伦代尔', '斯科茨代尔', '吉尔伯特', '坦佩', '皮奥里亚', '惊奇城'],
-    '伦敦': ['威斯敏斯特', '肯辛顿', '切尔西', '卡姆登', '伊斯灵顿', '哈克尼', '陶尔哈姆莱茨', '格林威治', '刘易舍姆', '南华克'], 
-    '曼彻斯特': ['市中心', '索尔福德', '特拉福德', '斯托克波特', '奥尔德姆', '罗奇代尔', '博尔顿', '伯里', '维根', '坦姆赛德'],
-    '巴黎': ['第1区', '第2区', '第3区', '第4区', '第5区', '第6区', '第7区', '第8区', '第9区', '第10区', '第11区', '第12区', '第13区', '第14区', '第15区', '第16区', '第17区', '第18区', '第19区', '第20区'],
-    '马赛': ['第1区', '第2区', '第3区', '第4区', '第5区', '第6区', '第7区', '第8区', '第9区', '第10区', '第11区', '第12区', '第13区', '第14区', '第15区', '第16区'],
-    '柏林': ['米特区', '腓特烈斯海因-克罗伊茨贝格区', '潘科区', '夏洛滕堡-威尔默斯多夫区', '施潘道区', '施特格利茨-策伦多夫区', '滕珀尔霍夫-舍讷贝格区', '新克尔恩区', '特雷普托-克珀尼克区', '马灿-海勒斯多夫区', '利希滕贝格区', '赖尼肯多夫区'],
-    '慕尼黑': ['老城区', '路德维希郊区-伊萨尔郊区', '马克斯郊区', '施瓦宾-西区', '奥区-海德豪森区', '森德灵区', '森德灵-西公园区', '施瓦宾-弗赖曼区', '米尔贝茨霍芬-哈特区', '博根豪森区'],
-    '罗马': ['第1区', '第2区', '第3区', '第4区', '第5区', '第6区', '第7区', '第8区', '第9区', '第10区', '第11区', '第12区', '第13区', '第14区', '第15区'],
-    '米兰': ['第1区', '第2区', '第3区', '第4区', '第5区', '第6区', '第7区', '第8区', '第9区'],
-    '马德里': ['中心区', '阿尔甘苏埃拉区', '雷蒂罗区', '萨拉曼卡区', '查马丁区', '特图安区', '钱贝里区', '富恩卡拉尔-埃尔帕尔多区', '蒙克洛亚-阿拉瓦卡区', '拉蒂纳区'],
-    '巴塞罗那': ['老城区', '扩建区', '圣马丁区', '圣安德鲁区', '蒙特惠奇区', '格拉西亚区', '奥尔塔-吉那尔多区', '诺坎普区', '圣马丁区', '莱斯科尔茨区'],
-    '阿姆斯特丹': ['中心区', '西区', '新西区', '南区', '东区', '北区', '东南区', '西波特区'],
-    '苏黎世': ['第1区', '第2区', '第3区', '第4区', '第5区', '第6区', '第7区', '第8区', '第9区', '第10区', '第11区', '第12区'],
-    '斯德哥尔摩': ['南马尔姆区', '北马尔姆区', '奥斯特马尔姆区', '库恩斯霍尔门区', '瓦萨斯坦区', '索德马尔姆区', '恩斯克德区', '法鲁斯塔区', '布罗马区', '哈格斯特拉区'],
-    '奥斯陆': ['中心区', '格吕内洛卡区', '马约尔斯图恩区', '圣汉斯豪根区', '托尔斯霍夫区', '萨格内区', '弗罗格纳区', '乌勒恩区', '诺德斯特兰德区', '阿尔纳区'],
-    '哥本哈根': ['内城区', '克里斯蒂安港区', '韦斯特布罗区', '诺雷布罗区', '奥斯特布罗区', '腓特烈堡区', '比斯佩比约区', '瓦尔比区', '阿迈厄岛区', '布隆斯霍伊区'],
-    '赫尔辛基': ['南区', '北区', '中区', '东区', '东南区', '西区', '东北区'],
-    '布鲁塞尔': ['布鲁塞尔市', '安德莱赫特', '奥德海姆', '埃特尔贝克', '埃弗勒', '福雷', '甘斯豪伦', '伊克塞尔', '于克勒', '科克尔贝赫'],
-    '维也纳': ['内城区', '利奥波德城区', '兰德施特拉瑟区', '维登区', '玛格丽特区', '玛丽亚希尔夫区', '诺伊鲍区', '约瑟夫施塔特区', '阿尔瑟格伦德区', '法沃里滕区'],
-    '里斯本': ['圣玛丽亚马约尔区', '米塞里科迪亚区', '圣维森特区', '坎波德奥里克区', '阿雷罗斯区', '埃斯特雷拉区', '贝伦区', '阿尔坎塔拉区', '阿茹达区', '本菲卡区'],
-    '雅典': ['中心区', '北区', '南区', '西区', '比雷埃夫斯区', '东阿提卡区', '西阿提卡区'],
-    '华沙': ['中心区', '莫科托夫区', '奥霍塔区', '普拉加波卢德涅区', '普拉加波沃茨涅区', '瓦沃拉区', '维拉努夫区', '乌尔西努夫区', '维索基马佐维茨基区', '贝莫沃区'],
-    '布拉格': ['布拉格1区', '布拉格2区', '布拉格3区', '布拉格4区', '布拉格5区', '布拉格6区', '布拉格7区', '布拉格8区', '布拉格9区', '布拉格10区'],
-    '都柏林': ['都柏林1区', '都柏林2区', '都柏林3区', '都柏林4区', '都柏林5区', '都柏林6区', '都柏林7区', '都柏林8区', '都柏林9区', '都柏林10区'],
-    '布达佩斯': ['第1区', '第2区', '第3区', '第4区', '第5区', '第6区', '第7区', '第8区', '第9区', '第10区', '第11区', '第12区', '第13区', '第14区', '第15区'],
-    '布加勒斯特': ['第1区', '第2区', '第3区', '第4区', '第5区', '第6区']
-  },
-  districts: { 
-    '纽约市': ['曼哈顿', '布鲁克林', '皇后区', '布朗克斯', '史坦顿岛'],
-    '洛杉矶': ['好莱坞', '比佛利山庄', '圣莫尼卡', '威尼斯', '市中心', '银湖', '回声公园', '韦斯特伍德', '布伦特伍德', '帕萨迪纳'],
-    '芝加哥': ['卢普区', '林肯公园', '威克公园', '湖景', '洛根广场', '海德公园', '南环', '西环', '北环', '河北'],
-    '威斯敏斯特': ['科文特花园', '梅费尔', '圣詹姆斯', '贝尔格拉维亚', '皮姆利科', '帕丁顿', '马里波恩'], 
-    '肯辛顿': ['南肯辛顿', '诺丁山', '荷兰公园', '伯爵宫', '切尔西'], 
-    '第1区': ['卢浮宫', '旺多姆广场', '协和广场', '杜乐丽花园'],
-    '第8区': ['香榭丽舍大街', '凯旋门', '爱丽舍宫', '玛德莱娜教堂'],
-    '米特区': ['亚历山大广场', '勃兰登堡门', '博物馆岛', '波茨坦广场'],
-    '老城区': ['玛利亚广场', '新市政厅', '圣母教堂', '维克图阿连市场']
-  }
-};
-
 export default function HomeScreen({ navigation }) {
-  const [activeTab, setActiveTab] = useState('推荐');
+  const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
+  
+  // 获取多语言区域数据
+  const regionData = getRegionData();
+  
+  // 添加调试信息 - 显示检测到的语言
+  React.useEffect(() => {
+    console.log('='.repeat(50));
+    console.log('🔍 HomeScreen mounted - Language Detection Debug');
+    console.log('='.repeat(50));
+    console.log('📱 regionData.countries:', regionData.countries?.slice(0, 3));
+    console.log('🌐 First country:', regionData.countries?.[0]);
+    console.log('='.repeat(50));
+  }, []);
+  
+  // Tabs array using translation
+  const tabs = [
+    t('home.follow'),
+    t('home.topics'),
+    t('home.recommend'),
+    t('home.hotList'),
+    t('home.incomeRanking'),
+    t('home.sameCity'),
+    t('home.country'),
+    t('home.industry'),
+    t('home.personal'),
+    t('home.workplace'),
+    t('home.education')
+  ];
+  
+  const [activeTab, setActiveTab] = useState(t('home.recommend'));
   const [likedItems, setLikedItems] = useState({});
   const [bookmarkedItems, setBookmarkedItems] = useState({});
   const [showRegionModal, setShowRegionModal] = useState(false);
@@ -130,20 +88,23 @@ export default function HomeScreen({ navigation }) {
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
   
-  // 时间格式化函数
+  // 翻译状态
+  const [translatedContent, setTranslatedContent] = useState({});
+  
+  // 时间格式化函数 - with translation support
   const formatTime = (timeStr) => {
     // 如果已经是格式化的字符串（如"2小时前"），需要解析
     const now = new Date();
     let targetTime;
     
     // 解析不同格式的时间字符串
-    if (timeStr.includes('小时前')) {
+    if (timeStr.includes('小时前') || timeStr.includes('hours ago')) {
       const hours = parseInt(timeStr);
       targetTime = new Date(now.getTime() - hours * 60 * 60 * 1000);
-    } else if (timeStr.includes('分钟前')) {
+    } else if (timeStr.includes('分钟前') || timeStr.includes('minutes ago')) {
       const minutes = parseInt(timeStr);
       targetTime = new Date(now.getTime() - minutes * 60 * 1000);
-    } else if (timeStr.includes('昨天')) {
+    } else if (timeStr.includes('昨天') || timeStr.includes('Yesterday')) {
       targetTime = new Date(now.getTime() - 24 * 60 * 60 * 1000);
     } else {
       // 假设是时间戳或其他格式
@@ -156,13 +117,13 @@ export default function HomeScreen({ navigation }) {
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     
     if (days >= 1) {
-      return '昨天';
+      return t('home.yesterday');
     } else if (hours >= 1) {
-      return `${hours}小时前`;
+      return `${hours} ${t('home.hoursAgo')}`;
     } else if (minutes >= 1) {
-      return `${minutes}分钟前`;
+      return `${minutes} ${t('home.minutesAgo')}`;
     } else {
-      return '刚刚';
+      return t('home.justNow');
     }
   };
 
@@ -202,72 +163,33 @@ export default function HomeScreen({ navigation }) {
 
   // 同城筛选状态
   const [localCity, setLocalCity] = useState('北京');
-  const [localFilter, setLocalFilter] = useState('最新');
+  const [localFilter, setLocalFilter] = useState('latest');
   const [showCityModal, setShowCityModal] = useState(false);
   const [showNearbyModal, setShowNearbyModal] = useState(false);
   const [nearbyDistance, setNearbyDistance] = useState('3公里');
   const [citySelectStep, setCitySelectStep] = useState(0); // 0:国家 1:省份 2:城市
   const [selectedCityRegion, setSelectedCityRegion] = useState({ country: '中国', state: '北京市', city: '北京' });
 
-  // 同城地区数据
-  const cityRegionData = {
-    countries: ['中国', '美国', '日本', '英国', '韩国', '澳大利亚', '加拿大'],
-    states: {
-      '中国': ['北京市', '上海市', '广东省', '浙江省', '江苏省', '四川省', '湖北省', '陕西省'],
-      '美国': ['加利福尼亚州', '纽约州', '德克萨斯州', '佛罗里达州', '华盛顿州'],
-      '日本': ['东京都', '大阪府', '京都府', '北海道', '神奈川县'],
-      '英国': ['英格兰', '苏格兰', '威尔士', '北爱尔兰'],
-      '韩国': ['首尔特别市', '釜山广域市', '仁川广域市', '京畿道'],
-      '澳大利亚': ['新南威尔士州', '维多利亚州', '昆士兰州'],
-      '加拿大': ['安大略省', '魁北克省', '不列颠哥伦比亚省']
-    },
-    cities: {
-      '北京市': ['北京'],
-      '上海市': ['上海'],
-      '广东省': ['广州', '深圳', '东莞', '佛山', '珠海'],
-      '浙江省': ['杭州', '宁波', '温州', '嘉兴'],
-      '江苏省': ['南京', '苏州', '无锡', '常州'],
-      '四川省': ['成都', '绵阳', '德阳'],
-      '湖北省': ['武汉', '宜昌', '襄阳'],
-      '陕西省': ['西安', '咸阳', '宝鸡'],
-      '加利福尼亚州': ['洛杉矶', '旧金山', '圣地亚哥'],
-      '纽约州': ['纽约', '布法罗', '奥尔巴尼'],
-      '德克萨斯州': ['休斯顿', '达拉斯', '奥斯汀'],
-      '佛罗里达州': ['迈阿密', '奥兰多', '坦帕'],
-      '华盛顿州': ['西雅图', '塔科马'],
-      '东京都': ['东京'],
-      '大阪府': ['大阪'],
-      '京都府': ['京都'],
-      '北海道': ['札幌', '函馆'],
-      '神奈川县': ['横滨', '川崎'],
-      '英格兰': ['伦敦', '曼彻斯特', '伯明翰', '利物浦'],
-      '苏格兰': ['爱丁堡', '格拉斯哥'],
-      '威尔士': ['加的夫'],
-      '北爱尔兰': ['贝尔法斯特'],
-      '首尔特别市': ['首尔'],
-      '釜山广域市': ['釜山'],
-      '仁川广域市': ['仁川'],
-      '京畿道': ['水原', '城南'],
-      '新南威尔士州': ['悉尼', '纽卡斯尔'],
-      '维多利亚州': ['墨尔本'],
-      '昆士兰州': ['布里斯班', '黄金海岸'],
-      '安大略省': ['多伦多', '渥太华'],
-      '魁北克省': ['蒙特利尔', '魁北克城'],
-      '不列颠哥伦比亚省': ['温哥华', '维多利亚']
-    }
-  };
+  // 同城地区数据 - 使用与主区域选择器相同的多语言数据
+  const cityRegionData = regionData;
 
 
 
   // 同城功能
   const getCitySelectOptions = () => {
     if (citySelectStep === 0) return cityRegionData.countries;
-    if (citySelectStep === 1) return cityRegionData.states[selectedCityRegion.country] || [];
-    if (citySelectStep === 2) return cityRegionData.cities[selectedCityRegion.state] || [];
+    if (citySelectStep === 1) {
+      // 使用 cities 对象，键是国家名
+      return cityRegionData.cities[selectedCityRegion.country] || [];
+    }
+    if (citySelectStep === 2) {
+      // 使用 states 对象，键是城市名
+      return cityRegionData.states[selectedCityRegion.state] || [];
+    }
     return [];
   };
 
-  const getCitySelectTitle = () => ['选择国家', '选择省份', '选择城市'][citySelectStep];
+  const getCitySelectTitle = () => [t('home.selectCountry'), t('home.selectState'), t('home.selectCity')][citySelectStep];
 
   const selectCityRegion = (value) => {
     if (citySelectStep === 0) {
@@ -341,7 +263,7 @@ export default function HomeScreen({ navigation }) {
       return (
         <View style={styles.footerLoading}>
           <ActivityIndicator size="small" color="#ef4444" />
-          <Text style={styles.footerText}>加载中...</Text>
+          <Text style={styles.footerText}>{t('home.loading')}</Text>
         </View>
       );
     }
@@ -349,7 +271,7 @@ export default function HomeScreen({ navigation }) {
     if (!hasMore) {
       return (
         <View style={styles.footerEnd}>
-          <Text style={styles.footerEndText}>没有更多内容了</Text>
+          <Text style={styles.footerEndText}>{t('home.noMoreContent')}</Text>
         </View>
       );
     }
@@ -440,18 +362,18 @@ export default function HomeScreen({ navigation }) {
     }
   };
 
-  const getRegionTitle = () => ['选择国家', '选择城市', '选择省份', '选择区'][regionStep];
+  const getRegionTitle = () => [t('home.selectCountry'), t('home.selectCity'), t('home.selectState'), t('home.selectDistrict')][regionStep];
   const getDisplayRegion = () => {
     const parts = [selectedRegion.country, selectedRegion.city, selectedRegion.state, selectedRegion.district].filter(Boolean);
     // 只显示最后一级，如果没有选择则显示"全球"
-    if (parts.length === 0) return '全球';
+    if (parts.length === 0) return t('home.global');
     return parts[parts.length - 1];
   };
 
 
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       {/* 顶部搜索栏 */}
       <View style={styles.header}>
         <TouchableOpacity
@@ -469,7 +391,7 @@ export default function HomeScreen({ navigation }) {
           activeOpacity={0.7}
         >
           <Ionicons name="search" size={16} color="#9ca3af" />
-          <Text style={styles.searchPlaceholder}>搜索问题、话题或用户</Text>
+          <Text style={styles.searchPlaceholder}>{t('home.search')}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.teamBtn}
@@ -498,11 +420,11 @@ export default function HomeScreen({ navigation }) {
               key={tab}
               style={styles.tabItem}
               onPress={() => {
-                if (tab === '关注') {
+                if (tab === t('home.follow')) {
                   navigation.navigate('Follow');
-                } else if (tab === '热榜') {
+                } else if (tab === t('home.hotList')) {
                   navigation.navigate('HotList');
-                } else if (tab === '收入榜') {
+                } else if (tab === t('home.incomeRanking')) {
                   navigation.navigate('IncomeRanking');
                 } else {
                   setActiveTab(tab);
@@ -520,7 +442,7 @@ export default function HomeScreen({ navigation }) {
       </View>
 
       {/* 社交媒体按钮 - 显示在关注tab下方 */}
-      <View style={[styles.socialButtonsBar, { display: activeTab === '关注' ? 'flex' : 'none' }]}>
+      <View style={[styles.socialButtonsBar, { display: activeTab === t('home.follow') ? 'flex' : 'none' }]}>
         <TouchableOpacity style={styles.socialButton} onPress={() => openSocialModal('twitter')}>
           <FontAwesome5 name="twitter" size={16} color="#1DA1F2" />
           <Text style={styles.socialButtonText}>@推特</Text>
@@ -532,7 +454,7 @@ export default function HomeScreen({ navigation }) {
       </View>
 
       {/* 问题卡片列表 */}
-      {activeTab !== '话题' ? (
+      {activeTab !== t('home.topics') ? (
         <View style={styles.listContainer}>
           <FlashList
             data={questionList}
@@ -551,40 +473,40 @@ export default function HomeScreen({ navigation }) {
             onEndReachedThreshold={0.3}
             ListHeaderComponent={() => (
               /* 同城筛选条 */
-              <View style={[styles.localFilterBar, { display: activeTab === '同城' ? 'flex' : 'none' }]}>
+              <View style={[styles.localFilterBar, { display: activeTab === t('home.sameCity') ? 'flex' : 'none' }]}>
                 <View style={styles.localFilterRow}>
                   <TouchableOpacity style={styles.localFilterItem} onPress={() => setShowCityModal(true)}>
                     <View style={[styles.localFilterIcon, { backgroundColor: '#e0f2fe' }]}>
                       <Ionicons name="navigate" size={22} color="#0ea5e9" />
                     </View>
-                    <Text style={styles.localFilterLabel}>切换位置</Text>
+                    <Text style={styles.localFilterLabel}>{t('home.switchLocation')}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.localFilterItem}
-                    onPress={() => setLocalFilter('最新')}
+                    onPress={() => setLocalFilter('latest')}
                   >
                     <View style={[styles.localFilterIcon, { backgroundColor: '#fef3c7' }]}>
                       <Ionicons name="time" size={22} color="#f59e0b" />
                     </View>
-                    <Text style={[styles.localFilterLabel, localFilter === '最新' && styles.localFilterLabelActive]}>最新</Text>
+                    <Text style={[styles.localFilterLabel, localFilter === 'latest' && styles.localFilterLabelActive]}>{t('home.latest')}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.localFilterItem}
-                    onPress={() => setLocalFilter('最热')}
+                    onPress={() => setLocalFilter('hottest')}
                   >
                     <View style={[styles.localFilterIcon, { backgroundColor: '#fef3c7' }]}>
                       <Ionicons name="flame" size={22} color="#f59e0b" />
                     </View>
-                    <Text style={[styles.localFilterLabel, localFilter === '最热' && styles.localFilterLabelActive]}>最热</Text>
+                    <Text style={[styles.localFilterLabel, localFilter === 'hottest' && styles.localFilterLabelActive]}>{t('home.hottest')}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.localFilterItem}
-                    onPress={() => { setLocalFilter('附近'); setShowNearbyModal(true); }}
+                    onPress={() => { setLocalFilter('nearby'); setShowNearbyModal(true); }}
                   >
                     <View style={[styles.localFilterIcon, { backgroundColor: '#fee2e2' }]}>
                       <Ionicons name="location" size={22} color="#ef4444" />
                     </View>
-                    <Text style={[styles.localFilterLabel, localFilter === '附近' && styles.localFilterLabelActive]}>附近</Text>
+                    <Text style={[styles.localFilterLabel, localFilter === 'nearby' && styles.localFilterLabelActive]}>{t('home.nearby')}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.localFilterItem}
@@ -593,7 +515,7 @@ export default function HomeScreen({ navigation }) {
                     <View style={[styles.localFilterIcon, { backgroundColor: '#fee2e2' }]}>
                       <Ionicons name="alert-circle" size={22} color="#ef4444" />
                     </View>
-                    <Text style={styles.localFilterLabel}>紧急求助</Text>
+                    <Text style={styles.localFilterLabel}>{t('emergency.title')}</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -619,18 +541,33 @@ export default function HomeScreen({ navigation }) {
                               {item.reward && item.reward > 0 ? (
                                 <Text style={styles.targetedTagInline}> ${item.reward} </Text>
                               ) : (
-                                <Text style={styles.targetedTagInline}> 定向 </Text>
+                                <Text style={styles.targetedTagInline}> {t('home.targeted')} </Text>
                               )}
                             </>
                           )}
                           {item.type === 'paid' && (
-                            <Text style={styles.paidTagInline}> 付费 </Text>
+                            <Text style={styles.paidTagInline}> {t('home.paid')} </Text>
                           )}
                           {'  '}
                         </>
                       ) : null}
-                      {item.title}
+                      {translatedContent[item.id]?.title || item.title}
                     </Text>
+                    
+                    {/* 翻译按钮 */}
+                    <TranslateButton 
+                      text={item.title}
+                      compact={false}
+                      onTranslated={(translatedText, isTranslated) => {
+                        setTranslatedContent(prev => ({
+                          ...prev,
+                          [item.id]: {
+                            ...prev[item.id],
+                            title: isTranslated ? translatedText : null
+                          }
+                        }));
+                      }}
+                    />
                   </View>
 
                   {/* 付费查看按钮 */}
@@ -639,12 +576,12 @@ export default function HomeScreen({ navigation }) {
                       style={styles.paidViewButton}
                       onPress={(e) => {
                         e.stopPropagation();
-                        alert(`支付 $${item.paidAmount} 查看完整内容`);
+                        alert(t('home.payToView').replace('${amount}', item.paidAmount));
                       }}
                     >
                       <View style={styles.paidViewContent}>
                         <Ionicons name="lock-closed-outline" size={20} color="#f59e0b" />
-                        <Text style={styles.paidViewText}>付费查看完整内容</Text>
+                        <Text style={styles.paidViewText}>{t('home.paidViewContent')}</Text>
                       </View>
                       <View style={styles.paidViewPrice}>
                         <Text style={styles.paidViewPriceText}>${item.paidAmount}</Text>
@@ -772,14 +709,14 @@ export default function HomeScreen({ navigation }) {
                   <View style={styles.topicInfo}>
                     <Text style={styles.topicName}>{topic.name}</Text>
                     <Text style={styles.topicDesc}>{topic.description}</Text>
-                    <Text style={styles.topicStats}>{topic.followers} 关注 · {topic.questions} 问题</Text>
+                    <Text style={styles.topicStats}>{topic.followers} {t('home.followers')} · {topic.questions} {t('home.questions')}</Text>
                   </View>
                   <TouchableOpacity 
                     style={[styles.topicFollowBtn, displayFollowed && styles.topicFollowBtnActive]}
                     onPress={() => toggleFollowTopic(topic.id)}
                   >
                     <Text style={[styles.topicFollowBtnText, displayFollowed && styles.topicFollowBtnTextActive]}>
-                      {displayFollowed ? '已关注' : '+ 关注'}
+                      {displayFollowed ? t('home.unfollowTopic') : `+ ${t('home.followTopic')}`}
                     </Text>
                   </TouchableOpacity>
                 </TouchableOpacity>
@@ -793,17 +730,22 @@ export default function HomeScreen({ navigation }) {
       {/* 区域选择弹窗 */}
       <Modal visible={showRegionModal} transparent animationType="slide">
         <View style={styles.modalOverlay}>
-          <View style={styles.regionModal}>
+          <TouchableOpacity 
+            style={styles.modalBackdrop}
+            activeOpacity={1} 
+            onPress={() => { setShowRegionModal(false); setRegionStep(0); }}
+          />
+          <View style={[styles.regionModal, { paddingBottom: 30 }]}>
             <View style={styles.modalHeader}>
               <TouchableOpacity onPress={() => { setShowRegionModal(false); setRegionStep(0); }}>
                 <Ionicons name="close" size={24} color="#1f2937" />
               </TouchableOpacity>
-              <Text style={styles.modalTitle}>选择区域</Text>
+              <Text style={styles.modalTitle}>{t('home.selectRegion')}</Text>
               <TouchableOpacity onPress={() => { 
                 setShowRegionModal(false);
                 setRegionStep(0);
               }}>
-                <Text style={styles.confirmText}>确定</Text>
+                <Text style={styles.confirmText}>{t('home.confirm')}</Text>
               </TouchableOpacity>
             </View>
             
@@ -815,7 +757,7 @@ export default function HomeScreen({ navigation }) {
                   onPress={() => setRegionStep(0)}
                 >
                   <Text style={[styles.breadcrumbText, regionStep === 0 && styles.breadcrumbTextActive]}>
-                    {selectedRegion.country || '国家'}
+                    {selectedRegion.country || t('home.country')}
                   </Text>
                 </TouchableOpacity>
                 
@@ -998,12 +940,12 @@ export default function HomeScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f3f4f6' },
+  container: { flex: 1, backgroundColor: '#ffffff' },
   header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 8, backgroundColor: '#ffffff' },
   regionBtn: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 6, backgroundColor: '#fef2f2', borderRadius: 16, marginRight: 8, maxWidth: 80 },
   regionText: { fontSize: 12, color: '#ef4444', marginLeft: 4, fontWeight: '500', lineHeight: 16, includeFontPadding: false, maxWidth: 56 },
-  searchBar: { flex: 1, height: 36, backgroundColor: '#f5f5f5', borderRadius: 18, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, marginHorizontal: 10 },
-  searchPlaceholder: { fontSize: 14, color: '#999999', marginLeft: 6 },
+  searchBar: { flex: 1, height: 36, backgroundColor: '#f5f5f5', borderRadius: 18, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, marginHorizontal: 8 },
+  searchPlaceholder: { fontSize: 13, color: '#999999', marginLeft: 6, flexShrink: 1 },
   teamBtn: { flexDirection: 'row', alignItems: 'center', padding: 6, marginLeft: 4 },
   notifyBtn: { flexDirection: 'row', alignItems: 'center', padding: 6, marginLeft: 4, position: 'relative' },
   badge: { position: 'absolute', top: 6, right: 6, width: 8, height: 8, backgroundColor: '#ef4444', borderRadius: 4 },
@@ -1190,7 +1132,8 @@ const styles = StyleSheet.create({
   },
   imageGrid: { flexDirection: 'row', paddingHorizontal: 12, paddingBottom: 10, gap: 6 },
   gridImage: { width: 100, height: 100, borderRadius: 8 },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+  modalOverlay: { flex: 1, justifyContent: 'flex-end' },
+  modalBackdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)' },
   regionModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '70%' },
   modalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
   modalTitle: { fontSize: 16, fontWeight: '600', color: '#1f2937' },
