@@ -38,6 +38,10 @@ import EmergencyScreen from './src/screens/EmergencyScreen';
 import CreateActivityScreen from './src/screens/CreateActivityScreen';
 import InviteAnswerScreen from './src/screens/InviteAnswerScreen';
 import InviteTeamMemberScreen from './src/screens/InviteTeamMemberScreen';
+import ReportScreen from './src/screens/ReportScreen';
+import AddRewardScreen from './src/screens/AddRewardScreen';
+import BuySuperLikeScreen from './src/screens/BuySuperLikeScreen';
+import ContributorsScreen from './src/screens/ContributorsScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -438,6 +442,10 @@ export default function App() {
         <Stack.Screen name="CreateActivity" component={CreateActivityScreen} />
         <Stack.Screen name="InviteAnswer" component={InviteAnswerScreen} />
         <Stack.Screen name="InviteTeamMember" component={InviteTeamMemberScreen} />
+        <Stack.Screen name="Report" component={ReportScreen} />
+        <Stack.Screen name="AddReward" component={AddRewardScreen} />
+        <Stack.Screen name="BuySuperLike" component={BuySuperLikeScreen} />
+        <Stack.Screen name="Contributors" component={ContributorsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
     </SafeAreaProvider>

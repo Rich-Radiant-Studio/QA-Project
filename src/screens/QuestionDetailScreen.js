@@ -486,7 +486,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
           >
             <Ionicons name="arrow-redo-outline" size={22} color="#374151" />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => setShowReportModal(true)}>
+          <TouchableOpacity onPress={() => navigation.navigate('Report', { type: 'question' })}>
             <Ionicons name="flag-outline" size={22} color="#ef4444" />
           </TouchableOpacity>
         </View>
@@ -552,7 +552,10 @@ export default function QuestionDetailScreen({ navigation, route }) {
               {/* 追加按钮 */}
               <TouchableOpacity 
                 style={styles.addRewardBtn}
-                onPress={() => setShowAddRewardModal(true)}
+                onPress={() => navigation.navigate('AddReward', { 
+                  currentReward, 
+                  rewardContributors 
+                })}
               >
                 <Ionicons name="add" size={16} color="#fff" />
                 <Text style={styles.addRewardBtnText}>追加</Text>
@@ -567,7 +570,10 @@ export default function QuestionDetailScreen({ navigation, route }) {
             {/* 追加人数 - 移到右侧 */}
             <TouchableOpacity 
               style={styles.rewardContributorsRow}
-              onPress={() => setShowRewardContributorsModal(true)}
+              onPress={() => navigation.navigate('Contributors', { 
+                currentReward, 
+                rewardContributors 
+              })}
             >
               <Ionicons name="people-outline" size={12} color="#9ca3af" />
               <Text style={styles.rewardContributorsText}>{rewardContributors} 人追加</Text>
@@ -1192,8 +1198,10 @@ export default function QuestionDetailScreen({ navigation, route }) {
                   style={styles.buySuperLikeBtn}
                   onPress={(e) => { 
                     e.stopPropagation(); 
-                    setCurrentAnswerForSuperLike(answer);
-                    setShowSuperLikeModal(true);
+                    navigation.navigate('BuySuperLike', {
+                      answerId: answer.id,
+                      currentSuperLikes: answerSuperLikes[answer.id] || answer.superLikes || 0
+                    });
                   }}
                 >
                   <Ionicons name="star-outline" size={16} color="#f59e0b" />
