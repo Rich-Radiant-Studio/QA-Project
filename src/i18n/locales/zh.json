@@ -124,7 +124,7 @@
     "following": "关注",
     "questions": "问题",
     "answers": "回答",
-    "likes": "点赞",
+    "likes": "获赞",
     "friends": "朋友",
     "influence": "影响力",
     "myWallet": "我的钱包",
@@ -172,7 +172,21 @@
     "favoriteAnswers": "收藏回答",
     "favoriteComments": "收藏评论",
     "savedAt": "保存于",
-    "viewedAt": "浏览于"
+    "viewedAt": "浏览于",
+    "follow": "关注",
+    "unfollow": "取消关注",
+    "unfollowConfirmTitle": "取消关注",
+    "unfollowConfirmMessage": "确定要取消关注吗？",
+    "sendMessage": "发私信",
+    "userNotFound": "用户不存在",
+    "noContent": "暂无内容",
+    "tabs": {
+      "all": "全部",
+      "articles": "文章",
+      "videos": "视频",
+      "microposts": "微头条",
+      "reposts": "转发"
+    }
   },
   "question": {
     "views": "浏览",
@@ -273,7 +287,13 @@
     "translate": "查看翻译",
     "translating": "翻译中...",
     "showOriginal": "显示原文",
-    "translateError": "翻译失败"
+    "translateError": "翻译失败",
+    "share": "分享",
+    "report": "举报",
+    "block": "拉黑",
+    "retry": "重试",
+    "goBack": "返回",
+    "noMoreContent": "没有更多内容了"
   },
   "channelManage": {
     "title": "频道管理",

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, Alert, Share, Modal, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import Avatar from '../components/Avatar';
 import SuperLikeBalance from '../components/SuperLikeBalance';
 
@@ -17,6 +18,7 @@ const menuItems = [
   { icon: 'people', label: '我的群聊', value: '5', color: '#a855f7' },
   { icon: 'people-circle', label: '我的团队', value: '2', color: '#f59e0b' },
   { icon: 'calendar', label: '我的活动', value: '2', color: '#ef4444' },
+  { icon: 'eye', label: '查看公开主页', value: '', color: '#8b5cf6' },
   { icon: 'shield-checkmark', label: '我要认证', value: '', color: '#3b82f6' },
 ];
 
@@ -87,6 +89,7 @@ export default function ProfileScreen({ navigation, onLogout }) {
       idFront: null,
       idBack: null,
       idHold: null,
+      qualifications: [], // 专业资质证书列表
     },
     enterprise: {
       name: '',
@@ -97,7 +100,9 @@ export default function ProfileScreen({ navigation, onLogout }) {
       license: null,
       legalName: '',
       legalIdNumber: '',
-      phone: '',
+      contactPerson: '', // 企业联系人（必填）
+      contactPhone: '', // 联系电话
+      contactEmail: '', // 联系邮箱
     },
     government: {
       name: '',
@@ -110,7 +115,10 @@ export default function ProfileScreen({ navigation, onLogout }) {
       authorizerName: '',
       authorizerPosition: '',
       authorizerIdNumber: '',
-      phone: '',
+      authorizerIdFront: null, // 授权人身份证正面
+      authorizerIdBack: null,  // 授权人身份证反面
+      contactPhone: '', // 联系电话
+      contactEmail: '', // 联系邮箱
     },
   });
 
@@ -187,6 +195,10 @@ export default function ProfileScreen({ navigation, onLogout }) {
       case '我的活动':
         // 使用jumpTo跳转到活动Tab
         navigation.navigate('活动', { fromProfile: true });
+        break;
+      case '查看公开主页':
+        // 导航到公开主页（使用当前用户ID）
+        navigation.navigate('PublicProfile', { userId: 'current-user-123' });
         break;
       case '我要认证':
         // 打开认证弹窗
@@ -298,15 +310,81 @@ export default function ProfileScreen({ navigation, onLogout }) {
         Alert.alert('提示', '请填写证件号码');
         return;
       }
+      if (!data.qualifications || data.qualifications.length === 0) {
+        Alert.alert('提示', '请至少上传一个专业资质证书');
+        return;
+      }
+      // 检查是否所有资质都填写了名称
+      const unnamedQualification = data.qualifications.find(q => !q.name || q.name.trim() === '');
+      if (unnamedQualification) {
+        Alert.alert('提示', '请为所有资质证书填写名称');
+        return;
+      }
     } else if (selectedVerificationType === 'enterprise') {
-      if (!data.name || !data.registrationNumber || !data.taxNumber || !data.address) {
+      if (!data.name || !data.taxNumber || !data.address) {
         Alert.alert('提示', '请填写完整的企业信息');
         return;
       }
+      if (!data.license) {
+        Alert.alert('提示', '请上传注册文件');
+        return;
+      }
+      if (!data.contactPerson || data.contactPerson.trim() === '') {
+        Alert.alert('提示', '请填写企业联系人');
+        return;
+      }
+      // 验证联系方式：邮箱或电话至少填写一个
+      if ((!data.contactPhone || data.contactPhone.trim() === '') && 
+          (!data.contactEmail || data.contactEmail.trim() === '')) {
+        Alert.alert('提示', '请至少填写一种联系方式（电话或邮箱）');
+        return;
+      }
+      // 验证电话格式（如果填写了）
+      if (data.contactPhone && data.contactPhone.trim() !== '') {
+        const phoneRegex = /^1[3-9]\d{9}$/;
+        if (!phoneRegex.test(data.contactPhone.trim())) {
+          Alert.alert('提示', '请输入正确的手机号码格式');
+          return;
+        }
+      }
+      // 验证邮箱格式（如果填写了）
+      if (data.contactEmail && data.contactEmail.trim() !== '') {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(data.contactEmail.trim())) {
+          Alert.alert('提示', '请输入正确的邮箱格式');
+          return;
+        }
+      }
     } else if (selectedVerificationType === 'government') {
-      if (!data.name || !data.creditCode || !data.department || !data.authorizerName || !data.authorizerPosition) {
+      if (!data.name || !data.department || !data.authorizerName || !data.authorizerPosition) {
         Alert.alert('提示', '请填写完整的机构信息');
         return;
+      }
+      if (!data.authorizerIdFront || !data.authorizerIdBack) {
+        Alert.alert('提示', '请上传授权人身份证正反面');
+        return;
+      }
+      // 验证联系方式：邮箱或电话至少填写一个
+      if ((!data.contactPhone || data.contactPhone.trim() === '') && 
+          (!data.contactEmail || data.contactEmail.trim() === '')) {
+        Alert.alert('提示', '请至少填写一种联系方式（电话或邮箱）');
+        return;
+      }
+      // 验证电话格式（如果填写了）
+      if (data.contactPhone && data.contactPhone.trim() !== '') {
+        const phoneRegex = /^1[3-9]\d{9}$/;
+        if (!phoneRegex.test(data.contactPhone.trim())) {
+          Alert.alert('提示', '请输入正确的手机号码格式');
+          return;
+        }
+      }
+      // 验证邮箱格式（如果填写了）
+      if (data.contactEmail && data.contactEmail.trim() !== '') {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(data.contactEmail.trim())) {
+          Alert.alert('提示', '请输入正确的邮箱格式');
+          return;
+        }
       }
     }
     
@@ -539,8 +617,6 @@ export default function ProfileScreen({ navigation, onLogout }) {
                     <Text style={styles.verifyButtonText}>去认证</Text>
                   </TouchableOpacity>
                 )}
-                
-                <View style={styles.levelTag}><Text style={styles.levelText}>Lv.5</Text></View>
               </View>
               <Text style={styles.userId}>ID: 12345678</Text>
             </View>
@@ -1057,6 +1133,52 @@ export default function ProfileScreen({ navigation, onLogout }) {
                   </View>
                 </View>
 
+                {/* 专业资质认证（必填） */}
+                <View style={styles.uploadSection}>
+                  <View style={styles.qualificationHeader}>
+                    <Text style={styles.uploadSectionTitle}>专业资质认证 <Text style={styles.required}>*</Text></Text>
+                  </View>
+                  <Text style={styles.qualificationDesc}>请上传您的专业资质证书（如：律师证、医师证、教师证等）</Text>
+                  
+                  {/* 已上传的资质列表 */}
+                  {verificationData.personal.qualifications.map((qual, index) => (
+                    <View key={qual.id} style={styles.qualificationItem}>
+                      <View style={styles.qualificationContent}>
+                        <Image source={{ uri: qual.image }} style={styles.qualificationImage} />
+                        <View style={styles.qualificationInfo}>
+                          <TextInput
+                            style={styles.qualificationNameInput}
+                            placeholder="请输入资质名称（如：律师执业证）"
+                            placeholderTextColor="#9ca3af"
+                            value={qual.name}
+                            onChangeText={(text) => updateQualificationName(qual.id, text)}
+                          />
+                        </View>
+                      </View>
+                      <TouchableOpacity 
+                        style={styles.qualificationDelete}
+                        onPress={() => removeQualification(qual.id)}
+                      >
+                        <Ionicons name="trash-outline" size={20} color="#ef4444" />
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+
+                  {/* 添加资质按钮 */}
+                  <TouchableOpacity 
+                    style={styles.addQualificationBtn}
+                    onPress={addQualification}
+                  >
+                    <Ionicons name="add-circle-outline" size={24} color="#3b82f6" />
+                    <Text style={styles.addQualificationText}>添加资质证书</Text>
+                  </TouchableOpacity>
+
+                  <View style={styles.uploadTip}>
+                    <Ionicons name="information-circle-outline" size={16} color="#6b7280" />
+                    <Text style={styles.uploadTipText}>支持上传律师证、医师证、教师证等专业资质证书</Text>
+                  </View>
+                </View>
+
               </View>
             )}
 
@@ -1077,7 +1199,7 @@ export default function ProfileScreen({ navigation, onLogout }) {
 
                 {/* 注册号 */}
                 <View style={styles.fieldContainer}>
-                  <Text style={styles.fieldLabel}>注册号 <Text style={styles.required}>*</Text></Text>
+                  <Text style={styles.fieldLabel}>注册号</Text>
                   <TextInput
                     style={styles.fieldInput}
                     placeholder="请输入企业注册号"
@@ -1111,12 +1233,58 @@ export default function ProfileScreen({ navigation, onLogout }) {
                   />
                 </View>
 
-                {/* 上传营业执照 */}
+                {/* 企业联系人 */}
+                <View style={styles.fieldContainer}>
+                  <Text style={styles.fieldLabel}>企业联系人 <Text style={styles.required}>*</Text></Text>
+                  <TextInput
+                    style={styles.fieldInput}
+                    placeholder="请输入联系人姓名"
+                    placeholderTextColor="#9ca3af"
+                    value={verificationData.enterprise.contactPerson}
+                    onChangeText={(text) => updateVerificationField('contactPerson', text)}
+                  />
+                </View>
+
+                {/* 联系方式说明 */}
+                <View style={styles.contactMethodSection}>
+                  <Text style={styles.contactMethodTitle}>联系方式 <Text style={styles.required}>*</Text></Text>
+                  <Text style={styles.contactMethodDesc}>请至少填写一种联系方式</Text>
+                </View>
+
+                {/* 联系电话 */}
+                <View style={styles.fieldContainer}>
+                  <Text style={styles.fieldLabel}>联系电话</Text>
+                  <TextInput
+                    style={styles.fieldInput}
+                    placeholder="请输入手机号码"
+                    placeholderTextColor="#9ca3af"
+                    keyboardType="phone-pad"
+                    maxLength={11}
+                    value={verificationData.enterprise.contactPhone}
+                    onChangeText={(text) => updateVerificationField('contactPhone', text)}
+                  />
+                </View>
+
+                {/* 联系邮箱 */}
+                <View style={styles.fieldContainer}>
+                  <Text style={styles.fieldLabel}>联系邮箱</Text>
+                  <TextInput
+                    style={styles.fieldInput}
+                    placeholder="请输入邮箱地址"
+                    placeholderTextColor="#9ca3af"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    value={verificationData.enterprise.contactEmail}
+                    onChangeText={(text) => updateVerificationField('contactEmail', text)}
+                  />
+                </View>
+
+                {/* 上传注册文件 */}
                 <View style={styles.uploadSection}>
-                  <Text style={styles.uploadSectionTitle}>上传营业执照</Text>
+                  <Text style={styles.uploadSectionTitle}>上传注册文件</Text>
                   
                   <View style={styles.uploadSingleWrapper}>
-                    <Text style={styles.uploadLabel}>营业执照 <Text style={styles.required}>*</Text></Text>
+                    <Text style={styles.uploadLabel}>注册文件 <Text style={styles.required}>*</Text></Text>
                     <TouchableOpacity 
                       style={styles.uploadBoxLarge}
                       onPress={() => handleImageUpload('license')}
@@ -1134,7 +1302,7 @@ export default function ProfileScreen({ navigation, onLogout }) {
 
                   <View style={styles.uploadTip}>
                     <Ionicons name="information-circle-outline" size={16} color="#6b7280" />
-                    <Text style={styles.uploadTipText}>请上传清晰的营业执照照片，确保信息完整可见</Text>
+                    <Text style={styles.uploadTipText}>请上传清晰的注册文件照片（如营业执照、组织机构代码证等），确保信息完整可见</Text>
                   </View>
                 </View>
               </View>
@@ -1157,7 +1325,7 @@ export default function ProfileScreen({ navigation, onLogout }) {
 
                 {/* 机构ID */}
                 <View style={styles.fieldContainer}>
-                  <Text style={styles.fieldLabel}>机构ID <Text style={styles.required}>*</Text></Text>
+                  <Text style={styles.fieldLabel}>机构ID</Text>
                   <TextInput
                     style={styles.fieldInput}
                     placeholder="请输入机构ID"
@@ -1191,6 +1359,54 @@ export default function ProfileScreen({ navigation, onLogout }) {
                   />
                 </View>
 
+                {/* 上传授权人身份证 */}
+                <View style={styles.uploadSection}>
+                  <Text style={styles.uploadSectionTitle}>上传授权人身份证 <Text style={styles.required}>*</Text></Text>
+                  
+                  <View style={styles.uploadGrid}>
+                    {/* 身份证正面 */}
+                    <View style={styles.uploadItemWrapper}>
+                      <Text style={styles.uploadLabel}>身份证正面 <Text style={styles.required}>*</Text></Text>
+                      <TouchableOpacity 
+                        style={styles.uploadBox}
+                        onPress={() => handleImageUpload('authorizerIdFront')}
+                      >
+                        {verificationData.government.authorizerIdFront ? (
+                          <Image source={{ uri: verificationData.government.authorizerIdFront }} style={styles.uploadedImage} />
+                        ) : (
+                          <View style={styles.uploadPlaceholder}>
+                            <Ionicons name="camera-outline" size={40} color="#d1d5db" />
+                            <Text style={styles.uploadPlaceholderText}>点击上传</Text>
+                          </View>
+                        )}
+                      </TouchableOpacity>
+                    </View>
+
+                    {/* 身份证反面 */}
+                    <View style={styles.uploadItemWrapper}>
+                      <Text style={styles.uploadLabel}>身份证反面 <Text style={styles.required}>*</Text></Text>
+                      <TouchableOpacity 
+                        style={styles.uploadBox}
+                        onPress={() => handleImageUpload('authorizerIdBack')}
+                      >
+                        {verificationData.government.authorizerIdBack ? (
+                          <Image source={{ uri: verificationData.government.authorizerIdBack }} style={styles.uploadedImage} />
+                        ) : (
+                          <View style={styles.uploadPlaceholder}>
+                            <Ionicons name="camera-outline" size={40} color="#d1d5db" />
+                            <Text style={styles.uploadPlaceholderText}>点击上传</Text>
+                          </View>
+                        )}
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+
+                  <View style={styles.uploadTip}>
+                    <Ionicons name="information-circle-outline" size={16} color="#6b7280" />
+                    <Text style={styles.uploadTipText}>请上传授权人身份证正反面，确保信息清晰可见</Text>
+                  </View>
+                </View>
+
                 {/* 职位 */}
                 <View style={styles.fieldContainer}>
                   <Text style={styles.fieldLabel}>职位 <Text style={styles.required}>*</Text></Text>
@@ -1200,6 +1416,40 @@ export default function ProfileScreen({ navigation, onLogout }) {
                     placeholderTextColor="#9ca3af"
                     value={verificationData.government.authorizerPosition}
                     onChangeText={(text) => updateVerificationField('authorizerPosition', text)}
+                  />
+                </View>
+
+                {/* 联系方式说明 */}
+                <View style={styles.contactMethodSection}>
+                  <Text style={styles.contactMethodTitle}>联系方式 <Text style={styles.required}>*</Text></Text>
+                  <Text style={styles.contactMethodDesc}>请至少填写一种联系方式</Text>
+                </View>
+
+                {/* 联系电话 */}
+                <View style={styles.fieldContainer}>
+                  <Text style={styles.fieldLabel}>联系电话</Text>
+                  <TextInput
+                    style={styles.fieldInput}
+                    placeholder="请输入手机号码"
+                    placeholderTextColor="#9ca3af"
+                    keyboardType="phone-pad"
+                    maxLength={11}
+                    value={verificationData.government.contactPhone}
+                    onChangeText={(text) => updateVerificationField('contactPhone', text)}
+                  />
+                </View>
+
+                {/* 联系邮箱 */}
+                <View style={styles.fieldContainer}>
+                  <Text style={styles.fieldLabel}>联系邮箱</Text>
+                  <TextInput
+                    style={styles.fieldInput}
+                    placeholder="请输入邮箱地址"
+                    placeholderTextColor="#9ca3af"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    value={verificationData.government.contactEmail}
+                    onChangeText={(text) => updateVerificationField('contactEmail', text)}
                   />
                 </View>
 
@@ -1296,8 +1546,7 @@ const styles = StyleSheet.create({
     color: '#3b82f6',
     fontWeight: '500',
   },
-  levelTag: { backgroundColor: '#fef3c7', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
-  levelText: { fontSize: 10, color: '#d97706', fontWeight: '500' },
+
   userId: { fontSize: 12, color: '#9ca3af', marginTop: 4 },
   userBio: { fontSize: 13, color: '#4b5563', marginTop: 12, lineHeight: 18 },
   userMeta: { flexDirection: 'row', gap: 16, marginTop: 10 },
@@ -1458,6 +1707,18 @@ const styles = StyleSheet.create({
   },
   fieldInputText: { fontSize: 15, color: '#1f2937' },
   
+  // 联系方式区域
+  contactMethodSection: { 
+    backgroundColor: '#fff', 
+    paddingHorizontal: 16, 
+    paddingTop: 16, 
+    paddingBottom: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#f3f4f6',
+  },
+  contactMethodTitle: { fontSize: 14, color: '#333', fontWeight: '600', marginBottom: 4 },
+  contactMethodDesc: { fontSize: 12, color: '#6b7280', lineHeight: 18 },
+  
   // 上传区域
   uploadSection: { backgroundColor: '#fff', paddingHorizontal: 16, paddingTop: 16, paddingBottom: 20 },
   uploadSectionTitle: { fontSize: 15, color: '#333', fontWeight: '600', marginBottom: 16 },
@@ -1501,6 +1762,48 @@ const styles = StyleSheet.create({
     borderColor: '#e5e7eb',
   },
   uploadTipText: { flex: 1, fontSize: 12, color: '#6b7280', lineHeight: 18 },
+  
+  // 专业资质认证
+  qualificationHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
+  optionalTag: { fontSize: 12, color: '#10b981', backgroundColor: '#d1fae5', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4 },
+  qualificationDesc: { fontSize: 13, color: '#6b7280', marginBottom: 16, lineHeight: 18 },
+  qualificationItem: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: '#f9fafb', 
+    borderRadius: 8, 
+    padding: 12, 
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  qualificationContent: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  qualificationImage: { width: 80, height: 60, borderRadius: 6, backgroundColor: '#e5e7eb' },
+  qualificationInfo: { flex: 1 },
+  qualificationNameInput: { 
+    fontSize: 14, 
+    color: '#1f2937', 
+    padding: 8,
+    backgroundColor: '#fff',
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  qualificationDelete: { padding: 8 },
+  addQualificationBtn: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#eff6ff',
+    borderRadius: 8,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#bfdbfe',
+    borderStyle: 'dashed',
+  },
+  addQualificationText: { fontSize: 14, color: '#3b82f6', fontWeight: '500' },
+  
   sectionTitle: { fontSize: 16, fontWeight: '600', color: '#1f2937', marginBottom: 16, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
   required: { color: '#ef4444' },
   

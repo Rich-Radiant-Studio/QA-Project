@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Switch, Alert, TextInput, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -209,7 +209,7 @@ export default function SettingsScreen({ navigation }) {
             </TouchableOpacity>
 
             <TouchableOpacity 
-              style={styles.menuItem}
+              style={[styles.menuItem, styles.menuItemLast]}
               onPress={() => Alert.alert('绑定邮箱', '未绑定邮箱')}
             >
               <View style={styles.menuLeft}>
@@ -218,23 +218,6 @@ export default function SettingsScreen({ navigation }) {
               </View>
               <View style={styles.menuRight}>
                 <Text style={styles.menuValue}>未绑定</Text>
-                <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={[styles.menuItem, styles.menuItemLast]}
-              onPress={() => Alert.alert('第三方账号', '管理第三方账号绑定')}
-            >
-              <View style={styles.menuLeft}>
-                <Ionicons name="link-outline" size={22} color="#6b7280" />
-                <Text style={styles.menuLabel}>第三方账号</Text>
-              </View>
-              <View style={styles.menuRight}>
-                <View style={styles.socialIcons}>
-                  <Ionicons name="logo-wechat" size={18} color="#07c160" />
-                  <Ionicons name="logo-apple" size={18} color="#000" style={{ marginLeft: 8 }} />
-                </View>
                 <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
               </View>
             </TouchableOpacity>

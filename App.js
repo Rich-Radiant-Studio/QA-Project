@@ -44,6 +44,7 @@ import AddRewardScreen from './src/screens/AddRewardScreen';
 import SuperLikePurchaseScreen from './src/screens/SuperLikePurchaseScreen';
 import SuperLikeHistoryScreen from './src/screens/SuperLikeHistoryScreen';
 import ContributorsScreen from './src/screens/ContributorsScreen';
+import PublicProfileScreen from './src/screens/PublicProfileScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -463,6 +464,7 @@ export default function App() {
         <Stack.Screen name="SuperLikePurchase" component={SuperLikePurchaseScreen} />
         <Stack.Screen name="SuperLikeHistory" component={SuperLikeHistoryScreen} />
         <Stack.Screen name="Contributors" component={ContributorsScreen} />
+        <Stack.Screen name="PublicProfile" component={PublicProfileScreen} />
       </Stack.Navigator>
     </NavigationContainer>
     </SafeAreaProvider>

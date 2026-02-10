@@ -228,7 +228,6 @@ export default function ProfileScreen({ navigation, onLogout }) {
               <View style={styles.nameRow}>
                 <Text style={styles.userName}>张三</Text>
                 <Ionicons name="checkmark-circle" size={16} color="#3b82f6" />
-                <View style={styles.levelTag}><Text style={styles.levelText}>Lv.5</Text></View>
               </View>
               <Text style={styles.userId}>ID: 12345678</Text>
             </View>
@@ -582,8 +581,7 @@ const styles = StyleSheet.create({
   profileInfo: { flex: 1, marginLeft: 12, marginTop: 8 },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   userName: { fontSize: 18, fontWeight: 'bold', color: '#1f2937' },
-  levelTag: { backgroundColor: '#fef3c7', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
-  levelText: { fontSize: 10, color: '#d97706', fontWeight: '500' },
+
   userId: { fontSize: 12, color: '#9ca3af', marginTop: 4 },
   userBio: { fontSize: 13, color: '#4b5563', marginTop: 12, lineHeight: 18 },
   userMeta: { flexDirection: 'row', gap: 16, marginTop: 10 },

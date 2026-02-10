@@ -196,6 +196,11 @@ export default function QuestionDetailScreen({ navigation, route }) {
   const [supplementsPage, setSupplementsPage] = useState(1);
   const [answersPage, setAnswersPage] = useState(1);
   
+  // 邀请标签页状态
+  const [inviteTab, setInviteTab] = useState('本站'); // '本站' or '推特'
+  const [searchLocalUser, setSearchLocalUser] = useState(''); // 本站用户搜索
+  const [searchTwitterUser, setSearchTwitterUser] = useState(''); // 推特用户搜索
+  
   // 获取安全区域
   const insets = useSafeAreaInsets();
   const [commentsPage, setCommentsPage] = useState(1);
