@@ -25,6 +25,14 @@ const getChannelData = (t) => ({
     t('channelManage.industryCategories.realestate'),
     t('channelManage.industryCategories.manufacturing')
   ],
+  enterprise: [
+    t('channelManage.enterpriseCategories.management'),
+    t('channelManage.enterpriseCategories.hr'),
+    t('channelManage.enterpriseCategories.marketing'),
+    t('channelManage.enterpriseCategories.finance'),
+    t('channelManage.enterpriseCategories.operations'),
+    t('channelManage.enterpriseCategories.legal')
+  ],
   personal: [
     t('channelManage.personalCategories.workplace'),
     t('channelManage.personalCategories.tech'),
@@ -77,6 +85,9 @@ export default function ChannelManageScreen({ navigation }) {
   const [myComboChannels, setMyComboChannels] = useState([
     { id: 1, name: '纽约互联网', path: '美国>纽约州>纽约市>曼哈顿>行业问题>互联网' }
   ]);
+  
+  // 区域搜索
+  const [regionSearchText, setRegionSearchText] = useState('');
 
   // 切换频道订阅
   const toggleChannel = (channel) => {
@@ -89,30 +100,41 @@ export default function ChannelManageScreen({ navigation }) {
 
   // 组合频道选择逻辑
   const getRegionOptions = () => {
+    let options = [];
     switch(regionStep) {
       case 0: // 国家列表
-        return regionData.countries.map(name => ({ name }));
+        options = regionData.countries.map(name => ({ name }));
+        break;
       case 1: // 省份/州列表
         if (comboSelection.country) {
           const cities = regionData.cities[comboSelection.country.name] || [];
-          return cities.map(name => ({ name }));
+          options = cities.map(name => ({ name }));
         }
-        return [];
+        break;
       case 2: // 城市列表
         if (comboSelection.province) {
           const states = regionData.states[comboSelection.province.name] || [];
-          return states.map(name => ({ name }));
+          options = states.map(name => ({ name }));
         }
-        return [];
+        break;
       case 3: // 区域列表
         if (comboSelection.city) {
           const districts = regionData.districts[comboSelection.city.name] || [];
-          return districts.map(name => ({ name }));
+          options = districts.map(name => ({ name }));
         }
-        return [];
+        break;
       default: 
-        return [];
+        options = [];
     }
+    
+    // 根据搜索文本过滤
+    if (regionSearchText.trim()) {
+      options = options.filter(option => 
+        option.name.toLowerCase().includes(regionSearchText.toLowerCase())
+      );
+    }
+    
+    return options;
   };
 
   const getCategoryOptions = () => {
@@ -120,6 +142,7 @@ export default function ChannelManageScreen({ navigation }) {
       return [
         { id: 'country', name: t('channelManage.categoryTypes.country'), icon: 'flag', color: '#3b82f6' },
         { id: 'industry', name: t('channelManage.categoryTypes.industry'), icon: 'briefcase', color: '#22c55e' },
+        { id: 'enterprise', name: t('channelManage.categoryTypes.enterprise'), icon: 'business', color: '#f59e0b' },
         { id: 'personal', name: t('channelManage.categoryTypes.personal'), icon: 'person', color: '#8b5cf6' }
       ];
     }
@@ -127,6 +150,7 @@ export default function ChannelManageScreen({ navigation }) {
     // 返回对应类型的频道列表
     if (comboSelection.categoryType === 'country') return channelData.country.map(name => ({ name }));
     if (comboSelection.categoryType === 'industry') return channelData.industry.map(name => ({ name }));
+    if (comboSelection.categoryType === 'enterprise') return channelData.enterprise.map(name => ({ name }));
     if (comboSelection.categoryType === 'personal') return channelData.personal.map(name => ({ name }));
     return [];
   };
@@ -168,6 +192,7 @@ export default function ChannelManageScreen({ navigation }) {
     }
     
     setComboSelection(newSelection);
+    setRegionSearchText(''); // 清空搜索框
   };
 
   const selectCategoryOption = (option) => {
@@ -205,11 +230,6 @@ export default function ChannelManageScreen({ navigation }) {
   };
 
   const createComboChannel = () => {
-    if (!comboName.trim()) {
-      Alert.alert(t('common.ok'), t('channelManage.enterNamePrompt'));
-      return;
-    }
-    
     const { categoryType, category } = comboSelection;
     if (!categoryType || !category) {
       Alert.alert(t('common.ok'), t('channelManage.selectCategoryPrompt'));
@@ -228,15 +248,21 @@ export default function ChannelManageScreen({ navigation }) {
     // 添加分类路径
     const typeNames = { 
       country: t('channelManage.categoryTypes.country'), 
-      industry: t('channelManage.categoryTypes.industry'), 
+      industry: t('channelManage.categoryTypes.industry'),
+      enterprise: t('channelManage.categoryTypes.enterprise'),
       personal: t('channelManage.categoryTypes.personal') 
     };
     pathParts.push(typeNames[categoryType]);
     pathParts.push(category.name);
 
+    // 自动生成频道名称：使用最后一级区域 + 分类名称
+    const regionName = district || city?.name || province?.name || country?.name || '';
+    const categoryName = category.name || '';
+    const autoGeneratedName = `${regionName} ${categoryName}`.trim();
+
     const newCombo = {
       id: Date.now(),
-      name: comboName,
+      name: autoGeneratedName,
       path: pathParts.join('>')
     };
 
@@ -353,6 +379,25 @@ export default function ChannelManageScreen({ navigation }) {
           </View>
         </View>
 
+        {/* 企业问题 */}
+        <View style={styles.section}>
+          <View style={styles.sectionTitleRow}>
+            <Ionicons name="business" size={18} color="#f59e0b" />
+            <Text style={styles.sectionTitle}>{t('channelManage.enterpriseIssues')}</Text>
+          </View>
+          <View style={styles.channelsGrid}>
+            {channelData.enterprise.filter(channel => !myChannels.includes(channel)).map((channel, idx) => (
+              <TouchableOpacity
+                key={idx}
+                style={styles.channelTag}
+                onPress={() => toggleChannel(channel)}
+              >
+                <Text style={styles.channelText}>{channel}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
         {/* 个人问题 */}
         <View style={styles.section}>
           <View style={styles.sectionTitleRow}>
@@ -376,13 +421,13 @@ export default function ChannelManageScreen({ navigation }) {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>
-              <Ionicons name="layers" size={16} color="#8b5cf6" /> {t('channelManage.comboChannels')}
+              <Ionicons name="layers" size={16} color="#ef4444" /> {t('channelManage.comboChannels')}
             </Text>
             <TouchableOpacity
               style={styles.addBtn}
               onPress={() => setShowComboCreator(!showComboCreator)}
             >
-              <Ionicons name={showComboCreator ? "remove-circle" : "add-circle"} size={20} color="#8b5cf6" />
+              <Ionicons name={showComboCreator ? "remove-circle" : "add-circle"} size={20} color="#ef4444" />
               <Text style={styles.addBtnText}>{showComboCreator ? t('channelManage.collapse') : t('channelManage.expand')}</Text>
             </TouchableOpacity>
           </View>
@@ -393,27 +438,6 @@ export default function ChannelManageScreen({ navigation }) {
           {/* 创建组合频道表单 */}
           {showComboCreator && (
             <View style={styles.comboCreator}>
-              <Text style={styles.comboDesc}>{t('channelManage.stepDescription')}</Text>
-              
-              <TextInput
-                style={styles.comboInput}
-                placeholder={t('channelManage.inputChannelName')}
-                value={comboName}
-                onChangeText={setComboName}
-                placeholderTextColor="#9ca3af"
-              />
-              
-              {/* 步骤指示器 */}
-              <View style={styles.stepIndicator}>
-                <View style={[styles.stepDot, comboStep === 'region' && styles.stepDotActive]}>
-                  <Text style={[styles.stepDotText, comboStep === 'region' && styles.stepDotTextActive]}>1</Text>
-                </View>
-                <View style={[styles.stepLine, comboStep === 'category' && styles.stepLineActive]} />
-                <View style={[styles.stepDot, comboStep === 'category' && styles.stepDotActive]}>
-                  <Text style={[styles.stepDotText, comboStep === 'category' && styles.stepDotTextActive]}>2</Text>
-                </View>
-              </View>
-              
               <View style={styles.comboSteps}>
                 <View style={styles.comboStepHeader}>
                   <Text style={styles.comboStepTitle}>
@@ -421,6 +445,28 @@ export default function ChannelManageScreen({ navigation }) {
                   </Text>
                 </View>
                 <Text style={styles.comboPath}>{t('channelManage.selected')} {getSelectedPath()}</Text>
+                
+                {/* 区域搜索框 - 只在区域选择步骤显示 */}
+                {comboStep === 'region' && (
+                  <View style={styles.regionSearchContainer}>
+                    <Ionicons name="search" size={16} color="#9ca3af" style={styles.searchIcon} />
+                    <TextInput
+                      style={styles.regionSearchInput}
+                      placeholder={t('channelManage.searchRegion') || '搜索地区...'}
+                      placeholderTextColor="#9ca3af"
+                      value={regionSearchText}
+                      onChangeText={setRegionSearchText}
+                    />
+                    {regionSearchText.length > 0 && (
+                      <TouchableOpacity 
+                        onPress={() => setRegionSearchText('')}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                      >
+                        <Ionicons name="close-circle" size={16} color="#9ca3af" />
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                )}
                 
                 <ScrollView style={styles.comboOptions} nestedScrollEnabled>
                   {comboStep === 'region' ? (
@@ -505,6 +551,7 @@ export default function ChannelManageScreen({ navigation }) {
                           } else {
                             // 返回到区域选择
                             backToRegion();
+                            setRegionSearchText(''); // 清空搜索框
                           }
                         }}
                       >
@@ -514,20 +561,19 @@ export default function ChannelManageScreen({ navigation }) {
                       <TouchableOpacity
                         style={[
                           styles.comboCreateBtn,
-                          (!comboName.trim() || !comboSelection.category) && styles.comboCreateBtnDisabled
+                          !comboSelection.category && styles.comboCreateBtnDisabled
                         ]}
                         onPress={() => {
                           console.log('🔍 Create button pressed');
-                          console.log('📝 comboName:', comboName);
                           console.log('📂 comboSelection.category:', comboSelection.category);
-                          console.log('✅ Can create:', comboName.trim() && comboSelection.category);
+                          console.log('✅ Can create:', comboSelection.category);
                           createComboChannel();
                         }}
-                        disabled={!comboName.trim() || !comboSelection.category}
+                        disabled={!comboSelection.category}
                       >
                         <Text style={styles.comboCreateText}>
                           {t('channelManage.createChannel')}
-                          {(!comboName.trim() || !comboSelection.category) && ' (Disabled)'}
+                          {!comboSelection.category && ' (Disabled)'}
                         </Text>
                       </TouchableOpacity>
                     </>
@@ -578,7 +624,7 @@ const styles = StyleSheet.create({
   content: { flex: 1 },
   section: {
     backgroundColor: '#fff',
-    paddingHorizontal: 16,
+    paddingHorizontal: 12,
     paddingTop: 14,
     paddingBottom: 12,
     marginBottom: 8
@@ -599,33 +645,39 @@ const styles = StyleSheet.create({
   myChannelsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 6
+    marginRight: -4,
+    marginBottom: -4
   },
   myChannelTag: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
     paddingHorizontal: 8,
     paddingVertical: 6,
     backgroundColor: '#e5e7eb',
-    borderRadius: 6
+    borderRadius: 6,
+    marginRight: 4,
+    marginBottom: 4
   },
   myChannelText: {
     fontSize: 15,
-    color: '#374151'
+    color: '#374151',
+    marginRight: 4
   },
   
   // 频道网格样式
   channelsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 6
+    marginRight: -4,
+    marginBottom: -4
   },
   channelTag: {
     paddingHorizontal: 10,
     paddingVertical: 6,
     backgroundColor: '#e5e7eb',
-    borderRadius: 6
+    borderRadius: 6,
+    marginRight: 4,
+    marginBottom: 4
   },
   channelText: {
     fontSize: 15,
@@ -652,7 +704,7 @@ const styles = StyleSheet.create({
   },
   addBtnText: {
     fontSize: 14,
-    color: '#8b5cf6',
+    color: '#ef4444',
     fontWeight: '500'
   },
   comboCreator: {
@@ -696,7 +748,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center'
   },
   stepDotActive: {
-    backgroundColor: '#8b5cf6'
+    backgroundColor: '#ef4444'
   },
   stepDotText: {
     fontSize: 12,
@@ -713,7 +765,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 6
   },
   stepLineActive: {
-    backgroundColor: '#8b5cf6'
+    backgroundColor: '#ef4444'
   },
   comboStepHeader: {
     flexDirection: 'row',
@@ -732,12 +784,32 @@ const styles = StyleSheet.create({
   },
   skipBtnText: {
     fontSize: 12,
-    color: '#8b5cf6'
+    color: '#ef4444'
   },
   comboPath: {
     fontSize: 12,
-    color: '#8b5cf6',
+    color: '#ef4444',
     marginBottom: 8
+  },
+  regionSearchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#e5e7eb'
+  },
+  searchIcon: {
+    marginRight: 6
+  },
+  regionSearchInput: {
+    flex: 1,
+    fontSize: 13,
+    color: '#374151',
+    padding: 0
   },
   comboOptions: {
     maxHeight: 200,
@@ -796,7 +868,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 4,
     paddingVertical: 8,
-    backgroundColor: '#8b5cf6',
+    backgroundColor: '#ef4444',
     borderRadius: 6
   },
   comboNextText: {
@@ -806,13 +878,13 @@ const styles = StyleSheet.create({
   },
   comboCreateBtn: {
     flex: 1,
-    backgroundColor: '#8b5cf6',
+    backgroundColor: '#ef4444',
     borderRadius: 6,
     paddingVertical: 8,
     alignItems: 'center'
   },
   comboCreateBtnDisabled: {
-    backgroundColor: '#d8b4fe',
+    backgroundColor: '#fca5a5',
     opacity: 0.6
   },
   comboCreateText: {
@@ -829,10 +901,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 12,
-    backgroundColor: '#f5f3ff',
+    backgroundColor: '#fee2e2',
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#e9d5ff'
+    borderColor: '#fecaca'
   },
   comboItemContent: {
     flex: 1
@@ -845,6 +917,6 @@ const styles = StyleSheet.create({
   },
   comboItemPath: {
     fontSize: 11,
-    color: '#8b5cf6'
+    color: '#ef4444'
   }
 });

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Modal, TextInput } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, TextInput, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import Avatar from '../components/Avatar';
@@ -38,9 +38,18 @@ const myTeams = [
 
 export default function MyTeamsScreen({ navigation }) {
   const [teams, setTeams] = useState(myTeams);
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [selectedQuestion, setSelectedQuestion] = useState(null);
+  const [selectedQuestions, setSelectedQuestions] = useState([]);
+  const [teamName, setTeamName] = useState('');
   const [teamDescription, setTeamDescription] = useState('');
+  const [showCreateModal, setShowCreateModal] = useState(false);
+
+  const handleOpenCreateModal = () => {
+    setShowCreateModal(true);
+  };
+
+  const handleCloseCreateModal = () => {
+    setShowCreateModal(false);
+  };
 
   // 我的问题列表（用于创建团队时选择）
   const myQuestions = [
@@ -54,12 +63,12 @@ export default function MyTeamsScreen({ navigation }) {
   };
 
   const handleCreateTeam = () => {
-    setShowCreateModal(true);
+    handleOpenCreateModal();
   };
 
   const handleSubmitCreate = () => {
-    if (!selectedQuestion) {
-      Alert.alert('提示', '请选择一个问题');
+    if (!teamName.trim()) {
+      Alert.alert('提示', '请输入团队名称');
       return;
     }
     if (!teamDescription.trim()) {
@@ -67,9 +76,10 @@ export default function MyTeamsScreen({ navigation }) {
       return;
     }
     
-    Alert.alert('成功', '团队创建成功！');
-    setShowCreateModal(false);
-    setSelectedQuestion(null);
+    Alert.alert('成功', `团队"${teamName}"创建成功！${selectedQuestions.length > 0 ? `已关联${selectedQuestions.length}个问题` : ''}`);
+    handleCloseCreateModal();
+    setTeamName('');
+    setSelectedQuestions([]);
     setTeamDescription('');
   };
 
@@ -111,32 +121,32 @@ export default function MyTeamsScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <TouchableOpacity 
-            onPress={() => navigation.goBack()} 
-            style={styles.backBtn}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            activeOpacity={0.7}
-          >
-            <Ionicons name="arrow-back" size={24} color="#374151" />
-          </TouchableOpacity>
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.headerLeft}>
+            <TouchableOpacity 
+              onPress={() => navigation.goBack()} 
+              style={styles.backBtn}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="arrow-back" size={24} color="#374151" />
+            </TouchableOpacity>
+          </View>
+          <View style={styles.headerCenter}>
+            <Text style={styles.headerTitle}>我的团队</Text>
+          </View>
+          <View style={styles.headerRight}>
+            <TouchableOpacity 
+              onPress={handleCreateTeam} 
+              style={styles.createBtn}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.createBtnText}>创建</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-        <View style={styles.headerCenter}>
-          <Text style={styles.headerTitle}>我的团队</Text>
-        </View>
-        <View style={styles.headerRight}>
-          <TouchableOpacity 
-            onPress={handleCreateTeam} 
-            style={styles.createBtn}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.createBtnText}>创建</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* 团队统计 */}
@@ -234,70 +244,100 @@ export default function MyTeamsScreen({ navigation }) {
       </ScrollView>
 
       {/* 创建团队弹窗 */}
-      <Modal visible={showCreateModal} animationType="slide" transparent>
-        <View style={styles.modalOverlay}>
-          <View style={styles.createModal}>
-            <View style={styles.createModalHeader}>
-              <Text style={styles.createModalTitle}>创建团队</Text>
-              <TouchableOpacity onPress={() => setShowCreateModal(false)}>
-                <Ionicons name="close" size={24} color="#6b7280" />
-              </TouchableOpacity>
-            </View>
-
-            <ScrollView style={styles.createModalContent} showsVerticalScrollIndicator={false}>
-              {/* 选择问题 */}
-              <View style={styles.formGroup}>
-                <Text style={styles.formLabel}>选择问题 <Text style={{ color: '#ef4444' }}>*</Text></Text>
-                <Text style={styles.formHint}>选择一个您发布的问题作为团队讨论主题</Text>
-                {myQuestions.map(q => (
-                  <TouchableOpacity
-                    key={q.id}
-                    style={[styles.questionOption, selectedQuestion?.id === q.id && styles.questionOptionSelected]}
-                    onPress={() => setSelectedQuestion(q)}
-                  >
-                    <View style={styles.questionOptionContent}>
-                      {q.type === 'reward' && (
-                        <View style={styles.rewardTagSmall}>
-                          <Text style={styles.rewardTagSmallText}>${q.reward}</Text>
-                        </View>
-                      )}
-                      <Text style={styles.questionOptionTitle} numberOfLines={2}>{q.title}</Text>
-                    </View>
-                    <View style={[styles.radioBtn, selectedQuestion?.id === q.id && styles.radioBtnSelected]}>
-                      {selectedQuestion?.id === q.id && <View style={styles.radioBtnInner} />}
-                    </View>
-                  </TouchableOpacity>
-                ))}
-              </View>
-
-              {/* 团队说明 */}
-              <View style={styles.formGroup}>
-                <Text style={styles.formLabel}>团队说明 <Text style={{ color: '#ef4444' }}>*</Text></Text>
-                <TextInput
-                  style={styles.textArea}
-                  placeholder="介绍一下这个团队的目标和规则..."
-                  placeholderTextColor="#9ca3af"
-                  value={teamDescription}
-                  onChangeText={setTeamDescription}
-                  multiline
-                  numberOfLines={4}
-                />
-              </View>
-
-              <View style={{ height: 20 }} />
-            </ScrollView>
-
-            <View style={styles.createModalFooter}>
-              <TouchableOpacity 
-                style={[styles.submitBtn, (!selectedQuestion || !teamDescription.trim()) && styles.submitBtnDisabled]}
-                onPress={handleSubmitCreate}
-                disabled={!selectedQuestion || !teamDescription.trim()}
-              >
-                <Text style={styles.submitBtnText}>创建团队</Text>
-              </TouchableOpacity>
-            </View>
+      <Modal
+        visible={showCreateModal}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={handleCloseCreateModal}
+      >
+        <SafeAreaView style={styles.modalContainer}>
+          <View style={styles.sheetHeader}>
+            <Text style={styles.sheetTitle}>创建团队</Text>
+            <TouchableOpacity onPress={handleCloseCreateModal} style={styles.sheetCloseBtn}>
+              <Ionicons name="close" size={24} color="#6b7280" />
+            </TouchableOpacity>
           </View>
-        </View>
+
+          <ScrollView 
+            style={styles.sheetContent}
+            contentContainerStyle={styles.sheetContentContainer}
+            keyboardShouldPersistTaps="handled"
+          >
+          {/* 选择问题 */}
+          <View style={styles.formGroup}>
+            <Text style={styles.formLabel}>选择问题</Text>
+            <Text style={styles.formHint}>选择一个或多个您发布的问题作为团队讨论主题（可选）</Text>
+            {myQuestions.map(q => {
+              const isSelected = selectedQuestions.some(sq => sq.id === q.id);
+              return (
+                <TouchableOpacity
+                  key={q.id}
+                  style={[styles.questionOption, isSelected && styles.questionOptionSelected]}
+                  onPress={() => {
+                    if (isSelected) {
+                      setSelectedQuestions(selectedQuestions.filter(sq => sq.id !== q.id));
+                    } else {
+                      setSelectedQuestions([...selectedQuestions, q]);
+                    }
+                  }}
+                >
+                  <View style={styles.questionOptionContent}>
+                    {q.type === 'reward' && (
+                      <View style={styles.rewardTagSmall}>
+                        <Text style={styles.rewardTagSmallText}>${q.reward}</Text>
+                      </View>
+                    )}
+                    <Text style={styles.questionOptionTitle} numberOfLines={2}>{q.title}</Text>
+                  </View>
+                  <View style={[styles.checkBox, isSelected && styles.checkBoxSelected]}>
+                    {isSelected && <Ionicons name="checkmark" size={14} color="#fff" />}
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          {/* 团队名称 */}
+          <View style={styles.formGroup}>
+            <Text style={styles.formLabel}>团队名称 <Text style={{ color: '#ef4444' }}>*</Text></Text>
+            <TextInput
+              style={styles.textInput}
+              placeholder="给团队起个响亮的名字..."
+              placeholderTextColor="#9ca3af"
+              value={teamName}
+              onChangeText={setTeamName}
+              maxLength={30}
+            />
+            <Text style={styles.charCount}>{teamName.length}/30</Text>
+          </View>
+
+          {/* 团队说明 */}
+          <View style={styles.formGroup}>
+            <Text style={styles.formLabel}>团队说明 <Text style={{ color: '#ef4444' }}>*</Text></Text>
+            <TextInput
+              style={styles.textArea}
+              placeholder="介绍一下这个团队的目标和规则..."
+              placeholderTextColor="#9ca3af"
+              value={teamDescription}
+              onChangeText={setTeamDescription}
+              multiline
+              numberOfLines={4}
+            />
+          </View>
+
+          <View style={{ height: 100 }} />
+          </ScrollView>
+
+          <View style={styles.sheetFooter}>
+            <TouchableOpacity 
+              style={[styles.submitBtn, (!teamName.trim() || !teamDescription.trim()) && styles.submitBtnDisabled]}
+              onPress={handleSubmitCreate}
+              disabled={!teamName.trim() || !teamDescription.trim()}
+            >
+              <Text style={styles.submitBtnText}>创建团队</Text>
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
       </Modal>
     </SafeAreaView>
   );
@@ -338,16 +378,21 @@ const styles = StyleSheet.create({
   emptyState: { alignItems: 'center', justifyContent: 'center', paddingVertical: 60 },
   emptyText: { fontSize: 16, fontWeight: '500', color: '#6b7280', marginTop: 16 },
   emptyHint: { fontSize: 13, color: '#9ca3af', marginTop: 8, textAlign: 'center', paddingHorizontal: 40 },
-  createBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#ef4444', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 20, marginTop: 24 },
-  createBtnText: { fontSize: 14, color: '#fff', fontWeight: '600' },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-  createModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '80%' },
-  createModalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
-  createModalTitle: { fontSize: 17, fontWeight: '600', color: '#1f2937' },
-  createModalContent: { maxHeight: 400, paddingHorizontal: 16, paddingTop: 16 },
+  
+  // Modal 样式
+  modalContainer: { flex: 1, backgroundColor: '#fff' },
+  sheetHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
+  sheetTitle: { fontSize: 17, fontWeight: '600', color: '#1f2937' },
+  sheetCloseBtn: { position: 'absolute', right: 16, padding: 4 },
+  sheetContent: { flex: 1 },
+  sheetContentContainer: { paddingHorizontal: 16, paddingTop: 16 },
+  sheetFooter: { paddingHorizontal: 16, paddingVertical: 16, borderTopWidth: 1, borderTopColor: '#f3f4f6', backgroundColor: '#fff' },
+  
   formGroup: { marginBottom: 20 },
   formLabel: { fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 8 },
   formHint: { fontSize: 12, color: '#9ca3af', marginBottom: 12 },
+  textInput: { backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, padding: 12, fontSize: 14, color: '#1f2937' },
+  charCount: { fontSize: 11, color: '#9ca3af', textAlign: 'right', marginTop: 4 },
   questionOption: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, padding: 12, marginBottom: 8 },
   questionOptionSelected: { borderColor: '#ef4444', backgroundColor: '#fef2f2' },
   questionOptionContent: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8 },
@@ -357,6 +402,8 @@ const styles = StyleSheet.create({
   radioBtn: { width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: '#d1d5db', alignItems: 'center', justifyContent: 'center' },
   radioBtnSelected: { borderColor: '#ef4444' },
   radioBtnInner: { width: 10, height: 10, borderRadius: 5, backgroundColor: '#ef4444' },
+  checkBox: { width: 20, height: 20, borderRadius: 4, borderWidth: 2, borderColor: '#d1d5db', alignItems: 'center', justifyContent: 'center' },
+  checkBoxSelected: { borderColor: '#ef4444', backgroundColor: '#ef4444' },
   textArea: { backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, padding: 12, fontSize: 14, color: '#1f2937', minHeight: 100, textAlignVertical: 'top' },
   createModalFooter: { paddingHorizontal: 16, paddingVertical: 16, borderTopWidth: 1, borderTopColor: '#f3f4f6' },
   submitBtn: { backgroundColor: '#ef4444', paddingVertical: 14, borderRadius: 12, alignItems: 'center' },

@@ -67,7 +67,6 @@ export default function PublishScreen({ navigation }) {
   const [content, setContent] = useState('');
   const [selectedType, setSelectedType] = useState('free');
   const [reward, setReward] = useState('');
-  const [allowOthersReward, setAllowOthersReward] = useState(false); // 是否允许他人悬赏
   const [selectedTopics, setSelectedTopics] = useState([]);
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [images, setImages] = useState([]);
@@ -164,8 +163,8 @@ export default function PublishScreen({ navigation }) {
         return;
       }
       const amount = parseFloat(targetedReward);
-      if (isNaN(amount) || amount < 1) {
-        Alert.alert('提示', '定向问题奖赏金额不能小于1');
+      if (isNaN(amount) || amount < 0) {
+        Alert.alert('提示', '定向问题奖赏金额不能小于0');
         return;
       }
     }
@@ -298,64 +297,37 @@ export default function PublishScreen({ navigation }) {
           </TouchableOpacity>
         </View>
 
-        {/* 公开问题 - 允许他人悬赏 */}
+        {/* 公开问题 - 悬赏金额 */}
         {selectedType === 'free' && (
           <View style={styles.section}>
-            <View style={styles.rewardToggleRow}>
-              <View style={styles.rewardToggleLeft}>
-                <Ionicons name="gift-outline" size={22} color="#22c55e" />
-                <View style={styles.rewardToggleText}>
-                  <Text style={styles.rewardToggleTitle}>允许他人悬赏金额</Text>
-                  <Text style={styles.rewardToggleDesc}>允许其他用户为此问题添加悬赏</Text>
-                </View>
-              </View>
-              <Switch 
-                value={allowOthersReward} 
-                onValueChange={(value) => {
-                  setAllowOthersReward(value);
-                  // 如果关闭开关，重置悬赏金额
-                  if (!value) {
-                    setReward('');
-                  }
-                }}
-                trackColor={{ false: '#e5e7eb', true: '#bbf7d0' }} 
-                thumbColor={allowOthersReward ? '#22c55e' : '#fff'} 
-              />
+            <Text style={styles.sectionTitle}>设置悬赏金额</Text>
+            <Text style={styles.sectionDesc}>可以设置为 $0（不设悬赏）或任意金额</Text>
+            <View style={styles.quickAmounts}>
+              {rewardAmounts.map(amount => (
+                <TouchableOpacity
+                  key={amount}
+                  style={[styles.amountBtn, reward === String(amount) && styles.amountBtnActive]}
+                  onPress={() => setReward(String(amount))}
+                >
+                  <Text style={[styles.amountText, reward === String(amount) && styles.amountTextActive]}>${amount}</Text>
+                </TouchableOpacity>
+              ))}
             </View>
-
-            {/* 当允许他人悬赏时，显示悬赏金额设置 */}
-            {allowOthersReward && (
-              <View style={styles.rewardAmountSection}>
-                <Text style={styles.sectionTitle}>设置悬赏金额</Text>
-                <Text style={styles.sectionDesc}>可以设置为 $0（不设悬赏）或任意金额</Text>
-                <View style={styles.quickAmounts}>
-                  {rewardAmounts.map(amount => (
-                    <TouchableOpacity
-                      key={amount}
-                      style={[styles.amountBtn, reward === String(amount) && styles.amountBtnActive]}
-                      onPress={() => setReward(String(amount))}
-                    >
-                      <Text style={[styles.amountText, reward === String(amount) && styles.amountTextActive]}>${amount}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-                <View style={styles.customAmount}>
-                  <Text style={styles.customLabel}>自定义金额：</Text>
-                  <TextInput 
-                    style={styles.customInput} 
-                    placeholder="输入金额（可以是$0）" 
-                    keyboardType="numeric" 
-                    value={reward} 
-                    onChangeText={(text) => {
-                      // 只允许输入数字和小数点
-                      const filtered = text.replace(/[^0-9.]/g, '');
-                      setReward(filtered);
-                    }}
-                  />
-                  <Text style={styles.currencySymbol}>$</Text>
-                </View>
-              </View>
-            )}
+            <View style={styles.customAmount}>
+              <Text style={styles.customLabel}>自定义金额：</Text>
+              <TextInput 
+                style={styles.customInput} 
+                placeholder="输入金额（可以是$0）" 
+                keyboardType="numeric" 
+                value={reward} 
+                onChangeText={(text) => {
+                  // 只允许输入数字和小数点
+                  const filtered = text.replace(/[^0-9.]/g, '');
+                  setReward(filtered);
+                }}
+              />
+              <Text style={styles.currencySymbol}>$</Text>
+            </View>
           </View>
         )}
 
@@ -488,7 +460,7 @@ export default function PublishScreen({ navigation }) {
             {/* 定向问题奖赏 */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>设置奖赏金额 <Text style={styles.required}>*</Text></Text>
-              <Text style={styles.sectionDesc}>给予专家的回答奖励，不能小于 $1</Text>
+              <Text style={styles.sectionDesc}>可以设置为 $0（不设悬赏）或任意金额</Text>
               <View style={styles.quickAmounts}>
                 {rewardAmounts.map(amount => (
                   <TouchableOpacity
@@ -504,7 +476,7 @@ export default function PublishScreen({ navigation }) {
                 <Text style={styles.customLabel}>自定义金额：</Text>
                 <TextInput 
                   style={styles.customInput} 
-                  placeholder="输入金额（最低$1）" 
+                  placeholder="输入金额（最低$0）" 
                   keyboardType="numeric" 
                   value={targetedReward} 
                   onChangeText={(text) => {
@@ -1063,12 +1035,5 @@ const styles = StyleSheet.create({
   privateAnswerTip: { flexDirection: 'row', alignItems: 'center', marginTop: 12, padding: 12, backgroundColor: '#f9fafb', borderRadius: 10, gap: 8 },
   privateAnswerText: { fontSize: 12, color: '#6b7280', flex: 1 },
   
-  // 悬赏开关样式
-  rewardToggleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 },
-  rewardToggleLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
-  rewardToggleText: { marginLeft: 12, flex: 1 },
-  rewardToggleTitle: { fontSize: 14, fontWeight: '600', color: '#1f2937', marginBottom: 2 },
-  rewardToggleDesc: { fontSize: 12, color: '#6b7280' },
-  rewardAmountSection: { paddingTop: 16, borderTopWidth: 1, borderTopColor: '#f3f4f6' },
   rewardAmountLabel: { fontSize: 13, fontWeight: '600', color: '#1f2937', marginBottom: 12 },
 });

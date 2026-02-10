@@ -280,11 +280,12 @@
     "done": "Done",
     "saveSuccess": "Channel subscription updated",
     "myChannels": "My Channels",
-    "countryIssues": "Country Issues",
-    "industryIssues": "Industry Issues",
-    "personalIssues": "Personal Issues",
+    "countryIssues": "Country Problem",
+    "industryIssues": "Industry Problem",
+    "enterpriseIssues": "Enterprise Problem",
+    "personalIssues": "Personal Problem",
     "comboChannels": "Combo Channels",
-    "comboDescription": "Combo channels can combine geographic location (Country-Province-City-District) and issue types (Country/Industry/Personal issues and their subcategories) to create more precise channels",
+    "comboDescription": "Combo channels can combine geographic location (Country-Province-City-District) and issue types (Country/Industry/Enterprise/Personal issues and their subcategories) to create more precise channels",
     "expand": "Expand",
     "collapse": "Collapse",
     "step1": "Step 1: Select Region (Optional)",
@@ -299,6 +300,7 @@
     "createSuccess": "Combo channel created successfully!",
     "enterNamePrompt": "Please enter combo channel name",
     "selectCategoryPrompt": "Please select category",
+    "searchRegion": "Search region...",
     "countryCategories": {
       "policy": "Policy & Regulations",
       "society": "Society & Livelihood",
@@ -314,6 +316,14 @@
       "realestate": "Real Estate",
       "manufacturing": "Manufacturing"
     },
+    "enterpriseCategories": {
+      "management": "Management",
+      "hr": "Human Resources",
+      "marketing": "Marketing",
+      "finance": "Finance",
+      "operations": "Operations",
+      "legal": "Legal & Compliance"
+    },
     "personalCategories": {
       "workplace": "Workplace",
       "tech": "Technology",
@@ -325,9 +335,10 @@
       "entertainment": "Entertainment"
     },
     "categoryTypes": {
-      "country": "Country Issues",
-      "industry": "Industry Issues",
-      "personal": "Personal Issues"
+      "country": "Country Problem",
+      "industry": "Industry Problem",
+      "enterprise": "Enterprise Problem",
+      "personal": "Personal Problem"
     }
   },
   "follow": {
@@ -347,5 +358,44 @@
     "following": "Following",
     "minutesAgo": "minutes ago",
     "hoursAgo": "hours ago"
+  },
+  "superLike": {
+    "title": "Super Like",
+    "balance": "Balance",
+    "credits": "credits",
+    "purchase": {
+      "title": "Purchase Super Likes",
+      "currentBalance": "Current Balance",
+      "selectAmount": "Select Amount",
+      "customAmount": "Or enter custom amount",
+      "minAmount": "Minimum 1",
+      "unitPrice": "Unit Price",
+      "quantity": "Quantity",
+      "total": "Total",
+      "confirmButton": "Purchase {amount} Super Likes",
+      "cancelButton": "Cancel",
+      "successTitle": "Purchase Successful",
+      "successMessage": "Successfully purchased {amount} super likes!\nCost: ${cost}\nYou can use them on any answer!",
+      "errorInvalidAmount": "Please enter a valid amount (1-100)",
+      "errorStorageFailed": "Purchase failed, please try again later"
+    },
+    "use": {
+      "button": "Use Super Like",
+      "confirmTitle": "Use Super Like",
+      "confirmMessage": "Confirm using 1 super like to boost this answer's ranking?",
+      "successTitle": "Success",
+      "successMessage": "Used 1 super like!\nRemaining: {balance} credits",
+      "errorInsufficientBalance": "Insufficient Super Likes",
+      "errorInsufficientBalanceMessage": "You don't have enough super likes. Would you like to purchase?",
+      "errorStorageFailed": "Failed to use, please try again later"
+    },
+    "history": {
+      "title": "Transaction History",
+      "empty": "No transactions yet",
+      "typePurchase": "Purchase",
+      "typeUse": "Use",
+      "amount": "{amount} credits",
+      "usedOn": "Used on answer: {title}"
+    }
   }
 }

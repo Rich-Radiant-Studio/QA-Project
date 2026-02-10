@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -7,6 +7,7 @@ import { StatusBar } from 'expo-status-bar';
 import { View, Text, Modal, TouchableOpacity, TextInput, StyleSheet, ScrollView, SafeAreaView, Platform } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import i18n from './src/i18n';
+import superLikeCreditService from './src/services/SuperLikeCreditService';
 
 import HomeScreen from './src/screens/HomeScreen';
 import SearchScreen from './src/screens/SearchScreen';
@@ -40,7 +41,8 @@ import InviteAnswerScreen from './src/screens/InviteAnswerScreen';
 import InviteTeamMemberScreen from './src/screens/InviteTeamMemberScreen';
 import ReportScreen from './src/screens/ReportScreen';
 import AddRewardScreen from './src/screens/AddRewardScreen';
-import BuySuperLikeScreen from './src/screens/BuySuperLikeScreen';
+import SuperLikePurchaseScreen from './src/screens/SuperLikePurchaseScreen';
+import SuperLikeHistoryScreen from './src/screens/SuperLikeHistoryScreen';
 import ContributorsScreen from './src/screens/ContributorsScreen';
 
 const Stack = createNativeStackNavigator();
@@ -393,6 +395,20 @@ function MainTabs({ onLogout }) {
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(true);
 
+  // 初始化超级赞积分系统
+  useEffect(() => {
+    const initializeServices = async () => {
+      try {
+        await superLikeCreditService.initialize();
+        console.log('Services initialized successfully');
+      } catch (error) {
+        console.error('Failed to initialize services:', error);
+      }
+    };
+
+    initializeServices();
+  }, []);
+
   const handleLogin = () => {
     setIsLoggedIn(true);
   };
@@ -415,13 +431,13 @@ export default function App() {
       <NavigationContainer>
         <StatusBar style="dark" />
         <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="Main">
-            {() => <MainTabs onLogout={handleLogout} />}
-          </Stack.Screen>
-        <Stack.Screen name="Search" component={SearchScreen} />
-        <Stack.Screen name="QuestionDetail" component={QuestionDetailScreen} />
-        <Stack.Screen name="SupplementDetail" component={SupplementDetailScreen} />
-        <Stack.Screen name="QuestionActivityList" component={QuestionActivityListScreen} />
+            <Stack.Screen name="Main">
+              {() => <MainTabs onLogout={handleLogout} />}
+            </Stack.Screen>
+          <Stack.Screen name="Search" component={SearchScreen} />
+          <Stack.Screen name="QuestionDetail" component={QuestionDetailScreen} />
+          <Stack.Screen name="SupplementDetail" component={SupplementDetailScreen} />
+          <Stack.Screen name="QuestionActivityList" component={QuestionActivityListScreen} />
         <Stack.Screen name="Follow" component={FollowScreen} />
         <Stack.Screen name="HotList" component={HotListScreen} />
         <Stack.Screen name="IncomeRanking" component={IncomeRankingScreen} />
@@ -444,7 +460,8 @@ export default function App() {
         <Stack.Screen name="InviteTeamMember" component={InviteTeamMemberScreen} />
         <Stack.Screen name="Report" component={ReportScreen} />
         <Stack.Screen name="AddReward" component={AddRewardScreen} />
-        <Stack.Screen name="BuySuperLike" component={BuySuperLikeScreen} />
+        <Stack.Screen name="SuperLikePurchase" component={SuperLikePurchaseScreen} />
+        <Stack.Screen name="SuperLikeHistory" component={SuperLikeHistoryScreen} />
         <Stack.Screen name="Contributors" component={ContributorsScreen} />
       </Stack.Navigator>
     </NavigationContainer>

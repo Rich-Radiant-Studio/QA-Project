@@ -282,9 +282,10 @@
     "myChannels": "我的频道",
     "countryIssues": "国家问题",
     "industryIssues": "行业问题",
+    "enterpriseIssues": "企业问题",
     "personalIssues": "个人问题",
     "comboChannels": "组合频道",
-    "comboDescription": "组合频道可以将地理位置（国家-省份-城市-区域）和问题类型（国家/行业/个人问题及其子类别）组合，创建更精准的频道",
+    "comboDescription": "组合频道可以将地理位置（国家-省份-城市-区域）和问题类型（国家/行业/企业/个人问题及其子类别）组合，创建更精准的频道",
     "expand": "展开",
     "collapse": "收起",
     "step1": "步骤1: 选择区域（可选）",
@@ -299,6 +300,7 @@
     "createSuccess": "组合频道创建成功！",
     "enterNamePrompt": "请输入组合频道名称",
     "selectCategoryPrompt": "请选择分类",
+    "searchRegion": "搜索地区...",
     "countryCategories": {
       "policy": "政策法规",
       "society": "社会民生",
@@ -314,6 +316,14 @@
       "realestate": "房地产",
       "manufacturing": "制造业"
     },
+    "enterpriseCategories": {
+      "management": "企业管理",
+      "hr": "人力资源",
+      "marketing": "市场营销",
+      "finance": "财务管理",
+      "operations": "运营管理",
+      "legal": "法务合规"
+    },
     "personalCategories": {
       "workplace": "职场",
       "tech": "科技",
@@ -327,6 +337,7 @@
     "categoryTypes": {
       "country": "国家问题",
       "industry": "行业问题",
+      "enterprise": "企业问题",
       "personal": "个人问题"
     }
   },
@@ -347,5 +358,44 @@
     "following": "已关注",
     "minutesAgo": "分钟前",
     "hoursAgo": "小时前"
+  },
+  "superLike": {
+    "title": "超级赞",
+    "balance": "余额",
+    "credits": "次",
+    "purchase": {
+      "title": "购买超级赞",
+      "currentBalance": "当前余额",
+      "selectAmount": "选择购买数量",
+      "customAmount": "或输入自定义数量",
+      "minAmount": "最少 1 个",
+      "unitPrice": "单价",
+      "quantity": "购买数量",
+      "total": "总计",
+      "confirmButton": "立即购买 {amount} 个超级赞",
+      "cancelButton": "取消",
+      "successTitle": "购买成功",
+      "successMessage": "成功购买 {amount} 个超级赞！\n花费：${cost}\n您可以在任意回答上使用它们！",
+      "errorInvalidAmount": "请输入有效的购买数量（1-100）",
+      "errorStorageFailed": "购买失败，请稍后重试"
+    },
+    "use": {
+      "button": "使用超级赞",
+      "confirmTitle": "使用超级赞",
+      "confirmMessage": "确认使用 1 次超级赞提升此回答的排名？",
+      "successTitle": "使用成功",
+      "successMessage": "已使用 1 次超级赞！\n剩余：{balance} 次",
+      "errorInsufficientBalance": "超级赞次数不足",
+      "errorInsufficientBalanceMessage": "您的超级赞次数不足，是否购买？",
+      "errorStorageFailed": "使用失败，请稍后重试"
+    },
+    "history": {
+      "title": "交易历史",
+      "empty": "暂无交易记录",
+      "typePurchase": "购买",
+      "typeUse": "使用",
+      "amount": "{amount} 次",
+      "usedOn": "用于回答：{title}"
+    }
   }
 }

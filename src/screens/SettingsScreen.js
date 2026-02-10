@@ -401,6 +401,34 @@ export default function SettingsScreen({ navigation }) {
           </View>
         </View>
 
+        {/* 钱包与超级赞 */}
+        <View style={styles.sectionGroup}>
+          <Text style={styles.groupTitle}>钱包与超级赞</Text>
+          <View style={styles.section}>
+            <TouchableOpacity 
+              style={styles.menuItem}
+              onPress={() => navigation.navigate('SuperLikePurchase')}
+            >
+              <View style={styles.menuLeft}>
+                <Ionicons name="star" size={22} color="#f59e0b" />
+                <Text style={styles.menuLabel}>购买超级赞</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={[styles.menuItem, styles.menuItemLast]}
+              onPress={() => navigation.navigate('SuperLikeHistory')}
+            >
+              <View style={styles.menuLeft}>
+                <Ionicons name="time-outline" size={22} color="#6b7280" />
+                <Text style={styles.menuLabel}>超级赞历史</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
+            </TouchableOpacity>
+          </View>
+        </View>
+
         {/* 帮助与反馈 */}
         <View style={styles.sectionGroup}>
           <Text style={styles.groupTitle}>帮助与反馈</Text>

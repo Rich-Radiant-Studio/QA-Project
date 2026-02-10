@@ -3,6 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, Alert, Sha
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import Avatar from '../components/Avatar';
+import SuperLikeBalance from '../components/SuperLikeBalance';
 
 const stats = [
   { label: '点赞', value: '3.5k', screen: 'Likes' },
@@ -353,6 +354,124 @@ export default function ProfileScreen({ navigation, onLogout }) {
     ]);
   };
 
+  // 添加资质证书
+  const addQualification = async () => {
+    Alert.alert('上传资质证书', '请选择图片来源', [
+      { 
+        text: '相册', 
+        onPress: async () => {
+          try {
+            // 请求相册权限
+            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (status !== 'granted') {
+              Alert.alert('权限不足', '需要相册访问权限才能上传图片');
+              return;
+            }
+
+            // 打开相册
+            const result = await ImagePicker.launchImageLibraryAsync({
+              mediaTypes: ImagePicker.MediaTypeOptions.Images,
+              allowsEditing: true,
+              aspect: [3, 2],
+              quality: 0.8,
+            });
+
+            if (!result.canceled && result.assets && result.assets.length > 0) {
+              const newQualification = {
+                id: Date.now(),
+                name: '',
+                image: result.assets[0].uri
+              };
+              setVerificationData({
+                ...verificationData,
+                personal: {
+                  ...verificationData.personal,
+                  qualifications: [...verificationData.personal.qualifications, newQualification]
+                }
+              });
+            }
+          } catch (error) {
+            Alert.alert('错误', '上传图片失败：' + error.message);
+          }
+        }
+      },
+      { 
+        text: '相机', 
+        onPress: async () => {
+          try {
+            // 请求相机权限
+            const { status } = await ImagePicker.requestCameraPermissionsAsync();
+            if (status !== 'granted') {
+              Alert.alert('权限不足', '需要相机访问权限才能拍照');
+              return;
+            }
+
+            // 打开相机
+            const result = await ImagePicker.launchCameraAsync({
+              allowsEditing: true,
+              aspect: [3, 2],
+              quality: 0.8,
+            });
+
+            if (!result.canceled && result.assets && result.assets.length > 0) {
+              const newQualification = {
+                id: Date.now(),
+                name: '',
+                image: result.assets[0].uri
+              };
+              setVerificationData({
+                ...verificationData,
+                personal: {
+                  ...verificationData.personal,
+                  qualifications: [...verificationData.personal.qualifications, newQualification]
+                }
+              });
+            }
+          } catch (error) {
+            Alert.alert('错误', '拍照失败：' + error.message);
+          }
+        }
+      },
+      { text: '取消', style: 'cancel' }
+    ]);
+  };
+
+  // 删除资质证书
+  const removeQualification = (id) => {
+    Alert.alert('确认删除', '确定要删除这个资质证书吗？', [
+      {
+        text: '取消',
+        style: 'cancel'
+      },
+      {
+        text: '删除',
+        style: 'destructive',
+        onPress: () => {
+          setVerificationData({
+            ...verificationData,
+            personal: {
+              ...verificationData.personal,
+              qualifications: verificationData.personal.qualifications.filter(q => q.id !== id)
+            }
+          });
+        }
+      }
+    ]);
+  };
+
+  // 更新资质证书名称
+  const updateQualificationName = (id, name) => {
+    setVerificationData({
+      ...verificationData,
+      personal: {
+        ...verificationData.personal,
+        qualifications: verificationData.personal.qualifications.map(q =>
+          q.id === id ? { ...q, name } : q
+        )
+      }
+    });
+  };
+
   const updateVerificationField = (field, value) => {
     setVerificationData({
       ...verificationData,
@@ -493,6 +612,37 @@ export default function ProfileScreen({ navigation, onLogout }) {
             <TouchableOpacity style={styles.walletStatItem} onPress={() => handleWalletAction('pending')}>
               <Text style={styles.walletStatValue}>12</Text>
               <Text style={styles.walletStatLabel}>待采纳</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* 超级赞余额卡片 */}
+        <View style={styles.superLikeCard}>
+          <View style={styles.superLikeHeader}>
+            <View style={styles.superLikeTitle}>
+              <Ionicons name="star" size={20} color="#f59e0b" />
+              <Text style={styles.superLikeTitleText}>超级赞</Text>
+            </View>
+            <SuperLikeBalance 
+              size="medium" 
+              showLabel={false}
+              onPress={() => navigation.navigate('SuperLikePurchase')}
+            />
+          </View>
+          <View style={styles.superLikeActions}>
+            <TouchableOpacity 
+              style={styles.superLikeBtn}
+              onPress={() => navigation.navigate('SuperLikePurchase')}
+            >
+              <Ionicons name="add-circle" size={18} color="#f59e0b" />
+              <Text style={styles.superLikeBtnText}>购买</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.superLikeBtn, styles.superLikeBtnSecondary]}
+              onPress={() => navigation.navigate('SuperLikeHistory')}
+            >
+              <Ionicons name="time-outline" size={18} color="#6b7280" />
+              <Text style={[styles.superLikeBtnText, styles.superLikeBtnTextSecondary]}>历史</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -906,6 +1056,7 @@ export default function ProfileScreen({ navigation, onLogout }) {
                     <Text style={styles.uploadTipText}>请确保证件信息清晰可见，照片完整无遮挡</Text>
                   </View>
                 </View>
+
               </View>
             )}
 
@@ -1178,6 +1329,15 @@ const styles = StyleSheet.create({
   walletStatItem: { flex: 1, alignItems: 'center' },
   walletStatValue: { fontSize: 14, fontWeight: '500', color: '#1f2937' },
   walletStatLabel: { fontSize: 11, color: '#9ca3af', marginTop: 2 },
+  superLikeCard: { backgroundColor: '#fff', marginHorizontal: 12, marginTop: 12, borderRadius: 16, padding: 16 },
+  superLikeHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
+  superLikeTitle: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  superLikeTitleText: { fontSize: 16, fontWeight: '600', color: '#1f2937' },
+  superLikeActions: { flexDirection: 'row', gap: 12 },
+  superLikeBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fffbeb', borderWidth: 1, borderColor: '#fef3c7', paddingVertical: 10, borderRadius: 8, gap: 6 },
+  superLikeBtnSecondary: { backgroundColor: '#f9fafb', borderColor: '#e5e7eb' },
+  superLikeBtnText: { fontSize: 14, fontWeight: '500', color: '#f59e0b' },
+  superLikeBtnTextSecondary: { color: '#6b7280' },
   menuSection: { backgroundColor: '#fff', marginHorizontal: 12, marginTop: 12, borderRadius: 16, overflow: 'hidden' },
   menuItem: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
   menuLabel: { flex: 1, marginLeft: 12, fontSize: 14, color: '#1f2937' },

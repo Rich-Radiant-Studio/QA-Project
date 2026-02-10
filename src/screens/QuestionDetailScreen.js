@@ -4,6 +4,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons';
 import Avatar from '../components/Avatar';
 import IdentitySelector from '../components/IdentitySelector';
+import superLikeCreditService from '../services/SuperLikeCreditService';
 
 const answers = [
   { 
@@ -141,7 +142,7 @@ const supplementQuestions = [
 
 export default function QuestionDetailScreen({ navigation, route }) {
   const [inputText, setInputText] = useState('');
-  const [activeTab, setActiveTab] = useState('回答 (56)');
+  const [activeTab, setActiveTab] = useState('补充 (4)');
   const [suppLiked, setSuppLiked] = useState({});
   const [suppDisliked, setSuppDisliked] = useState({});
   const [suppBookmarked, setSuppBookmarked] = useState({});
@@ -203,6 +204,10 @@ export default function QuestionDetailScreen({ navigation, route }) {
   const [loadingSupplements, setLoadingSupplements] = useState(false);
   const [loadingAnswers, setLoadingAnswers] = useState(false);
   const [loadingComments, setLoadingComments] = useState(false);
+  
+  // 问题标题展开/折叠状态
+  const [questionTitleExpanded, setQuestionTitleExpanded] = useState(false);
+  const [questionTitleNeedsExpand, setQuestionTitleNeedsExpand] = useState(false);
 
   // 增加悬赏相关状态
   const [showAddRewardModal, setShowAddRewardModal] = useState(false);
@@ -501,10 +506,49 @@ export default function QuestionDetailScreen({ navigation, route }) {
       >
         {/* 问题内容 */}
         <View style={styles.questionSection}>
-          <Text style={styles.questionTitle}>
+          {/* 隐藏的完整文本用于检测行数 */}
+          <Text 
+            style={[styles.questionTitle, { position: 'absolute', opacity: 0, zIndex: -1 }]}
+            onTextLayout={(e) => {
+              const lineCount = e.nativeEvent.lines.length;
+              if (lineCount > 3 && !questionTitleNeedsExpand) {
+                setQuestionTitleNeedsExpand(true);
+              }
+            }}
+          >
             <Text style={styles.rewardTagInline}>${currentReward} </Text>
-            如何在三个月内从零基础学会Python编程？有没有系统的学习路线推荐？
+            如何在三个月内从零基础学会Python编程？有没有系统的学习路线推荐？作为一名文科生，之前完全没有接触过编程，最近想转行做数据分析，听说Python是必备技能，想请教各位大神应该如何开始学习，需要掌握哪些核心知识点？
           </Text>
+          
+          {/* 实际显示的文本 */}
+          <TouchableOpacity 
+            activeOpacity={questionTitleNeedsExpand ? 0.8 : 1}
+            onPress={() => {
+              if (questionTitleNeedsExpand) {
+                setQuestionTitleExpanded(!questionTitleExpanded);
+              }
+            }}
+          >
+            <Text 
+              style={styles.questionTitle}
+              numberOfLines={questionTitleExpanded ? undefined : 3}
+            >
+              <Text style={styles.rewardTagInline}>${currentReward} </Text>
+              如何在三个月内从零基础学会Python编程？有没有系统的学习路线推荐？作为一名文科生，之前完全没有接触过编程，最近想转行做数据分析，听说Python是必备技能，想请教各位大神应该如何开始学习，需要掌握哪些核心知识点？
+              {questionTitleNeedsExpand && !questionTitleExpanded && (
+                <Text style={styles.expandHintInline}>
+                  {'  '}
+                  <Text style={styles.expandHintText}>...展开</Text>
+                </Text>
+              )}
+              {questionTitleNeedsExpand && questionTitleExpanded && (
+                <Text style={styles.expandHintInline}>
+                  {'  '}
+                  <Text style={styles.expandHintText}>收起</Text>
+                </Text>
+              )}
+            </Text>
+          </TouchableOpacity>
           
           {/* 作者信息和操作按钮行 - 紧跟标题 */}
           <View style={styles.authorActionsRow}>
@@ -682,6 +726,21 @@ export default function QuestionDetailScreen({ navigation, route }) {
             </Text>
           </View>
 
+          {/* 超级赞购买横幅 - 仅在回答标签页显示 */}
+          {activeTab === '回答 (56)' && (
+            <TouchableOpacity 
+              style={styles.superLikePurchaseBanner}
+              onPress={() => navigation.navigate('SuperLikePurchase')}
+              activeOpacity={0.8}
+            >
+              <View style={styles.superLikePurchaseBannerLeft}>
+                <Ionicons name="star" size={18} color="#f59e0b" />
+                <Text style={styles.superLikePurchaseBannerText}>购买超级赞提升排名</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color="#f59e0b" />
+            </TouchableOpacity>
+          )}
+
           {activeTab === '补充 (4)' ? (
             // 补充问题列表
             <>
@@ -700,12 +759,14 @@ export default function QuestionDetailScreen({ navigation, route }) {
                   activeOpacity={0.7}
                 >
                   <View style={styles.suppHeader}>
-                    <Avatar uri={item.avatar} name={item.author} size={32} />
+                    <Avatar uri={item.avatar} name={item.author} size={28} />
                     <View style={styles.suppAuthorInfo}>
-                      <Text style={styles.suppAuthor}>{item.author}</Text>
-                      <View style={styles.suppLocationRow}>
-                        <Ionicons name="location-outline" size={12} color="#9ca3af" />
-                        <Text style={styles.suppLocation}>{item.location}</Text>
+                      <View style={styles.suppAuthorRow}>
+                        <Text style={styles.suppAuthor}>{item.author}</Text>
+                        <View style={styles.suppLocationRow}>
+                          <Ionicons name="location-outline" size={12} color="#9ca3af" />
+                          <Text style={styles.suppLocation}>{item.location}</Text>
+                        </View>
                       </View>
                     </View>
                     <TouchableOpacity 
@@ -801,12 +862,13 @@ export default function QuestionDetailScreen({ navigation, route }) {
             <>
               {commentsData.slice(0, showAllComments ? commentsData.length : 3).map(comment => (
                 <View key={comment.id} style={styles.commentCard}>
-                  <Avatar uri={comment.avatar} name={comment.author} size={32} />
+                  <View style={styles.commentHeader}>
+                    <Avatar uri={comment.avatar} name={comment.author} size={28} />
+                    <Text style={styles.commentAuthor}>{comment.author}</Text>
+                    <View style={{ flex: 1 }} />
+                    <Text style={styles.commentTime}>{comment.time}</Text>
+                  </View>
                   <View style={styles.commentContent}>
-                    <View style={styles.commentHeader}>
-                      <Text style={styles.commentAuthor}>{comment.author}</Text>
-                      <Text style={styles.commentTime}>{comment.time}</Text>
-                    </View>
                     <Text style={styles.commentText}>{comment.content}</Text>
                     <View style={styles.commentFooter}>
                       <View style={styles.commentFooterLeft}>
@@ -1042,7 +1104,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
               {answers.slice(0, showAllAnswers ? answers.length : 3).map(answer => (
             <TouchableOpacity key={answer.id} style={[styles.answerCard, answer.adopted && styles.answerCardAdopted]} onPress={() => navigation.navigate('AnswerDetail', { answer })}>
               <View style={styles.answerHeader}>
-                <Avatar uri={answer.avatar} name={answer.author} size={40} />
+                <Avatar uri={answer.avatar} name={answer.author} size={28} />
                 <View style={styles.answerAuthorInfo}>
                   <View style={styles.answerAuthorRow}>
                     <Text style={styles.answerAuthor}>{answer.author}</Text>
@@ -1080,13 +1142,62 @@ export default function QuestionDetailScreen({ navigation, route }) {
 
               {/* 标签区域 - 优化布局 */}
               <View style={styles.answerTagsSection}>
-                {/* 超级赞徽章 - 显示在最前面 */}
-                {((answerSuperLikes[answer.id] || answer.superLikes || 0) > 0) && (
-                  <View style={styles.superLikeBadge}>
-                    <Ionicons name="star" size={14} color="#f59e0b" />
-                    <Text style={styles.superLikeBadgeText}>超级赞 x{answerSuperLikes[answer.id] || answer.superLikes}</Text>
-                  </View>
-                )}
+                {/* 超级赞按钮 - 可点击增加 */}
+                <TouchableOpacity 
+                  style={[
+                    styles.superLikeBadge,
+                    ((answerSuperLikes[answer.id] || answer.superLikes || 0) === 0) && styles.superLikeBadgeInactive
+                  ]}
+                  onPress={async (e) => { 
+                    e.stopPropagation();
+                    
+                    // 检查余额
+                    const balance = await superLikeCreditService.getBalance();
+                    
+                    if (balance <= 0) {
+                      Alert.alert(
+                        '超级赞次数不足',
+                        '您的超级赞次数不足，是否购买？',
+                        [
+                          { text: '取消', style: 'cancel' },
+                          { 
+                            text: '去购买', 
+                            onPress: () => navigation.navigate('SuperLikePurchase')
+                          }
+                        ]
+                      );
+                      return;
+                    }
+                    
+                    // 使用超级赞
+                    const result = await superLikeCreditService.use(
+                      answer.id.toString(), 
+                      answer.content.substring(0, 50)
+                    );
+                    
+                    if (result.success) {
+                      // 更新本地显示的超级赞数量
+                      const currentCount = answerSuperLikes[answer.id] || answer.superLikes || 0;
+                      setAnswerSuperLikes({
+                        ...answerSuperLikes,
+                        [answer.id]: currentCount + 1
+                      });
+                      // 不显示成功提示，直接更新数字
+                    }
+                  }}
+                >
+                  <Ionicons 
+                    name="star" 
+                    size={14} 
+                    color={((answerSuperLikes[answer.id] || answer.superLikes || 0) === 0) ? "#d1d5db" : "#f59e0b"} 
+                  />
+                  <Text style={[
+                    styles.superLikeBadgeText,
+                    ((answerSuperLikes[answer.id] || answer.superLikes || 0) === 0) && styles.superLikeBadgeTextInactive
+                  ]}>
+                    超级赞 x{answerSuperLikes[answer.id] || answer.superLikes || 0}
+                  </Text>
+                </TouchableOpacity>
                 
                 {/* 作者已采纳标签 */}
                 {answer.adopted && (
@@ -1110,8 +1221,8 @@ export default function QuestionDetailScreen({ navigation, route }) {
                   </View>
                 )}
 
-                {/* 仲裁结果标签 */}
-                {answer.hasArbitration && answer.arbitrationResult === 'completed' && (
+                {/* 仲裁结果标签 - 暂时隐藏 */}
+                {false && answer.hasArbitration && answer.arbitrationResult === 'completed' && (
                   <View style={[
                     styles.arbitrationResultBadge,
                     answer.arbitrationData.status === 'approved' ? styles.arbitrationResultApproved : styles.arbitrationResultRejected
@@ -1130,15 +1241,15 @@ export default function QuestionDetailScreen({ navigation, route }) {
                   </View>
                 )}
 
-                {/* 仲裁状态标签 */}
-                {answer.adopted && arbitrationStatus === 'pending' && (
+                {/* 仲裁状态标签 - 暂时隐藏 */}
+                {false && answer.adopted && arbitrationStatus === 'pending' && (
                   <View style={styles.arbitrationPendingBadgeCompact}>
                     <Ionicons name="time-outline" size={12} color="#f59e0b" />
                     <Text style={styles.arbitrationPendingTextCompact}>投票中</Text>
                   </View>
                 )}
                 
-                {answer.adopted && arbitrationStatus === 'approved' && (
+                {false && answer.adopted && arbitrationStatus === 'approved' && (
                   <View style={styles.arbitrationApprovedBadgeCompact}>
                     <Ionicons name="close-circle" size={12} color="#ef4444" />
                     <Text style={styles.arbitrationApprovedTextCompact}>已推翻</Text>
@@ -1147,8 +1258,8 @@ export default function QuestionDetailScreen({ navigation, route }) {
 
                 {/* 右侧操作按钮 */}
                 <View style={styles.answerTagsActions}>
-                  {/* 查看仲裁结果按钮 */}
-                  {answer.hasArbitration && answer.arbitrationResult === 'completed' && (
+                  {/* 查看仲裁结果按钮 - 暂时隐藏 */}
+                  {false && answer.hasArbitration && answer.arbitrationResult === 'completed' && (
                     <TouchableOpacity 
                       style={styles.viewArbitrationResultBtn}
                       onPress={(e) => { 
@@ -1162,7 +1273,8 @@ export default function QuestionDetailScreen({ navigation, route }) {
                     </TouchableOpacity>
                   )}
                   
-                  {answer.adopted && !arbitrationStatus && (
+                  {/* 申请仲裁按钮 - 暂时隐藏 */}
+                  {false && answer.adopted && !arbitrationStatus && (
                     <TouchableOpacity 
                       style={styles.arbitrationBtnCompact}
                       onPress={(e) => { 
@@ -1175,7 +1287,8 @@ export default function QuestionDetailScreen({ navigation, route }) {
                     </TouchableOpacity>
                   )}
                   
-                  {answer.adopted && arbitrationStatus && (
+                  {/* 查看仲裁详情按钮 - 暂时隐藏 */}
+                  {false && answer.adopted && arbitrationStatus && (
                     <TouchableOpacity 
                       style={styles.viewArbitrationBtnCompact}
                       onPress={(e) => { 
@@ -1191,24 +1304,6 @@ export default function QuestionDetailScreen({ navigation, route }) {
               </View>
               
               <Text style={styles.answerContent}>{answer.content}</Text>
-              
-              {/* 如果是我的回答，显示购买超级赞按钮 */}
-              {answer.isMyAnswer && (
-                <TouchableOpacity 
-                  style={styles.buySuperLikeBtn}
-                  onPress={(e) => { 
-                    e.stopPropagation(); 
-                    navigation.navigate('BuySuperLike', {
-                      answerId: answer.id,
-                      currentSuperLikes: answerSuperLikes[answer.id] || answer.superLikes || 0
-                    });
-                  }}
-                >
-                  <Ionicons name="star-outline" size={16} color="#f59e0b" />
-                  <Text style={styles.buySuperLikeBtnText}>购买超级赞提升排名</Text>
-                  <Ionicons name="chevron-forward" size={14} color="#f59e0b" />
-                </TouchableOpacity>
-              )}
               
               <View style={styles.answerFooter}>
                 <View style={styles.answerFooterLeft}>
@@ -1486,9 +1581,10 @@ export default function QuestionDetailScreen({ navigation, route }) {
           <View style={styles.commentListModal}>
             <View style={styles.commentListModalHandle} />
             <View style={styles.commentListModalHeader}>
+              <View style={styles.commentListHeaderLeft} />
               <Text style={styles.commentListModalTitle}>全部评论</Text>
-              <TouchableOpacity onPress={() => setShowSuppCommentListModal(false)}>
-                <Ionicons name="close" size={24} color="#6b7280" />
+              <TouchableOpacity onPress={() => setShowSuppCommentListModal(false)} style={styles.commentListCloseBtn}>
+                <Ionicons name="close" size={26} color="#1f2937" />
               </TouchableOpacity>
             </View>
             
@@ -1496,12 +1592,13 @@ export default function QuestionDetailScreen({ navigation, route }) {
               {commentsData.map(comment => (
                 <View key={comment.id}>
                   <View style={styles.commentListCard}>
-                    <Image source={{ uri: comment.avatar }} style={styles.commentListAvatar} />
+                    <View style={styles.commentListHeader}>
+                      <Avatar uri={comment.avatar} name={comment.author} size={28} />
+                      <Text style={styles.commentListAuthor}>{comment.author}</Text>
+                      <View style={{ flex: 1 }} />
+                      <Text style={styles.commentListTime}>{comment.time}</Text>
+                    </View>
                     <View style={styles.commentListContent}>
-                      <View style={styles.commentListHeader}>
-                        <Text style={styles.commentListAuthor}>{comment.author}</Text>
-                        <Text style={styles.commentListTime}>{comment.time}</Text>
-                      </View>
                       <Text style={styles.commentListText}>{comment.content}</Text>
                       <View style={styles.commentListActions}>
                         <TouchableOpacity 
@@ -1530,22 +1627,21 @@ export default function QuestionDetailScreen({ navigation, route }) {
                     <View style={styles.repliesContainer}>
                       {repliesData[comment.id].map(reply => (
                         <View key={reply.id} style={styles.replyCard}>
-                          <Image source={{ uri: reply.avatar }} style={styles.replyAvatar} />
-                          <View style={styles.replyContent}>
-                            <View style={styles.replyHeader}>
-                              <Text style={styles.replyAuthor}>{reply.author}</Text>
-                              <Text style={styles.replyTime}>{reply.time}</Text>
-                            </View>
-                            <Text style={styles.replyText}>{reply.content}</Text>
-                            <View style={styles.replyActions}>
-                              <TouchableOpacity style={styles.replyActionBtn}>
-                                <Ionicons name="thumbs-up-outline" size={12} color="#9ca3af" />
-                                <Text style={styles.replyActionText}>{reply.likes}</Text>
-                              </TouchableOpacity>
-                              <TouchableOpacity style={styles.replyActionBtn}>
-                                <Text style={styles.replyReplyBtn}>回复</Text>
-                              </TouchableOpacity>
-                            </View>
+                          <View style={styles.replyHeader}>
+                            <Avatar uri={reply.avatar} name={reply.author} size={28} />
+                            <Text style={styles.replyAuthor}>{reply.author}</Text>
+                            <View style={{ flex: 1 }} />
+                            <Text style={styles.replyTime}>{reply.time}</Text>
+                          </View>
+                          <Text style={styles.replyText}>{reply.content}</Text>
+                          <View style={styles.replyActions}>
+                            <TouchableOpacity style={styles.replyActionBtn}>
+                              <Ionicons name="thumbs-up-outline" size={12} color="#9ca3af" />
+                              <Text style={styles.replyActionText}>{reply.likes}</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.replyActionBtn}>
+                              <Text style={styles.replyReplyBtn}>回复</Text>
+                            </TouchableOpacity>
                           </View>
                         </View>
                       ))}
@@ -1671,37 +1767,72 @@ export default function QuestionDetailScreen({ navigation, route }) {
         </SafeAreaView>
       </Modal>
 
-      {/* 评论回复列表弹窗 */}
+      {/* 评论回复列表弹窗 - 今日头条风格 */}
       <Modal visible={showCommentReplyModal} transparent animationType="slide">
         <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowCommentReplyModal(false)}>
           <View style={styles.commentListModal}>
             <View style={styles.commentListModalHandle} />
+            
+            {/* Header - 显示回复数量 */}
             <View style={styles.commentListModalHeader}>
-              <Text style={styles.commentListModalTitle}>全部回复</Text>
-              <TouchableOpacity onPress={() => setShowCommentReplyModal(false)}>
-                <Ionicons name="close" size={24} color="#6b7280" />
+              <TouchableOpacity 
+                onPress={() => setShowCommentReplyModal(false)}
+                style={styles.commentListCloseBtn}
+              >
+                <Ionicons name="close" size={26} color="#1f2937" />
               </TouchableOpacity>
+              <Text style={styles.commentListModalTitle}>
+                {currentCommentId && repliesData[currentCommentId] ? repliesData[currentCommentId].length : 0}条回复
+              </Text>
+              <View style={styles.commentListHeaderRight} />
+            </View>
+            
+            {/* 原评论卡片 - 今日头条风格 */}
+            {currentCommentId && commentsData.find(c => c.id === currentCommentId) && (
+              <View style={styles.originalCommentCard}>
+                <View style={styles.originalCommentHeader}>
+                  <Avatar 
+                    uri={commentsData.find(c => c.id === currentCommentId).avatar}
+                    name={commentsData.find(c => c.id === currentCommentId).author}
+                    size={32}
+                  />
+                  <Text style={styles.originalCommentAuthor}>
+                    {commentsData.find(c => c.id === currentCommentId).author}
+                  </Text>
+                  <View style={{ flex: 1 }} />
+                  <Text style={styles.originalCommentTime}>
+                    {commentsData.find(c => c.id === currentCommentId).time}
+                  </Text>
+                </View>
+                <Text style={styles.originalCommentText}>
+                  {commentsData.find(c => c.id === currentCommentId).content}
+                </Text>
+              </View>
+            )}
+            
+            {/* 全部回复标题 */}
+            <View style={styles.repliesSectionHeader}>
+              <Text style={styles.repliesSectionTitle}>全部回复</Text>
             </View>
             
             <ScrollView style={styles.commentListScroll} showsVerticalScrollIndicator={false}>
               {currentCommentId && repliesData[currentCommentId] && repliesData[currentCommentId].map(reply => (
                 <View key={reply.id} style={styles.replyCard}>
-                  <Image source={{ uri: reply.avatar }} style={styles.replyAvatar} />
-                  <View style={styles.replyContent}>
-                    <View style={styles.replyHeader}>
-                      <Text style={styles.replyAuthor}>{reply.author}</Text>
-                      <Text style={styles.replyTime}>{reply.time}</Text>
-                    </View>
-                    <Text style={styles.replyText}>{reply.content}</Text>
-                    <View style={styles.replyActions}>
-                      <TouchableOpacity style={styles.replyActionBtn}>
-                        <Ionicons name="thumbs-up-outline" size={12} color="#9ca3af" />
-                        <Text style={styles.replyActionText}>{reply.likes}</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity style={styles.replyActionBtn}>
-                        <Text style={styles.replyReplyBtn}>回复</Text>
-                      </TouchableOpacity>
-                    </View>
+                  <View style={styles.replyHeader}>
+                    <Avatar uri={reply.avatar} name={reply.author} size={28} />
+                    <Text style={styles.replyAuthor}>{reply.author}</Text>
+                    <View style={{ flex: 1 }} />
+                    <Text style={styles.replyTime}>{reply.time}</Text>
+                  </View>
+                  <Text style={styles.replyText}>{reply.content}</Text>
+                  <View style={styles.replyActions}>
+                    <TouchableOpacity style={styles.replyActionBtn}>
+                      <Ionicons name="thumbs-up-outline" size={12} color="#9ca3af" />
+                      <Text style={styles.replyActionText}>{reply.likes}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.replyActionBtn}>
+                      <Text style={styles.replyReplyBtn}>回复</Text>
+                    </TouchableOpacity>
                   </View>
                 </View>
               ))}
@@ -1801,9 +1932,10 @@ export default function QuestionDetailScreen({ navigation, route }) {
           <View style={styles.commentListModal}>
             <View style={styles.commentListModalHandle} />
             <View style={styles.commentListModalHeader}>
+              <View style={styles.commentListHeaderLeft} />
               <Text style={styles.commentListModalTitle}>全部评论</Text>
-              <TouchableOpacity onPress={() => setShowAnswerCommentListModal(false)}>
-                <Ionicons name="close" size={24} color="#6b7280" />
+              <TouchableOpacity onPress={() => setShowAnswerCommentListModal(false)} style={styles.commentListCloseBtn}>
+                <Ionicons name="close" size={26} color="#1f2937" />
               </TouchableOpacity>
             </View>
             
@@ -1811,12 +1943,13 @@ export default function QuestionDetailScreen({ navigation, route }) {
               {commentsData.map(comment => (
                 <View key={comment.id}>
                   <View style={styles.commentListCard}>
-                    <Image source={{ uri: comment.avatar }} style={styles.commentListAvatar} />
+                    <View style={styles.commentListHeader}>
+                      <Avatar uri={comment.avatar} name={comment.author} size={28} />
+                      <Text style={styles.commentListAuthor}>{comment.author}</Text>
+                      <View style={{ flex: 1 }} />
+                      <Text style={styles.commentListTime}>{comment.time}</Text>
+                    </View>
                     <View style={styles.commentListContent}>
-                      <View style={styles.commentListHeader}>
-                        <Text style={styles.commentListAuthor}>{comment.author}</Text>
-                        <Text style={styles.commentListTime}>{comment.time}</Text>
-                      </View>
                       <Text style={styles.commentListText}>{comment.content}</Text>
                       <View style={styles.commentListActions}>
                         <TouchableOpacity 
@@ -1845,22 +1978,21 @@ export default function QuestionDetailScreen({ navigation, route }) {
                     <View style={styles.repliesContainer}>
                       {repliesData[comment.id].map(reply => (
                         <View key={reply.id} style={styles.replyCard}>
-                          <Image source={{ uri: reply.avatar }} style={styles.replyAvatar} />
-                          <View style={styles.replyContent}>
-                            <View style={styles.replyHeader}>
-                              <Text style={styles.replyAuthor}>{reply.author}</Text>
-                              <Text style={styles.replyTime}>{reply.time}</Text>
-                            </View>
-                            <Text style={styles.replyText}>{reply.content}</Text>
-                            <View style={styles.replyActions}>
-                              <TouchableOpacity style={styles.replyActionBtn}>
-                                <Ionicons name="thumbs-up-outline" size={12} color="#9ca3af" />
-                                <Text style={styles.replyActionText}>{reply.likes}</Text>
-                              </TouchableOpacity>
-                              <TouchableOpacity style={styles.replyActionBtn}>
-                                <Text style={styles.replyReplyBtn}>回复</Text>
-                              </TouchableOpacity>
-                            </View>
+                          <View style={styles.replyHeader}>
+                            <Avatar uri={reply.avatar} name={reply.author} size={28} />
+                            <Text style={styles.replyAuthor}>{reply.author}</Text>
+                            <View style={{ flex: 1 }} />
+                            <Text style={styles.replyTime}>{reply.time}</Text>
+                          </View>
+                          <Text style={styles.replyText}>{reply.content}</Text>
+                          <View style={styles.replyActions}>
+                            <TouchableOpacity style={styles.replyActionBtn}>
+                              <Ionicons name="thumbs-up-outline" size={12} color="#9ca3af" />
+                              <Text style={styles.replyActionText}>{reply.likes}</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.replyActionBtn}>
+                              <Text style={styles.replyReplyBtn}>回复</Text>
+                            </TouchableOpacity>
                           </View>
                         </View>
                       ))}
@@ -2107,13 +2239,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
                 <Ionicons name="image-outline" size={24} color="#666" />
               </TouchableOpacity>
               <TouchableOpacity style={styles.answerToolItem}>
-                <Ionicons name="videocam-outline" size={24} color="#666" />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.answerToolItem}>
                 <Ionicons name="at-outline" size={24} color="#666" />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.answerToolItem}>
-                <Ionicons name="pricetag-outline" size={24} color="#666" />
               </TouchableOpacity>
             </View>
             <Text style={styles.answerWordCount}>{supplementAnswerText.length}/2000</Text>
@@ -2411,8 +2537,8 @@ export default function QuestionDetailScreen({ navigation, route }) {
         </View>
       </Modal>
 
-      {/* 申请仲裁弹窗 */}
-      <Modal visible={showArbitrationModal} animationType="slide" transparent>
+      {/* 申请仲裁弹窗 - 暂时隐藏 */}
+      <Modal visible={false && showArbitrationModal} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={styles.arbitrationModal}>
             <View style={styles.arbitrationModalHandle} />
@@ -2562,8 +2688,8 @@ export default function QuestionDetailScreen({ navigation, route }) {
         </View>
       </Modal>
 
-      {/* 仲裁状态弹窗 */}
-      <Modal visible={showArbitrationStatusModal} animationType="slide" transparent>
+      {/* 仲裁状态弹窗 - 暂时隐藏 */}
+      <Modal visible={false && showArbitrationStatusModal} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={[styles.arbitrationStatusModal, { paddingBottom: insets.bottom + 30 }]}>
             <View style={styles.arbitrationModalHandle} />
@@ -2676,8 +2802,8 @@ export default function QuestionDetailScreen({ navigation, route }) {
         </View>
       </Modal>
 
-      {/* 仲裁结果弹窗 */}
-      <Modal visible={showArbitrationResultModal} animationType="slide" transparent>
+      {/* 仲裁结果弹窗 - 暂时隐藏 */}
+      <Modal visible={false && showArbitrationResultModal} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={[styles.arbitrationStatusModal, { paddingBottom: insets.bottom + 30 }]}>
             <View style={styles.arbitrationModalHandle} />
@@ -2793,6 +2919,9 @@ const styles = StyleSheet.create({
   content: { flex: 1 },
   questionSection: { backgroundColor: '#fff', padding: 16 },
   questionTitle: { fontSize: 18, fontWeight: 'bold', color: '#1f2937', lineHeight: 26, marginBottom: 8 },
+  expandHint: { flexDirection: 'row', alignItems: 'center', gap: 2, marginTop: 4 },
+  expandHintText: { fontSize: 13, color: '#3b82f6', fontWeight: '500' },
+  expandHintInline: { fontSize: 13, color: '#3b82f6', fontWeight: '500' },
   rewardTagInline: { 
     backgroundColor: 'transparent', 
     paddingHorizontal: 0, 
@@ -2887,10 +3016,15 @@ const styles = StyleSheet.create({
   sortFilterText: { fontSize: 13, color: '#9ca3af' },
   sortFilterTextActive: { color: '#ef4444', fontWeight: '500' },
   sortFilterCount: { fontSize: 12, color: '#9ca3af' },
+  
+  // 超级赞购买横幅样式
+  superLikePurchaseBanner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#fffbeb', paddingVertical: 12, paddingHorizontal: 16, borderBottomWidth: 1, borderBottomColor: '#fef3c7' },
+  superLikePurchaseBannerLeft: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  superLikePurchaseBannerText: { fontSize: 13, color: '#f59e0b', fontWeight: '600' },
   answerCard: { padding: 16, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
   answerCardAdopted: { backgroundColor: '#fef2f210' },
-  // 答案标签区域 - 优化布局
-  answerTagsSection: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6, marginBottom: 10 },
+  // 答案标签区域 - 优化布局，禁止换行
+  answerTagsSection: { flexDirection: 'row', alignItems: 'center', flexWrap: 'nowrap', gap: 6, marginBottom: 10, overflow: 'hidden' },
   answerTagsActions: { marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', gap: 6 },
   // 紧凑版标签样式
   adoptedBadgeCompact: { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: '#f0fdf4', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10, borderWidth: 1, borderColor: '#bbf7d0' },
@@ -2923,7 +3057,7 @@ const styles = StyleSheet.create({
   answerAvatar: { width: 40, height: 40, borderRadius: 20 },
   answerAuthorInfo: { flex: 1, marginLeft: 12 },
   answerAuthorRow: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
-  answerAuthor: { fontSize: 14, fontWeight: '500', color: '#1f2937' },
+  answerAuthor: { fontSize: 12, fontWeight: '500', color: '#1f2937' },
   // 采纳按钮样式 - 简洁设计，无图标
   adoptAnswerBtn: { 
     backgroundColor: '#f0fdf4', 
@@ -2962,11 +3096,12 @@ const styles = StyleSheet.create({
   loadMoreText: { fontSize: 14, color: '#ef4444' },
   // 补充问题样式
   suppCard: { padding: 16, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
-  suppHeader: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 10 },
+  suppHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
   suppAvatar: { width: 40, height: 40, borderRadius: 20 },
   suppAuthorInfo: { flex: 1, marginLeft: 12 },
-  suppAuthor: { fontSize: 14, fontWeight: '500', color: '#1f2937' },
-  suppLocationRow: { flexDirection: 'row', alignItems: 'center', marginTop: 2, gap: 2 },
+  suppAuthorRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  suppAuthor: { fontSize: 12, fontWeight: '500', color: '#1f2937' },
+  suppLocationRow: { flexDirection: 'row', alignItems: 'center', gap: 2 },
   suppLocation: { fontSize: 12, color: '#9ca3af' },
   suppAnswerBtnTop: { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: '#ef4444', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10 },
   suppAnswerTextTop: { fontSize: 11, color: '#fff', fontWeight: '500' },
@@ -3026,19 +3161,32 @@ const styles = StyleSheet.create({
   commentToolsLeft: { flexDirection: 'row', alignItems: 'center' },
   commentToolItem: { padding: 10 },
   commentWordCount: { fontSize: 13, color: '#999' },
-  // 评论列表弹窗样式
-  commentListModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '80%' },
+  // 评论列表弹窗样式 - 今日头条风格
+  commentListModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '85%' },
   commentListModalHandle: { width: 40, height: 4, backgroundColor: '#e5e7eb', borderRadius: 2, alignSelf: 'center', marginTop: 12, marginBottom: 8 },
-  commentListModalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
-  commentListModalTitle: { fontSize: 16, fontWeight: '600', color: '#1f2937' },
-  commentListScroll: { maxHeight: 500 },
-  commentListCard: { flexDirection: 'row', padding: 16, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
-  commentListAvatar: { width: 36, height: 36, borderRadius: 18 },
-  commentListContent: { flex: 1, marginLeft: 12 },
-  commentListHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
-  commentListAuthor: { fontSize: 14, fontWeight: '500', color: '#1f2937' },
+  commentListModalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
+  commentListHeaderLeft: { width: 40 },
+  commentListCloseBtn: { position: 'absolute', right: 16, padding: 4, zIndex: 10 },
+  commentListModalTitle: { fontSize: 17, fontWeight: '600', color: '#1f2937' },
+  // 原评论卡片样式 - 今日头条风格
+  originalCommentCard: { paddingHorizontal: 16, paddingVertical: 16, backgroundColor: '#fff', borderBottomWidth: 8, borderBottomColor: '#f9fafb' },
+  originalCommentHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12, gap: 10 },
+  originalCommentAuthor: { fontSize: 13, fontWeight: '500', color: '#9ca3af' },
+  originalCommentTime: { fontSize: 13, color: '#9ca3af' },
+  originalCommentText: { fontSize: 16, color: '#1f2937', lineHeight: 24, marginBottom: 0 },
+  originalCommentActions: { flexDirection: 'row', alignItems: 'center', gap: 24 },
+  originalCommentActionBtn: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  originalCommentActionText: { fontSize: 13, color: '#9ca3af' },
+  // 回复区域标题
+  repliesSectionHeader: { paddingHorizontal: 16, paddingVertical: 12, backgroundColor: '#fafafa' },
+  repliesSectionTitle: { fontSize: 13, color: '#9ca3af', fontWeight: '500' },
+  commentListScroll: { maxHeight: 500, backgroundColor: '#fff' },
+  commentListCard: { padding: 16, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
+  commentListHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 10, gap: 8 },
+  commentListAuthor: { fontSize: 12, fontWeight: '500', color: '#9ca3af' },
   commentListTime: { fontSize: 12, color: '#9ca3af' },
-  commentListText: { fontSize: 14, color: '#374151', lineHeight: 20, marginBottom: 8 },
+  commentListContent: { flex: 1 },
+  commentListText: { fontSize: 15, color: '#1f2937', lineHeight: 22, marginBottom: 10 },
   commentListActions: { flexDirection: 'row', alignItems: 'center', gap: 20 },
   commentListActionBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   commentListActionText: { fontSize: 12, color: '#9ca3af' },
@@ -3104,17 +3252,16 @@ const styles = StyleSheet.create({
   formSelectText: { fontSize: 15, color: '#6b7280' },
   formInputWithIcon: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 8, paddingHorizontal: 12, gap: 8 },
   formInputInner: { flex: 1, paddingVertical: 12, fontSize: 15, color: '#1f2937' },
-  // 评论样式
-  commentCard: { flexDirection: 'row', padding: 16, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
-  commentAvatar: { width: 36, height: 36, borderRadius: 18 },
-  commentContent: { flex: 1, marginLeft: 12 },
-  commentHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
-  commentAuthor: { fontSize: 14, fontWeight: '500', color: '#1f2937' },
+  // 评论样式 - 横向布局
+  commentCard: { padding: 16, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
+  commentHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 10, gap: 8 },
+  commentAuthor: { fontSize: 12, fontWeight: '500', color: '#9ca3af' },
   commentTime: { fontSize: 12, color: '#9ca3af' },
-  commentText: { fontSize: 14, color: '#374151', lineHeight: 20, marginBottom: 8 },
+  commentContent: { flex: 1 },
+  commentText: { fontSize: 15, color: '#1f2937', lineHeight: 22, marginBottom: 10 },
   commentFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 },
   commentFooterLeft: { flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 },
-  commentFooterRight: { flexDirection: 'row', alignItems: 'center' },
+  commentFooterRight: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   commentActions: { flexDirection: 'row', alignItems: 'center', marginTop: 10, gap: 20 },
   commentActionBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   commentActionText: { fontSize: 12, color: '#9ca3af' },
@@ -3248,15 +3395,13 @@ const styles = StyleSheet.create({
   teamJoinBtnText: { fontSize: 15, color: '#fff', fontWeight: '600' },
   teamLeaveBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fef2f2', paddingVertical: 14, borderRadius: 12, gap: 8, borderWidth: 1, borderColor: '#fecaca' },
   teamLeaveBtnText: { fontSize: 15, color: '#ef4444', fontWeight: '600' },
-  // 回复样式
+  // 回复样式 - 横向布局
   repliesContainer: { paddingLeft: 48, backgroundColor: '#fafafa', borderTopWidth: 1, borderTopColor: '#f3f4f6' },
-  replyCard: { flexDirection: 'row', paddingVertical: 12, paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
-  replyAvatar: { width: 28, height: 28, borderRadius: 14 },
-  replyContent: { flex: 1, marginLeft: 10 },
-  replyHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
-  replyAuthor: { fontSize: 13, fontWeight: '500', color: '#1f2937' },
-  replyTime: { fontSize: 11, color: '#9ca3af' },
-  replyText: { fontSize: 13, color: '#374151', lineHeight: 18, marginBottom: 6 },
+  replyCard: { paddingVertical: 14, paddingHorizontal: 16, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
+  replyHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 10, gap: 8 },
+  replyAuthor: { fontSize: 12, fontWeight: '500', color: '#9ca3af' },
+  replyTime: { fontSize: 12, color: '#9ca3af' },
+  replyText: { fontSize: 15, color: '#1f2937', lineHeight: 22, marginBottom: 10 },
   replyActions: { flexDirection: 'row', alignItems: 'center', gap: 16 },
   replyActionBtn: { flexDirection: 'row', alignItems: 'center', gap: 3 },
   replyActionText: { fontSize: 11, color: '#9ca3af' },
@@ -3350,12 +3495,10 @@ const styles = StyleSheet.create({
   contributorsCloseBtnText: { fontSize: 15, color: '#6b7280', fontWeight: '500' },
   
   // 超级赞徽章样式
-  superLikeBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#fffbeb', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10, borderWidth: 1, borderColor: '#fef3c7' },
-  superLikeBadgeText: { fontSize: 11, color: '#f59e0b', fontWeight: '600' },
-  
-  // 购买超级赞按钮样式
-  buySuperLikeBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: '#fffbeb', borderWidth: 1, borderColor: '#fef3c7', borderRadius: 12, paddingVertical: 10, paddingHorizontal: 14, marginBottom: 12 },
-  buySuperLikeBtnText: { fontSize: 13, color: '#f59e0b', fontWeight: '600' },
+  superLikeBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#fffbeb', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10, borderWidth: 1, borderColor: '#fef3c7', flexShrink: 0 },
+  superLikeBadgeInactive: { backgroundColor: '#f9fafb', borderColor: '#e5e7eb' },
+  superLikeBadgeText: { fontSize: 11, color: '#f59e0b', fontWeight: '600', flexShrink: 0, whiteSpace: 'nowrap' },
+  superLikeBadgeTextInactive: { color: '#9ca3af' },
   
   // 购买超级赞弹窗样式
   superLikeModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '85%' },

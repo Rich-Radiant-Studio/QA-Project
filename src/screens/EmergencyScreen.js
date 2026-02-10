@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, Alert, Image, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import i18n from '../i18n';
 
 export default function EmergencyScreen({ navigation }) {
@@ -13,6 +14,7 @@ export default function EmergencyScreen({ navigation }) {
     contact: '', 
     rescuerCount: 1 
   });
+  const [emergencyImages, setEmergencyImages] = useState([]); // 紧急求助图片
 
   const freeCount = 1;
   const usedCount = 0;
@@ -33,6 +35,117 @@ export default function EmergencyScreen({ navigation }) {
     t('emergency.quickTitle3')
   ];
 
+  // 请求相册权限
+  const requestPermission = async () => {
+    if (Platform.OS !== 'web') {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('提示', '需要相册访问权限才能上传图片');
+        return false;
+      }
+    }
+    return true;
+  };
+
+  // 选择图片
+  const pickImage = async () => {
+    // 检查图片数量限制
+    if (emergencyImages.length >= 3) {
+      Alert.alert(t('common.ok'), '最多只能上传3张图片');
+      return;
+    }
+
+    // 请求权限
+    const hasPermission = await requestPermission();
+    if (!hasPermission) return;
+
+    try {
+      // 打开图片选择器
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const newImage = {
+          id: Date.now(),
+          uri: result.assets[0].uri
+        };
+        setEmergencyImages([...emergencyImages, newImage]);
+      }
+    } catch (error) {
+      console.error('选择图片失败:', error);
+      Alert.alert('错误', '选择图片失败，请重试');
+    }
+  };
+
+  // 拍照
+  const takePhoto = async () => {
+    // 检查图片数量限制
+    if (emergencyImages.length >= 3) {
+      Alert.alert(t('common.ok'), '最多只能上传3张图片');
+      return;
+    }
+
+    // 请求相机权限
+    if (Platform.OS !== 'web') {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('提示', '需要相机访问权限才能拍照');
+        return;
+      }
+    }
+
+    try {
+      // 打开相机
+      const result = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const newImage = {
+          id: Date.now(),
+          uri: result.assets[0].uri
+        };
+        setEmergencyImages([...emergencyImages, newImage]);
+      }
+    } catch (error) {
+      console.error('拍照失败:', error);
+      Alert.alert('错误', '拍照失败，请重试');
+    }
+  };
+
+  // 显示图片选择选项
+  const showImagePickerOptions = () => {
+    Alert.alert(
+      '选择图片',
+      '请选择图片来源',
+      [
+        {
+          text: '拍照',
+          onPress: takePhoto
+        },
+        {
+          text: '从相册选择',
+          onPress: pickImage
+        },
+        {
+          text: '取消',
+          style: 'cancel'
+        }
+      ]
+    );
+  };
+
+  // 删除图片
+  const removeImage = (id) => {
+    setEmergencyImages(emergencyImages.filter(img => img.id !== id));
+  };
+
   const handleSubmit = () => {
     if (!emergencyForm.title.trim()) {
       Alert.alert(t('emergency.enterTitle'));
@@ -45,6 +158,7 @@ export default function EmergencyScreen({ navigation }) {
       [{ text: t('emergency.confirm'), onPress: () => navigation.goBack() }]
     );
     setEmergencyForm({ title: '', description: '', location: '', contact: '', rescuerCount: 1 });
+    setEmergencyImages([]); // 清空图片
   };
 
   return (
@@ -126,16 +240,60 @@ export default function EmergencyScreen({ navigation }) {
 
         {/* Description */}
         <View style={styles.formGroup}>
-          <Text style={styles.formLabel}>{t('emergency.description')}</Text>
+          <View style={styles.labelWithCounter}>
+            <Text style={styles.formLabel}>{t('emergency.description')}</Text>
+            <Text style={[
+              styles.charCounter,
+              emergencyForm.description.length > 200 && styles.charCounterError
+            ]}>
+              {emergencyForm.description.length}/200
+            </Text>
+          </View>
           <TextInput
             style={[styles.formInput, styles.formTextarea]}
             placeholder={t('emergency.descriptionPlaceholder')}
             placeholderTextColor="#bbb"
             value={emergencyForm.description}
-            onChangeText={(text) => setEmergencyForm({...emergencyForm, description: text})}
+            onChangeText={(text) => {
+              if (text.length <= 200) {
+                setEmergencyForm({...emergencyForm, description: text});
+              }
+            }}
             multiline
             textAlignVertical="top"
+            maxLength={200}
           />
+          
+          {/* 图片上传区域 */}
+          <View style={styles.imageUploadSection}>
+            <View style={styles.imageGrid}>
+              {emergencyImages.map((image) => (
+                <View key={image.id} style={styles.imageItem}>
+                  <Image source={{ uri: image.uri }} style={styles.uploadedImage} />
+                  <TouchableOpacity 
+                    style={styles.removeImageBtn}
+                    onPress={() => removeImage(image.id)}
+                  >
+                    <Ionicons name="close-circle" size={20} color="#ef4444" />
+                  </TouchableOpacity>
+                </View>
+              ))}
+              
+              {/* 添加图片按钮 */}
+              {emergencyImages.length < 3 && (
+                <View style={styles.addImageBtnWrapper}>
+                  <TouchableOpacity 
+                    style={styles.addImageBtn}
+                    onPress={showImagePickerOptions}
+                  >
+                    <Ionicons name="camera-outline" size={28} color="#9ca3af" />
+                    <Text style={styles.addImageText}>添加图片</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+            <Text style={styles.imageHint}>最多可上传3张图片，帮助他人更好地了解情况</Text>
+          </View>
         </View>
 
         {/* Location */}
@@ -315,7 +473,21 @@ const styles = StyleSheet.create({
   monthlyPayButtonText: { fontSize: 13, color: '#fff', fontWeight: '600' },
   formArea: { flex: 1, padding: 16 },
   formGroup: { marginBottom: 16 },
-  formLabel: { fontSize: 14, fontWeight: '500', color: '#374151', marginBottom: 8 },
+  labelWithCounter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8
+  },
+  formLabel: { fontSize: 14, fontWeight: '500', color: '#374151' },
+  charCounter: {
+    fontSize: 12,
+    color: '#9ca3af',
+    fontWeight: '500'
+  },
+  charCounterError: {
+    color: '#ef4444'
+  },
   formInput: { 
     backgroundColor: '#f9fafb', 
     borderWidth: 1, 
@@ -339,6 +511,70 @@ const styles = StyleSheet.create({
   },
   quickTitleText: { fontSize: 12, color: '#ef4444', fontWeight: '500' },
   formTextarea: { minHeight: 100, textAlignVertical: 'top' },
+  
+  // 图片上传样式
+  imageUploadSection: { marginTop: 12 },
+  imageGrid: { 
+    flexDirection: 'row', 
+    flexWrap: 'wrap',
+    marginHorizontal: -4
+  },
+  imageItem: { 
+    width: '33.33%',
+    aspectRatio: 1, 
+    paddingHorizontal: 4,
+    marginBottom: 8, 
+    position: 'relative'
+  },
+  uploadedImage: { 
+    width: '100%', 
+    height: '100%', 
+    borderRadius: 8,
+    backgroundColor: '#f3f4f6'
+  },
+  removeImageBtn: { 
+    position: 'absolute', 
+    top: 4, 
+    right: 8, 
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2
+  },
+  addImageBtn: { 
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#f9fafb', 
+    borderWidth: 1.5, 
+    borderColor: '#e5e7eb', 
+    borderStyle: 'dashed',
+    borderRadius: 8, 
+    alignItems: 'center', 
+    justifyContent: 'center'
+  },
+  addImageBtnWrapper: {
+    width: '33.33%',
+    aspectRatio: 1,
+    paddingHorizontal: 4,
+    marginBottom: 8
+  },
+  addImageText: { 
+    fontSize: 12, 
+    color: '#9ca3af', 
+    marginTop: 4,
+    fontWeight: '500'
+  },
+  imageHint: { 
+    fontSize: 12, 
+    color: '#6b7280', 
+    marginTop: 8,
+    lineHeight: 18,
+    paddingHorizontal: 4
+  },
+  
   locationRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   locationInput: { 
     flex: 1, 

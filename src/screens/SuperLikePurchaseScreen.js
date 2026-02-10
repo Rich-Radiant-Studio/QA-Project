@@ -1,41 +1,91 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, Alert } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import superLikeCreditService from '../services/SuperLikeCreditService';
 
-export default function BuySuperLikeScreen({ navigation, route }) {
+export default function SuperLikePurchaseScreen({ navigation }) {
   const insets = useSafeAreaInsets();
-  const { answerId, currentSuperLikes = 0 } = route?.params || {};
   
-  const [superLikeAmount, setSuperLikeAmount] = useState('');
-  const [selectedSuperLikeAmount, setSelectedSuperLikeAmount] = useState(null);
+  const [balance, setBalance] = useState(0);
+  const [customAmount, setCustomAmount] = useState('');
+  const [selectedAmount, setSelectedAmount] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleBuySuperLike = () => {
-    const amount = selectedSuperLikeAmount || parseInt(superLikeAmount);
-    if (!amount || amount <= 0) {
-      Alert.alert('提示', '请输入有效的超级赞数量');
-      return;
+  // 加载当前余额
+  useEffect(() => {
+    loadBalance();
+  }, []);
+
+  const loadBalance = async () => {
+    try {
+      const currentBalance = await superLikeCreditService.getBalance();
+      setBalance(currentBalance);
+    } catch (error) {
+      console.error('Failed to load balance:', error);
     }
-    if (amount < 1) {
-      Alert.alert('提示', '最少购买 1 个超级赞');
-      return;
-    }
-    if (amount > 100) {
-      Alert.alert('提示', '单次最多购买 100 个超级赞');
-      return;
-    }
+  };
+
+  // 获取当前选择的购买数量
+  const getCurrentAmount = () => {
+    return selectedAmount || parseInt(customAmount) || 0;
+  };
+
+  // 计算总价格
+  const calculateTotalPrice = () => {
+    const amount = getCurrentAmount();
+    return superLikeCreditService.calculatePrice(amount);
+  };
+
+  // 处理购买
+  const handlePurchase = async () => {
+    const amount = getCurrentAmount();
     
-    const totalCost = amount * 2;
-    Alert.alert(
-      '购买成功',
-      `成功购买 ${amount} 个超级赞！\n花费：$${totalCost}\n您的回答排名将会提升！`,
-      [
-        {
-          text: '确定',
-          onPress: () => navigation.goBack()
-        }
-      ]
-    );
+    if (!amount || amount <= 0) {
+      Alert.alert('提示', '请输入有效的购买数量');
+      return;
+    }
+
+    if (amount < 1 || amount > 100) {
+      Alert.alert('提示', '请输入有效的购买数量（1-100）');
+      return;
+    }
+
+    setLoading(true);
+    
+    try {
+      const result = await superLikeCreditService.purchase(amount);
+      
+      if (result.success) {
+        const totalCost = calculateTotalPrice();
+        
+        // 更新余额显示
+        setBalance(result.newBalance);
+        
+        // 显示成功提示
+        Alert.alert(
+          '购买成功',
+          `成功购买 ${amount} 个超级赞！\n花费：$${totalCost}\n您可以在任意回答上使用它们！`,
+          [
+            {
+              text: '确定',
+              onPress: () => {
+                // 重置选择
+                setSelectedAmount(null);
+                setCustomAmount('');
+              }
+            }
+          ]
+        );
+      } else {
+        Alert.alert('购买失败', result.error || '购买失败，请稍后重试');
+      }
+    } catch (error) {
+      console.error('Purchase error:', error);
+      Alert.alert('购买失败', '购买失败，请稍后重试');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -60,18 +110,18 @@ export default function BuySuperLikeScreen({ navigation, route }) {
         contentContainerStyle={{ paddingBottom: Math.max(insets.bottom, 20) }}
         showsVerticalScrollIndicator={false}
       >
-        {/* 当前超级赞信息 */}
+        {/* 当前余额信息 */}
         <View style={styles.currentInfo}>
           <View style={styles.infoCard}>
             <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>当前超级赞</Text>
+              <Text style={styles.infoLabel}>当前余额</Text>
               <View style={styles.countBadge}>
                 <Ionicons name="star" size={16} color="#f59e0b" />
-                <Text style={styles.countText}>{currentSuperLikes}</Text>
+                <Text style={styles.countText}>{balance} 次</Text>
               </View>
             </View>
             <Text style={styles.infoDesc}>
-              超级赞越多，您的回答排名越靠前，获得更多曝光
+              购买超级赞次数后，您可以在任意回答上使用它们来提升排名
             </Text>
           </View>
         </View>
@@ -84,22 +134,22 @@ export default function BuySuperLikeScreen({ navigation, route }) {
               key={amount}
               style={[
                 styles.quickBtn,
-                selectedSuperLikeAmount === amount && styles.quickBtnActive
+                selectedAmount === amount && styles.quickBtnActive
               ]}
               onPress={() => {
-                setSelectedSuperLikeAmount(amount);
-                setSuperLikeAmount('');
+                setSelectedAmount(amount);
+                setCustomAmount('');
               }}
             >
-              <Ionicons name="star" size={18} color={selectedSuperLikeAmount === amount ? "#fff" : "#f59e0b"} />
+              <Ionicons name="star" size={18} color={selectedAmount === amount ? "#fff" : "#f59e0b"} />
               <Text style={[
                 styles.quickText,
-                selectedSuperLikeAmount === amount && styles.quickTextActive
+                selectedAmount === amount && styles.quickTextActive
               ]}>x{amount}</Text>
               <Text style={[
                 styles.quickPrice,
-                selectedSuperLikeAmount === amount && styles.quickPriceActive
-              ]}>${amount * 2}</Text>
+                selectedAmount === amount && styles.quickPriceActive
+              ]}>${superLikeCreditService.calculatePrice(amount)}</Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -112,15 +162,15 @@ export default function BuySuperLikeScreen({ navigation, route }) {
             style={styles.customField}
             placeholder="最少 1 个"
             placeholderTextColor="#9ca3af"
-            value={superLikeAmount}
+            value={customAmount}
             onChangeText={(text) => {
-              setSuperLikeAmount(text);
-              setSelectedSuperLikeAmount(null);
+              setCustomAmount(text);
+              setSelectedAmount(null);
             }}
             keyboardType="numeric"
           />
           <Text style={styles.priceHint}>
-            ${(parseInt(superLikeAmount) || 0) * 2}
+            ${calculateTotalPrice()}
           </Text>
         </View>
 
@@ -128,18 +178,18 @@ export default function BuySuperLikeScreen({ navigation, route }) {
         <View style={styles.priceInfo}>
           <View style={styles.priceRow}>
             <Text style={styles.priceLabel}>单价</Text>
-            <Text style={styles.priceValue}>$2 / 个</Text>
+            <Text style={styles.priceValue}>$2 / 次</Text>
           </View>
           <View style={styles.priceRow}>
             <Text style={styles.priceLabel}>购买数量</Text>
             <Text style={styles.priceValue}>
-              {selectedSuperLikeAmount || superLikeAmount || 0} 个
+              {getCurrentAmount()} 次
             </Text>
           </View>
           <View style={[styles.priceRow, styles.priceTotal]}>
             <Text style={styles.priceTotalLabel}>总计</Text>
             <Text style={styles.priceTotalValue}>
-              ${(selectedSuperLikeAmount || parseInt(superLikeAmount) || 0) * 2}
+              ${calculateTotalPrice()}
             </Text>
           </View>
         </View>
@@ -148,7 +198,7 @@ export default function BuySuperLikeScreen({ navigation, route }) {
         <View style={styles.tips}>
           <Ionicons name="information-circle-outline" size={16} color="#6b7280" />
           <Text style={styles.tipsText}>
-            购买超级赞后，您的回答将获得更高的排名权重，增加曝光机会
+            购买超级赞次数后，您可以在任意回答上使用它们来提升排名，增加曝光机会
           </Text>
         </View>
 
@@ -156,14 +206,14 @@ export default function BuySuperLikeScreen({ navigation, route }) {
         <TouchableOpacity
           style={[
             styles.confirmBtn,
-            (!selectedSuperLikeAmount && !superLikeAmount) && styles.confirmBtnDisabled
+            (!selectedAmount && !customAmount) && styles.confirmBtnDisabled
           ]}
-          onPress={handleBuySuperLike}
-          disabled={!selectedSuperLikeAmount && !superLikeAmount}
+          onPress={handlePurchase}
+          disabled={!selectedAmount && !customAmount || loading}
         >
           <Ionicons name="star" size={18} color="#fff" />
           <Text style={styles.confirmBtnText}>
-            立即购买 {selectedSuperLikeAmount || superLikeAmount || 0} 个超级赞
+            {loading ? '处理中...' : `立即购买 ${getCurrentAmount()} 个超级赞`}
           </Text>
         </TouchableOpacity>
 
@@ -171,6 +221,7 @@ export default function BuySuperLikeScreen({ navigation, route }) {
         <TouchableOpacity
           style={styles.cancelBtn}
           onPress={() => navigation.goBack()}
+          disabled={loading}
         >
           <Text style={styles.cancelBtnText}>取消</Text>
         </TouchableOpacity>

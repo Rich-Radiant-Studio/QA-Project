@@ -9,7 +9,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#ef4444"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.qa.app",
@@ -25,7 +27,8 @@
       "statusBar": {
         "backgroundColor": "#ffffff",
         "barStyle": "dark-content"
-      }
+      },
+      "softwareKeyboardLayoutMode": "resize"
     },
     "web": {
       "bundler": "metro"
@@ -34,6 +37,11 @@
       "backgroundColor": "#ffffff",
       "barStyle": "dark-content",
       "translucent": false
+    },
+    "extra": {
+      "eas": {
+        "projectId": "a26aa3e4-1181-430f-838b-a9b78c97a859"
+      }
     }
   }
 }

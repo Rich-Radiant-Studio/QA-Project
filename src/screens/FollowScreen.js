@@ -130,24 +130,6 @@ export default function FollowScreen({ navigation }) {
                   <Text style={styles.metaSeparator}>·</Text>
                   <Text style={styles.questionTime}>{item.time}</Text>
                 </View>
-                <View style={styles.rewardContainer}>
-                  {item.answerTypes && item.answerTypes.map((answerType, index) => (
-                    <View 
-                      key={index}
-                      style={[
-                        styles.answerTypeTag,
-                        answerType === 'public' ? styles.publicTag : styles.targetedTag
-                      ]}
-                    >
-                      <Text style={[
-                        styles.answerTypeText,
-                        { color: answerType === 'public' ? '#16a34a' : '#9333ea' }
-                      ]}>
-                        {answerType === 'public' ? t('follow.public') : t('follow.targeted')}
-                      </Text>
-                    </View>
-                  ))}
-                </View>
               </View>
               <View style={styles.questionFooter}>
                 <View style={styles.questionStats}>
