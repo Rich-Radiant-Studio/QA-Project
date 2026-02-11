@@ -1,16 +1,21 @@
-import React, { useState, memo } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { Image, View, Text, StyleSheet } from 'react-native';
 
 /**
  * 通用头像组件
  * 自动处理加载失败，显示首字母占位符
+ * 优化：防止不必要的重新加载
  */
 function Avatar({ uri, name = '用户', size = 40, style, textStyle }) {
-  const [error, setError] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
+  
+  // 只有当 URI 真正改变时才重置错误状态
+  useEffect(() => {
+    setImageError(false);
+  }, [uri]);
   
   // 如果加载失败或没有 URI，显示首字母占位符
-  if (error || !uri) {
+  if (imageError || !uri) {
     const initial = name ? name.charAt(0).toUpperCase() : '?';
     const colors = [
       '#ef4444', '#f59e0b', '#10b981', '#3b82f6', 
@@ -55,18 +60,21 @@ function Avatar({ uri, name = '用户', size = 40, style, textStyle }) {
           borderRadius: size / 2,
           backgroundColor: '#f3f4f6'
         }}
-        onLoad={() => setLoading(false)}
         onError={(e) => {
           console.log('头像加载失败:', uri, e.nativeEvent.error);
-          setError(true);
-          setLoading(false);
+          setImageError(true);
         }}
       />
     </View>
   );
 }
 
-export default memo(Avatar);
+// 使用自定义比较函数，只有当 uri、name 或 size 改变时才重新渲染
+export default memo(Avatar, (prevProps, nextProps) => {
+  return prevProps.uri === nextProps.uri && 
+         prevProps.name === nextProps.name && 
+         prevProps.size === nextProps.size;
+});
 
 const styles = StyleSheet.create({
   placeholder: {

@@ -14,7 +14,10 @@ import { useTranslation } from '../i18n/useTranslation';
 import ProfileHeader from '../components/ProfileHeader';
 import PublicProfileHeader from '../components/PublicProfileHeader';
 import ContentTabs from '../components/ContentTabs';
-import ContentCard from '../components/ContentCard';
+import QuestionListItem from '../components/QuestionListItem';
+import AnswerListItem from '../components/AnswerListItem';
+import FavoriteListItem from '../components/FavoriteListItem';
+import UserContentSearchModal from '../components/UserContentSearchModal';
 
 /**
  * @typedef {Object} UserVerification
@@ -105,14 +108,29 @@ export default function PublicProfileScreen({ navigation, route }) {
   // 橱窗数据状态
   const [showcaseData, setShowcaseData] = useState(/** @type {ShowcaseItem[]} */ ([]));
   
-  // 内容数据状态
-  const [contentData, setContentData] = useState(/** @type {ContentItem[]} */ ([]));
-  const [activeTab, setActiveTab] = useState(/** @type {'all' | 'articles' | 'videos' | 'microposts' | 'reposts'} */ ('all'));
+  // 内容数据状态 - 为每个标签单独缓存数据
+  const [questionsData, setQuestionsData] = useState(/** @type {ContentItem[]} */ ([]));
+  const [answersData, setAnswersData] = useState(/** @type {ContentItem[]} */ ([]));
+  const [favoritesData, setFavoritesData] = useState(/** @type {ContentItem[]} */ ([]));
   
-  // 加载状态
+  const [activeTab, setActiveTab] = useState(/** @type {'questions' | 'answers' | 'favorites'} */ ('questions'));
+  
+  // 加载状态 - 为每个标签单独记录
+  const [loadedTabs, setLoadedTabs] = useState(/** @type {Set<string>} */ (new Set()));
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
+  
+  // 分页状态 - 为每个标签单独记录
+  const [tabPages, setTabPages] = useState({
+    questions: 1,
+    answers: 1,
+    favorites: 1,
+  });
+  const [tabHasMore, setTabHasMore] = useState({
+    questions: true,
+    answers: true,
+    favorites: true,
+  });
   
   // 错误状态
   const [error, setError] = useState(/** @type {string | null} */ (null));
@@ -120,13 +138,20 @@ export default function PublicProfileScreen({ navigation, route }) {
   // 关注状态
   const [isFollowing, setIsFollowing] = useState(false);
   
-  // 分页状态
-  const [currentPage, setCurrentPage] = useState(1);
+  // 搜索模态框状态
+  const [isSearchModalVisible, setIsSearchModalVisible] = useState(false);
 
   // 加载用户数据
   useEffect(() => {
     loadUserData();
   }, [userId]);
+
+  // 当标签切换时，检查是否需要加载数据
+  useEffect(() => {
+    if (!loadedTabs.has(activeTab)) {
+      loadContentData(activeTab, 1);
+    }
+  }, [activeTab]);
 
   /**
    * 加载用户数据
@@ -146,18 +171,18 @@ export default function PublicProfileScreen({ navigation, route }) {
           id: userId,
           username: '张三',
           avatar: 'https://via.placeholder.com/100',
-          coverImage: 'https://fakeimg.pl/800x400/0066cc/ffffff/?text=分享前沿话题+了解国际战略+回顾经典战例&font=noto', // 带文字的背景图
-          bio: '分享前沿话题，了解国际战略，回顾经典战例',
+          coverImage: 'https://fakeimg.pl/800x400/0066cc/ffffff/?text=专业法律咨询+维护公平正义&font=noto', // 带文字的背景图
+          bio: '执业律师，专注民商事诉讼与法律顾问服务，为您提供专业的法律解决方案',
           location: '四川',
-          occupation: '军事学博士',
+          occupation: '律师',
           gender: 'male',
           verification: {
             type: 'personal',
             verified: true,
             verifiedAt: '2024-01-01',
-            verificationText: '联合国军事观察员 军事学博士',
+            verificationText: '执业律师 法律顾问',
           },
-          tags: ['军事学博士', '主要研究领域为军事思想', '军事历史', '军事文化'],
+          tags: ['民商事诉讼', '合同纠纷', '公司法务', '法律咨询'],
           mcn: {
             hasMcn: true,
             mcnName: '慕容智造',
@@ -189,8 +214,9 @@ export default function PublicProfileScreen({ navigation, route }) {
    */
   const loadContentData = async (tab = activeTab, page = 1) => {
     try {
+      // 如果是第一页，不显示加载更多状态
       if (page === 1) {
-        setContentData([]);
+        // 不清空数据，保持现有数据显示
       } else {
         setIsLoadingMore(true);
       }
@@ -200,42 +226,118 @@ export default function PublicProfileScreen({ navigation, route }) {
       
       // 模拟数据
       setTimeout(() => {
-        const mockData = [
-          {
-            id: '1',
-            type: 'article',
-            title: '歼-35战机模型遭老外曝光，此人身份曝光，已被中方制裁',
-            summary: '目前，一张照片在海外社交媒体上引起讨论。一个...',
-            coverImage: 'https://via.placeholder.com/400x200',
-            createdAt: new Date(Date.now() - 3600000).toISOString(),
-            viewsCount: 15000,
-            commentsCount: 1,
-            likesCount: 22,
-            sharesCount: 4,
-            collectsCount: 8,
-          },
-          {
-            id: '2',
-            type: 'micropost',
-            content: '中东"三小强"打算调停美伊，提出5大条款，不如姐任伊朗直接美援',
-            images: ['https://via.placeholder.com/150', 'https://via.placeholder.com/150'],
-            createdAt: new Date(Date.now() - 7200000).toISOString(),
-            commentsCount: 5,
-            likesCount: 7,
-            sharesCount: 2,
-            collectsCount: 3,
-          },
-        ];
+        let mockData = [];
         
-        if (page === 1) {
-          setContentData(mockData);
-        } else {
-          setContentData([...contentData, ...mockData]);
+        if (tab === 'questions') {
+          // 提问列表数据
+          mockData = [
+            {
+              id: `q${page}-1`,
+              type: 'question',
+              title: '如何在三个月内从零基础学会Python编程？',
+              questionType: 'reward',
+              reward: 50,
+              solved: false,
+              createdAt: new Date(Date.now() - 7200000).toISOString(),
+              viewsCount: 1200,
+              commentsCount: 56,
+              likesCount: 128,
+            },
+            {
+              id: `q${page}-2`,
+              type: 'question',
+              title: '第一次养猫需要准备什么？',
+              questionType: 'free',
+              solved: true,
+              createdAt: new Date(Date.now() - 86400000).toISOString(),
+              viewsCount: 2500,
+              commentsCount: 89,
+              likesCount: 256,
+            },
+          ];
+        } else if (tab === 'answers') {
+          // 回答列表数据
+          mockData = [
+            {
+              id: `a${page}-1`,
+              type: 'answer',
+              questionTitle: '如何高效学习一门新技能？',
+              content: '作为一个自学了多门技能的人，我来分享一下我的经验...',
+              adopted: true,
+              createdAt: new Date(Date.now() - 3600000).toISOString(),
+              likesCount: 256,
+              commentsCount: 23,
+            },
+            {
+              id: `a${page}-2`,
+              type: 'answer',
+              questionTitle: 'Python数据分析入门需要学什么？',
+              content: '首先需要掌握Python基础语法，然后学习NumPy和Pandas...',
+              adopted: false,
+              createdAt: new Date(Date.now() - 10800000).toISOString(),
+              likesCount: 189,
+              commentsCount: 15,
+            },
+          ];
+        } else if (tab === 'favorites') {
+          // 收藏列表数据
+          mockData = [
+            {
+              id: `f${page}-1`,
+              type: 'favorite',
+              title: '如何高效学习一门新技能？',
+              author: '学习达人',
+              favoriteType: 'question',
+              createdAt: new Date(Date.now() - 172800000).toISOString(),
+            },
+            {
+              id: `f${page}-2`,
+              type: 'favorite',
+              title: '关于职场新人如何快速成长的回答',
+              author: '职场导师',
+              favoriteType: 'answer',
+              createdAt: new Date(Date.now() - 604800000).toISOString(),
+            },
+          ];
         }
         
-        setHasMore(page < 3); // 模拟只有3页
+        // 更新对应标签的数据
+        if (page === 1) {
+          // 第一页，直接设置数据
+          if (tab === 'questions') {
+            setQuestionsData(mockData);
+          } else if (tab === 'answers') {
+            setAnswersData(mockData);
+          } else if (tab === 'favorites') {
+            setFavoritesData(mockData);
+          }
+        } else {
+          // 追加数据
+          if (tab === 'questions') {
+            setQuestionsData([...questionsData, ...mockData]);
+          } else if (tab === 'answers') {
+            setAnswersData([...answersData, ...mockData]);
+          } else if (tab === 'favorites') {
+            setFavoritesData([...favoritesData, ...mockData]);
+          }
+        }
+        
+        // 更新分页状态
+        setTabPages({
+          ...tabPages,
+          [tab]: page,
+        });
+        
+        // 更新是否还有更多数据
+        setTabHasMore({
+          ...tabHasMore,
+          [tab]: page < 3, // 模拟只有3页
+        });
+        
+        // 标记该标签已加载
+        setLoadedTabs(new Set([...loadedTabs, tab]));
+        
         setIsLoadingMore(false);
-        setCurrentPage(page);
       }, 800);
     } catch (err) {
       console.error('Load content failed:', err);
@@ -290,7 +392,7 @@ export default function PublicProfileScreen({ navigation, route }) {
    * 处理关注/取消关注
    * @param {boolean} follow - true表示关注，false表示取消关注
    */
-  const handleFollowPress = async (follow) => {
+  const handleFollowPress = React.useCallback(async (follow) => {
     try {
       // TODO: 调用API
       // await followUser(userId, follow);
@@ -299,7 +401,7 @@ export default function PublicProfileScreen({ navigation, route }) {
     } catch (err) {
       console.error('Follow action failed:', err);
     }
-  };
+  }, [userId]);
 
   /**
    * 处理发私信
@@ -331,22 +433,14 @@ export default function PublicProfileScreen({ navigation, route }) {
    */
   const handleTabChange = (tab) => {
     setActiveTab(tab);
-    setCurrentPage(1);
-    loadContentData(tab, 1);
+    // 不需要手动调用 loadContentData，useEffect 会处理
   };
 
   /**
    * 处理搜索
    */
   const handleSearchPress = () => {
-    console.log('Search in user content');
-  };
-
-  /**
-   * 处理音频
-   */
-  const handleAudioPress = () => {
-    console.log('Audio mode');
+    setIsSearchModalVisible(true);
   };
 
   /**
@@ -361,6 +455,9 @@ export default function PublicProfileScreen({ navigation, route }) {
    * 处理加载更多
    */
   const handleLoadMore = () => {
+    const currentPage = tabPages[activeTab];
+    const hasMore = tabHasMore[activeTab];
+    
     if (!isLoadingMore && hasMore) {
       loadContentData(activeTab, currentPage + 1);
     }
@@ -371,6 +468,20 @@ export default function PublicProfileScreen({ navigation, route }) {
    */
   const handleRefresh = () => {
     loadUserData();
+  };
+
+  // 获取当前标签的数据
+  const getCurrentTabData = () => {
+    switch (activeTab) {
+      case 'questions':
+        return questionsData;
+      case 'answers':
+        return answersData;
+      case 'favorites':
+        return favoritesData;
+      default:
+        return [];
+    }
   };
 
   // 加载中状态
@@ -425,14 +536,17 @@ export default function PublicProfileScreen({ navigation, route }) {
       />
       
       <FlatList
-        data={contentData}
-        renderItem={({ item }) => (
-          <ContentCard 
-            item={item} 
-            userData={userData}
-            onPress={handleContentPress}
-          />
-        )}
+        data={getCurrentTabData()}
+        renderItem={({ item }) => {
+          if (activeTab === 'questions') {
+            return <QuestionListItem item={item} onPress={handleContentPress} />;
+          } else if (activeTab === 'answers') {
+            return <AnswerListItem item={item} onPress={handleContentPress} />;
+          } else if (activeTab === 'favorites') {
+            return <FavoriteListItem item={item} onPress={handleContentPress} />;
+          }
+          return null;
+        }}
         keyExtractor={(item) => item.id}
         ListHeaderComponent={() => (
           <>
@@ -450,7 +564,6 @@ export default function PublicProfileScreen({ navigation, route }) {
               activeTab={activeTab}
               onTabChange={handleTabChange}
               onSearchPress={handleSearchPress}
-              onAudioPress={handleAudioPress}
             />
           </>
         )}
@@ -467,7 +580,9 @@ export default function PublicProfileScreen({ navigation, route }) {
               </View>
             );
           }
-          if (!hasMore && contentData.length > 0) {
+          const currentTabData = getCurrentTabData();
+          const hasMore = tabHasMore[activeTab];
+          if (!hasMore && currentTabData.length > 0) {
             return (
               <View style={styles.footerContainer}>
                 <Text style={styles.footerText}>{t('common.noMoreContent')}</Text>
@@ -486,6 +601,14 @@ export default function PublicProfileScreen({ navigation, route }) {
             tintColor="#ef4444"
           />
         }
+      />
+
+      {/* 搜索模态框 */}
+      <UserContentSearchModal
+        visible={isSearchModalVisible}
+        onClose={() => setIsSearchModalVisible(false)}
+        userId={userId}
+        onContentPress={handleContentPress}
       />
     </SafeAreaView>
   );

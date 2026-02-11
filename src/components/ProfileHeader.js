@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Avatar from './Avatar';
@@ -43,10 +43,71 @@ const VerificationIcon = ({ size = 16, color = '#3b82f6' }) => {
 };
 
 /**
+ * 头像组件 - 完全独立，不受关注状态影响
+ * 使用 key 属性确保头像不会因为父组件重新渲染而重新加载
+ */
+const MemoizedAvatar = memo(({ avatar, username, size }) => {
+  return <Avatar key={avatar} uri={avatar} name={username} size={size} />;
+}, (prevProps, nextProps) => {
+  // 只有当头像 URI 或用户名改变时才重新渲染
+  return prevProps.avatar === nextProps.avatar && prevProps.username === nextProps.username;
+});
+
+/**
+ * 关注按钮组件 - 独立出来，只在关注状态改变时重新渲染
+ */
+const FollowButton = memo(({ isFollowing, onFollowPress }) => {
+  return (
+    <TouchableOpacity 
+      style={[
+        styles.followButtonSmall,
+        isFollowing && styles.followingButtonSmall
+      ]}
+      onPress={() => onFollowPress && onFollowPress(!isFollowing)}
+      activeOpacity={0.8}
+    >
+      <Ionicons 
+        name={isFollowing ? "checkmark" : "add"} 
+        size={scale(18)} 
+        color={isFollowing ? "#ef4444" : "#fff"}
+      />
+    </TouchableOpacity>
+  );
+}, (prevProps, nextProps) => {
+  // 只有当关注状态改变时才重新渲染
+  return prevProps.isFollowing === nextProps.isFollowing;
+});
+
+/**
+ * 头像和关注按钮容器 - 组合两个独立的组件
+ */
+const AvatarWithFollowButton = memo(({ avatar, username, isFollowing, onFollowPress, isOwnProfile }) => {
+  return (
+    <View style={styles.avatarWrapper}>
+      <View style={styles.avatarContainer}>
+        <MemoizedAvatar uri={avatar} name={username} size={scaleSpacing(66)} />
+        {/* 关注按钮 - 在头像右下角 */}
+        {!isOwnProfile && (
+          <FollowButton isFollowing={isFollowing} onFollowPress={onFollowPress} />
+        )}
+      </View>
+    </View>
+  );
+}, (prevProps, nextProps) => {
+  // 只有当这些属性改变时才重新渲染容器
+  return (
+    prevProps.avatar === nextProps.avatar &&
+    prevProps.username === nextProps.username &&
+    prevProps.isFollowing === nextProps.isFollowing &&
+    prevProps.isOwnProfile === nextProps.isOwnProfile
+  );
+});
+
+/**
  * 用户主页头部组件（今日头条风格 - 响应式版本）
  * 顶部背景图 + 头像叠加在右下角 + 优化的用户信息布局
  */
-export default function ProfileHeader({ userData, onStatPress, isFollowing, onFollowPress, isOwnProfile }) {
+function ProfileHeader({ userData, onStatPress, isFollowing, onFollowPress, isOwnProfile }) {
   const { t } = useTranslation();
 
   if (!userData) return null;
@@ -101,7 +162,7 @@ export default function ProfileHeader({ userData, onStatPress, isFollowing, onFo
     <View style={styles.container}>
       {/* 背景图区域 */}
       <ImageBackground
-        source={{ uri: coverImage || 'https://via.placeholder.com/400x200/cccccc/666666?text=Cover' }}
+        source={{ uri: coverImage || 'https://images.unsplash.com/photo-1557683316-973673baf926?w=800&h=400&fit=crop' }}
         style={styles.coverImage}
         resizeMode="cover"
       >
@@ -113,29 +174,14 @@ export default function ProfileHeader({ userData, onStatPress, isFollowing, onFo
           <Text style={styles.usernameOnCover}>{username}</Text>
         </View>
         
-        {/* 头像叠加在背景图右下角 */}
-        <View style={styles.avatarWrapper}>
-          <View style={styles.avatarContainer}>
-            <Avatar uri={avatar} name={username} size={scaleSpacing(66)} />
-            {/* 关注按钮 - 在头像右下角 */}
-            {!isOwnProfile && (
-              <TouchableOpacity 
-                style={[
-                  styles.followButtonSmall,
-                  isFollowing && styles.followingButtonSmall
-                ]}
-                onPress={() => onFollowPress && onFollowPress(!isFollowing)}
-                activeOpacity={0.8}
-              >
-                <Ionicons 
-                  name={isFollowing ? "checkmark" : "add"} 
-                  size={scale(18)} 
-                  color={isFollowing ? "#ef4444" : "#fff"}
-                />
-              </TouchableOpacity>
-            )}
-          </View>
-        </View>
+        {/* 头像叠加在背景图右下角 - 使用独立组件 */}
+        <AvatarWithFollowButton
+          avatar={avatar}
+          username={username}
+          isFollowing={isFollowing}
+          onFollowPress={onFollowPress}
+          isOwnProfile={isOwnProfile}
+        />
       </ImageBackground>
 
       {/* 统计数据和头像区域 - 左右布局 */}
@@ -302,7 +348,7 @@ const styles = StyleSheet.create({
   // 左侧区域（统计数据 + 认证信息）
   leftSection: {
     flex: 1,
-    paddingRight: scaleSpacing(8),
+    paddingRight: 0, // 移除右侧内边距，让文本可以延伸
   },
   // 统计数据行 - 4个统计项横向排列
   statsRow: {
@@ -336,7 +382,7 @@ const styles = StyleSheet.create({
   },
   verificationTextCompact: {
     fontSize: scale(13),
-    color: '#3c3c43',
+    color: '#8e8e93',
     fontWeight: '500',
   },
   // 简介区域（紧凑版，在认证信息下方）
@@ -347,7 +393,7 @@ const styles = StyleSheet.create({
   bioText: {
     fontSize: scale(14),
     lineHeight: scale(20),
-    color: '#3c3c43',
+    color: '#8e8e93',
   },
   // 底部元信息行（在简介下方）
   metaRow: {
@@ -368,7 +414,23 @@ const styles = StyleSheet.create({
   },
   // 右侧头像占位空间
   avatarPlaceholder: {
-    width: scaleSpacing(66),
+    width: scaleSpacing(40), // 减小占位宽度，给简介更多空间
     height: scaleSpacing(66),
   },
+});
+
+// 使用 memo 优化，防止不必要的重新渲染
+// 关键：不检查 isFollowing，因为它的变化只应该影响关注按钮，不应该重新渲染整个头部
+export default memo(ProfileHeader, (prevProps, nextProps) => {
+  return (
+    prevProps.userData?.id === nextProps.userData?.id &&
+    prevProps.userData?.avatar === nextProps.userData?.avatar &&
+    prevProps.userData?.username === nextProps.userData?.username &&
+    prevProps.userData?.bio === nextProps.userData?.bio &&
+    prevProps.userData?.stats?.followersCount === nextProps.userData?.stats?.followersCount &&
+    prevProps.userData?.stats?.followingCount === nextProps.userData?.stats?.followingCount &&
+    prevProps.userData?.stats?.likesCount === nextProps.userData?.stats?.likesCount &&
+    prevProps.isOwnProfile === nextProps.isOwnProfile
+    // 注意：故意不检查 isFollowing，让它的变化只影响 FollowButton 子组件
+  );
 });
