@@ -2,10 +2,19 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, TextInput, StyleSheet } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from '../i18n/withTranslation';
 
 export default function InviteAnswerScreen({ navigation, route }) {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-  const [inviteTab, setInviteTab] = useState('本站');
+  const [inviteTab, setInviteTab] = useState('');
+  
+  // Initialize inviteTab with translated value
+  React.useEffect(() => {
+    if (!inviteTab) {
+      setInviteTab(t('screens.inviteAnswer.tabs.local'));
+    }
+  }, [t, inviteTab]);
   const [searchLocalUser, setSearchLocalUser] = useState('');
   const [searchTwitterUser, setSearchTwitterUser] = useState('');
 
@@ -20,24 +29,24 @@ export default function InviteAnswerScreen({ navigation, route }) {
         >
           <Ionicons name="close" size={26} color="#333" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>邀请回答</Text>
+        <Text style={styles.headerTitle}>{t('screens.inviteAnswer.title')}</Text>
         <View style={{ width: 44 }} />
       </View>
 
       {/* 平台选择标签 */}
       <View style={styles.platformTabs}>
         <TouchableOpacity 
-          style={[styles.platformTab, inviteTab === '本站' && styles.platformTabActive]}
-          onPress={() => setInviteTab('本站')}
+          style={[styles.platformTab, inviteTab === t('screens.inviteAnswer.tabs.local') && styles.platformTabActive]}
+          onPress={() => setInviteTab(t('screens.inviteAnswer.tabs.local'))}
         >
-          <Text style={[styles.platformTabText, inviteTab === '本站' && styles.platformTabTextActive]}>本站</Text>
+          <Text style={[styles.platformTabText, inviteTab === t('screens.inviteAnswer.tabs.local') && styles.platformTabTextActive]}>{t('screens.inviteAnswer.tabs.local')}</Text>
         </TouchableOpacity>
         <TouchableOpacity 
-          style={[styles.platformTab, inviteTab === '推特' && styles.platformTabActive]}
-          onPress={() => setInviteTab('推特')}
+          style={[styles.platformTab, inviteTab === t('screens.inviteAnswer.tabs.twitter') && styles.platformTabActive]}
+          onPress={() => setInviteTab(t('screens.inviteAnswer.tabs.twitter'))}
         >
-          <Ionicons name="logo-twitter" size={16} color={inviteTab === '推特' ? '#1DA1F2' : '#9ca3af'} />
-          <Text style={[styles.platformTabText, inviteTab === '推特' && styles.platformTabTextActive]}>推特</Text>
+          <Ionicons name="logo-twitter" size={16} color={inviteTab === t('screens.inviteAnswer.tabs.twitter') ? '#1DA1F2' : '#9ca3af'} />
+          <Text style={[styles.platformTabText, inviteTab === t('screens.inviteAnswer.tabs.twitter') && styles.platformTabTextActive]}>{t('screens.inviteAnswer.tabs.twitter')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -47,11 +56,11 @@ export default function InviteAnswerScreen({ navigation, route }) {
           <Ionicons name="search" size={18} color="#9ca3af" />
           <TextInput
             style={styles.searchInput}
-            placeholder={inviteTab === '本站' ? '搜索用户' : '搜索推特用户'}
+            placeholder={inviteTab === t('screens.inviteAnswer.tabs.local') ? t('screens.inviteAnswer.search.placeholder') : t('screens.inviteAnswer.search.placeholderTwitter')}
             placeholderTextColor="#9ca3af"
-            value={inviteTab === '本站' ? searchLocalUser : searchTwitterUser}
+            value={inviteTab === t('screens.inviteAnswer.tabs.local') ? searchLocalUser : searchTwitterUser}
             onChangeText={(text) => {
-              if (inviteTab === '本站') setSearchLocalUser(text);
+              if (inviteTab === t('screens.inviteAnswer.tabs.local')) setSearchLocalUser(text);
               else setSearchTwitterUser(text);
             }}
           />
@@ -64,41 +73,41 @@ export default function InviteAnswerScreen({ navigation, route }) {
         contentContainerStyle={{ paddingBottom: insets.bottom + 20 }}
         showsVerticalScrollIndicator={false}
       >
-        {inviteTab === '本站' && [1, 2, 3, 4, 5].map(i => (
+        {inviteTab === t('screens.inviteAnswer.tabs.local') && [1, 2, 3, 4, 5].map(i => (
           <View key={`local-${i}`} style={styles.userItem}>
             <Image source={{ uri: `https://api.dicebear.com/7.x/avataaars/svg?seed=invite${i}` }} style={styles.userAvatar} />
             <View style={styles.userInfo}>
-              <Text style={styles.userName}>用户{i}</Text>
-              <Text style={styles.userDesc}>Python开发者 · {i * 10}个回答</Text>
+              <Text style={styles.userName}>{t('screens.inviteAnswer.search.placeholder')}{i}</Text>
+              <Text style={styles.userDesc}>{t('screens.inviteAnswer.userInfo.developer')} · {i * 10}{t('screens.inviteAnswer.userInfo.answers')}</Text>
             </View>
             <TouchableOpacity 
               style={styles.inviteBtn} 
               onPress={() => {
-                alert(`已邀请用户${i}`);
+                alert(`${t('screens.inviteAnswer.alerts.invitedLocal')}${i}`);
                 navigation.goBack();
               }}
             >
               <Ionicons name="add" size={16} color="#fff" />
-              <Text style={styles.inviteBtnText}>邀请</Text>
+              <Text style={styles.inviteBtnText}>{t('screens.inviteAnswer.actions.invite')}</Text>
             </TouchableOpacity>
           </View>
         ))}
-        {inviteTab === '推特' && [1, 2, 3, 4, 5].map(i => (
+        {inviteTab === t('screens.inviteAnswer.tabs.twitter') && [1, 2, 3, 4, 5].map(i => (
           <View key={`tw-${i}`} style={styles.userItem}>
             <Image source={{ uri: `https://api.dicebear.com/7.x/avataaars/svg?seed=tw${i}` }} style={styles.userAvatar} />
             <View style={styles.userInfo}>
               <Text style={styles.userName}>@twitter_user{i}</Text>
-              <Text style={styles.userDesc}>{i}k 关注者</Text>
+              <Text style={styles.userDesc}>{i}{t('screens.inviteAnswer.userInfo.followers')}</Text>
             </View>
             <TouchableOpacity 
               style={[styles.inviteBtn, styles.inviteBtnTwitter]} 
               onPress={() => {
-                alert(`已邀请推特用户${i}`);
+                alert(`${t('screens.inviteAnswer.alerts.invitedTwitter')}${i}`);
                 navigation.goBack();
               }}
             >
               <Ionicons name="logo-twitter" size={16} color="#fff" />
-              <Text style={styles.inviteBtnText}>邀请</Text>
+              <Text style={styles.inviteBtnText}>{t('screens.inviteAnswer.actions.invite')}</Text>
             </TouchableOpacity>
           </View>
         ))}

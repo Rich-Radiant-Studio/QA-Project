@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Avatar from '../components/Avatar';
 import IdentitySelector from '../components/IdentitySelector';
 import superLikeCreditService from '../services/SuperLikeCreditService';
+import { useTranslation } from '../i18n/withTranslation';
 
 const answers = [
   { 
@@ -92,14 +93,12 @@ const answers = [
   },
 ];
 
-const answerTabs = ['补充 (4)', '回答 (56)', '评论 (4)', '邀请'];
-
 // 评论数据
 const commentsData = [
-  { id: 1, author: '技术爱好者', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=comment1', content: '这个问题问得好，我也想知道答案！', likes: 23, time: '2小时前', replies: 3 },
-  { id: 2, author: '编程小白', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=comment2', content: '同问，坐等大佬回复', likes: 15, time: '1小时前', replies: 1 },
-  { id: 3, author: '数据分析师', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=comment3', content: 'Python确实是入门数据分析的好选择，加油！', likes: 45, time: '30分钟前', replies: 5 },
-  { id: 4, author: '前端开发者', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=comment4', content: '建议先从基础语法开始，不要急于求成', likes: 32, time: '20分钟前', replies: 2 },
+  { id: 1, author: '技术爱好者', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=comment1', content: '这个问题问得好，我也想知道答案！', likes: 23, time: '2小时前', replies: 3, superLikes: 5 },
+  { id: 2, author: '编程小白', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=comment2', content: '同问，坐等大佬回复', likes: 15, time: '1小时前', replies: 1, superLikes: 2 },
+  { id: 3, author: '数据分析师', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=comment3', content: 'Python确实是入门数据分析的好选择，加油！', likes: 45, time: '30分钟前', replies: 5, superLikes: 15 },
+  { id: 4, author: '前端开发者', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=comment4', content: '建议先从基础语法开始，不要急于求成', likes: 32, time: '20分钟前', replies: 2, superLikes: 0 },
 ];
 
 // 回复数据
@@ -134,13 +133,14 @@ const activitiesData = [
 
 // 补充问题数据
 const supplementQuestions = [
-  { id: 1, author: '学习者小李', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=supp1', location: '上海', content: '请问学Python需要先学什么数学基础吗？我高中数学不太好，会不会影响学习？', likes: 45, dislikes: 2, comments: 8, shares: 12, bookmarks: 23 },
-  { id: 2, author: '转行程序员', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=supp2', location: '深圳', content: '想问一下，学完Python基础后，做数据分析还需要学哪些工具？比如SQL、Excel这些需要吗？', likes: 32, dislikes: 1, comments: 5, shares: 8, bookmarks: 15 },
-  { id: 3, author: '大学生小张', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=supp3', location: '广州', content: '有没有推荐的Python练手项目？最好是那种能写进简历的', likes: 28, dislikes: 0, comments: 12, shares: 18, bookmarks: 34 },
-  { id: 4, author: '职场新人', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=supp4', location: '杭州', content: '自学和报班哪个更好？有没有性价比高的网课推荐？', likes: 19, dislikes: 3, comments: 6, shares: 5, bookmarks: 11 },
+  { id: 1, author: '学习者小李', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=supp1', location: '上海', content: '请问学Python需要先学什么数学基础吗？我高中数学不太好，会不会影响学习？', likes: 45, dislikes: 2, comments: 8, shares: 12, bookmarks: 23, superLikes: 8 },
+  { id: 2, author: '转行程序员', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=supp2', location: '深圳', content: '想问一下，学完Python基础后，做数据分析还需要学哪些工具？比如SQL、Excel这些需要吗？', likes: 32, dislikes: 1, comments: 5, shares: 8, bookmarks: 15, superLikes: 3 },
+  { id: 3, author: '大学生小张', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=supp3', location: '广州', content: '有没有推荐的Python练手项目？最好是那种能写进简历的', likes: 28, dislikes: 0, comments: 12, shares: 18, bookmarks: 34, superLikes: 12 },
+  { id: 4, author: '职场新人', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=supp4', location: '杭州', content: '自学和报班哪个更好？有没有性价比高的网课推荐？', likes: 19, dislikes: 3, comments: 6, shares: 5, bookmarks: 11, superLikes: 0 },
 ];
 
 export default function QuestionDetailScreen({ navigation, route }) {
+  const { t } = useTranslation();
   const [inputText, setInputText] = useState('');
   const [activeTab, setActiveTab] = useState('补充 (4)');
   const [suppLiked, setSuppLiked] = useState({});
@@ -154,7 +154,18 @@ export default function QuestionDetailScreen({ navigation, route }) {
   const [showReportModal, setShowReportModal] = useState(false);
   const [answerText, setAnswerText] = useState('');
   const [showActivityModal, setShowActivityModal] = useState(false);
-  const [activityForm, setActivityForm] = useState({ title: '', description: '', startDate: '', startTime: '', endDate: '', endTime: '', location: '', maxParticipants: '', contact: '', activityType: '线上活动' });
+  const [activityForm, setActivityForm] = useState({ 
+    title: '', 
+    description: '', 
+    startTime: '', 
+    endTime: '', 
+    location: '', 
+    maxParticipants: '', 
+    contact: '', 
+    activityType: 'online',
+    organizerType: 'personal',
+    images: []
+  });
   const [commentLiked, setCommentLiked] = useState({});
   const [sortFilter, setSortFilter] = useState('精选'); // 精选 or 最新
   const [showSuppMoreModal, setShowSuppMoreModal] = useState(false);
@@ -165,6 +176,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
   const [answerLiked, setAnswerLiked] = useState({});
   const [answerDisliked, setAnswerDisliked] = useState({});
   const [answerBookmarked, setAnswerBookmarked] = useState({});
+  const [answerAdopted, setAnswerAdopted] = useState({}); // 记录每个回答的采纳状态
   const [showAnswerCommentListModal, setShowAnswerCommentListModal] = useState(false);
   const [showSuppCommentListModal, setShowSuppCommentListModal] = useState(false);
   const [expandedComments, setExpandedComments] = useState({});
@@ -210,10 +222,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
   const [loadingAnswers, setLoadingAnswers] = useState(false);
   const [loadingComments, setLoadingComments] = useState(false);
   
-  // 问题标题展开/折叠状态
-  const [questionTitleExpanded, setQuestionTitleExpanded] = useState(false);
-  const [questionTitleNeedsExpand, setQuestionTitleNeedsExpand] = useState(false);
-
+  
   // 增加悬赏相关状态
   const [showAddRewardModal, setShowAddRewardModal] = useState(false);
   const [currentReward, setCurrentReward] = useState(50); // 当前悬赏金额
@@ -228,6 +237,8 @@ export default function QuestionDetailScreen({ navigation, route }) {
   const [superLikeAmount, setSuperLikeAmount] = useState(''); // 购买超级赞的数量
   const [selectedSuperLikeAmount, setSelectedSuperLikeAmount] = useState(null); // 快速选择的超级赞数量
   const [answerSuperLikes, setAnswerSuperLikes] = useState({}); // 记录每个回答的超级赞数量
+  const [supplementSuperLikes, setSupplementSuperLikes] = useState({}); // 记录每个补充的超级赞数量
+  const [commentSuperLikes, setCommentSuperLikes] = useState({}); // 记录每个评论的超级赞数量
 
   // 追加悬赏人员名单数据
   const rewardContributorsList = [
@@ -240,6 +251,10 @@ export default function QuestionDetailScreen({ navigation, route }) {
   const [showArbitrationModal, setShowArbitrationModal] = useState(false);
   const [showArbitrationStatusModal, setShowArbitrationStatusModal] = useState(false);
   const [showArbitrationResultModal, setShowArbitrationResultModal] = useState(false);
+
+  // 回答展开/收起状态
+  const [answerExpanded, setAnswerExpanded] = useState({});
+  const [answerNeedsExpand, setAnswerNeedsExpand] = useState({});
   const [currentArbitrationResult, setCurrentArbitrationResult] = useState(null);
   const [arbitrationReason, setArbitrationReason] = useState('');
   const [selectedExperts, setSelectedExperts] = useState([]);
@@ -263,6 +278,14 @@ export default function QuestionDetailScreen({ navigation, route }) {
     { id: 3, name: '赵强', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=expert3', title: '技术总监', vote: 'disagree', reason: '我认为原答案基本合理，学习路线清晰，资源推荐也很实用。建议维持原判。', time: '30分钟前' },
   ]);
 
+  // 使用 useMemo 创建 answerTabs，避免在模块加载时调用 t()
+  const answerTabs = React.useMemo(() => [
+    `${t('screens.questionDetail.tabs.supplements')} (4)`, 
+    `${t('screens.questionDetail.tabs.answers')} (56)`, 
+    `${t('screens.questionDetail.tabs.comments')} (4)`, 
+    t('screens.questionDetail.tabs.invite')
+  ], [t]);
+
   // 当前问题数据
   const currentQuestion = {
     id: route?.params?.id || 1,
@@ -276,13 +299,50 @@ export default function QuestionDetailScreen({ navigation, route }) {
       alert('请输入活动标题');
       return;
     }
-    if (activityForm.activityType === '线下活动' && !activityForm.location.trim()) {
+    if (!activityForm.description.trim()) {
+      alert('请输入活动内容');
+      return;
+    }
+    if (!activityForm.startTime || !activityForm.endTime) {
+      alert('请选择活动时间');
+      return;
+    }
+    if (activityForm.activityType === 'offline' && !activityForm.location.trim()) {
       alert('线下活动请填写活动地址');
       return;
     }
     alert('活动创建成功！');
     setShowActivityModal(false);
-    setActivityForm({ title: '', description: '', startDate: '', startTime: '', endDate: '', endTime: '', location: '', maxParticipants: '', contact: '', activityType: '线上活动' });
+    setActivityForm({ 
+      title: '', 
+      description: '', 
+      startTime: '', 
+      endTime: '', 
+      location: '', 
+      maxParticipants: '', 
+      contact: '', 
+      activityType: 'online',
+      organizerType: 'personal',
+      images: []
+    });
+  };
+
+  const addActivityImage = () => {
+    if (activityForm.images.length < 9) {
+      setActivityForm({
+        ...activityForm,
+        images: [...activityForm.images, `https://images.unsplash.com/photo-${Math.floor(Math.random() * 1000000)}?w=800&h=600&fit=crop`]
+      });
+    } else {
+      alert('最多只能上传9张图片');
+    }
+  };
+
+  const removeActivityImage = (index) => {
+    setActivityForm({
+      ...activityForm,
+      images: activityForm.images.filter((_, i) => i !== index)
+    });
   };
 
   // 检查是否需要打开回答弹窗
@@ -487,7 +547,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
         >
           <Ionicons name="arrow-back" size={24} color="#374151" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>问题详情</Text>
+        <Text style={styles.headerTitle}>{t('screens.questionDetail.title')}</Text>
         <View style={styles.headerRight}>
           <TouchableOpacity 
             onPress={() => alert('分享功能')}
@@ -511,49 +571,11 @@ export default function QuestionDetailScreen({ navigation, route }) {
       >
         {/* 问题内容 */}
         <View style={styles.questionSection}>
-          {/* 隐藏的完整文本用于检测行数 */}
-          <Text 
-            style={[styles.questionTitle, { position: 'absolute', opacity: 0, zIndex: -1 }]}
-            onTextLayout={(e) => {
-              const lineCount = e.nativeEvent.lines.length;
-              if (lineCount > 3 && !questionTitleNeedsExpand) {
-                setQuestionTitleNeedsExpand(true);
-              }
-            }}
-          >
+          {/* 问题标题 - 始终完整显示 */}
+          <Text style={styles.questionTitle}>
             <Text style={styles.rewardTagInline}>${currentReward} </Text>
             如何在三个月内从零基础学会Python编程？有没有系统的学习路线推荐？作为一名文科生，之前完全没有接触过编程，最近想转行做数据分析，听说Python是必备技能，想请教各位大神应该如何开始学习，需要掌握哪些核心知识点？
           </Text>
-          
-          {/* 实际显示的文本 */}
-          <TouchableOpacity 
-            activeOpacity={questionTitleNeedsExpand ? 0.8 : 1}
-            onPress={() => {
-              if (questionTitleNeedsExpand) {
-                setQuestionTitleExpanded(!questionTitleExpanded);
-              }
-            }}
-          >
-            <Text 
-              style={styles.questionTitle}
-              numberOfLines={questionTitleExpanded ? undefined : 3}
-            >
-              <Text style={styles.rewardTagInline}>${currentReward} </Text>
-              如何在三个月内从零基础学会Python编程？有没有系统的学习路线推荐？作为一名文科生，之前完全没有接触过编程，最近想转行做数据分析，听说Python是必备技能，想请教各位大神应该如何开始学习，需要掌握哪些核心知识点？
-              {questionTitleNeedsExpand && !questionTitleExpanded && (
-                <Text style={styles.expandHintInline}>
-                  {'  '}
-                  <Text style={styles.expandHintText}>...展开</Text>
-                </Text>
-              )}
-              {questionTitleNeedsExpand && questionTitleExpanded && (
-                <Text style={styles.expandHintInline}>
-                  {'  '}
-                  <Text style={styles.expandHintText}>收起</Text>
-                </Text>
-              )}
-            </Text>
-          </TouchableOpacity>
           
           {/* 作者信息和操作按钮行 - 紧跟标题 */}
           <View style={styles.authorActionsRow}>
@@ -564,7 +586,10 @@ export default function QuestionDetailScreen({ navigation, route }) {
                   <Text style={styles.smallAuthorName}>张三丰</Text>
                   <TouchableOpacity style={styles.followBtnSmall}>
                     <Ionicons name="add" size={12} color="#ef4444" />
-                    <Text style={styles.followBtnSmallText}>关注 (1.2k)</Text>
+                    <Text style={styles.followBtnSmallText}>
+                      {t('common.follow')}
+                    </Text>
+                    <Text style={styles.followCountText}>(1.2k)</Text>
                   </TouchableOpacity>
                 </View>
                 <Text style={styles.smallPostTime}>2小时前 · 北京</Text>
@@ -607,7 +632,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
                 })}
               >
                 <Ionicons name="add" size={16} color="#fff" />
-                <Text style={styles.addRewardBtnText}>追加</Text>
+                <Text style={styles.addRewardBtnText}>{t('screens.questionDetail.reward.add')}</Text>
               </TouchableOpacity>
 
               {/* 采纳进度 */}
@@ -625,7 +650,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
               })}
             >
               <Ionicons name="people-outline" size={12} color="#9ca3af" />
-              <Text style={styles.rewardContributorsText}>{rewardContributors} 人追加</Text>
+              <Text style={styles.rewardContributorsText}>{rewardContributors} {t('screens.questionDetail.reward.contributors')}</Text>
               <Ionicons name="chevron-forward" size={12} color="#9ca3af" />
             </TouchableOpacity>
           </View>
@@ -633,7 +658,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
           <View style={styles.viewsAndTags}>
             <View style={styles.viewsRow}>
               <Ionicons name="eye-outline" size={14} color="#9ca3af" />
-              <Text style={styles.viewsText}>1.2k 浏览</Text>
+              <Text style={styles.viewsText}>1.2k {t('screens.questionDetail.stats.views')}</Text>
             </View>
             <View style={styles.topicTags}>
               <Text style={styles.topicTag}>#Python学习</Text>
@@ -656,7 +681,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
                       }}
                       activeOpacity={0.8}
                     >
-                      <Text style={styles.pkSolvedText}>已解决</Text>
+                      <Text style={styles.pkSolvedText}>{t('screens.questionDetail.pk.solved')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity 
                       style={styles.pkUnsolvedBar}
@@ -666,11 +691,11 @@ export default function QuestionDetailScreen({ navigation, route }) {
                       }}
                       activeOpacity={0.8}
                     >
-                      <Text style={styles.pkUnsolvedText}>未解决</Text>
+                      <Text style={styles.pkUnsolvedText}>{t('screens.questionDetail.pk.unsolved')}</Text>
                     </TouchableOpacity>
                   </View>
                   <View style={styles.pkCenterBadge}>
-                    <Text style={styles.pkCenterText}>PK</Text>
+                    <Text style={styles.pkCenterText}>{t('screens.questionDetail.pk.pk')}</Text>
                   </View>
                 </View>
               </View>
@@ -731,8 +756,8 @@ export default function QuestionDetailScreen({ navigation, route }) {
             </Text>
           </View>
 
-          {/* 超级赞购买横幅 - 仅在回答标签页显示 */}
-          {activeTab === '回答 (56)' && (
+          {/* 超级赞购买横幅 - 在补充、回答、评论标签页显示 */}
+          {(activeTab === '补充 (4)' || activeTab === '回答 (56)' || activeTab === '评论 (4)') && (
             <TouchableOpacity 
               style={styles.superLikePurchaseBanner}
               onPress={() => navigation.navigate('SuperLikePurchase')}
@@ -768,10 +793,67 @@ export default function QuestionDetailScreen({ navigation, route }) {
                     <View style={styles.suppAuthorInfo}>
                       <View style={styles.suppAuthorRow}>
                         <Text style={styles.suppAuthor}>{item.author}</Text>
+                        
                         <View style={styles.suppLocationRow}>
                           <Ionicons name="location-outline" size={12} color="#9ca3af" />
                           <Text style={styles.suppLocation}>{item.location}</Text>
                         </View>
+                        
+                        {/* 超级赞按钮 - 在IP属地后面 */}
+                        <TouchableOpacity 
+                          style={[
+                            styles.superLikeBadge,
+                            ((supplementSuperLikes[item.id] || item.superLikes || 0) === 0) && styles.superLikeBadgeInactive
+                          ]}
+                          onPress={async (e) => { 
+                            e.stopPropagation();
+                            
+                            // 检查余额
+                            const balance = await superLikeCreditService.getBalance();
+                            
+                            if (balance <= 0) {
+                              Alert.alert(
+                                '超级赞次数不足',
+                                '您的超级赞次数不足，是否购买？',
+                                [
+                                  { text: '取消', style: 'cancel' },
+                                  { 
+                                    text: '去购买', 
+                                    onPress: () => navigation.navigate('SuperLikePurchase')
+                                  }
+                                ]
+                              );
+                              return;
+                            }
+                            
+                            // 使用超级赞
+                            const result = await superLikeCreditService.use(
+                              `supp-${item.id}`, 
+                              item.content.substring(0, 50)
+                            );
+                            
+                            if (result.success) {
+                              // 更新本地显示的超级赞数量
+                              const currentCount = supplementSuperLikes[item.id] || item.superLikes || 0;
+                              setSupplementSuperLikes({
+                                ...supplementSuperLikes,
+                                [item.id]: currentCount + 1
+                              });
+                            }
+                          }}
+                        >
+                          <Ionicons 
+                            name="star" 
+                            size={14} 
+                            color={((supplementSuperLikes[item.id] || item.superLikes || 0) === 0) ? "#d1d5db" : "#f59e0b"} 
+                          />
+                          <Text style={[
+                            styles.superLikeBadgeText,
+                            ((supplementSuperLikes[item.id] || item.superLikes || 0) === 0) && styles.superLikeBadgeTextInactive
+                          ]}>
+                            {t('screens.questionDetail.answer.superLike')} x{supplementSuperLikes[item.id] || item.superLikes || 0}
+                          </Text>
+                        </TouchableOpacity>
                       </View>
                     </View>
                     <TouchableOpacity 
@@ -787,6 +869,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
                     </TouchableOpacity>
                   </View>
                   <Text style={styles.suppContent}>{item.content}</Text>
+                  
                   <View style={styles.suppFooter}>
                     <View style={styles.suppFooterLeft}>
                       <TouchableOpacity 
@@ -837,7 +920,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
               ))}
               {loadingSupplements && (
                 <View style={styles.loadingIndicator}>
-                  <Text style={styles.loadingText}>加载中...</Text>
+                  <Text style={styles.loadingText}>{t('screens.questionDetail.loading')}</Text>
                 </View>
               )}
               {!showAllSupplements && (
@@ -845,7 +928,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
                   style={styles.loadMoreBtn}
                   onPress={() => setShowAllSupplements(true)}
                 >
-                  <Text style={styles.loadMoreText}>查看更多补充 ({supplementQuestions.length - 3})</Text>
+                  <Text style={styles.loadMoreText}>{t('screens.questionDetail.loadMoreSupplements')} ({supplementQuestions.length - 3})</Text>
                   <Ionicons name="chevron-down" size={16} color="#ef4444" />
                 </TouchableOpacity>
               )}
@@ -870,11 +953,69 @@ export default function QuestionDetailScreen({ navigation, route }) {
                   <View style={styles.commentHeader}>
                     <Avatar uri={comment.avatar} name={comment.author} size={28} />
                     <Text style={styles.commentAuthor}>{comment.author}</Text>
+                    
+                    {/* 超级赞按钮 - 在用户名后面 */}
+                    <TouchableOpacity 
+                      style={[
+                        styles.superLikeBadge,
+                        ((commentSuperLikes[comment.id] || comment.superLikes || 0) === 0) && styles.superLikeBadgeInactive
+                      ]}
+                      onPress={async (e) => { 
+                        e.stopPropagation();
+                        
+                        // 检查余额
+                        const balance = await superLikeCreditService.getBalance();
+                        
+                        if (balance <= 0) {
+                          Alert.alert(
+                            '超级赞次数不足',
+                            '您的超级赞次数不足，是否购买？',
+                            [
+                              { text: '取消', style: 'cancel' },
+                              { 
+                                text: '去购买', 
+                                onPress: () => navigation.navigate('SuperLikePurchase')
+                              }
+                            ]
+                          );
+                          return;
+                        }
+                        
+                        // 使用超级赞
+                        const result = await superLikeCreditService.use(
+                          `comment-${comment.id}`, 
+                          comment.content.substring(0, 50)
+                        );
+                        
+                        if (result.success) {
+                          // 更新本地显示的超级赞数量
+                          const currentCount = commentSuperLikes[comment.id] || comment.superLikes || 0;
+                          setCommentSuperLikes({
+                            ...commentSuperLikes,
+                            [comment.id]: currentCount + 1
+                          });
+                        }
+                      }}
+                    >
+                      <Ionicons 
+                        name="star" 
+                        size={14} 
+                        color={((commentSuperLikes[comment.id] || comment.superLikes || 0) === 0) ? "#d1d5db" : "#f59e0b"} 
+                      />
+                      <Text style={[
+                        styles.superLikeBadgeText,
+                        ((commentSuperLikes[comment.id] || comment.superLikes || 0) === 0) && styles.superLikeBadgeTextInactive
+                      ]}>
+                        {t('screens.questionDetail.answer.superLike')} x{commentSuperLikes[comment.id] || comment.superLikes || 0}
+                      </Text>
+                    </TouchableOpacity>
+                    
                     <View style={{ flex: 1 }} />
                     <Text style={styles.commentTime}>{comment.time}</Text>
                   </View>
                   <View style={styles.commentContent}>
                     <Text style={styles.commentText}>{comment.content}</Text>
+                    
                     <View style={styles.commentFooter}>
                       <View style={styles.commentFooterLeft}>
                         <TouchableOpacity 
@@ -889,7 +1030,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
                           onPress={() => { setCurrentCommentId(comment.id); setShowCommentReplyModal(true); }}
                         >
                           <Ionicons name="chatbubble-outline" size={14} color="#9ca3af" />
-                          <Text style={styles.commentActionText}>{comment.replies} 回复</Text>
+                          <Text style={styles.commentActionText}>{comment.replies} {t('screens.questionDetail.comment.replies')}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.commentActionBtn}>
                           <Ionicons name="arrow-redo-outline" size={14} color="#9ca3af" />
@@ -905,7 +1046,10 @@ export default function QuestionDetailScreen({ navigation, route }) {
                           <Ionicons name="thumbs-down-outline" size={14} color="#9ca3af" />
                           <Text style={styles.commentActionText}>{comment.dislikes || 2}</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.commentActionBtn}>
+                        <TouchableOpacity 
+                          style={styles.commentActionBtn}
+                          onPress={() => navigation.navigate('Report', { type: 'comment' })}
+                        >
                           <Ionicons name="flag-outline" size={14} color="#ef4444" />
                         </TouchableOpacity>
                       </View>
@@ -915,7 +1059,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
               ))}
               {loadingComments && (
                 <View style={styles.loadingIndicator}>
-                  <Text style={styles.loadingText}>加载中...</Text>
+                  <Text style={styles.loadingText}>{t('screens.questionDetail.loading')}</Text>
                 </View>
               )}
               {!showAllComments && (
@@ -923,7 +1067,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
                   style={styles.loadMoreBtn}
                   onPress={() => setShowAllComments(true)}
                 >
-                  <Text style={styles.loadMoreText}>查看更多评论 ({commentsData.length - 3})</Text>
+                  <Text style={styles.loadMoreText}>{t('screens.questionDetail.loadMoreComments')} ({commentsData.length - 3})</Text>
                   <Ionicons name="chevron-down" size={16} color="#ef4444" />
                 </TouchableOpacity>
               )}
@@ -949,14 +1093,14 @@ export default function QuestionDetailScreen({ navigation, route }) {
                   style={[styles.inviteSubTabItem, inviteTab === '本站' && styles.inviteSubTabItemActive]}
                   onPress={() => setInviteTab('本站')}
                 >
-                  <Text style={[styles.inviteSubTabText, inviteTab === '本站' && styles.inviteSubTabTextActive]}>本站</Text>
+                  <Text style={[styles.inviteSubTabText, inviteTab === '本站' && styles.inviteSubTabTextActive]}>{t('screens.questionDetail.invite.local')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity 
                   style={[styles.inviteSubTabItem, inviteTab === '推特' && styles.inviteSubTabItemActive]}
                   onPress={() => setInviteTab('推特')}
                 >
                   <Ionicons name="logo-twitter" size={14} color={inviteTab === '推特' ? '#1DA1F2' : '#9ca3af'} />
-                  <Text style={[styles.inviteSubTabText, inviteTab === '推特' && styles.inviteSubTabTextActive]}>推特</Text>
+                  <Text style={[styles.inviteSubTabText, inviteTab === '推特' && styles.inviteSubTabTextActive]}>{t('screens.questionDetail.invite.twitter')}</Text>
                 </TouchableOpacity>
               </View>
 
@@ -966,7 +1110,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
                   <Ionicons name="search" size={14} color="#9ca3af" />
                   <TextInput
                     style={styles.inviteSearchInput}
-                    placeholder={inviteTab === '本站' ? '搜索用户' : '搜索推特用户'}
+                    placeholder={inviteTab === '本站' ? t('screens.questionDetail.invite.searchUser') : t('screens.questionDetail.invite.searchTwitterUser')}
                     placeholderTextColor="#9ca3af"
                     value={inviteTab === '本站' ? searchLocalUser : searchTwitterUser}
                     onChangeText={(text) => {
@@ -1021,7 +1165,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
                       style={styles.loadMoreInvitedBtn} 
                       onPress={() => setShowAllInvited(true)}
                     >
-                      <Text style={styles.loadMoreInvitedText}>查看更多邀请 (5)</Text>
+                      <Text style={styles.loadMoreInvitedText}>{t('screens.questionDetail.loadMoreInvites')} (5)</Text>
                       <Ionicons name="chevron-down" size={16} color="#ef4444" />
                     </TouchableOpacity>
                   )}
@@ -1117,17 +1261,32 @@ export default function QuestionDetailScreen({ navigation, route }) {
                     
                     {/* 采纳按钮 - 放在用户名后面，所有回答都显示 */}
                     <TouchableOpacity 
-                      style={styles.adoptAnswerBtn}
+                      style={[
+                        styles.adoptAnswerBtn,
+                        (answerAdopted[answer.id] || answer.adopted) && styles.adoptAnswerBtnActive
+                      ]}
                       onPress={(e) => {
                         e.stopPropagation();
-                        // 处理采纳逻辑
-                        Alert.alert('采纳答案', '确认采纳这个答案吗？', [
-                          { text: '取消', style: 'cancel' },
-                          { text: '确认', onPress: () => console.log('采纳答案') }
-                        ]);
+                        // 切换采纳状态
+                        const isCurrentlyAdopted = answerAdopted[answer.id] !== undefined 
+                          ? answerAdopted[answer.id] 
+                          : answer.adopted;
+                        
+                        setAnswerAdopted({
+                          ...answerAdopted,
+                          [answer.id]: !isCurrentlyAdopted
+                        });
+                        
+                        // TODO: 调用API更新采纳状态
+                        console.log(isCurrentlyAdopted ? '取消采纳' : '采纳答案', answer.id);
                       }}
                     >
-                      <Text style={styles.adoptAnswerBtnText}>采纳</Text>
+                      <Text style={[
+                        styles.adoptAnswerBtnText,
+                        (answerAdopted[answer.id] || answer.adopted) && styles.adoptAnswerBtnTextActive
+                      ]}>
+                        {(answerAdopted[answer.id] !== undefined ? answerAdopted[answer.id] : answer.adopted) ? t('screens.questionDetail.answer.adopted') : t('screens.questionDetail.answer.adopt')}
+                      </Text>
                     </TouchableOpacity>
                   </View>
                   <Text style={styles.answerAuthorTitle}>{answer.title}</Text>
@@ -1141,7 +1300,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
                   }}
                 >
                   <Ionicons name="add-circle-outline" size={14} color="#fff" />
-                  <Text style={styles.answerSupplementTextTop}>补充回答 (2)</Text>
+                  <Text style={styles.answerSupplementTextTop}>{t('screens.questionDetail.answer.supplement')} (2)</Text>
                 </TouchableOpacity>
               </View>
 
@@ -1200,21 +1359,21 @@ export default function QuestionDetailScreen({ navigation, route }) {
                     styles.superLikeBadgeText,
                     ((answerSuperLikes[answer.id] || answer.superLikes || 0) === 0) && styles.superLikeBadgeTextInactive
                   ]}>
-                    超级赞 x{answerSuperLikes[answer.id] || answer.superLikes || 0}
+                    {t('screens.questionDetail.answer.superLike')} x{answerSuperLikes[answer.id] || answer.superLikes || 0}
                   </Text>
                 </TouchableOpacity>
                 
                 {/* 作者已采纳标签 */}
                 {answer.adopted && (
                   <View style={styles.authorAdoptedBadge}>
-                    <Text style={styles.authorAdoptedBadgeText}>作者已采纳</Text>
+                    <Text style={styles.authorAdoptedBadgeText}>{t('screens.questionDetail.answer.authorAdopted')}</Text>
                   </View>
                 )}
                 
                 {/* 已采纳数量标签 - 显示其他采纳数 */}
                 {answer.adoptedCount && answer.adoptedCount > 0 && (
                   <View style={styles.adoptedCountBadge}>
-                    <Text style={styles.adoptedCountBadgeText}>已采纳 x{answer.adoptedCount}</Text>
+                    <Text style={styles.adoptedCountBadgeText}>{t('screens.questionDetail.answer.adoptedCount')} x{answer.adoptedCount}</Text>
                   </View>
                 )}
                 
@@ -1222,7 +1381,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
                 {answer.invitedBy && (
                   <View style={styles.inviterBadgeCompact}>
                     <Avatar uri={answer.invitedBy.avatar} name={answer.invitedBy.name} size={14} />
-                    <Text style={styles.inviterTextCompact}>由 {answer.invitedBy.name} 邀请</Text>
+                    <Text style={styles.inviterTextCompact}>{t('screens.questionDetail.answer.invitedBy')} {answer.invitedBy.name} {t('screens.questionDetail.answer.invited')}</Text>
                   </View>
                 )}
 
@@ -1308,7 +1467,43 @@ export default function QuestionDetailScreen({ navigation, route }) {
                 </View>
               </View>
               
-              <Text style={styles.answerContent}>{answer.content}</Text>
+              {/* 隐藏的完整文本用于检测行数 */}
+              <Text 
+                style={[styles.answerContent, { position: 'absolute', opacity: 0, zIndex: -1 }]}
+                onTextLayout={(e) => {
+                  const lineCount = e.nativeEvent.lines.length;
+                  if (lineCount > 5 && !answerNeedsExpand[answer.id]) {
+                    setAnswerNeedsExpand(prev => ({ ...prev, [answer.id]: true }));
+                  }
+                }}
+              >
+                {answer.content}
+              </Text>
+              
+              {/* 回答内容 - 可展开/收起 */}
+              <View>
+                <Text 
+                  style={styles.answerContent}
+                  numberOfLines={answerExpanded[answer.id] ? undefined : 5}
+                >
+                  {answer.content}
+                </Text>
+                
+                {answerNeedsExpand[answer.id] && (
+                  <TouchableOpacity 
+                    style={styles.answerExpandBtnInline}
+                    onPress={(e) => {
+                      e.stopPropagation();
+                      setAnswerExpanded(prev => ({ ...prev, [answer.id]: !prev[answer.id] }));
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={styles.expandHintText}>
+                      {answerExpanded[answer.id] ? t('screens.questionDetail.answer.collapse') : `...${t('screens.questionDetail.answer.expand')}`}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              </View>
               
               <View style={styles.answerFooter}>
                 <View style={styles.answerFooterLeft}>
@@ -1346,7 +1541,13 @@ export default function QuestionDetailScreen({ navigation, route }) {
                     <Ionicons name={answerDisliked[answer.id] ? "thumbs-down" : "thumbs-down-outline"} size={16} color={answerDisliked[answer.id] ? "#3b82f6" : "#6b7280"} />
                     <Text style={[styles.answerActionText, answerDisliked[answer.id] && { color: '#3b82f6' }]}>{answer.dislikes || 3}</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.answerActionBtn} onPress={(e) => e.stopPropagation()}>
+                  <TouchableOpacity 
+                    style={styles.answerActionBtn} 
+                    onPress={(e) => {
+                      e.stopPropagation();
+                      navigation.navigate('Report', { type: 'answer' });
+                    }}
+                  >
                     <Ionicons name="flag-outline" size={16} color="#ef4444" />
                   </TouchableOpacity>
                 </View>
@@ -1355,7 +1556,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
           ))}
               {loadingAnswers && (
                 <View style={styles.loadingIndicator}>
-                  <Text style={styles.loadingText}>加载中...</Text>
+                  <Text style={styles.loadingText}>{t('screens.questionDetail.loading')}</Text>
                 </View>
               )}
               {!showAllAnswers && (
@@ -1363,7 +1564,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
                   style={styles.loadMoreBtn}
                   onPress={() => setShowAllAnswers(true)}
                 >
-                  <Text style={styles.loadMoreText}>查看更多回答 ({answers.length - 3})</Text>
+                  <Text style={styles.loadMoreText}>{t('screens.questionDetail.loadMoreAnswers')} ({answers.length - 3})</Text>
                   <Ionicons name="chevron-down" size={16} color="#ef4444" />
                 </TouchableOpacity>
               )}
@@ -1389,9 +1590,9 @@ export default function QuestionDetailScreen({ navigation, route }) {
           <View style={styles.recommendedHeader}>
             <View style={styles.recommendedHeaderLeft}>
               <Ionicons name="bulb-outline" size={20} color="#f59e0b" />
-              <Text style={styles.recommendedTitle}>相关推荐</Text>
+              <Text style={styles.recommendedTitle}>{t('screens.questionDetail.recommended.title')}</Text>
             </View>
-            <Text style={styles.recommendedSubtitle}>继续浏览更多精彩内容</Text>
+            <Text style={styles.recommendedSubtitle}>{t('screens.questionDetail.recommended.subtitle')}</Text>
           </View>
 
           {/* 推荐问题卡片 */}
@@ -1404,7 +1605,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
               <Text style={styles.rewardTagInline}>$30 </Text>
               <View style={styles.recommendedHotTagInline}>
                 <Ionicons name="flame" size={10} color="#ef4444" />
-                <Text style={styles.recommendedHotTextInline}>热门</Text>
+                <Text style={styles.recommendedHotTextInline}>{t('screens.questionDetail.recommended.hot')}</Text>
               </View>
               {' '}React Native开发中如何优化长列表性能？FlatList和ScrollView该如何选择？
             </Text>
@@ -1684,7 +1885,13 @@ export default function QuestionDetailScreen({ navigation, route }) {
                 <Ionicons name="thumbs-down-outline" size={22} color="#6b7280" />
                 <Text style={styles.suppMoreActionText}>踩一下 (12)</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.suppMoreActionItem}>
+              <TouchableOpacity 
+                style={styles.suppMoreActionItem}
+                onPress={() => {
+                  setShowSuppMoreModal(false);
+                  navigation.navigate('Report', { type: 'supplement' });
+                }}
+              >
                 <Ionicons name="flag-outline" size={22} color="#ef4444" />
                 <Text style={[styles.suppMoreActionText, { color: '#ef4444' }]}>举报</Text>
               </TouchableOpacity>
@@ -2039,135 +2246,164 @@ export default function QuestionDetailScreen({ navigation, route }) {
             </TouchableOpacity>
           </View>
 
-          {/* 绑定问题显示 */}
-          <View style={styles.boundQuestionCard}>
-            <View style={styles.boundQuestionHeader}>
-              <Ionicons name="link" size={16} color="#22c55e" />
-              <Text style={styles.boundQuestionLabel}>绑定问题</Text>
-            </View>
-            <Text style={styles.boundQuestionText} numberOfLines={2}>{currentQuestion.title}</Text>
-          </View>
-
           <ScrollView style={styles.activityFormArea} keyboardShouldPersistTaps="handled">
-            {/* 活动类型选择 */}
+            {/* 绑定问题显示 */}
+            <View style={styles.boundQuestionCard}>
+              <View style={styles.boundQuestionHeader}>
+                <Ionicons name="link" size={16} color="#22c55e" />
+                <Text style={styles.boundQuestionLabel}>绑定问题</Text>
+              </View>
+              <Text style={styles.boundQuestionText} numberOfLines={2}>{currentQuestion.title}</Text>
+            </View>
+
+            {/* 发起身份选择 */}
             <View style={styles.formGroup}>
-              <Text style={styles.formLabel}>活动类型 *</Text>
-              <View style={styles.activityTypeSelector}>
+              <Text style={styles.formLabel}>发起身份 <Text style={styles.required}>*</Text></Text>
+              <View style={styles.organizerSelector}>
                 <TouchableOpacity 
-                  style={[styles.activityTypeSelectorBtn, activityForm.activityType === '线上活动' && styles.activityTypeSelectorBtnActive]}
-                  onPress={() => setActivityForm({...activityForm, activityType: '线上活动'})}
+                  style={[styles.organizerOption, activityForm.organizerType === 'personal' && styles.organizerOptionActive]}
+                  onPress={() => setActivityForm({...activityForm, organizerType: 'personal'})}
                 >
-                  <Ionicons name="videocam" size={18} color={activityForm.activityType === '线上活动' ? '#fff' : '#6b7280'} />
-                  <Text style={[styles.activityTypeSelectorText, activityForm.activityType === '线上活动' && styles.activityTypeSelectorTextActive]}>线上活动</Text>
+                  <Ionicons name="person" size={20} color={activityForm.organizerType === 'personal' ? '#fff' : '#666'} />
+                  <Text style={[styles.organizerOptionText, activityForm.organizerType === 'personal' && styles.organizerOptionTextActive]}>个人发起</Text>
                 </TouchableOpacity>
                 <TouchableOpacity 
-                  style={[styles.activityTypeSelectorBtn, activityForm.activityType === '线下活动' && styles.activityTypeSelectorBtnActive]}
-                  onPress={() => setActivityForm({...activityForm, activityType: '线下活动'})}
+                  style={[styles.organizerOption, activityForm.organizerType === 'team' && styles.organizerOptionActive]}
+                  onPress={() => setActivityForm({...activityForm, organizerType: 'team'})}
                 >
-                  <Ionicons name="location" size={18} color={activityForm.activityType === '线下活动' ? '#fff' : '#6b7280'} />
-                  <Text style={[styles.activityTypeSelectorText, activityForm.activityType === '线下活动' && styles.activityTypeSelectorTextActive]}>线下活动</Text>
+                  <Ionicons name="people" size={20} color={activityForm.organizerType === 'team' ? '#fff' : '#666'} />
+                  <Text style={[styles.organizerOptionText, activityForm.organizerType === 'team' && styles.organizerOptionTextActive]}>团队发起</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* 活动类型选择 */}
+            <View style={styles.formGroup}>
+              <Text style={styles.formLabel}>活动类型</Text>
+              <View style={styles.activityTypeSelector}>
+                <TouchableOpacity 
+                  style={[styles.activityTypeSelectorBtn, activityForm.activityType === 'online' && styles.activityTypeSelectorBtnActive]}
+                  onPress={() => setActivityForm({...activityForm, activityType: 'online'})}
+                >
+                  <Ionicons name="globe-outline" size={20} color={activityForm.activityType === 'online' ? '#fff' : '#666'} />
+                  <Text style={[styles.activityTypeSelectorText, activityForm.activityType === 'online' && styles.activityTypeSelectorTextActive]}>线上活动</Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={[styles.activityTypeSelectorBtn, activityForm.activityType === 'offline' && styles.activityTypeSelectorBtnActive]}
+                  onPress={() => setActivityForm({...activityForm, activityType: 'offline'})}
+                >
+                  <Ionicons name="location-outline" size={20} color={activityForm.activityType === 'offline' ? '#fff' : '#666'} />
+                  <Text style={[styles.activityTypeSelectorText, activityForm.activityType === 'offline' && styles.activityTypeSelectorTextActive]}>线下活动</Text>
                 </TouchableOpacity>
               </View>
             </View>
 
             <View style={styles.formGroup}>
-              <Text style={styles.formLabel}>活动标题 *</Text>
+              <Text style={styles.formLabel}>活动标题 <Text style={styles.required}>*</Text></Text>
               <TextInput
                 style={styles.formInput}
                 placeholder="请输入活动标题"
                 placeholderTextColor="#bbb"
                 value={activityForm.title}
                 onChangeText={(text) => setActivityForm({...activityForm, title: text})}
+                maxLength={50}
               />
             </View>
 
             <View style={styles.formGroup}>
-              <Text style={styles.formLabel}>活动描述</Text>
+              <Text style={styles.formLabel}>活动内容 <Text style={styles.required}>*</Text></Text>
               <TextInput
                 style={[styles.formInput, styles.formTextarea]}
-                placeholder="请输入活动描述..."
+                placeholder="请输入活动详细内容"
                 placeholderTextColor="#bbb"
                 value={activityForm.description}
                 onChangeText={(text) => setActivityForm({...activityForm, description: text})}
                 multiline
                 textAlignVertical="top"
+                maxLength={500}
               />
             </View>
 
-            {/* 开始日期时间 */}
+            {/* 活动时间 */}
             <View style={styles.formGroup}>
-              <Text style={styles.formLabel}>开始时间</Text>
-              <View style={styles.formRow}>
-                <TouchableOpacity style={[styles.formSelectBtn, { flex: 1, marginRight: 8 }]}>
-                  <Ionicons name="calendar-outline" size={18} color="#6b7280" />
-                  <Text style={styles.formSelectText}>{activityForm.startDate || '选择日期'}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.formSelectBtn, { flex: 1, marginLeft: 8 }]}>
-                  <Ionicons name="time-outline" size={18} color="#6b7280" />
-                  <Text style={styles.formSelectText}>{activityForm.startTime || '选择时间'}</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            {/* 结束日期时间 */}
-            <View style={styles.formGroup}>
-              <Text style={styles.formLabel}>结束时间</Text>
-              <View style={styles.formRow}>
-                <TouchableOpacity style={[styles.formSelectBtn, { flex: 1, marginRight: 8 }]}>
-                  <Ionicons name="calendar-outline" size={18} color="#6b7280" />
-                  <Text style={styles.formSelectText}>{activityForm.endDate || '选择日期'}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.formSelectBtn, { flex: 1, marginLeft: 8 }]}>
-                  <Ionicons name="time-outline" size={18} color="#6b7280" />
-                  <Text style={styles.formSelectText}>{activityForm.endTime || '选择时间'}</Text>
-                </TouchableOpacity>
+              <Text style={styles.formLabel}>活动时间 <Text style={styles.required}>*</Text></Text>
+              <View style={styles.timeContainer}>
+                <View style={styles.timeInputWrapper}>
+                  <Text style={styles.timeInputLabel}>开始日期</Text>
+                  <TextInput
+                    style={styles.timeInputField}
+                    placeholder="2026-01-20"
+                    placeholderTextColor="#9ca3af"
+                    value={activityForm.startTime}
+                    onChangeText={(text) => setActivityForm({...activityForm, startTime: text})}
+                  />
+                </View>
+                <View style={styles.timeSeparatorWrapper}>
+                  <Text style={styles.timeSeparator}>至</Text>
+                </View>
+                <View style={styles.timeInputWrapper}>
+                  <Text style={styles.timeInputLabel}>结束日期</Text>
+                  <TextInput
+                    style={styles.timeInputField}
+                    placeholder="2026-01-25"
+                    placeholderTextColor="#9ca3af"
+                    value={activityForm.endTime}
+                    onChangeText={(text) => setActivityForm({...activityForm, endTime: text})}
+                  />
+                </View>
               </View>
             </View>
 
             {/* 活动地址 - 仅线下活动显示 */}
-            <View style={[styles.formGroup, { display: activityForm.activityType === '线下活动' ? 'flex' : 'none' }]}>
-              <Text style={styles.formLabel}>
-                活动地址 <Text style={{ color: '#ef4444' }}>*</Text>
-              </Text>
-              <View style={styles.formInputWithIcon}>
-                <Ionicons name="location-outline" size={18} color="#6b7280" />
+            {activityForm.activityType === 'offline' && (
+              <View style={styles.formGroup}>
+                <Text style={styles.formLabel}>
+                  活动地址 <Text style={styles.required}>*</Text>
+                </Text>
                 <TextInput
-                  style={styles.formInputInner}
-                  placeholder="请输入详细地址（必填）"
+                  style={styles.formInput}
+                  placeholder="请输入活动地址"
                   placeholderTextColor="#bbb"
                   value={activityForm.location}
                   onChangeText={(text) => setActivityForm({...activityForm, location: text})}
                 />
               </View>
-            </View>
+            )}
 
+            {/* 活动图片 */}
             <View style={styles.formGroup}>
-              <Text style={styles.formLabel}>人数上限</Text>
-              <View style={styles.formInputWithIcon}>
-                <Ionicons name="people-outline" size={18} color="#6b7280" />
-                <TextInput
-                  style={styles.formInputInner}
-                  placeholder="不限"
-                  placeholderTextColor="#bbb"
-                  value={activityForm.maxParticipants}
-                  onChangeText={(text) => setActivityForm({...activityForm, maxParticipants: text})}
-                  keyboardType="numeric"
-                />
+              <Text style={styles.formLabel}>活动图片（最多9张）</Text>
+              <View style={styles.imageGrid}>
+                {activityForm.images.map((img, idx) => (
+                  <View key={idx} style={styles.imageItem}>
+                    <Image source={{ uri: img }} style={styles.uploadedImage} />
+                    <TouchableOpacity 
+                      style={styles.removeImage} 
+                      onPress={() => removeActivityImage(idx)}
+                    >
+                      <Ionicons name="close-circle" size={20} color="#ef4444" />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+                {activityForm.images.length < 9 && (
+                  <TouchableOpacity style={styles.addImageBtn} onPress={addActivityImage}>
+                    <Ionicons name="add" size={24} color="#9ca3af" />
+                    <Text style={styles.addImageText}>添加图片</Text>
+                  </TouchableOpacity>
+                )}
               </View>
             </View>
 
+            {/* 联系方式 */}
             <View style={styles.formGroup}>
               <Text style={styles.formLabel}>联系方式</Text>
-              <View style={styles.formInputWithIcon}>
-                <Ionicons name="call-outline" size={18} color="#6b7280" />
-                <TextInput
-                  style={styles.formInputInner}
-                  placeholder="请输入联系方式（手机号/微信/邮箱）"
-                  placeholderTextColor="#bbb"
-                  value={activityForm.contact}
-                  onChangeText={(text) => setActivityForm({...activityForm, contact: text})}
-                />
-              </View>
+              <TextInput
+                style={styles.formInput}
+                placeholder="请输入联系方式（手机号/微信/邮箱）"
+                placeholderTextColor="#bbb"
+                value={activityForm.contact}
+                onChangeText={(text) => setActivityForm({...activityForm, contact: text})}
+              />
             </View>
 
             <View style={{ height: 40 }} />
@@ -2979,6 +3215,7 @@ const styles = StyleSheet.create({
   smallAuthorName: { fontSize: 13, fontWeight: '500', color: '#1f2937' },
   followBtnSmall: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fef2f2', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 10, gap: 2 },
   followBtnSmallText: { fontSize: 10, color: '#ef4444', fontWeight: '500' },
+  followCountText: { fontSize: 10, color: '#ef4444', fontWeight: '400', marginLeft: 2 },
   smallPostTime: { fontSize: 11, color: '#9ca3af', marginTop: 2 },
   actionButtonsRight: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   smallActionBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f9fafb', width: 32, height: 32, borderRadius: 16, borderWidth: 1, borderColor: '#e5e7eb' },
@@ -3073,11 +3310,17 @@ const styles = StyleSheet.create({
     borderColor: '#22c55e',
     marginLeft: 6
   },
+  adoptAnswerBtnActive: {
+    backgroundColor: '#22c55e',
+  },
   adoptAnswerBtnText: { 
     fontSize: 12, 
     color: '#22c55e', 
     fontWeight: '700',
     letterSpacing: 0.2
+  },
+  adoptAnswerBtnTextActive: {
+    color: '#fff',
   },
   adoptedTag: { backgroundColor: '#ef4444', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4 },
   adoptedTagText: { fontSize: 10, color: '#fff', fontWeight: '500' },
@@ -3085,6 +3328,7 @@ const styles = StyleSheet.create({
   answerSupplementBtnTop: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#ef4444', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 14 },
   answerSupplementTextTop: { fontSize: 12, color: '#fff', fontWeight: '600' },
   answerContent: { fontSize: 14, color: '#374151', lineHeight: 22 },
+  answerExpandBtnInline: { alignSelf: 'flex-start', marginTop: 4 },
   answerFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#f3f4f6' },
   answerFooterLeft: { flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 },
   answerFooterRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
@@ -3239,8 +3483,8 @@ const styles = StyleSheet.create({
   activityCloseBtn: { padding: 4, zIndex: 10 },
   activityHeaderCenter: { flex: 1, alignItems: 'center' },
   activityModalTitle: { fontSize: 17, fontWeight: '600', color: '#222' },
-  activityPublishBtn: { backgroundColor: '#22c55e', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 4, zIndex: 1 },
-  activityPublishBtnDisabled: { backgroundColor: '#bbf7d0' },
+  activityPublishBtn: { backgroundColor: '#ef4444', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 4, zIndex: 1 },
+  activityPublishBtnDisabled: { backgroundColor: '#fecaca' },
   activityPublishText: { fontSize: 14, color: '#fff', fontWeight: '600' },
   activityPublishTextDisabled: { color: '#fff' },
   boundQuestionCard: { backgroundColor: '#f0fdf4', padding: 12, marginHorizontal: 16, marginTop: 12, borderRadius: 8, borderWidth: 1, borderColor: '#bbf7d0' },
@@ -3295,9 +3539,28 @@ const styles = StyleSheet.create({
   // 活动类型选择器
   activityTypeSelector: { flexDirection: 'row', gap: 12 },
   activityTypeSelectorBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 12, borderRadius: 8, borderWidth: 1, borderColor: '#e5e7eb', backgroundColor: '#f9fafb', gap: 8 },
-  activityTypeSelectorBtnActive: { backgroundColor: '#22c55e', borderColor: '#22c55e' },
+  activityTypeSelectorBtnActive: { backgroundColor: '#ef4444', borderColor: '#ef4444' },
   activityTypeSelectorText: { fontSize: 14, color: '#6b7280', fontWeight: '500' },
   activityTypeSelectorTextActive: { color: '#fff' },
+  required: { color: '#ef4444' },
+  organizerSelector: { flexDirection: 'row', gap: 12 },
+  organizerOption: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 12, borderRadius: 8, borderWidth: 1, borderColor: '#e5e7eb', gap: 6 },
+  organizerOptionActive: { backgroundColor: '#3b82f6', borderColor: '#3b82f6' },
+  organizerOptionText: { fontSize: 14, color: '#666' },
+  organizerOptionTextActive: { color: '#fff' },
+  timeRow: { flexDirection: 'row', alignItems: 'center' },
+  timeContainer: { flexDirection: 'row', alignItems: 'flex-end', gap: 8 },
+  timeInputWrapper: { flex: 1 },
+  timeInputLabel: { fontSize: 12, color: '#6b7280', marginBottom: 6 },
+  timeInputField: { backgroundColor: '#f9fafb', borderRadius: 8, padding: 12, fontSize: 14, borderWidth: 1, borderColor: '#e5e7eb', color: '#1f2937' },
+  timeSeparatorWrapper: { paddingBottom: 12 },
+  timeSeparator: { fontSize: 14, color: '#6b7280', fontWeight: '500' },
+  imageGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  imageItem: { width: 80, height: 80, borderRadius: 8, backgroundColor: '#e5e7eb', position: 'relative', overflow: 'hidden' },
+  uploadedImage: { width: '100%', height: '100%' },
+  removeImage: { position: 'absolute', top: -8, right: -8, zIndex: 10 },
+  addImageBtn: { width: 80, height: 80, borderRadius: 8, borderWidth: 2, borderStyle: 'dashed', borderColor: '#d1d5db', justifyContent: 'center', alignItems: 'center' },
+  addImageText: { fontSize: 10, color: '#9ca3af', marginTop: 4 },
   // 举报弹窗样式
   reportModal: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20 },
   reportModalHandle: { width: 40, height: 4, backgroundColor: '#e5e7eb', borderRadius: 2, alignSelf: 'center', marginTop: 12, marginBottom: 8 },

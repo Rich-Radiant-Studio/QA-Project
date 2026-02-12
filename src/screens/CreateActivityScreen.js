@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, TextInput, Alert } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from '../i18n/withTranslation';
 
 export default function CreateActivityScreen({ navigation, route }) {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const teamId = route?.params?.teamId;
   const teamName = route?.params?.teamName;
@@ -33,29 +35,29 @@ export default function CreateActivityScreen({ navigation, route }) {
 
   const handleCreateActivity = () => {
     if (!newActivity.title.trim()) {
-      Alert.alert('提示', '请输入活动标题');
+      Alert.alert(t('screens.createActivity.validation.hint'), t('screens.createActivity.validation.titleRequired'));
       return;
     }
     if (!newActivity.desc.trim()) {
-      Alert.alert('提示', '请输入活动内容');
+      Alert.alert(t('screens.createActivity.validation.hint'), t('screens.createActivity.validation.descriptionRequired'));
       return;
     }
     if (!newActivity.startTime || !newActivity.endTime) {
-      Alert.alert('提示', '请选择活动时间');
+      Alert.alert(t('screens.createActivity.validation.hint'), t('screens.createActivity.validation.timeRequired'));
       return;
     }
     if (newActivity.type === 'offline' && !newActivity.address.trim()) {
-      Alert.alert('提示', '线下活动请填写活动地址');
+      Alert.alert(t('screens.createActivity.validation.hint'), t('screens.createActivity.validation.locationRequired'));
       return;
     }
     if (newActivity.organizerType === 'team' && !newActivity.teamName) {
-      Alert.alert('提示', '请选择发起活动的团队');
+      Alert.alert(t('screens.createActivity.validation.hint'), t('screens.createActivity.validation.teamRequired'));
       return;
     }
 
-    Alert.alert('成功', '活动发起成功！', [
+    Alert.alert(t('screens.createActivity.success.title'), t('screens.createActivity.success.message'), [
       {
-        text: '确定',
+        text: t('screens.createActivity.success.confirm'),
         onPress: () => {
           navigation.goBack();
         }
@@ -70,7 +72,7 @@ export default function CreateActivityScreen({ navigation, route }) {
         images: [...newActivity.images, `https://images.unsplash.com/photo-${Math.floor(Math.random() * 1000000)}?w=800&h=600&fit=crop`]
       });
     } else {
-      Alert.alert('提示', '最多只能上传9张图片');
+      Alert.alert(t('screens.createActivity.validation.hint'), t('screens.createActivity.images.maxLimit'));
     }
   };
 
@@ -114,14 +116,14 @@ export default function CreateActivityScreen({ navigation, route }) {
         >
           <Ionicons name="close" size={26} color="#333" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>发起活动</Text>
+        <Text style={styles.headerTitle}>{t('screens.createActivity.title')}</Text>
         <TouchableOpacity 
           onPress={handleCreateActivity}
           style={styles.submitBtn}
           hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
           activeOpacity={0.7}
         >
-          <Text style={styles.submitText}>发布</Text>
+          <Text style={styles.submitText}>{t('screens.createActivity.publish')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -129,21 +131,21 @@ export default function CreateActivityScreen({ navigation, route }) {
         {/* 发起身份选择 - 仅在非团队详情页进入时显示 */}
         {!teamId && (
           <>
-            <Text style={styles.inputLabel}>发起身份 <Text style={styles.required}>*</Text></Text>
+            <Text style={styles.inputLabel}>{t('screens.createActivity.organizerType.label')} <Text style={styles.required}>{t('screens.createActivity.organizerType.required')}</Text></Text>
             <View style={styles.organizerSelector}>
               <TouchableOpacity 
                 style={[styles.organizerOption, newActivity.organizerType === 'personal' && styles.organizerOptionActive]}
                 onPress={() => handleOrganizerTypeChange('personal')}
               >
                 <Ionicons name="person" size={20} color={newActivity.organizerType === 'personal' ? '#fff' : '#666'} />
-                <Text style={[styles.organizerOptionText, newActivity.organizerType === 'personal' && styles.organizerOptionTextActive]}>个人发起</Text>
+                <Text style={[styles.organizerOptionText, newActivity.organizerType === 'personal' && styles.organizerOptionTextActive]}>{t('screens.createActivity.organizerType.personal')}</Text>
               </TouchableOpacity>
               <TouchableOpacity 
                 style={[styles.organizerOption, newActivity.organizerType === 'team' && styles.organizerOptionActive]}
                 onPress={() => handleOrganizerTypeChange('team')}
               >
                 <Ionicons name="people" size={20} color={newActivity.organizerType === 'team' ? '#fff' : '#666'} />
-                <Text style={[styles.organizerOptionText, newActivity.organizerType === 'team' && styles.organizerOptionTextActive]}>团队发起</Text>
+                <Text style={[styles.organizerOptionText, newActivity.organizerType === 'team' && styles.organizerOptionTextActive]}>{t('screens.createActivity.organizerType.team')}</Text>
               </TouchableOpacity>
             </View>
 
@@ -158,7 +160,7 @@ export default function CreateActivityScreen({ navigation, route }) {
                   <Text style={styles.selectedTeamName}>{newActivity.teamName}</Text>
                 </View>
                 <View style={styles.changeTeamBtn}>
-                  <Text style={styles.changeTeamText}>更换</Text>
+                  <Text style={styles.changeTeamText}>{t('screens.createActivity.selectedTeam.change')}</Text>
                   <Ionicons name="chevron-forward" size={16} color="#8b5cf6" />
                 </View>
               </TouchableOpacity>
@@ -171,7 +173,7 @@ export default function CreateActivityScreen({ navigation, route }) {
                 onPress={() => setShowTeamSelector(true)}
               >
                 <Ionicons name="add-circle-outline" size={20} color="#8b5cf6" />
-                <Text style={styles.selectTeamPromptText}>选择团队</Text>
+                <Text style={styles.selectTeamPromptText}>{t('screens.createActivity.selectedTeam.select')}</Text>
               </TouchableOpacity>
             )}
           </>
@@ -180,51 +182,51 @@ export default function CreateActivityScreen({ navigation, route }) {
         {/* 从团队详情页进入时显示固定的团队身份 */}
         {teamId && teamName && (
           <>
-            <Text style={styles.inputLabel}>发起身份</Text>
+            <Text style={styles.inputLabel}>{t('screens.createActivity.organizerType.label')}</Text>
             <View style={styles.fixedOrganizerBanner}>
               <Ionicons name="people" size={20} color="#8b5cf6" />
               <Text style={styles.fixedOrganizerText}>{teamName}</Text>
               <View style={styles.fixedOrganizerBadge}>
-                <Text style={styles.fixedOrganizerBadgeText}>团队</Text>
+                <Text style={styles.fixedOrganizerBadgeText}>{t('screens.createActivity.organizerType.teamBadge')}</Text>
               </View>
             </View>
           </>
         )}
 
         {/* 活动类型 */}
-        <Text style={styles.inputLabel}>活动类型</Text>
+        <Text style={styles.inputLabel}>{t('screens.createActivity.activityType.label')}</Text>
         <View style={styles.typeSelector}>
           <TouchableOpacity 
             style={[styles.typeOption, newActivity.type === 'online' && styles.typeOptionActive]}
             onPress={() => setNewActivity({ ...newActivity, type: 'online' })}
           >
             <Ionicons name="globe-outline" size={20} color={newActivity.type === 'online' ? '#fff' : '#666'} />
-            <Text style={[styles.typeOptionText, newActivity.type === 'online' && styles.typeOptionTextActive]}>线上活动</Text>
+            <Text style={[styles.typeOptionText, newActivity.type === 'online' && styles.typeOptionTextActive]}>{t('screens.createActivity.activityType.online')}</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={[styles.typeOption, newActivity.type === 'offline' && styles.typeOptionActive]}
             onPress={() => setNewActivity({ ...newActivity, type: 'offline' })}
           >
             <Ionicons name="location-outline" size={20} color={newActivity.type === 'offline' ? '#fff' : '#666'} />
-            <Text style={[styles.typeOptionText, newActivity.type === 'offline' && styles.typeOptionTextActive]}>线下活动</Text>
+            <Text style={[styles.typeOptionText, newActivity.type === 'offline' && styles.typeOptionTextActive]}>{t('screens.createActivity.activityType.offline')}</Text>
           </TouchableOpacity>
         </View>
 
         {/* 活动标题 */}
-        <Text style={styles.inputLabel}>活动标题 <Text style={styles.required}>*</Text></Text>
+        <Text style={styles.inputLabel}>{t('screens.createActivity.title.label')} <Text style={styles.required}>{t('screens.createActivity.title.required')}</Text></Text>
         <TextInput
           style={styles.input}
-          placeholder="请输入活动标题"
+          placeholder={t('screens.createActivity.title.placeholder')}
           value={newActivity.title}
           onChangeText={(text) => setNewActivity({ ...newActivity, title: text })}
           maxLength={50}
         />
 
         {/* 活动内容 */}
-        <Text style={styles.inputLabel}>活动内容 <Text style={styles.required}>*</Text></Text>
+        <Text style={styles.inputLabel}>{t('screens.createActivity.description.label')} <Text style={styles.required}>{t('screens.createActivity.description.required')}</Text></Text>
         <TextInput
           style={[styles.input, styles.textArea]}
-          placeholder="请输入活动详细内容"
+          placeholder={t('screens.createActivity.description.placeholder')}
           value={newActivity.desc}
           onChangeText={(text) => setNewActivity({ ...newActivity, desc: text })}
           multiline
@@ -232,30 +234,40 @@ export default function CreateActivityScreen({ navigation, route }) {
         />
 
         {/* 活动时间 */}
-        <Text style={styles.inputLabel}>活动时间 <Text style={styles.required}>*</Text></Text>
-        <View style={styles.timeRow}>
-          <TextInput
-            style={[styles.input, styles.timeInput]}
-            placeholder="开始日期 如2026-01-20"
-            value={newActivity.startTime}
-            onChangeText={(text) => setNewActivity({ ...newActivity, startTime: text })}
-          />
-          <Text style={styles.timeSeparator}>至</Text>
-          <TextInput
-            style={[styles.input, styles.timeInput]}
-            placeholder="结束日期 如2026-01-25"
-            value={newActivity.endTime}
-            onChangeText={(text) => setNewActivity({ ...newActivity, endTime: text })}
-          />
+        <Text style={styles.inputLabel}>{t('screens.createActivity.time.label')} <Text style={styles.required}>{t('screens.createActivity.time.required')}</Text></Text>
+        <View style={styles.timeContainer}>
+          <View style={styles.timeInputWrapper}>
+            <Text style={styles.timeInputLabel}>{t('screens.createActivity.time.startDate')}</Text>
+            <TextInput
+              style={styles.timeInputField}
+              placeholder={t('screens.createActivity.time.startPlaceholder')}
+              placeholderTextColor="#9ca3af"
+              value={newActivity.startTime}
+              onChangeText={(text) => setNewActivity({ ...newActivity, startTime: text })}
+            />
+          </View>
+          <View style={styles.timeSeparatorWrapper}>
+            <Text style={styles.timeSeparator}>{t('screens.createActivity.time.to')}</Text>
+          </View>
+          <View style={styles.timeInputWrapper}>
+            <Text style={styles.timeInputLabel}>{t('screens.createActivity.time.endDate')}</Text>
+            <TextInput
+              style={styles.timeInputField}
+              placeholder={t('screens.createActivity.time.endPlaceholder')}
+              placeholderTextColor="#9ca3af"
+              value={newActivity.endTime}
+              onChangeText={(text) => setNewActivity({ ...newActivity, endTime: text })}
+            />
+          </View>
         </View>
 
         {/* 活动地址（线下活动） */}
         {newActivity.type === 'offline' && (
           <>
-            <Text style={styles.inputLabel}>活动地址 <Text style={styles.required}>*</Text></Text>
+            <Text style={styles.inputLabel}>{t('screens.createActivity.location.label')} <Text style={styles.required}>{t('screens.createActivity.location.required')}</Text></Text>
             <TextInput
               style={styles.input}
-              placeholder="请输入活动地址"
+              placeholder={t('screens.createActivity.location.placeholder')}
               value={newActivity.address}
               onChangeText={(text) => setNewActivity({ ...newActivity, address: text })}
             />
@@ -263,7 +275,7 @@ export default function CreateActivityScreen({ navigation, route }) {
         )}
 
         {/* 活动图片 */}
-        <Text style={styles.inputLabel}>活动图片（最多9张）</Text>
+        <Text style={styles.inputLabel}>{t('screens.createActivity.images.label')}</Text>
         <View style={styles.imageGrid}>
           {newActivity.images.map((img, idx) => (
             <View key={idx} style={styles.imageItem}>
@@ -279,16 +291,16 @@ export default function CreateActivityScreen({ navigation, route }) {
           {newActivity.images.length < 9 && (
             <TouchableOpacity style={styles.addImageBtn} onPress={addActivityImage}>
               <Ionicons name="add" size={24} color="#9ca3af" />
-              <Text style={styles.addImageText}>添加图片</Text>
+              <Text style={styles.addImageText}>{t('screens.createActivity.images.add')}</Text>
             </TouchableOpacity>
           )}
         </View>
 
         {/* 联系方式 */}
-        <Text style={styles.inputLabel}>联系方式</Text>
+        <Text style={styles.inputLabel}>{t('screens.createActivity.contact.label')}</Text>
         <TextInput
           style={styles.input}
-          placeholder="请输入联系方式（手机号/微信/邮箱）"
+          placeholder={t('screens.createActivity.contact.placeholder')}
           value={newActivity.contact}
           onChangeText={(text) => setNewActivity({ ...newActivity, contact: text })}
         />
@@ -301,7 +313,7 @@ export default function CreateActivityScreen({ navigation, route }) {
         <View style={styles.teamSelectorOverlay}>
           <View style={styles.teamSelectorModal}>
             <View style={styles.teamSelectorHeader}>
-              <Text style={styles.teamSelectorTitle}>选择团队</Text>
+              <Text style={styles.teamSelectorTitle}>{t('screens.createActivity.teamSelector.title')}</Text>
               <TouchableOpacity onPress={() => setShowTeamSelector(false)}>
                 <Ionicons name="close" size={24} color="#6b7280" />
               </TouchableOpacity>
@@ -322,7 +334,7 @@ export default function CreateActivityScreen({ navigation, route }) {
                     </View>
                     <View style={styles.teamSelectorInfo}>
                       <Text style={styles.teamSelectorName}>{team.name}</Text>
-                      <Text style={styles.teamSelectorMembers}>{team.members}名成员</Text>
+                      <Text style={styles.teamSelectorMembers}>{team.members}{t('screens.createActivity.teamSelector.members')}</Text>
                     </View>
                   </View>
                   {newActivity.teamId === team.id && (
@@ -384,8 +396,12 @@ const styles = StyleSheet.create({
   typeOptionText: { fontSize: 14, color: '#666' },
   typeOptionTextActive: { color: '#fff' },
   timeRow: { flexDirection: 'row', alignItems: 'center' },
-  timeInput: { flex: 1 },
-  timeSeparator: { marginHorizontal: 8, color: '#6b7280' },
+  timeContainer: { flexDirection: 'row', alignItems: 'flex-end', gap: 8 },
+  timeInputWrapper: { flex: 1 },
+  timeInputLabel: { fontSize: 12, color: '#6b7280', marginBottom: 6 },
+  timeInputField: { backgroundColor: '#f9fafb', borderRadius: 8, padding: 12, fontSize: 14, borderWidth: 1, borderColor: '#e5e7eb', color: '#1f2937' },
+  timeSeparatorWrapper: { paddingBottom: 12 },
+  timeSeparator: { fontSize: 14, color: '#6b7280', fontWeight: '500' },
   imageGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   imageItem: { width: 80, height: 80, borderRadius: 8, backgroundColor: '#e5e7eb', position: 'relative', overflow: 'hidden' },
   uploadedImage: { width: '100%', height: '100%' },

@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from '../i18n/withTranslation';
 
 // 模拟考核历史数据
 const examHistory = [
@@ -10,7 +11,7 @@ const examHistory = [
     bankName: 'React Native基础知识', 
     date: '2026-01-25 14:30', 
     score: 95, 
-    rank: '优秀',
+    rank: 'excellent',
     duration: '05:23',
     totalQuestions: 10,
     correctCount: 9
@@ -20,7 +21,7 @@ const examHistory = [
     bankName: 'JavaScript高级特性', 
     date: '2026-01-20 10:15', 
     score: 85, 
-    rank: '良好',
+    rank: 'good',
     duration: '07:45',
     totalQuestions: 10,
     correctCount: 8
@@ -30,7 +31,7 @@ const examHistory = [
     bankName: 'React Hooks实战', 
     date: '2026-01-15 16:20', 
     score: 90, 
-    rank: '优秀',
+    rank: 'excellent',
     duration: '06:12',
     totalQuestions: 10,
     correctCount: 9
@@ -40,7 +41,7 @@ const examHistory = [
     bankName: 'TypeScript入门', 
     date: '2026-01-10 09:30', 
     score: 75, 
-    rank: '及格',
+    rank: 'pass',
     duration: '08:30',
     totalQuestions: 10,
     correctCount: 7
@@ -50,7 +51,7 @@ const examHistory = [
     bankName: 'React Native基础知识', 
     date: '2026-01-05 15:45', 
     score: 80, 
-    rank: '良好',
+    rank: 'good',
     duration: '07:00',
     totalQuestions: 10,
     correctCount: 8
@@ -58,12 +59,14 @@ const examHistory = [
 ];
 
 export default function ExamHistoryScreen({ navigation }) {
-  const getRankColor = (rank) => {
-    switch (rank) {
-      case '优秀': return '#22c55e';
-      case '良好': return '#3b82f6';
-      case '及格': return '#f59e0b';
-      case '不及格': return '#ef4444';
+  const { t } = useTranslation();
+  
+  const getRankColor = (rankKey) => {
+    switch (rankKey) {
+      case 'excellent': return '#22c55e';
+      case 'good': return '#3b82f6';
+      case 'pass': return '#f59e0b';
+      case 'fail': return '#ef4444';
       default: return '#6b7280';
     }
   };
@@ -82,7 +85,7 @@ export default function ExamHistoryScreen({ navigation }) {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <Ionicons name="arrow-back" size={24} color="#374151" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>考核历史</Text>
+        <Text style={styles.headerTitle}>{t('screens.examHistory.title')}</Text>
         <View style={{ width: 24 }} />
       </View>
 
@@ -90,21 +93,21 @@ export default function ExamHistoryScreen({ navigation }) {
       <View style={styles.statsCard}>
         <View style={styles.statItem}>
           <Text style={styles.statValue}>{examHistory.length}</Text>
-          <Text style={styles.statLabel}>总考核次数</Text>
+          <Text style={styles.statLabel}>{t('screens.examHistory.stats.totalExams')}</Text>
         </View>
         <View style={styles.statDivider} />
         <View style={styles.statItem}>
           <Text style={[styles.statValue, { color: '#22c55e' }]}>
             {examHistory.filter(e => e.score >= 60).length}
           </Text>
-          <Text style={styles.statLabel}>通过次数</Text>
+          <Text style={styles.statLabel}>{t('screens.examHistory.stats.passed')}</Text>
         </View>
         <View style={styles.statDivider} />
         <View style={styles.statItem}>
           <Text style={[styles.statValue, { color: '#f59e0b' }]}>
             {(examHistory.reduce((sum, e) => sum + e.score, 0) / examHistory.length).toFixed(1)}
           </Text>
-          <Text style={styles.statLabel}>平均分</Text>
+          <Text style={styles.statLabel}>{t('screens.examHistory.stats.avgScore')}</Text>
         </View>
       </View>
 
@@ -121,13 +124,21 @@ export default function ExamHistoryScreen({ navigation }) {
                 <Text style={styles.examBankNameText}>{exam.bankName}</Text>
               </View>
               <View style={[styles.examRankBadge, { backgroundColor: `${getRankColor(exam.rank)}15` }]}>
-                <Text style={[styles.examRankText, { color: getRankColor(exam.rank) }]}>{exam.rank}</Text>
+                <Text style={[styles.examRankText, { color: getRankColor(exam.rank) }]}>
+                  {t(`screens.examHistory.rank.${exam.rank}`)}
+                </Text>
               </View>
             </View>
 
             <View style={styles.examScoreRow}>
-              <Text style={[styles.examScore, { color: getScoreColor(exam.score) }]}>{exam.score}分</Text>
-              <Text style={styles.examCorrect}>{exam.correctCount}/{exam.totalQuestions}题正确</Text>
+              <Text style={[styles.examScore, { color: getScoreColor(exam.score) }]}>
+                {exam.score}{t('screens.examHistory.scoreUnit')}
+              </Text>
+              <Text style={styles.examCorrect}>
+                {t('screens.examHistory.correctCount')
+                  .replace('{correct}', exam.correctCount)
+                  .replace('{total}', exam.totalQuestions)}
+              </Text>
             </View>
 
             <View style={styles.examMeta}>
@@ -137,12 +148,14 @@ export default function ExamHistoryScreen({ navigation }) {
               </View>
               <View style={styles.examMetaItem}>
                 <Ionicons name="time-outline" size={14} color="#9ca3af" />
-                <Text style={styles.examMetaText}>用时 {exam.duration}</Text>
+                <Text style={styles.examMetaText}>
+                  {t('screens.examHistory.duration').replace('{time}', exam.duration)}
+                </Text>
               </View>
             </View>
 
             <View style={styles.examFooter}>
-              <Text style={styles.examDetailLink}>查看详情</Text>
+              <Text style={styles.examDetailLink}>{t('screens.examHistory.viewDetail')}</Text>
               <Ionicons name="chevron-forward" size={16} color="#f59e0b" />
             </View>
           </TouchableOpacity>

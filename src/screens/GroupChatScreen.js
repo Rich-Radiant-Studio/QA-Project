@@ -3,16 +3,18 @@ import { View, Text, ScrollView, TouchableOpacity, Image, TextInput, StyleSheet,
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import Avatar from '../components/Avatar';
+import { useTranslation } from '../i18n/withTranslation';
 
 const initialMessages = [
-  { id: 1, author: '技术小白', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=msg1', content: '这个问题我也很想知道答案，关注了！', time: '10分钟前', likes: 12, dislikes: 1, shares: 3, bookmarks: 5 },
-  { id: 2, author: 'Python爱好者', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=msg2', content: '我觉得3个月入门完全可以，关键是要坚持每天练习', time: '25分钟前', likes: 28, dislikes: 2, shares: 8, bookmarks: 15 },
-  { id: 3, author: '数据分析师', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=msg3', content: '推荐先从基础语法开始，然后学pandas和numpy，这两个库在数据分析中用得最多', time: '1小时前', likes: 45, dislikes: 3, shares: 12, bookmarks: 28 },
-  { id: 4, author: '转行成功', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=msg4', content: '我就是文科转行的，现在已经做了2年数据分析了，加油！', time: '2小时前', likes: 67, dislikes: 1, shares: 18, bookmarks: 34 },
-  { id: 5, author: '编程导师', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=msg5', content: '建议找一个实际项目来练手，比如爬虫或者数据可视化，这样学得更快', time: '3小时前', likes: 89, dislikes: 2, shares: 25, bookmarks: 56 },
+  { id: 1, author: '技术小白', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=msg1', content: '这个问题我也很想知道答案，关注了！', time: '10', likes: 12, dislikes: 1, shares: 3, bookmarks: 5 },
+  { id: 2, author: 'Python爱好者', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=msg2', content: '我觉得3个月入门完全可以，关键是要坚持每天练习', time: '25', likes: 28, dislikes: 2, shares: 8, bookmarks: 15 },
+  { id: 3, author: '数据分析师', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=msg3', content: '推荐先从基础语法开始，然后学pandas和numpy，这两个库在数据分析中用得最多', time: '60', likes: 45, dislikes: 3, shares: 12, bookmarks: 28 },
+  { id: 4, author: '转行成功', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=msg4', content: '我就是文科转行的，现在已经做了2年数据分析了，加油！', time: '120', likes: 67, dislikes: 1, shares: 18, bookmarks: 34 },
+  { id: 5, author: '编程导师', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=msg5', content: '建议找一个实际项目来练手，比如爬虫或者数据可视化，这样学得更快', time: '180', likes: 89, dislikes: 2, shares: 25, bookmarks: 56 },
 ];
 
 export default function GroupChatScreen({ navigation, route }) {
+  const { t } = useTranslation();
   const [messages, setMessages] = useState(initialMessages);
   const [inputText, setInputText] = useState('');
   const [liked, setLiked] = useState({});
@@ -30,6 +32,16 @@ export default function GroupChatScreen({ navigation, route }) {
     memberCount: 128
   };
 
+  // Helper function to format time
+  const formatTime = (minutes) => {
+    if (minutes < 60) {
+      return `${minutes}${t('screens.groupChat.minutesAgo')}`;
+    } else {
+      const hours = Math.floor(minutes / 60);
+      return `${hours}${t('screens.groupChat.hoursAgo')}`;
+    }
+  };
+
   const handleSend = () => {
     if (!inputText.trim()) return;
     const newMessage = {
@@ -37,7 +49,7 @@ export default function GroupChatScreen({ navigation, route }) {
       author: '我',
       avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=me',
       content: inputText,
-      time: '刚刚',
+      time: '0',
       likes: 0,
       dislikes: 0,
       shares: 0,
@@ -49,11 +61,11 @@ export default function GroupChatScreen({ navigation, route }) {
 
   const handleExitGroup = () => {
     Alert.alert(
-      '退出群组',
-      '确定要退出该群组吗？退出后将无法查看群组消息',
+      t('screens.groupChat.exitConfirmTitle'),
+      t('screens.groupChat.exitConfirmMessage'),
       [
-        { text: '取消', style: 'cancel' },
-        { text: '确定退出', style: 'destructive', onPress: () => {
+        { text: t('screens.groupChat.cancel'), style: 'cancel' },
+        { text: t('screens.groupChat.confirmExit'), style: 'destructive', onPress: () => {
           setIsJoined(false);
           navigation.goBack();
         }}
@@ -73,8 +85,8 @@ export default function GroupChatScreen({ navigation, route }) {
       id: Date.now(),
       author: '我',
       avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=me',
-      content: `回复 @${replyTarget.author}：${replyText}`,
-      time: '刚刚',
+      content: `${t('screens.groupChat.replyTo')} @${replyTarget.author}：${replyText}`,
+      time: '0',
       likes: 0,
       dislikes: 0,
       shares: 0,
@@ -87,9 +99,9 @@ export default function GroupChatScreen({ navigation, route }) {
   };
 
   const handleReport = (msg) => {
-    Alert.alert('举报', '确定要举报该内容吗？', [
-      { text: '取消', style: 'cancel' },
-      { text: '确定', onPress: () => Alert.alert('提示', '举报已提交，我们会尽快处理') }
+    Alert.alert(t('screens.groupChat.reportTitle'), t('screens.groupChat.reportConfirm'), [
+      { text: t('screens.groupChat.cancel'), style: 'cancel' },
+      { text: t('common.confirm'), onPress: () => Alert.alert(t('screens.groupChat.hint'), t('screens.groupChat.reportSuccess')) }
     ]);
   };
 
@@ -101,8 +113,8 @@ export default function GroupChatScreen({ navigation, route }) {
           <Ionicons name="arrow-back" size={24} color="#374151" />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
-          <Text style={styles.headerTitle}>问题群组</Text>
-          <Text style={styles.memberCount}>{question.memberCount} 人已加入</Text>
+          <Text style={styles.headerTitle}>{t('screens.groupChat.title')}</Text>
+          <Text style={styles.memberCount}>{question.memberCount} {t('screens.groupChat.memberCount')}</Text>
         </View>
         <TouchableOpacity onPress={handleExitGroup} style={styles.exitBtn}>
           <Ionicons name="exit-outline" size={22} color="#ef4444" />
@@ -116,7 +128,7 @@ export default function GroupChatScreen({ navigation, route }) {
             <Image source={{ uri: question.avatar }} style={styles.questionAvatar} />
             <Text style={styles.questionAuthor}>{question.author}</Text>
             <View style={styles.questionTag}>
-              <Text style={styles.questionTagText}>提问者</Text>
+              <Text style={styles.questionTagText}>{t('screens.groupChat.questioner')}</Text>
             </View>
           </View>
           <Text style={styles.questionTitle}>{question.title}</Text>
@@ -125,8 +137,8 @@ export default function GroupChatScreen({ navigation, route }) {
         {/* 留言列表 */}
         <View style={styles.messagesSection}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>群组留言</Text>
-            <Text style={styles.messageCount}>{messages.length} 条留言</Text>
+            <Text style={styles.sectionTitle}>{t('screens.groupChat.messagesSection')}</Text>
+            <Text style={styles.messageCount}>{messages.length} {t('screens.groupChat.messageCount')}</Text>
           </View>
 
           {messages.map(msg => (
@@ -135,7 +147,7 @@ export default function GroupChatScreen({ navigation, route }) {
               <View style={styles.msgContent}>
                 <View style={styles.msgHeader}>
                   <Text style={styles.msgAuthor}>{msg.author}</Text>
-                  <Text style={styles.msgTime}>{msg.time}</Text>
+                  <Text style={styles.msgTime}>{msg.time === '0' ? t('screens.groupChat.justNow') : formatTime(parseInt(msg.time))}</Text>
                 </View>
                 <Text style={styles.msgText}>{msg.content}</Text>
                 <View style={styles.msgActions}>
@@ -160,7 +172,7 @@ export default function GroupChatScreen({ navigation, route }) {
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.replyBtn} onPress={() => openReplyModal(msg)}>
                     <Ionicons name="return-down-back-outline" size={14} color="#ef4444" />
-                    <Text style={styles.replyBtnText}>回复</Text>
+                    <Text style={styles.replyBtnText}>{t('screens.groupChat.reply')}</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -178,7 +190,7 @@ export default function GroupChatScreen({ navigation, route }) {
         >
           <TouchableOpacity activeOpacity={1} style={styles.replyModal}>
             <View style={styles.replyModalHeader}>
-              <Text style={styles.replyModalTitle}>回复</Text>
+              <Text style={styles.replyModalTitle}>{t('screens.groupChat.replyModalTitle')}</Text>
               <TouchableOpacity onPress={() => setShowReplyModal(false)}>
                 <Ionicons name="close" size={24} color="#6b7280" />
               </TouchableOpacity>
@@ -197,7 +209,7 @@ export default function GroupChatScreen({ navigation, route }) {
             <View style={styles.replyInputWrapper}>
               <TextInput
                 style={styles.replyInput}
-                placeholder={`回复 @${replyTarget?.author || ''}...`}
+                placeholder={t('screens.groupChat.replyPlaceholder').replace('{author}', replyTarget?.author || '')}
                 value={replyText}
                 onChangeText={setReplyText}
                 multiline
@@ -207,14 +219,14 @@ export default function GroupChatScreen({ navigation, route }) {
 
             <View style={styles.replyModalFooter}>
               <TouchableOpacity style={styles.replyCancelBtn} onPress={() => setShowReplyModal(false)}>
-                <Text style={styles.replyCancelText}>取消</Text>
+                <Text style={styles.replyCancelText}>{t('screens.groupChat.cancel')}</Text>
               </TouchableOpacity>
               <TouchableOpacity 
                 style={[styles.replySubmitBtn, !replyText.trim() && styles.replySubmitBtnDisabled]} 
                 onPress={handleReply}
                 disabled={!replyText.trim()}
               >
-                <Text style={styles.replySubmitText}>发送</Text>
+                <Text style={styles.replySubmitText}>{t('screens.groupChat.send')}</Text>
               </TouchableOpacity>
             </View>
           </TouchableOpacity>
@@ -226,7 +238,7 @@ export default function GroupChatScreen({ navigation, route }) {
         <View style={styles.inputWrapper}>
           <TextInput
             style={styles.input}
-            placeholder="发表留言..."
+            placeholder={t('screens.groupChat.inputPlaceholder')}
             value={inputText}
             onChangeText={setInputText}
             multiline

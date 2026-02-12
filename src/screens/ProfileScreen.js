@@ -5,70 +5,85 @@ import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import Avatar from '../components/Avatar';
 import SuperLikeBalance from '../components/SuperLikeBalance';
-
-const stats = [
-  { label: '点赞', value: '3.5k', screen: 'Likes' },
-  { label: '粉丝', value: '1.2k', screen: 'Fans' },
-  { label: '关注', value: '128', screen: 'Follow' },
-  { label: '朋友', value: '56', screen: 'Friends' },
-];
-
-const menuItems = [
-  { icon: 'document-text', label: '我的草稿', value: '3', color: '#22c55e' },
-  { icon: 'people', label: '我的群聊', value: '5', color: '#a855f7' },
-  { icon: 'people-circle', label: '我的团队', value: '2', color: '#f59e0b' },
-  { icon: 'calendar', label: '我的活动', value: '2', color: '#ef4444' },
-  { icon: 'eye', label: '查看公开主页', value: '', color: '#8b5cf6' },
-  { icon: 'shield-checkmark', label: '我要认证', value: '', color: '#3b82f6' },
-];
-
-const myQuestions = [
-  { id: 1, title: '如何在三个月内从零基础学会Python编程？', type: 'reward', reward: 50, views: '1.2k', comments: 56, likes: 128, time: '2小时前' },
-  { id: 2, title: '第一次养猫需要准备什么？', type: 'free', solved: true, views: '2.5k', comments: 89, likes: 256, time: '昨天' },
-  { id: 3, title: '35岁程序员如何规划职业发展？', type: 'reward', reward: 100, views: '5.6k', comments: 456, likes: 1200, time: '3天前' },
-];
-
-const myAnswers = [
-  { id: 1, questionTitle: '如何高效学习一门新技能？', content: '作为一个自学了多门技能的人，我来分享一下我的经验...', likes: 256, comments: 23, adopted: true, time: '1小时前' },
-  { id: 2, questionTitle: 'Python数据分析入门需要学什么？', content: '首先需要掌握Python基础语法，然后学习NumPy和Pandas...', likes: 189, comments: 15, adopted: false, time: '3小时前' },
-  { id: 3, questionTitle: '35岁转行做程序员还来得及吗？', content: '完全来得及！我就是35岁转行的，现在已经工作2年了...', likes: 512, comments: 45, adopted: true, time: '昨天' },
-  { id: 4, questionTitle: '如何克服拖延症？', content: '拖延症的根本原因是对任务的恐惧，可以尝试番茄工作法...', likes: 98, comments: 8, adopted: false, time: '2天前' },
-];
-
-const contentTabs = ['提问 (56)', '回答 (234)', '收藏 (892)', '浏览历史 (156)'];
-
-// 收藏数据
-const favoritesData = {
-  questions: [
-    { id: 1, title: '如何高效学习一门新技能？', author: '学习达人', time: '收藏于2天前' },
-    { id: 2, title: 'Python数据分析入门指南', author: '数据分析师', time: '收藏于3天前' },
-  ],
-  answers: [
-    { id: 1, title: '关于职场新人如何快速成长的回答', author: '职场导师', time: '收藏于1周前' },
-    { id: 2, title: '关于如何克服拖延症的回答', author: '心理咨询师', time: '收藏于2周前' },
-  ],
-  comments: [
-    { id: 1, title: '"这个方法真的很有用！"', author: '小明', time: '收藏于3天前' },
-    { id: 2, title: '"感谢分享，学到了很多"', author: '小红', time: '收藏于5天前' },
-  ],
-};
-
-// 浏览历史数据
-const historyList = [
-  { id: 1, title: 'AI大模型会取代程序员吗？', author: 'AI研究员', time: '1小时前' },
-  { id: 2, title: '2026年最值得学习的编程语言', author: '技术博主', time: '3小时前' },
-  { id: 3, title: '如何克服社交恐惧症？', author: '心理咨询师', time: '昨天' },
-];
-
-// 草稿数据
-const draftsList = [
-  { id: 1, title: '关于远程办公的一些思考...', time: '保存于1小时前', type: 'question' },
-  { id: 2, title: '我对Python学习的建议是...', time: '保存于昨天', type: 'answer' },
-  { id: 3, title: '新手养猫注意事项', time: '保存于3天前', type: 'question' },
-];
+import { useTranslation } from '../i18n/withTranslation';
 
 export default function ProfileScreen({ navigation, onLogout }) {
-  const [activeTab, setActiveTab] = useState('提问 (56)');
+  const { t } = useTranslation();
+  
+  const stats = React.useMemo(() => [
+    { label: t('profile.likes'), value: '3.5k', screen: 'Likes' },
+    { label: t('profile.followers'), value: '1.2k', screen: 'Fans' },
+    { label: t('profile.following'), value: '128', screen: 'Follow' },
+    { label: t('profile.friends'), value: '56', screen: 'Friends' },
+  ], [t]);
+
+  const menuItems = React.useMemo(() => [
+    { icon: 'document-text', label: t('profile.myDrafts'), value: '12', color: '#22c55e' },
+    { icon: 'people', label: t('profile.myGroups'), value: '8', color: '#a855f7' },
+    { icon: 'people-circle', label: t('profile.myTeams'), value: '3', color: '#f59e0b' },
+    { icon: 'calendar', label: t('profile.myActivities'), value: '15', color: '#ef4444' },
+    { icon: 'eye', label: t('profile.viewPublicProfile'), value: '', color: '#8b5cf6' },
+    { icon: 'shield-checkmark', label: t('profile.verification'), value: '', color: '#3b82f6' },
+  ], [t]);
+
+  const myQuestions = React.useMemo(() => [
+    { id: 1, title: '如何在三个月内从零基础学会Python编程？', type: 'reward', reward: 50, views: '1.2k', comments: 56, likes: 128, time: t('profile.time.hoursAgo').replace('{hours}', '2') },
+    { id: 2, title: '第一次养猫需要准备什么？', type: 'free', solved: true, views: '2.5k', comments: 89, likes: 256, time: t('profile.time.yesterday') },
+    { id: 3, title: '35岁程序员如何规划职业发展？', type: 'reward', reward: 100, views: '5.6k', comments: 456, likes: 1200, time: t('profile.time.daysAgo').replace('{days}', '3') },
+  ], [t]);
+
+  const myAnswers = React.useMemo(() => [
+    { id: 1, questionTitle: '如何高效学习一门新技能？', content: '作为一个自学了多门技能的人，我来分享一下我的经验...', likes: 256, comments: 23, adopted: true, time: t('profile.time.hoursAgo').replace('{hours}', '1') },
+    { id: 2, questionTitle: 'Python数据分析入门需要学什么？', content: '首先需要掌握Python基础语法，然后学习NumPy和Pandas...', likes: 189, comments: 15, adopted: false, time: t('profile.time.hoursAgo').replace('{hours}', '3') },
+    { id: 3, questionTitle: '35岁转行做程序员还来得及吗？', content: '完全来得及！我就是35岁转行的，现在已经工作2年了...', likes: 512, comments: 45, adopted: true, time: t('profile.time.yesterday') },
+    { id: 4, questionTitle: '如何克服拖延症？', content: '拖延症的根本原因是对任务的恐惧，可以尝试番茄工作法...', likes: 98, comments: 8, adopted: false, time: t('profile.time.daysAgo').replace('{days}', '2') },
+  ], [t]);
+
+  const contentTabs = React.useMemo(() => [
+    t('profile.contentTabs.questions'),
+    t('profile.contentTabs.answers'),
+    t('profile.contentTabs.favorites'),
+    t('profile.contentTabs.history')
+  ], [t]);
+
+  // 收藏数据
+  const favoritesData = React.useMemo(() => ({
+    questions: [
+      { id: 1, title: '如何高效学习一门新技能？', author: '学习达人', time: t('profile.savedAt') + '2' + t('profile.time.daysAgo').replace('{days}', '') },
+      { id: 2, title: 'Python数据分析入门指南', author: '数据分析师', time: t('profile.savedAt') + '3' + t('profile.time.daysAgo').replace('{days}', '') },
+    ],
+    answers: [
+      { id: 1, title: '关于职场新人如何快速成长的回答', author: '职场导师', time: t('profile.savedAt') + '1周前' },
+      { id: 2, title: '关于如何克服拖延症的回答', author: '心理咨询师', time: t('profile.savedAt') + '2周前' },
+    ],
+    comments: [
+      { id: 1, title: '"这个方法真的很有用！"', author: '小明', time: t('profile.savedAt') + '3' + t('profile.time.daysAgo').replace('{days}', '') },
+      { id: 2, title: '"感谢分享，学到了很多"', author: '小红', time: t('profile.savedAt') + '5' + t('profile.time.daysAgo').replace('{days}', '') },
+    ],
+  }), [t]);
+
+  // 浏览历史数据
+  const historyList = React.useMemo(() => [
+    { id: 1, title: 'AI大模型会取代程序员吗？', author: 'AI研究员', time: t('profile.time.hoursAgo').replace('{hours}', '1') },
+    { id: 2, title: '2026年最值得学习的编程语言', author: '技术博主', time: t('profile.time.hoursAgo').replace('{hours}', '3') },
+    { id: 3, title: '如何克服社交恐惧症？', author: '心理咨询师', time: t('profile.time.yesterday') },
+  ], [t]);
+
+  // 草稿数据
+  const draftsList = React.useMemo(() => [
+    { id: 1, title: '关于远程办公的一些思考...', time: t('profile.savedAt') + t('profile.time.hoursAgo').replace('{hours}', '1'), type: 'question' },
+    { id: 2, title: '我对Python学习的建议是...', time: t('profile.savedAt') + t('profile.time.yesterday'), type: 'answer' },
+    { id: 3, title: '新手养猫注意事项', time: t('profile.savedAt') + '3' + t('profile.time.daysAgo').replace('{days}', ''), type: 'question' },
+  ], [t]);
+
+  const [activeTab, setActiveTab] = useState('');
+  
+  // Initialize activeTab with translated value
+  React.useEffect(() => {
+    if (!activeTab) {
+      setActiveTab(t('profile.contentTabs.questions'));
+    }
+  }, [t, activeTab]);
   const [showFavoritesModal, setShowFavoritesModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [showDraftsModal, setShowDraftsModal] = useState(false);
@@ -126,14 +141,14 @@ export default function ProfileScreen({ navigation, onLogout }) {
   const getVerificationInfo = () => {
     switch (verificationType) {
       case 'personal':
-        return { color: '#f59e0b', icon: 'checkmark', text: '个人认证', verified: true }; // 黄色V标 - 个人认证
+        return { color: '#f59e0b', icon: 'checkmark', text: t('profile.personalVerification'), verified: true }; // 黄色V标 - 个人认证
       case 'enterprise':
-        return { color: '#3b82f6', icon: 'checkmark', text: '企业认证', verified: true }; // 蓝色V标 - 企业认证
+        return { color: '#3b82f6', icon: 'checkmark', text: t('profile.enterpriseVerification'), verified: true }; // 蓝色V标 - 企业认证
       case 'government':
-        return { color: '#ef4444', icon: 'checkmark', text: '政府认证', verified: true }; // 红色V标 - 政府认证
+        return { color: '#ef4444', icon: 'checkmark', text: t('profile.governmentVerification'), verified: true }; // 红色V标 - 政府认证
       case 'none':
       default:
-        return { color: '#9ca3af', icon: 'close', text: '未认证', verified: false }; // 未认证 - 灰色X标
+        return { color: '#9ca3af', icon: 'close', text: t('profile.notVerified'), verified: false }; // 未认证 - 灰色X标
     }
   };
 
@@ -147,31 +162,31 @@ export default function ProfileScreen({ navigation, onLogout }) {
       setVerificationStep(0);
     } else {
       // 已认证，显示认证详情
-      Alert.alert('认证信息', `您已完成${verificationInfo.text}\n认证时间：2025-12-15\n认证机构：官方认证中心`);
+      Alert.alert(t('profile.verificationInfo'), `${t('profile.verified')}${verificationInfo.text}\n${t('profile.verificationTime')}2025-12-15\n${t('profile.verificationOrg')}`);
     }
   };
 
   const handleShare = async () => {
     try {
-      await Share.share({ message: '来看看我在问答社区的主页吧！https://qa-app.com/user/12345678', title: '分享个人主页' });
+      await Share.share({ message: t('profile.shareProfile') + t('profile.shareUrl'), title: t('profile.share') });
     } catch (error) {
-      Alert.alert('分享失败', error.message);
+      Alert.alert(t('profile.shareFailed'), error.message);
     }
   };
 
   const handleStatPress = (stat) => {
     switch (stat.label) {
-      case '粉丝':
+      case t('profile.followers'):
         navigation.navigate('Fans');
         break;
-      case '关注':
+      case t('profile.following'):
         navigation.navigate('Follow');
         break;
-      case '点赞':
-        Alert.alert('获赞统计', '您的内容共获得 3.5k 个赞');
+      case t('profile.likes'):
+        Alert.alert(t('profile.likesStats').replace('{count}', '3.5k'));
         break;
-      case '朋友':
-        Alert.alert('我的朋友', '您有 56 位朋友');
+      case t('profile.friends'):
+        Alert.alert(t('profile.myFriends'), t('profile.youHaveFriends').replace('{count}', '56'));
         break;
       default:
         break;
@@ -180,27 +195,27 @@ export default function ProfileScreen({ navigation, onLogout }) {
 
   const handleMenuPress = (item) => {
     switch (item.label) {
-      case '浏览历史':
+      case t('profile.browsingHistory'):
         setShowHistoryModal(true);
         break;
-      case '我的草稿':
+      case t('profile.myDrafts'):
         setShowDraftsModal(true);
         break;
-      case '我的群聊':
+      case t('profile.myGroups'):
         navigation.navigate('MyGroups');
         break;
-      case '我的团队':
+      case t('profile.myTeams'):
         navigation.navigate('MyTeams');
         break;
-      case '我的活动':
+      case t('profile.myActivities'):
         // 使用jumpTo跳转到活动Tab
         navigation.navigate('活动', { fromProfile: true });
         break;
-      case '查看公开主页':
+      case t('profile.viewPublicProfile'):
         // 导航到公开主页（使用当前用户ID）
         navigation.navigate('PublicProfile', { userId: 'current-user-123' });
         break;
-      case '我要认证':
+      case t('profile.verification'):
         // 打开认证弹窗
         setShowVerificationModal(true);
         setVerificationStep(0);
@@ -217,27 +232,27 @@ export default function ProfileScreen({ navigation, onLogout }) {
   const handleWalletAction = (action) => {
     switch (action) {
       case 'recharge':
-        Alert.alert('充值', '请选择充值金额', [
-          { text: '$10', onPress: () => Alert.alert('充值成功', '已充值$10') },
-          { text: '$50', onPress: () => Alert.alert('充值成功', '已充值$50') },
-          { text: '$100', onPress: () => Alert.alert('充值成功', '已充值$100') },
-          { text: '取消', style: 'cancel' }
+        Alert.alert(t('profile.recharge'), t('profile.selectAmount'), [
+          { text: '$10', onPress: () => Alert.alert(t('profile.rechargeSuccess'), t('profile.rechargeSuccess') + ' $10') },
+          { text: '$50', onPress: () => Alert.alert(t('profile.rechargeSuccess'), t('profile.rechargeSuccess') + ' $50') },
+          { text: '$100', onPress: () => Alert.alert(t('profile.rechargeSuccess'), t('profile.rechargeSuccess') + ' $100') },
+          { text: t('common.cancel'), style: 'cancel' }
         ]);
         break;
       case 'withdraw':
-        Alert.alert('提现', '可提现金额：$256.50', [
-          { text: '全部提现', onPress: () => Alert.alert('提现申请', '提现申请已提交，预计1-3个工作日到账') },
-          { text: '取消', style: 'cancel' }
+        Alert.alert(t('profile.withdraw'), t('profile.withdrawableAmount') + '：$256.50', [
+          { text: t('profile.withdrawAll'), onPress: () => Alert.alert(t('profile.withdrawSuccess'), t('profile.withdrawSuccess') + '，' + t('profile.withdrawEstimate')) },
+          { text: t('common.cancel'), style: 'cancel' }
         ]);
         break;
       case 'expense':
-        Alert.alert('悬赏支出明细', '本月悬赏支出：$150.00\n\n- Python学习问题：$50\n- 职业规划问题：$100');
+        Alert.alert(t('profile.expenseDetails'), t('profile.monthlyExpense') + '$150.00\n\n- Python学习问题：$50\n- 职业规划问题：$100');
         break;
       case 'income':
-        Alert.alert('回答收入明细', '本月回答收入：$320.00\n\n- 被采纳回答 x 8：$280\n- 优质回答奖励：$40');
+        Alert.alert(t('profile.incomeDetails'), t('profile.monthlyIncome') + '$320.00\n\n- 被采纳回答 x 8：$280\n- 优质回答奖励：$40');
         break;
       case 'pending':
-        Alert.alert('待采纳回答', '您有12个回答等待被采纳');
+        Alert.alert(t('profile.pendingAdoption'), t('profile.pendingAnswers').replace('{count}', '12'));
         break;
       default:
         break;
@@ -259,21 +274,21 @@ export default function ProfileScreen({ navigation, onLogout }) {
     if (item.type === 'question') {
       navigation.navigate('Publish');
     } else {
-      Alert.alert('编辑回答', '继续编辑您的回答草稿');
+      Alert.alert(t('profile.contentTabs.answers'), t('profile.continueEditing'));
     }
   };
 
   const handleDeleteDraft = (item) => {
-    Alert.alert('删除草稿', '确定要删除这个草稿吗？', [
-      { text: '取消', style: 'cancel' },
-      { text: '删除', style: 'destructive', onPress: () => Alert.alert('已删除', '草稿已删除') }
+    Alert.alert(t('profile.deleteDraft'), t('profile.deleteDraftConfirm'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('common.delete'), style: 'destructive', onPress: () => Alert.alert(t('profile.draftDeleted'), t('profile.draftDeleted')) }
     ]);
   };
 
   const handleLogout = () => {
-    Alert.alert('退出登录', '确定要退出登录吗？', [
-      { text: '取消', style: 'cancel' },
-      { text: '退出', style: 'destructive', onPress: () => { if (onLogout) onLogout(); } }
+    Alert.alert(t('profile.logout'), t('profile.logoutConfirm'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('profile.logout'), style: 'destructive', onPress: () => { if (onLogout) onLogout(); } }
     ]);
   };
 
@@ -307,43 +322,43 @@ export default function ProfileScreen({ navigation, onLogout }) {
     const data = verificationData[selectedVerificationType];
     if (selectedVerificationType === 'personal') {
       if (!data.idNumber) {
-        Alert.alert('提示', '请填写证件号码');
+        Alert.alert(t('common.confirm'), t('profile.verificationModal.validationErrors.idNumberRequired'));
         return;
       }
       if (!data.qualifications || data.qualifications.length === 0) {
-        Alert.alert('提示', '请至少上传一个专业资质证书');
+        Alert.alert(t('common.confirm'), t('profile.verificationModal.validationErrors.qualificationsRequired'));
         return;
       }
       // 检查是否所有资质都填写了名称
       const unnamedQualification = data.qualifications.find(q => !q.name || q.name.trim() === '');
       if (unnamedQualification) {
-        Alert.alert('提示', '请为所有资质证书填写名称');
+        Alert.alert(t('common.confirm'), t('profile.verificationModal.validationErrors.qualificationNameRequired'));
         return;
       }
     } else if (selectedVerificationType === 'enterprise') {
       if (!data.name || !data.taxNumber || !data.address) {
-        Alert.alert('提示', '请填写完整的企业信息');
+        Alert.alert(t('common.confirm'), t('profile.verificationModal.validationErrors.enterpriseInfoRequired'));
         return;
       }
       if (!data.license) {
-        Alert.alert('提示', '请上传注册文件');
+        Alert.alert(t('common.confirm'), t('profile.verificationModal.validationErrors.licenseRequired'));
         return;
       }
       if (!data.contactPerson || data.contactPerson.trim() === '') {
-        Alert.alert('提示', '请填写企业联系人');
+        Alert.alert(t('common.confirm'), t('profile.verificationModal.validationErrors.contactPersonRequired'));
         return;
       }
       // 验证联系方式：邮箱或电话至少填写一个
       if ((!data.contactPhone || data.contactPhone.trim() === '') && 
           (!data.contactEmail || data.contactEmail.trim() === '')) {
-        Alert.alert('提示', '请至少填写一种联系方式（电话或邮箱）');
+        Alert.alert(t('common.confirm'), t('profile.verificationModal.validationErrors.contactMethodRequired'));
         return;
       }
       // 验证电话格式（如果填写了）
       if (data.contactPhone && data.contactPhone.trim() !== '') {
         const phoneRegex = /^1[3-9]\d{9}$/;
         if (!phoneRegex.test(data.contactPhone.trim())) {
-          Alert.alert('提示', '请输入正确的手机号码格式');
+          Alert.alert(t('common.confirm'), t('profile.verificationModal.validationErrors.phoneFormatError'));
           return;
         }
       }
@@ -351,30 +366,30 @@ export default function ProfileScreen({ navigation, onLogout }) {
       if (data.contactEmail && data.contactEmail.trim() !== '') {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(data.contactEmail.trim())) {
-          Alert.alert('提示', '请输入正确的邮箱格式');
+          Alert.alert(t('common.confirm'), t('profile.verificationModal.validationErrors.emailFormatError'));
           return;
         }
       }
     } else if (selectedVerificationType === 'government') {
       if (!data.name || !data.department || !data.authorizerName || !data.authorizerPosition) {
-        Alert.alert('提示', '请填写完整的机构信息');
+        Alert.alert(t('common.confirm'), t('profile.verificationModal.validationErrors.governmentInfoRequired'));
         return;
       }
       if (!data.authorizerIdFront || !data.authorizerIdBack) {
-        Alert.alert('提示', '请上传授权人身份证正反面');
+        Alert.alert(t('common.confirm'), t('profile.verificationModal.validationErrors.authorizerIdRequired'));
         return;
       }
       // 验证联系方式：邮箱或电话至少填写一个
       if ((!data.contactPhone || data.contactPhone.trim() === '') && 
           (!data.contactEmail || data.contactEmail.trim() === '')) {
-        Alert.alert('提示', '请至少填写一种联系方式（电话或邮箱）');
+        Alert.alert(t('common.confirm'), t('profile.verificationModal.validationErrors.contactMethodRequired'));
         return;
       }
       // 验证电话格式（如果填写了）
       if (data.contactPhone && data.contactPhone.trim() !== '') {
         const phoneRegex = /^1[3-9]\d{9}$/;
         if (!phoneRegex.test(data.contactPhone.trim())) {
-          Alert.alert('提示', '请输入正确的手机号码格式');
+          Alert.alert(t('common.confirm'), t('profile.verificationModal.validationErrors.phoneFormatError'));
           return;
         }
       }
@@ -382,7 +397,7 @@ export default function ProfileScreen({ navigation, onLogout }) {
       if (data.contactEmail && data.contactEmail.trim() !== '') {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(data.contactEmail.trim())) {
-          Alert.alert('提示', '请输入正确的邮箱格式');
+          Alert.alert(t('common.confirm'), t('profile.verificationModal.validationErrors.emailFormatError'));
           return;
         }
       }
@@ -390,11 +405,11 @@ export default function ProfileScreen({ navigation, onLogout }) {
     
     // 提交认证申请
     Alert.alert(
-      '提交成功',
-      '您的认证申请已提交，我们将在1-3个工作日内完成审核，请耐心等待。',
+      t('profile.verificationModal.submitSuccess'),
+      t('profile.verificationModal.submitSuccessMessage'),
       [
         {
-          text: '确定',
+          text: t('common.ok'),
           onPress: () => {
             setShowVerificationModal(false);
             setVerificationStep(0);
@@ -407,8 +422,8 @@ export default function ProfileScreen({ navigation, onLogout }) {
 
   const handleImageUpload = (field) => {
     // 模拟图片上传
-    Alert.alert('上传图片', '请选择图片来源', [
-      { text: '相册', onPress: () => {
+    Alert.alert(t('profile.verificationModal.selectImage'), t('profile.verificationModal.selectImageSource'), [
+      { text: t('profile.verificationModal.album'), onPress: () => {
         const mockImageUrl = `https://images.unsplash.com/photo-${Math.floor(Math.random() * 1000000)}?w=800&h=600&fit=crop`;
         setVerificationData({
           ...verificationData,
@@ -418,7 +433,7 @@ export default function ProfileScreen({ navigation, onLogout }) {
           }
         });
       }},
-      { text: '相机', onPress: () => {
+      { text: t('profile.verificationModal.camera'), onPress: () => {
         const mockImageUrl = `https://images.unsplash.com/photo-${Math.floor(Math.random() * 1000000)}?w=800&h=600&fit=crop`;
         setVerificationData({
           ...verificationData,
@@ -428,21 +443,21 @@ export default function ProfileScreen({ navigation, onLogout }) {
           }
         });
       }},
-      { text: '取消', style: 'cancel' }
+      { text: t('common.cancel'), style: 'cancel' }
     ]);
   };
 
   // 添加资质证书
   const addQualification = async () => {
-    Alert.alert('上传资质证书', '请选择图片来源', [
+    Alert.alert(t('profile.verificationModal.selectImage'), t('profile.verificationModal.selectImageSource'), [
       { 
-        text: '相册', 
+        text: t('profile.verificationModal.album'), 
         onPress: async () => {
           try {
             // 请求相册权限
             const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
             if (status !== 'granted') {
-              Alert.alert('权限不足', '需要相册访问权限才能上传图片');
+              Alert.alert(t('common.confirm'), '需要相册访问权限才能上传图片');
               return;
             }
 
@@ -469,18 +484,18 @@ export default function ProfileScreen({ navigation, onLogout }) {
               });
             }
           } catch (error) {
-            Alert.alert('错误', '上传图片失败：' + error.message);
+            Alert.alert(t('common.confirm'), '上传图片失败：' + error.message);
           }
         }
       },
       { 
-        text: '相机', 
+        text: t('profile.verificationModal.camera'), 
         onPress: async () => {
           try {
             // 请求相机权限
             const { status } = await ImagePicker.requestCameraPermissionsAsync();
             if (status !== 'granted') {
-              Alert.alert('权限不足', '需要相机访问权限才能拍照');
+              Alert.alert(t('common.confirm'), '需要相机访问权限才能拍照');
               return;
             }
 
@@ -506,23 +521,23 @@ export default function ProfileScreen({ navigation, onLogout }) {
               });
             }
           } catch (error) {
-            Alert.alert('错误', '拍照失败：' + error.message);
+            Alert.alert(t('common.confirm'), '拍照失败：' + error.message);
           }
         }
       },
-      { text: '取消', style: 'cancel' }
+      { text: t('common.cancel'), style: 'cancel' }
     ]);
   };
 
   // 删除资质证书
   const removeQualification = (id) => {
-    Alert.alert('确认删除', '确定要删除这个资质证书吗？', [
+    Alert.alert(t('profile.verificationModal.deleteQualification'), t('profile.verificationModal.deleteQualificationConfirm'), [
       {
-        text: '取消',
+        text: t('common.cancel'),
         style: 'cancel'
       },
       {
-        text: '删除',
+        text: t('common.delete'),
         style: 'destructive',
         onPress: () => {
           setVerificationData({
@@ -614,17 +629,17 @@ export default function ProfileScreen({ navigation, onLogout }) {
                     onPress={handleVerificationPress}
                     activeOpacity={0.7}
                   >
-                    <Text style={styles.verifyButtonText}>去认证</Text>
+                    <Text style={styles.verifyButtonText}>{t('profile.goVerify')}</Text>
                   </TouchableOpacity>
                 )}
               </View>
               <Text style={styles.userId}>ID: 12345678</Text>
             </View>
           </View>
-          <Text style={styles.userBio}>热爱学习，乐于分享。专注Python、数据分析领域。</Text>
+          <Text style={styles.userBio}>{t('profile.bio')}</Text>
           <View style={styles.userMeta}>
-            <View style={styles.metaItem}><Ionicons name="location-outline" size={14} color="#9ca3af" /><Text style={styles.metaText}>北京</Text></View>
-            <View style={styles.metaItem}><Ionicons name="briefcase-outline" size={14} color="#9ca3af" /><Text style={styles.metaText}>数据分析师</Text></View>
+            <View style={styles.metaItem}><Ionicons name="location-outline" size={14} color="#9ca3af" /><Text style={styles.metaText}>{t('profile.location')}</Text></View>
+            <View style={styles.metaItem}><Ionicons name="briefcase-outline" size={14} color="#9ca3af" /><Text style={styles.metaText}>{t('profile.occupation')}</Text></View>
           </View>
           
           {/* 影响力和智慧指数 */}
@@ -634,7 +649,7 @@ export default function ProfileScreen({ navigation, onLogout }) {
                 <Ionicons name="flame" size={18} color="#ef4444" />
               </View>
               <View style={styles.indexInfo}>
-                <Text style={styles.indexLabel}>影响力</Text>
+                <Text style={styles.indexLabel}>{t('profile.influence')}</Text>
                 <Text style={styles.indexValue}>8,567</Text>
               </View>
             </View>
@@ -647,7 +662,7 @@ export default function ProfileScreen({ navigation, onLogout }) {
                 <Ionicons name="bulb" size={18} color="#f59e0b" />
               </View>
               <View style={styles.indexInfo}>
-                <Text style={styles.indexLabel}>智慧指数</Text>
+                <Text style={styles.indexLabel}>{t('profile.wisdomIndex')}</Text>
                 <Text style={styles.indexValue}>92.5</Text>
               </View>
             </TouchableOpacity>
@@ -668,26 +683,26 @@ export default function ProfileScreen({ navigation, onLogout }) {
           <View style={styles.walletHeader}>
             <View style={styles.walletIcon}><Ionicons name="wallet" size={20} color="#f59e0b" /></View>
             <View style={styles.walletInfo}>
-              <Text style={styles.walletLabel}>我的钱包</Text>
+              <Text style={styles.walletLabel}>{t('profile.myWallet')}</Text>
               <Text style={styles.walletBalance}>$256.50</Text>
             </View>
             <View style={styles.walletActions}>
-              <TouchableOpacity style={styles.rechargeBtn} onPress={() => handleWalletAction('recharge')}><Text style={styles.rechargeBtnText}>充值</Text></TouchableOpacity>
-              <TouchableOpacity style={styles.withdrawBtn} onPress={() => handleWalletAction('withdraw')}><Text style={styles.withdrawBtnText}>提现</Text></TouchableOpacity>
+              <TouchableOpacity style={styles.rechargeBtn} onPress={() => handleWalletAction('recharge')}><Text style={styles.rechargeBtnText}>{t('profile.recharge')}</Text></TouchableOpacity>
+              <TouchableOpacity style={styles.withdrawBtn} onPress={() => handleWalletAction('withdraw')}><Text style={styles.withdrawBtnText}>{t('profile.withdraw')}</Text></TouchableOpacity>
             </View>
           </View>
           <View style={styles.walletStats}>
             <TouchableOpacity style={styles.walletStatItem} onPress={() => handleWalletAction('income')}>
               <Text style={[styles.walletStatValue, { color: '#22c55e' }]}>$320.00</Text>
-              <Text style={styles.walletStatLabel}>回答收入</Text>
+              <Text style={styles.walletStatLabel}>{t('profile.answerIncome')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.walletStatItem} onPress={() => handleWalletAction('expense')}>
               <Text style={styles.walletStatValue}>$150.00</Text>
-              <Text style={styles.walletStatLabel}>悬赏支出</Text>
+              <Text style={styles.walletStatLabel}>{t('profile.rewardExpense')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.walletStatItem} onPress={() => handleWalletAction('pending')}>
               <Text style={styles.walletStatValue}>12</Text>
-              <Text style={styles.walletStatLabel}>待采纳</Text>
+              <Text style={styles.walletStatLabel}>{t('profile.pendingAdoption')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -697,7 +712,7 @@ export default function ProfileScreen({ navigation, onLogout }) {
           <View style={styles.superLikeHeader}>
             <View style={styles.superLikeTitle}>
               <Ionicons name="star" size={20} color="#f59e0b" />
-              <Text style={styles.superLikeTitleText}>超级赞</Text>
+              <Text style={styles.superLikeTitleText}>{t('profile.superLike')}</Text>
             </View>
             <SuperLikeBalance 
               size="medium" 
@@ -711,14 +726,14 @@ export default function ProfileScreen({ navigation, onLogout }) {
               onPress={() => navigation.navigate('SuperLikePurchase')}
             >
               <Ionicons name="add-circle" size={18} color="#f59e0b" />
-              <Text style={styles.superLikeBtnText}>购买</Text>
+              <Text style={styles.superLikeBtnText}>{t('profile.purchase')}</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               style={[styles.superLikeBtn, styles.superLikeBtnSecondary]}
               onPress={() => navigation.navigate('SuperLikeHistory')}
             >
               <Ionicons name="time-outline" size={18} color="#6b7280" />
-              <Text style={[styles.superLikeBtnText, styles.superLikeBtnTextSecondary]}>历史</Text>
+              <Text style={[styles.superLikeBtnText, styles.superLikeBtnTextSecondary]}>{t('profile.history')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -749,7 +764,7 @@ export default function ProfileScreen({ navigation, onLogout }) {
           </View>
           
           {/* 提问列表 */}
-          <View style={{ display: activeTab === '提问 (56)' ? 'flex' : 'none' }}>
+          <View style={{ display: activeTab === t('profile.contentTabs.questions') ? 'flex' : 'none' }}>
             {myQuestions.map(q => (
               <TouchableOpacity key={q.id} style={styles.questionItem} onPress={() => handleQuestionPress(q)}>
                 <View style={styles.questionHeader}>
@@ -763,7 +778,7 @@ export default function ProfileScreen({ navigation, onLogout }) {
                   )}
                   {q.solved && (
                     <View style={styles.solvedTagInline}>
-                      <Text style={styles.solvedTagInlineText}>已解决</Text>
+                      <Text style={styles.solvedTagInlineText}>{t('profile.solved')}</Text>
                     </View>
                   )}
                   {' '}{q.title}
@@ -787,7 +802,7 @@ export default function ProfileScreen({ navigation, onLogout }) {
           </View>
 
           {/* 回答列表 */}
-          <View style={{ display: activeTab === '回答 (234)' ? 'flex' : 'none' }}>
+          <View style={{ display: activeTab === t('profile.contentTabs.answers') ? 'flex' : 'none' }}>
             {myAnswers.map(a => (
               <TouchableOpacity key={a.id} style={styles.answerItem} onPress={() => navigation.navigate('AnswerDetail', { answer: a })}>
                 <View style={styles.answerHeader}>
@@ -796,7 +811,7 @@ export default function ProfileScreen({ navigation, onLogout }) {
                 <Text style={styles.answerQuestion} numberOfLines={1}>
                   {a.adopted && (
                     <View style={styles.adoptedTagInline}>
-                      <Text style={styles.adoptedTagInlineText}>已采纳</Text>
+                      <Text style={styles.adoptedTagInlineText}>{t('profile.adopted')}</Text>
                     </View>
                   )}
                   {' '}{a.questionTitle}
@@ -817,7 +832,7 @@ export default function ProfileScreen({ navigation, onLogout }) {
           </View>
 
           {/* 收藏列表 */}
-          <View style={{ display: activeTab === '收藏 (892)' ? 'flex' : 'none' }}>
+          <View style={{ display: activeTab === t('profile.contentTabs.favorites') ? 'flex' : 'none' }}>
             {/* 收藏分类标签 */}
             <View style={styles.favoriteTabsInline}>
               <TouchableOpacity 
@@ -825,7 +840,7 @@ export default function ProfileScreen({ navigation, onLogout }) {
                 onPress={() => setFavoritesTab('questions')}
               >
                 <Text style={[styles.favoriteTabInlineText, favoritesTab === 'questions' && styles.favoriteTabInlineTextActive]}>
-                  问题 ({favoritesData.questions.length})
+                  {t('profile.favoriteCategories.questions')}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity 
@@ -833,7 +848,7 @@ export default function ProfileScreen({ navigation, onLogout }) {
                 onPress={() => setFavoritesTab('answers')}
               >
                 <Text style={[styles.favoriteTabInlineText, favoritesTab === 'answers' && styles.favoriteTabInlineTextActive]}>
-                  回答 ({favoritesData.answers.length})
+                  {t('profile.favoriteCategories.answers')}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity 
@@ -841,7 +856,7 @@ export default function ProfileScreen({ navigation, onLogout }) {
                 onPress={() => setFavoritesTab('comments')}
               >
                 <Text style={[styles.favoriteTabInlineText, favoritesTab === 'comments' && styles.favoriteTabInlineTextActive]}>
-                  评论 ({favoritesData.comments.length})
+                  {t('profile.favoriteCategories.comments')}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -862,14 +877,14 @@ export default function ProfileScreen({ navigation, onLogout }) {
           </View>
 
           {/* 浏览历史列表 */}
-          <View style={{ display: activeTab === '浏览历史 (156)' ? 'flex' : 'none' }}>
+          <View style={{ display: activeTab === t('profile.contentTabs.history') ? 'flex' : 'none' }}>
             {historyList.map(item => (
               <TouchableOpacity key={item.id} style={styles.historyItem} onPress={() => handleHistoryPress(item)}>
                 <View style={styles.historyItemContent}>
                   <Text style={styles.historyItemTitle}>{item.title}</Text>
                   <View style={styles.historyItemMeta}>
                     <Text style={styles.historyItemAuthor}>{item.author}</Text>
-                    <Text style={styles.historyItemTime}>浏览于 {item.time}</Text>
+                    <Text style={styles.historyItemTime}>{t('profile.viewedAt')} {item.time}</Text>
                   </View>
                 </View>
                 <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
@@ -877,12 +892,12 @@ export default function ProfileScreen({ navigation, onLogout }) {
             ))}
           </View>
           
-          <TouchableOpacity style={styles.viewAllBtn} onPress={() => Alert.alert('查看全部', `查看全部${activeTab}`)}><Text style={styles.viewAllText}>查看全部</Text><Ionicons name="chevron-forward" size={16} color="#ef4444" /></TouchableOpacity>
+          <TouchableOpacity style={styles.viewAllBtn} onPress={() => Alert.alert(t('profile.viewAll'), `${t('profile.viewAll')}${activeTab}`)}><Text style={styles.viewAllText}>{t('profile.viewAll')}</Text><Ionicons name="chevron-forward" size={16} color="#ef4444" /></TouchableOpacity>
         </View>
 
         {/* 退出登录 */}
         <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-          <Text style={styles.logoutText}>退出登录</Text>
+          <Text style={styles.logoutText}>{t('profile.logout')}</Text>
         </TouchableOpacity>
 
         <View style={{ height: 20 }} />
@@ -895,19 +910,19 @@ export default function ProfileScreen({ navigation, onLogout }) {
             <TouchableOpacity onPress={() => setShowFavoritesModal(false)}>
               <Ionicons name="arrow-back" size={24} color="#1f2937" />
             </TouchableOpacity>
-            <Text style={styles.listModalTitle}>我的收藏</Text>
+            <Text style={styles.listModalTitle}>{t('profile.myFavorites')}</Text>
             <View style={{ width: 24 }} />
           </View>
           {/* 收藏分类标签 */}
           <View style={styles.favoriteTabs}>
             <TouchableOpacity style={[styles.favoriteTab, favoritesTab === 'questions' && styles.favoriteTabActive]} onPress={() => setFavoritesTab('questions')}>
-              <Text style={[styles.favoriteTabText, favoritesTab === 'questions' && styles.favoriteTabTextActive]}>收藏问题</Text>
+              <Text style={[styles.favoriteTabText, favoritesTab === 'questions' && styles.favoriteTabTextActive]}>{t('profile.favoriteQuestions')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.favoriteTab, favoritesTab === 'answers' && styles.favoriteTabActive]} onPress={() => setFavoritesTab('answers')}>
-              <Text style={[styles.favoriteTabText, favoritesTab === 'answers' && styles.favoriteTabTextActive]}>收藏回答</Text>
+              <Text style={[styles.favoriteTabText, favoritesTab === 'answers' && styles.favoriteTabTextActive]}>{t('profile.favoriteAnswers')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.favoriteTab, favoritesTab === 'comments' && styles.favoriteTabActive]} onPress={() => setFavoritesTab('comments')}>
-              <Text style={[styles.favoriteTabText, favoritesTab === 'comments' && styles.favoriteTabTextActive]}>收藏评论</Text>
+              <Text style={[styles.favoriteTabText, favoritesTab === 'comments' && styles.favoriteTabTextActive]}>{t('profile.favoriteComments')}</Text>
             </TouchableOpacity>
           </View>
           <ScrollView style={styles.listModalContent}>
@@ -934,9 +949,9 @@ export default function ProfileScreen({ navigation, onLogout }) {
             <TouchableOpacity onPress={() => setShowHistoryModal(false)}>
               <Ionicons name="arrow-back" size={24} color="#1f2937" />
             </TouchableOpacity>
-            <Text style={styles.listModalTitle}>浏览历史</Text>
-            <TouchableOpacity onPress={() => Alert.alert('清空历史', '确定要清空浏览历史吗？', [{ text: '取消', style: 'cancel' }, { text: '清空', style: 'destructive' }])}>
-              <Text style={styles.clearText}>清空</Text>
+            <Text style={styles.listModalTitle}>{t('profile.browsingHistory')}</Text>
+            <TouchableOpacity onPress={() => Alert.alert(t('profile.clearHistory'), t('profile.clearHistoryConfirm'), [{ text: t('common.cancel'), style: 'cancel' }, { text: t('profile.clear'), style: 'destructive' }])}>
+              <Text style={styles.clearText}>{t('profile.clear')}</Text>
             </TouchableOpacity>
           </View>
           <ScrollView style={styles.listModalContent}>
@@ -963,7 +978,7 @@ export default function ProfileScreen({ navigation, onLogout }) {
             <TouchableOpacity onPress={() => setShowDraftsModal(false)}>
               <Ionicons name="arrow-back" size={24} color="#1f2937" />
             </TouchableOpacity>
-            <Text style={styles.listModalTitle}>我的草稿</Text>
+            <Text style={styles.listModalTitle}>{t('profile.myDrafts')}</Text>
             <View style={{ width: 24 }} />
           </View>
           <ScrollView style={styles.listModalContent}>
@@ -971,7 +986,7 @@ export default function ProfileScreen({ navigation, onLogout }) {
               <View key={item.id} style={styles.draftItem}>
                 <TouchableOpacity style={styles.draftContent} onPress={() => handleDraftPress(item)}>
                   <View style={styles.draftTypeTag}>
-                    <Text style={styles.draftTypeText}>{item.type === 'question' ? '提问' : '回答'}</Text>
+                    <Text style={styles.draftTypeText}>{item.type === 'question' ? t('profile.draftTypes.question') : t('profile.draftTypes.answer')}</Text>
                   </View>
                   <View style={styles.draftInfo}>
                     <Text style={styles.draftTitle} numberOfLines={1}>{item.title}</Text>
@@ -996,9 +1011,9 @@ export default function ProfileScreen({ navigation, onLogout }) {
               <Ionicons name={verificationStep === 0 ? "close" : "arrow-back"} size={24} color="#1f2937" />
             </TouchableOpacity>
             <Text style={styles.verificationTitle}>
-              {verificationStep === 0 ? '身份认证' : 
-               verificationStep === 1 ? `${selectedVerificationType === 'personal' ? '个人' : selectedVerificationType === 'enterprise' ? '企业' : '政府机构'}认证` :
-               '确认信息'}
+              {verificationStep === 0 ? t('profile.verificationModal.title') : 
+               verificationStep === 1 ? `${selectedVerificationType === 'personal' ? t('profile.personalVerification') : selectedVerificationType === 'enterprise' ? t('profile.enterpriseVerification') : t('profile.governmentVerification')}` :
+               t('common.confirm')}
             </Text>
             <View style={{ width: 24 }} />
           </View>
@@ -1009,7 +1024,7 @@ export default function ProfileScreen({ navigation, onLogout }) {
             {/* 步骤0: 选择认证类型 */}
             {verificationStep === 0 && (
               <View style={styles.typeSelectionContainer}>
-                <Text style={styles.typeSelectionTitle}>请选择您的认证类型</Text>
+                <Text style={styles.typeSelectionTitle}>{t('profile.verificationModal.selectType')}</Text>
                 
                 <TouchableOpacity 
                   style={styles.typeCard}
@@ -1020,8 +1035,8 @@ export default function ProfileScreen({ navigation, onLogout }) {
                       <Ionicons name="person" size={24} color="#f59e0b" />
                     </View>
                     <View style={styles.typeInfo}>
-                      <Text style={styles.typeTitle}>个人认证</Text>
-                      <Text style={styles.typeDesc}>验证个人身份，获得个人认证标识</Text>
+                      <Text style={styles.typeTitle}>{t('profile.verificationModal.personal.title')}</Text>
+                      <Text style={styles.typeDesc}>{t('profile.verificationModal.personal.desc')}</Text>
                     </View>
                   </View>
                   <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
@@ -1036,8 +1051,8 @@ export default function ProfileScreen({ navigation, onLogout }) {
                       <Ionicons name="business" size={24} color="#3b82f6" />
                     </View>
                     <View style={styles.typeInfo}>
-                      <Text style={styles.typeTitle}>企业认证</Text>
-                      <Text style={styles.typeDesc}>验证企业资质，获得企业认证标识</Text>
+                      <Text style={styles.typeTitle}>{t('profile.verificationModal.enterprise.title')}</Text>
+                      <Text style={styles.typeDesc}>{t('profile.verificationModal.enterprise.desc')}</Text>
                     </View>
                   </View>
                   <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
@@ -1052,8 +1067,8 @@ export default function ProfileScreen({ navigation, onLogout }) {
                       <Ionicons name="shield-checkmark" size={24} color="#ef4444" />
                     </View>
                     <View style={styles.typeInfo}>
-                      <Text style={styles.typeTitle}>政府机构认证</Text>
-                      <Text style={styles.typeDesc}>验证政府身份，获得官方认证标识</Text>
+                      <Text style={styles.typeTitle}>{t('profile.verificationModal.government.title')}</Text>
+                      <Text style={styles.typeDesc}>{t('profile.verificationModal.government.desc')}</Text>
                     </View>
                   </View>
                   <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
@@ -1494,7 +1509,7 @@ export default function ProfileScreen({ navigation, onLogout }) {
                 style={styles.verificationSubmitBtn}
                 onPress={handleVerificationSubmit}
               >
-                <Text style={styles.verificationSubmitText}>提交认证申请</Text>
+                <Text style={styles.verificationSubmitText}>{t('profile.verificationModal.submit')}</Text>
               </TouchableOpacity>
             </View>
           )}

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import superLikeCreditService from '../services/SuperLikeCreditService';
+import { useTranslation } from '../i18n/withTranslation';
 
 export default function SuperLikeBalance({ 
   size = 'medium', 
@@ -9,6 +10,7 @@ export default function SuperLikeBalance({
   onPress,
   style 
 }) {
+  const { t } = useTranslation();
   const [balance, setBalance] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -62,14 +64,14 @@ export default function SuperLikeBalance({
       activeOpacity={onPress ? 0.7 : 1}
     >
       {showLabel && (
-        <Text style={[styles.label, currentSize.label]}>超级赞余额</Text>
+        <Text style={[styles.label, currentSize.label]}>{t('components.superLikeBalance.label')}</Text>
       )}
       <View style={styles.balanceRow}>
         <Ionicons name="star" size={currentSize.icon} color="#f59e0b" />
         <Text style={[styles.balanceText, currentSize.text]}>
           {loading ? '--' : balance}
         </Text>
-        <Text style={[styles.unit, currentSize.label]}>次</Text>
+        <Text style={[styles.unit, currentSize.label]}>{t('components.superLikeBalance.unit')}</Text>
         {onPress && (
           <Ionicons name="chevron-forward" size={currentSize.icon} color="#9ca3af" />
         )}

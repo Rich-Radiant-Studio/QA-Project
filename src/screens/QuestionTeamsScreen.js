@@ -3,6 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, TextInput,
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import Avatar from '../components/Avatar';
+import { useTranslation } from '../i18n/withTranslation';
 
 // 模拟该问题下的团队数据
 const questionTeams = [
@@ -15,12 +16,12 @@ const questionTeams = [
     description: '一起学习Python，互相帮助解决问题',
     isJoined: true,
     isPending: false,
-    activeLevel: '活跃',
+    activeLevel: 'active',
     activeColor: '#22c55e',
     creatorId: 1,      // 创建者ID
     currentUserId: 1,  // 当前用户ID（模拟）
     isAdmin: true,     // 是否是管理员
-    role: '管理员'      // 用户在团队中的角色
+    role: 'admin'      // 用户在团队中的角色
   },
   { 
     id: 2, 
@@ -31,12 +32,12 @@ const questionTeams = [
     description: '新手友好，大佬带飞',
     isJoined: false,
     isPending: false,
-    activeLevel: '较活跃',
+    activeLevel: 'moderatelyActive',
     activeColor: '#f59e0b',
     creatorId: 2,      // 创建者ID
     currentUserId: 1,  // 当前用户ID
     isAdmin: false,    // 不是管理员
-    role: '未加入'      // 用户在团队中的角色
+    role: 'notJoined'  // 用户在团队中的角色
   },
   { 
     id: 3, 
@@ -47,12 +48,12 @@ const questionTeams = [
     description: '互相审查代码，提升编程能力',
     isJoined: true,
     isPending: false,
-    activeLevel: '非常活跃',
+    activeLevel: 'veryActive',
     activeColor: '#ef4444',
     creatorId: 2,      // 创建者ID
     currentUserId: 3,  // 当前用户ID（队长3）
     isAdmin: false,    // 不是管理员
-    role: '成员'        // 用户在团队中的角色
+    role: 'member'     // 用户在团队中的角色
   },
   { 
     id: 4, 
@@ -63,17 +64,18 @@ const questionTeams = [
     description: '每天一道算法题，坚持就是胜利',
     isJoined: false,
     isPending: false,
-    activeLevel: '活跃',
+    activeLevel: 'active',
     activeColor: '#22c55e',
     creatorId: 4,      // 创建者ID
     currentUserId: 1,  // 当前用户ID
     isAdmin: false,    // 不是管理员
-    role: '未加入'      // 用户在团队中的角色
+    role: 'notJoined'  // 用户在团队中的角色
   },
 ];
 
 export default function QuestionTeamsScreen({ route, navigation }) {
   const { questionId, questionTitle } = route.params || {};
+  const { t } = useTranslation();
   const [teams, setTeams] = useState(questionTeams);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newTeamName, setNewTeamName] = useState('');
@@ -104,12 +106,12 @@ export default function QuestionTeamsScreen({ route, navigation }) {
 
   const handleApplyJoin = (teamId, teamName) => {
     Alert.alert(
-      '申请加入团队',
-      `确定要申请加入"${teamName}"吗？\n\n申请后需要等待团队成员投票，超过50%的成员同意后即可加入。`,
+      t('screens.questionTeams.alerts.applyTitle'),
+      t('screens.questionTeams.alerts.applyMessage').replace('{name}', teamName),
       [
-        { text: '取消', style: 'cancel' },
+        { text: t('screens.questionTeams.alerts.cancel'), style: 'cancel' },
         { 
-          text: '确定申请', 
+          text: t('screens.questionTeams.alerts.confirmApply'), 
           onPress: () => {
             setTeams(teams.map(t => t.id === teamId ? { ...t, isPending: true } : t));
             setShowPendingModal(true);
@@ -121,10 +123,10 @@ export default function QuestionTeamsScreen({ route, navigation }) {
 
   const handleCreateTeam = () => {
     if (!newTeamName.trim()) {
-      Alert.alert('提示', '请输入团队名称');
+      Alert.alert(t('screens.questionTeams.alerts.hint'), t('screens.questionTeams.alerts.nameRequired'));
       return;
     }
-    Alert.alert('成功', `团队"${newTeamName}"创建成功！`);
+    Alert.alert(t('screens.questionTeams.alerts.success'), t('screens.questionTeams.alerts.createSuccess').replace('{name}', newTeamName));
     setShowCreateModal(false);
     setNewTeamName('');
     setNewTeamDesc('');
@@ -143,8 +145,8 @@ export default function QuestionTeamsScreen({ route, navigation }) {
           <Ionicons name="arrow-back" size={24} color="#374151" />
         </TouchableOpacity>
         <View style={styles.headerTitleContainer}>
-          <Text style={styles.headerTitle}>问题团队</Text>
-          <Text style={styles.headerSubtitle} numberOfLines={1}>{questionTitle || '如何学习Python'}</Text>
+          <Text style={styles.headerTitle}>{t('screens.questionTeams.title')}</Text>
+          <Text style={styles.headerSubtitle} numberOfLines={1}>{questionTitle || t('screens.questionTeams.defaultQuestionTitle')}</Text>
         </View>
         <View style={{ width: 24 }} />
       </View>
@@ -156,15 +158,15 @@ export default function QuestionTeamsScreen({ route, navigation }) {
           onPress={() => setShowCreateModal(true)}
         >
           <Ionicons name="add-circle" size={20} color="#fff" />
-          <Text style={styles.createBtnText}>创建团队</Text>
+          <Text style={styles.createBtnText}>{t('screens.questionTeams.createTeam')}</Text>
         </TouchableOpacity>
       </View>
 
       {/* 团队列表 */}
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.listHeader}>
-          <Text style={styles.listTitle}>该问题下的团队 ({teams.length})</Text>
-          <Text style={styles.listDesc}>选择一个团队加入，与大家一起讨论</Text>
+          <Text style={styles.listTitle}>{t('screens.questionTeams.listHeader.title')} ({teams.length})</Text>
+          <Text style={styles.listDesc}>{t('screens.questionTeams.listHeader.description')}</Text>
         </View>
 
         {teams.map(team => (
@@ -183,13 +185,13 @@ export default function QuestionTeamsScreen({ route, navigation }) {
                   {team.isJoined && (
                     <View style={styles.joinedBadge}>
                       <Ionicons name="checkmark-circle" size={12} color="#22c55e" />
-                      <Text style={styles.joinedText}>已加入</Text>
+                      <Text style={styles.joinedText}>{t('screens.questionTeams.badges.joined')}</Text>
                     </View>
                   )}
                   {team.isPending && (
                     <View style={styles.pendingBadge}>
                       <Ionicons name="time-outline" size={12} color="#f59e0b" />
-                      <Text style={styles.pendingText}>审核中</Text>
+                      <Text style={styles.pendingText}>{t('screens.questionTeams.badges.pending')}</Text>
                     </View>
                   )}
                 </View>
@@ -198,10 +200,10 @@ export default function QuestionTeamsScreen({ route, navigation }) {
                 {team.isJoined && (
                   <View style={styles.userRoleRow}>
                     <Ionicons name="person-circle-outline" size={14} color="#6b7280" />
-                    <Text style={styles.userRoleText}>我的角色：</Text>
+                    <Text style={styles.userRoleText}>{t('screens.questionTeams.userRole.label')}</Text>
                     <View style={[styles.roleBadge, team.isAdmin && styles.roleBadgeAdmin]}>
                       <Text style={[styles.roleBadgeText, team.isAdmin && styles.roleBadgeTextAdmin]}>
-                        {team.role}
+                        {t(`screens.questionTeams.userRole.${team.role}`)}
                       </Text>
                     </View>
                   </View>
@@ -213,7 +215,7 @@ export default function QuestionTeamsScreen({ route, navigation }) {
               <View style={styles.teamMeta}>
                 <View style={styles.metaItem}>
                   <Ionicons name="people" size={14} color="#9ca3af" />
-                  <Text style={styles.metaText}>{team.members}人</Text>
+                  <Text style={styles.metaText}>{team.members}{t('screens.questionTeams.meta.people')}</Text>
                 </View>
                 <View style={styles.metaDivider} />
                 <View style={styles.metaItem}>
@@ -223,7 +225,7 @@ export default function QuestionTeamsScreen({ route, navigation }) {
                 <View style={styles.metaDivider} />
                 <View style={[styles.activeTag, { backgroundColor: team.activeColor + '15' }]}>
                   <View style={[styles.activeDot, { backgroundColor: team.activeColor }]} />
-                  <Text style={[styles.activeText, { color: team.activeColor }]}>{team.activeLevel}</Text>
+                  <Text style={[styles.activeText, { color: team.activeColor }]}>{t(`screens.questionTeams.activeLevel.${team.activeLevel}`)}</Text>
                 </View>
               </View>
               
@@ -237,14 +239,14 @@ export default function QuestionTeamsScreen({ route, navigation }) {
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
                   <Ionicons name="add-circle-outline" size={16} color="#ef4444" />
-                  <Text style={styles.applyBtnText}>申请</Text>
+                  <Text style={styles.applyBtnText}>{t('screens.questionTeams.actions.apply')}</Text>
                 </TouchableOpacity>
               )}
               
               {team.isPending && (
                 <View style={styles.pendingTag}>
                   <Ionicons name="hourglass-outline" size={14} color="#f59e0b" />
-                  <Text style={styles.pendingTagText}>等待投票</Text>
+                  <Text style={styles.pendingTagText}>{t('screens.questionTeams.actions.waitingVote')}</Text>
                 </View>
               )}
               
@@ -255,7 +257,7 @@ export default function QuestionTeamsScreen({ route, navigation }) {
                   accessible={true}
                   accessibilityRole="button"
                 >
-                  <Text style={styles.enterTagText}>进入</Text>
+                  <Text style={styles.enterTagText}>{t('screens.questionTeams.actions.enter')}</Text>
                   <Ionicons name="chevron-forward" size={14} color="#6b7280" />
                 </TouchableOpacity>
               )}
@@ -266,8 +268,8 @@ export default function QuestionTeamsScreen({ route, navigation }) {
         {teams.length === 0 && (
           <View style={styles.emptyState}>
             <Ionicons name="people-outline" size={64} color="#d1d5db" />
-            <Text style={styles.emptyText}>该问题下暂无团队</Text>
-            <Text style={styles.emptyHint}>点击上方按钮创建第一个团队吧</Text>
+            <Text style={styles.emptyText}>{t('screens.questionTeams.empty.title')}</Text>
+            <Text style={styles.emptyHint}>{t('screens.questionTeams.empty.hint')}</Text>
           </View>
         )}
 
@@ -284,27 +286,27 @@ export default function QuestionTeamsScreen({ route, navigation }) {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>创建团队</Text>
+              <Text style={styles.modalTitle}>{t('screens.questionTeams.createModal.title')}</Text>
               <TouchableOpacity onPress={() => setShowCreateModal(false)}>
                 <Ionicons name="close" size={24} color="#6b7280" />
               </TouchableOpacity>
             </View>
             <View style={styles.modalBody}>
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>团队名称 *</Text>
+                <Text style={styles.inputLabel}>{t('screens.questionTeams.createModal.nameLabel')} {t('screens.questionTeams.createModal.nameRequired')}</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="请输入团队名称"
+                  placeholder={t('screens.questionTeams.createModal.namePlaceholder')}
                   value={newTeamName}
                   onChangeText={setNewTeamName}
                   maxLength={20}
                 />
               </View>
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>团队简介</Text>
+                <Text style={styles.inputLabel}>{t('screens.questionTeams.createModal.descLabel')}</Text>
                 <TextInput
                   style={[styles.input, styles.textArea]}
-                  placeholder="请输入团队简介（可选）"
+                  placeholder={t('screens.questionTeams.createModal.descPlaceholder')}
                   value={newTeamDesc}
                   onChangeText={setNewTeamDesc}
                   multiline
@@ -313,7 +315,7 @@ export default function QuestionTeamsScreen({ route, navigation }) {
                 />
               </View>
               <TouchableOpacity style={styles.submitBtn} onPress={handleCreateTeam}>
-                <Text style={styles.submitBtnText}>创建</Text>
+                <Text style={styles.submitBtnText}>{t('screens.questionTeams.createModal.submit')}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -327,17 +329,15 @@ export default function QuestionTeamsScreen({ route, navigation }) {
             <View style={styles.pendingModalIcon}>
               <Ionicons name="hourglass" size={48} color="#f59e0b" />
             </View>
-            <Text style={styles.pendingModalTitle}>申请已提交</Text>
+            <Text style={styles.pendingModalTitle}>{t('screens.questionTeams.pendingModal.title')}</Text>
             <Text style={styles.pendingModalDesc}>
-              您的加入申请已提交成功！{'\n\n'}
-              团队成员将对您的申请进行投票，需要超过50%的成员同意后才能加入团队。{'\n\n'}
-              请耐心等待审核结果，我们会及时通知您。
+              {t('screens.questionTeams.pendingModal.description')}
             </Text>
             <TouchableOpacity 
               style={styles.pendingModalBtn}
               onPress={() => setShowPendingModal(false)}
             >
-              <Text style={styles.pendingModalBtnText}>我知道了</Text>
+              <Text style={styles.pendingModalBtnText}>{t('screens.questionTeams.pendingModal.button')}</Text>
             </TouchableOpacity>
           </View>
         </View>

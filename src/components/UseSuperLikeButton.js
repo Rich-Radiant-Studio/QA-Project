@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { TouchableOpacity, Text, StyleSheet, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import superLikeCreditService from '../services/SuperLikeCreditService';
+import { useTranslation } from '../i18n/withTranslation';
 
 export default function UseSuperLikeButton({ 
   answerId, 
@@ -11,6 +12,7 @@ export default function UseSuperLikeButton({
   navigation,
   style 
 }) {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [superLikes, setSuperLikes] = useState(currentSuperLikes);
 
@@ -21,12 +23,12 @@ export default function UseSuperLikeButton({
     if (balance <= 0) {
       // 余额不足，显示购买提示
       Alert.alert(
-        '超级赞次数不足',
-        '您的超级赞次数不足，是否购买？',
+        t('components.useSuperLikeButton.insufficientBalance.title'),
+        t('components.useSuperLikeButton.insufficientBalance.message'),
         [
-          { text: '取消', style: 'cancel' },
+          { text: t('components.useSuperLikeButton.insufficientBalance.cancel'), style: 'cancel' },
           { 
-            text: '去购买', 
+            text: t('components.useSuperLikeButton.insufficientBalance.purchase'), 
             onPress: () => {
               if (navigation) {
                 navigation.navigate('SuperLikePurchase');
@@ -40,12 +42,12 @@ export default function UseSuperLikeButton({
 
     // 显示确认对话框
     Alert.alert(
-      '使用超级赞',
-      '确认使用 1 次超级赞提升此回答的排名？',
+      t('components.useSuperLikeButton.confirm.title'),
+      t('components.useSuperLikeButton.confirm.message'),
       [
-        { text: '取消', style: 'cancel' },
+        { text: t('components.useSuperLikeButton.confirm.cancel'), style: 'cancel' },
         { 
-          text: '确认', 
+          text: t('components.useSuperLikeButton.confirm.confirm'), 
           onPress: () => performUse()
         }
       ]
@@ -64,9 +66,9 @@ export default function UseSuperLikeButton({
         
         // 显示成功提示
         Alert.alert(
-          '使用成功',
-          `已使用 1 次超级赞！\n剩余：${result.newBalance} 次`,
-          [{ text: '确定' }]
+          t('components.useSuperLikeButton.success.title'),
+          t('components.useSuperLikeButton.success.message').replace('{balance}', result.newBalance),
+          [{ text: t('components.useSuperLikeButton.success.ok') }]
         );
         
         // 调用成功回调
@@ -74,11 +76,17 @@ export default function UseSuperLikeButton({
           onSuccess(result);
         }
       } else {
-        Alert.alert('使用失败', result.error || '使用失败，请稍后重试');
+        Alert.alert(
+          t('components.useSuperLikeButton.error.title'), 
+          result.error || t('components.useSuperLikeButton.error.message')
+        );
       }
     } catch (error) {
       console.error('Use super like error:', error);
-      Alert.alert('使用失败', '使用失败，请稍后重试');
+      Alert.alert(
+        t('components.useSuperLikeButton.error.title'), 
+        t('components.useSuperLikeButton.error.message')
+      );
     } finally {
       setLoading(false);
     }
@@ -97,7 +105,10 @@ export default function UseSuperLikeButton({
         color="#fff" 
       />
       <Text style={styles.buttonText}>
-        {loading ? '处理中...' : `超级赞 x${superLikes}`}
+        {loading 
+          ? t('components.useSuperLikeButton.processing') 
+          : t('components.useSuperLikeButton.button').replace('{count}', superLikes)
+        }
       </Text>
     </TouchableOpacity>
   );

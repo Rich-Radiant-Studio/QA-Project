@@ -3,6 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet } from 'rea
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import Avatar from '../components/Avatar';
+import { useTranslation } from '../i18n/withTranslation';
 
 // 收入榜数据
 const incomeRankingData = [
@@ -158,7 +159,7 @@ const incomeRankingData = [
   },
 ];
 
-const rankingTabs = ['总收入榜', '月收入榜', '周收入榜'];
+const rankingTabs = ['totalIncome', 'monthIncome', 'weekIncome'];
 
 const getRankBg = (rank) => {
   if (rank === 1) return '#ef4444';
@@ -175,7 +176,7 @@ const formatMoney = (amount) => {
 };
 
 // 排行榜项组件
-function RankingItem({ item, onPress }) {
+function RankingItem({ item, onPress, t }) {
   return (
     <TouchableOpacity style={styles.rankingItem} onPress={onPress}>
       <View style={[styles.rankBadge, { backgroundColor: getRankBg(item.rank) }]}>
@@ -193,15 +194,15 @@ function RankingItem({ item, onPress }) {
         <View style={styles.statsRow}>
           <View style={styles.statItem}>
             <Ionicons name="chatbubble-outline" size={12} color="#9ca3af" />
-            <Text style={styles.statText}>{item.answersCount}回答</Text>
+            <Text style={styles.statText}>{item.answersCount}{t('screens.incomeRankingScreen.stats.answers')}</Text>
           </View>
           <View style={styles.statItem}>
             <Ionicons name="checkmark-circle-outline" size={12} color="#22c55e" />
-            <Text style={styles.statText}>{item.adoptedCount}采纳</Text>
+            <Text style={styles.statText}>{item.adoptedCount}{t('screens.incomeRankingScreen.stats.adopted')}</Text>
           </View>
           <View style={styles.statItem}>
             <Ionicons name="gift-outline" size={12} color="#f59e0b" />
-            <Text style={styles.statText}>{item.rewardCount}悬赏</Text>
+            <Text style={styles.statText}>{item.rewardCount}{t('screens.incomeRankingScreen.stats.reward')}</Text>
           </View>
         </View>
       </View>
@@ -227,14 +228,15 @@ function RankingItem({ item, onPress }) {
             </View>
           )}
         </View>
-        <Text style={styles.monthIncome}>本月 ${formatMoney(item.monthIncome)}</Text>
+        <Text style={styles.monthIncome}>{t('screens.incomeRankingScreen.monthIncome')} ${formatMoney(item.monthIncome)}</Text>
       </View>
     </TouchableOpacity>
   );
 }
 
 export default function IncomeRankingScreen({ navigation }) {
-  const [activeTab, setActiveTab] = useState('总收入榜');
+  const { t } = useTranslation();
+  const [activeTab, setActiveTab] = useState('totalIncome');
 
   const handleItemPress = (item) => {
     navigation.navigate('Profile', { userId: item.id });
@@ -251,12 +253,12 @@ export default function IncomeRankingScreen({ navigation }) {
         >
           <Ionicons name="arrow-back" size={24} color="#374151" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>收入榜</Text>
+        <Text style={styles.headerTitle}>{t('screens.incomeRankingScreen.title')}</Text>
         <TouchableOpacity 
           style={styles.infoBtn}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           activeOpacity={0.7}
-          onPress={() => alert('收入榜说明：\n\n1. 总收入：用户通过回答问题获得的所有悬赏总和\n2. 月收入：当月获得的悬赏总和\n3. 周收入：本周获得的悬赏总和\n\n排名每小时更新一次')}
+          onPress={() => alert(t('screens.incomeRankingScreen.infoContent'))}
         >
           <Ionicons name="information-circle-outline" size={22} color="#6b7280" />
         </TouchableOpacity>
@@ -270,7 +272,9 @@ export default function IncomeRankingScreen({ navigation }) {
               style={[styles.tabItem, activeTab === tab && styles.tabItemActive]}
               onPress={() => setActiveTab(tab)}
             >
-              <Text style={[styles.tabText, activeTab === tab && styles.tabTextActive]}>{tab}</Text>
+              <Text style={[styles.tabText, activeTab === tab && styles.tabTextActive]}>
+                {t(`screens.incomeRankingScreen.tabs.${tab}`)}
+              </Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -278,15 +282,15 @@ export default function IncomeRankingScreen({ navigation }) {
 
       <View style={styles.updateInfo}>
         <Ionicons name="time-outline" size={14} color="#9ca3af" />
-        <Text style={styles.updateText}>更新于 5分钟前</Text>
+        <Text style={styles.updateText}>{t('screens.incomeRankingScreen.updateInfo').replace('{time}', '5分钟前')}</Text>
       </View>
 
       <ScrollView style={styles.list}>
         {incomeRankingData.map((item) => (
-          <RankingItem key={item.id} item={item} onPress={() => handleItemPress(item)} />
+          <RankingItem key={item.id} item={item} onPress={() => handleItemPress(item)} t={t} />
         ))}
         <View style={styles.listFooter}>
-          <Text style={styles.footerText}>已显示全部排名</Text>
+          <Text style={styles.footerText}>{t('screens.incomeRankingScreen.allShown')}</Text>
         </View>
       </ScrollView>
     </SafeAreaView>

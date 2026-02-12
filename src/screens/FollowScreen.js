@@ -43,8 +43,20 @@ export default function FollowScreen({ navigation }) {
   const { t } = useTranslation();
   
   // Tabs array using translation
-  const tabs = [t('follow.questions'), t('follow.users'), t('follow.topics')];
-  const [activeTab, setActiveTab] = useState(t('follow.questions'));
+  const tabs = React.useMemo(() => [
+    t('follow.questions'),
+    t('follow.users'),
+    t('follow.topics')
+  ], [t]);
+  
+  const [activeTab, setActiveTab] = useState('');
+  
+  // Initialize activeTab with translated value
+  React.useEffect(() => {
+    if (!activeTab) {
+      setActiveTab(t('follow.questions'));
+    }
+  }, [t, activeTab]);
   const [likedItems, setLikedItems] = useState({});
   const [userFollowState, setUserFollowState] = useState({});
   const [topicFollowState, setTopicFollowState] = useState({});

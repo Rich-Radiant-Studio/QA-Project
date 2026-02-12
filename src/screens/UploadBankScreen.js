@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, Alert, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from '../i18n/withTranslation';
 
 export default function UploadBankScreen({ navigation }) {
+  const { t } = useTranslation();
   const [bankName, setBankName] = useState('');
   const [selectedMainCategory, setSelectedMainCategory] = useState('');
   const [selectedSubCategory, setSelectedSubCategory] = useState('');
@@ -13,15 +15,34 @@ export default function UploadBankScreen({ navigation }) {
 
   // 类别数据
   const categories = {
-    '国家': ['政治', '法律', '历史', '地理', '文化'],
-    '行业': ['互联网', '金融', '医疗', '教育', '制造业', '服务业'],
-    '个人': ['兴趣爱好', '生活技能', '职业发展', '健康养生', '理财投资']
+    [t('screens.uploadBank.categories.country')]: [
+      t('screens.uploadBank.subCategories.country.politics'),
+      t('screens.uploadBank.subCategories.country.law'),
+      t('screens.uploadBank.subCategories.country.history'),
+      t('screens.uploadBank.subCategories.country.geography'),
+      t('screens.uploadBank.subCategories.country.culture')
+    ],
+    [t('screens.uploadBank.categories.industry')]: [
+      t('screens.uploadBank.subCategories.industry.internet'),
+      t('screens.uploadBank.subCategories.industry.finance'),
+      t('screens.uploadBank.subCategories.industry.healthcare'),
+      t('screens.uploadBank.subCategories.industry.education'),
+      t('screens.uploadBank.subCategories.industry.manufacturing'),
+      t('screens.uploadBank.subCategories.industry.service')
+    ],
+    [t('screens.uploadBank.categories.personal')]: [
+      t('screens.uploadBank.subCategories.personal.hobbies'),
+      t('screens.uploadBank.subCategories.personal.lifeSkills'),
+      t('screens.uploadBank.subCategories.personal.careerDevelopment'),
+      t('screens.uploadBank.subCategories.personal.health'),
+      t('screens.uploadBank.subCategories.personal.investment')
+    ]
   };
 
   const questionTypes = [
-    { value: 'judge', label: '判断题' },
-    { value: 'single', label: '单选题' },
-    { value: 'multiple', label: '多选题' }
+    { value: 'judge', label: t('screens.uploadBank.questionTypes.judge') },
+    { value: 'single', label: t('screens.uploadBank.questionTypes.single') },
+    { value: 'multiple', label: t('screens.uploadBank.questionTypes.multiple') }
   ];
 
   const addQuestion = () => {
@@ -39,9 +60,9 @@ export default function UploadBankScreen({ navigation }) {
   const removeQuestion = (id) => {
     if (questions.length === 1) {
       if (Platform.OS === 'web') {
-        alert('至少需要保留一道题目');
+        alert(t('screens.uploadBank.alerts.minQuestions'));
       } else {
-        Alert.alert('提示', '至少需要保留一道题目');
+        Alert.alert(t('screens.uploadBank.alerts.hint'), t('screens.uploadBank.alerts.minQuestions'));
       }
       return;
     }
@@ -118,18 +139,18 @@ export default function UploadBankScreen({ navigation }) {
   const handleSubmit = () => {
     if (!bankName.trim()) {
       if (Platform.OS === 'web') {
-        alert('请输入题库名称');
+        alert(t('screens.uploadBank.alerts.enterBankName'));
       } else {
-        Alert.alert('提示', '请输入题库名称');
+        Alert.alert(t('screens.uploadBank.alerts.hint'), t('screens.uploadBank.alerts.enterBankName'));
       }
       return;
     }
 
     if (!selectedMainCategory || !selectedSubCategory) {
       if (Platform.OS === 'web') {
-        alert('请选择题库类别');
+        alert(t('screens.uploadBank.alerts.selectCategory'));
       } else {
-        Alert.alert('提示', '请选择题库类别');
+        Alert.alert(t('screens.uploadBank.alerts.hint'), t('screens.uploadBank.alerts.selectCategory'));
       }
       return;
     }
@@ -137,18 +158,18 @@ export default function UploadBankScreen({ navigation }) {
     const invalidQuestions = questions.filter(q => !q.title.trim());
     if (invalidQuestions.length > 0) {
       if (Platform.OS === 'web') {
-        alert('请完善所有题目的标题');
+        alert(t('screens.uploadBank.alerts.completeQuestions'));
       } else {
-        Alert.alert('提示', '请完善所有题目的标题');
+        Alert.alert(t('screens.uploadBank.alerts.hint'), t('screens.uploadBank.alerts.completeQuestions'));
       }
       return;
     }
 
     if (Platform.OS === 'web') {
-      alert('题库上传成功！');
+      alert(t('screens.uploadBank.alerts.uploadSuccess'));
     } else {
-      Alert.alert('成功', '题库上传成功！', [
-        { text: '确定', onPress: () => navigation.goBack() }
+      Alert.alert(t('screens.uploadBank.alerts.success'), t('screens.uploadBank.alerts.uploadSuccess'), [
+        { text: t('screens.uploadBank.alerts.confirm'), onPress: () => navigation.goBack() }
       ]);
     }
   };
@@ -156,7 +177,7 @@ export default function UploadBankScreen({ navigation }) {
   const renderQuestion = (question, index) => (
     <View key={question.id} style={styles.questionCard}>
       <View style={styles.questionHeader}>
-        <Text style={styles.questionNumber}>题目 {index + 1}</Text>
+        <Text style={styles.questionNumber}>{t('screens.uploadBank.questionNumber')} {index + 1}</Text>
         <TouchableOpacity 
           onPress={() => removeQuestion(question.id)}
           style={styles.removeQuestionBtn}
@@ -167,7 +188,7 @@ export default function UploadBankScreen({ navigation }) {
 
       {/* 题目类型 */}
       <View style={styles.formGroup}>
-        <Text style={styles.label}>题目类型</Text>
+        <Text style={styles.label}>{t('screens.uploadBank.questionType')}</Text>
         <View style={styles.typeSelector}>
           {questionTypes.map(type => (
             <TouchableOpacity
@@ -191,10 +212,10 @@ export default function UploadBankScreen({ navigation }) {
 
       {/* 题目标题 */}
       <View style={styles.formGroup}>
-        <Text style={styles.label}>题目内容 <Text style={styles.required}>*</Text></Text>
+        <Text style={styles.label}>{t('screens.uploadBank.questionContent')} <Text style={styles.required}>{t('screens.uploadBank.required')}</Text></Text>
         <TextInput
           style={styles.textArea}
-          placeholder="请输入题目内容"
+          placeholder={t('screens.uploadBank.placeholders.questionContent')}
           placeholderTextColor="#9ca3af"
           value={question.title}
           onChangeText={(text) => updateQuestion(question.id, 'title', text)}
@@ -206,7 +227,7 @@ export default function UploadBankScreen({ navigation }) {
       {/* 判断题选项 */}
       {question.type === 'judge' && (
         <View style={styles.formGroup}>
-          <Text style={styles.label}>正确答案</Text>
+          <Text style={styles.label}>{t('screens.uploadBank.correctAnswer')}</Text>
           <View style={styles.judgeOptions}>
             <TouchableOpacity
               style={[
@@ -224,7 +245,7 @@ export default function UploadBankScreen({ navigation }) {
                 styles.judgeOptionText,
                 question.correctAnswer === 0 && styles.judgeOptionTextActive
               ]}>
-                正确
+                {t('screens.uploadBank.judgeOptions.correct')}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -243,7 +264,7 @@ export default function UploadBankScreen({ navigation }) {
                 styles.judgeOptionText,
                 question.correctAnswer === 1 && styles.judgeOptionTextActive
               ]}>
-                错误
+                {t('screens.uploadBank.judgeOptions.wrong')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -254,14 +275,14 @@ export default function UploadBankScreen({ navigation }) {
       {(question.type === 'single' || question.type === 'multiple') && (
         <View style={styles.formGroup}>
           <View style={styles.optionsHeader}>
-            <Text style={styles.label}>选项 {question.type === 'multiple' && <Text style={styles.multipleHint}>(可多选)</Text>}</Text>
+            <Text style={styles.label}>{t('screens.uploadBank.options')} {question.type === 'multiple' && <Text style={styles.multipleHint}>{t('screens.uploadBank.multipleHint')}</Text>}</Text>
             {question.options.length < 6 && (
               <TouchableOpacity 
                 onPress={() => addOption(question.id)}
                 style={styles.addOptionBtn}
               >
                 <Ionicons name="add-circle-outline" size={16} color="#f59e0b" />
-                <Text style={styles.addOptionText}>添加选项</Text>
+                <Text style={styles.addOptionText}>{t('screens.uploadBank.addOption')}</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -293,7 +314,7 @@ export default function UploadBankScreen({ navigation }) {
               </TouchableOpacity>
               <TextInput
                 style={styles.optionInput}
-                placeholder={`选项 ${String.fromCharCode(65 + optionIndex)}`}
+                placeholder={`${t('screens.uploadBank.optionPrefix')} ${String.fromCharCode(65 + optionIndex)}`}
                 placeholderTextColor="#9ca3af"
                 value={option}
                 onChangeText={(text) => updateOption(question.id, optionIndex, text)}
@@ -325,26 +346,26 @@ export default function UploadBankScreen({ navigation }) {
         >
           <Ionicons name="arrow-back" size={24} color="#374151" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>上传题库</Text>
+        <Text style={styles.headerTitle}>{t('screens.uploadBank.title')}</Text>
         <TouchableOpacity 
           onPress={handleSubmit} 
           style={styles.submitBtn}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           activeOpacity={0.7}
         >
-          <Text style={styles.submitBtnText}>提交</Text>
+          <Text style={styles.submitBtnText}>{t('screens.uploadBank.submit')}</Text>
         </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* 题库信息 */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>题库信息</Text>
+          <Text style={styles.sectionTitle}>{t('screens.uploadBank.bankInfo')}</Text>
           <View style={styles.formGroup}>
-            <Text style={styles.label}>题库名称 <Text style={styles.required}>*</Text></Text>
+            <Text style={styles.label}>{t('screens.uploadBank.bankName')} <Text style={styles.required}>{t('screens.uploadBank.required')}</Text></Text>
             <TextInput
               style={styles.input}
-              placeholder="请输入题库名称"
+              placeholder={t('screens.uploadBank.placeholders.bankName')}
               placeholderTextColor="#9ca3af"
               value={bankName}
               onChangeText={setBankName}
@@ -353,10 +374,10 @@ export default function UploadBankScreen({ navigation }) {
 
           {/* 题库类别 */}
           <View style={styles.formGroup}>
-            <Text style={styles.label}>题库类别 <Text style={styles.required}>*</Text></Text>
+            <Text style={styles.label}>{t('screens.uploadBank.bankCategory')} <Text style={styles.required}>{t('screens.uploadBank.required')}</Text></Text>
             
             {/* 主类别选择 */}
-            <Text style={styles.subLabel}>主类别</Text>
+            <Text style={styles.subLabel}>{t('screens.uploadBank.mainCategory')}</Text>
             <View style={styles.categoryRow}>
               {Object.keys(categories).map(category => (
                 <TouchableOpacity
@@ -383,7 +404,7 @@ export default function UploadBankScreen({ navigation }) {
             {/* 子类别选择 */}
             {selectedMainCategory && (
               <>
-                <Text style={[styles.subLabel, { marginTop: 12 }]}>子类别</Text>
+                <Text style={[styles.subLabel, { marginTop: 12 }]}>{t('screens.uploadBank.subCategory')}</Text>
                 <View style={styles.subCategoryRow}>
                   {categories[selectedMainCategory].map(subCategory => (
                     <TouchableOpacity
@@ -411,7 +432,7 @@ export default function UploadBankScreen({ navigation }) {
               <View style={styles.selectedCategoryCard}>
                 <Ionicons name="checkmark-circle" size={16} color="#22c55e" />
                 <Text style={styles.selectedCategoryText}>
-                  已选择：{selectedMainCategory} - {selectedSubCategory}
+                  {t('screens.uploadBank.selectedCategory')}{selectedMainCategory} - {selectedSubCategory}
                 </Text>
               </View>
             )}
@@ -419,17 +440,17 @@ export default function UploadBankScreen({ navigation }) {
 
           <View style={styles.infoCard}>
             <Ionicons name="information-circle" size={18} color="#3b82f6" />
-            <Text style={styles.infoText}>题目数量：{questions.length} 道</Text>
+            <Text style={styles.infoText}>{t('screens.uploadBank.questionCount')}{questions.length}{t('screens.uploadBank.questionCountUnit')}</Text>
           </View>
         </View>
 
         {/* 题目列表 */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>题目列表</Text>
+            <Text style={styles.sectionTitle}>{t('screens.uploadBank.questionList')}</Text>
             <TouchableOpacity onPress={addQuestion} style={styles.addQuestionBtn}>
               <Ionicons name="add-circle" size={20} color="#f59e0b" />
-              <Text style={styles.addQuestionText}>添加题目</Text>
+              <Text style={styles.addQuestionText}>{t('screens.uploadBank.addQuestion')}</Text>
             </TouchableOpacity>
           </View>
           {questions.map((question, index) => renderQuestion(question, index))}

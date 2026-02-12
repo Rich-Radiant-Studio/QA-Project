@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, Modal, Dimensions, TextInput, FlatList, Platform, ActivityIndicator, RefreshControl } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { FlashList } from '@shopify/flash-list';
 import Avatar from '../components/Avatar';
 import TranslateButton from '../components/TranslateButton';
-import { useTranslation } from '../i18n/withTranslation';
+import { useTranslation } from '../i18n/useTranslation';
 import { getRegionData } from '../data/regionData';
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -38,8 +38,8 @@ export default function HomeScreen({ navigation }) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   
-  // 获取多语言区域数据
-  const regionData = getRegionData();
+  // 获取多语言区域数据 - 使用 useMemo 避免重复计算
+  const regionData = useMemo(() => getRegionData(), []);
   
   // 添加调试信息 - 显示检测到的语言
   React.useEffect(() => {
@@ -51,22 +51,30 @@ export default function HomeScreen({ navigation }) {
     console.log('='.repeat(50));
   }, []);
   
-  // Tabs array using translation
-  const tabs = [
+  // Tabs array using translation with useMemo
+  const tabs = useMemo(() => [
     t('home.follow'),
     t('home.topics'),
     t('home.recommend'),
     t('home.hotList'),
     t('home.incomeRanking'),
+    t('home.questionRanking'),
     t('home.sameCity'),
     t('home.country'),
     t('home.industry'),
     t('home.personal'),
     t('home.workplace'),
     t('home.education')
-  ];
+  ], [t]);
   
-  const [activeTab, setActiveTab] = useState(t('home.recommend'));
+  const [activeTab, setActiveTab] = useState('');
+  
+  // Initialize activeTab with translated value
+  useEffect(() => {
+    if (!activeTab) {
+      setActiveTab(t('home.recommend'));
+    }
+  }, [t, activeTab]);
   const [likedItems, setLikedItems] = useState({});
   const [bookmarkedItems, setBookmarkedItems] = useState({});
   const [showRegionModal, setShowRegionModal] = useState(false);
@@ -435,6 +443,8 @@ export default function HomeScreen({ navigation }) {
                   navigation.navigate('HotList');
                 } else if (tab === t('home.incomeRanking')) {
                   navigation.navigate('IncomeRanking');
+                } else if (tab === t('home.questionRanking')) {
+                  navigation.navigate('QuestionRanking');
                 } else {
                   setActiveTab(tab);
                 }
@@ -598,34 +608,36 @@ export default function HomeScreen({ navigation }) {
                         ) : null}
                         {translatedContent[item.id]?.title || item.title}
                       </Text>
+                    </View>
+                    
+                    {/* 翻译按钮和全文按钮在同一行 */}
+                    <View style={styles.translateFullTextRow}>
+                      <TranslateButton 
+                        text={item.title}
+                        compact={false}
+                        onTranslated={(translatedText, isTranslated) => {
+                          setTranslatedContent(prev => ({
+                            ...prev,
+                            [item.id]: {
+                              ...prev[item.id],
+                              title: isTranslated ? translatedText : null
+                            }
+                          }));
+                        }}
+                      />
                       {needsExpand[item.id] && (
                         <TouchableOpacity 
-                          style={styles.fullTextBtnBottom}
+                          style={styles.fullTextBtnRight}
                           onPress={(e) => {
                             e.stopPropagation();
                             navigation.navigate('QuestionDetail', { id: item.id });
                           }}
                           activeOpacity={0.7}
                         >
-                          <Text style={styles.fullTextBtnText}>...全文</Text>
+                          <Text style={styles.fullTextBtnText}>...{t('home.fullText')}</Text>
                         </TouchableOpacity>
                       )}
                     </View>
-                    
-                    {/* 翻译按钮 */}
-                    <TranslateButton 
-                      text={item.title}
-                      compact={false}
-                      onTranslated={(translatedText, isTranslated) => {
-                        setTranslatedContent(prev => ({
-                          ...prev,
-                          [item.id]: {
-                            ...prev[item.id],
-                            title: isTranslated ? translatedText : null
-                          }
-                        }));
-                      }}
-                    />
                   </View>
 
                   {/* 付费查看按钮 */}
@@ -1119,6 +1131,15 @@ const styles = StyleSheet.create({
   fullTextInline: { 
     fontSize: 17,
     color: '#1a1a1a',
+  },
+  translateFullTextRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 4,
+  },
+  fullTextBtnRight: {
+    paddingLeft: 8,
   },
   fullTextBtnBottom: {
     alignSelf: 'flex-start',

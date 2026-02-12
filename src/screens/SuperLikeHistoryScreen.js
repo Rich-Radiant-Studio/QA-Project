@@ -3,9 +3,12 @@ import { View, Text, ScrollView, TouchableOpacity, StyleSheet, RefreshControl } 
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import superLikeCreditService from '../services/SuperLikeCreditService';
+import { useTranslation } from '../i18n/withTranslation';
+import { formatTime } from '../utils/timeFormatter';
 
 export default function SuperLikeHistoryScreen({ navigation }) {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -32,44 +35,6 @@ export default function SuperLikeHistoryScreen({ navigation }) {
     loadHistory();
   };
 
-  const formatDate = (timestamp) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diff = now - date;
-    
-    // 小于1分钟
-    if (diff < 60000) {
-      return '刚刚';
-    }
-    
-    // 小于1小时
-    if (diff < 3600000) {
-      const minutes = Math.floor(diff / 60000);
-      return `${minutes}分钟前`;
-    }
-    
-    // 小于24小时
-    if (diff < 86400000) {
-      const hours = Math.floor(diff / 3600000);
-      return `${hours}小时前`;
-    }
-    
-    // 小于7天
-    if (diff < 604800000) {
-      const days = Math.floor(diff / 86400000);
-      return `${days}天前`;
-    }
-    
-    // 显示完整日期
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hour = String(date.getHours()).padStart(2, '0');
-    const minute = String(date.getMinutes()).padStart(2, '0');
-    
-    return `${year}-${month}-${day} ${hour}:${minute}`;
-  };
-
   const renderTransaction = (transaction) => {
     const isPurchase = transaction.type === 'purchase';
     
@@ -89,24 +54,24 @@ export default function SuperLikeHistoryScreen({ navigation }) {
         <View style={styles.transactionContent}>
           <View style={styles.transactionHeader}>
             <Text style={styles.transactionType}>
-              {isPurchase ? '购买' : '使用'}
+              {isPurchase ? t('superLike.history.typePurchase') : t('superLike.history.typeUse')}
             </Text>
             <Text style={[
               styles.transactionAmount,
               isPurchase ? styles.amountPositive : styles.amountNegative
             ]}>
-              {isPurchase ? '+' : '-'}{transaction.amount} 次
+              {isPurchase ? '+' : '-'}{transaction.amount} {t('superLike.history.amount')}
             </Text>
           </View>
           
           {!isPurchase && transaction.answerTitle && (
             <Text style={styles.answerTitle} numberOfLines={2}>
-              用于回答：{transaction.answerTitle}
+              {t('superLike.history.usedOn')}{transaction.answerTitle}
             </Text>
           )}
           
           <Text style={styles.transactionTime}>
-            {formatDate(transaction.timestamp)}
+            {formatTime(transaction.timestamp)}
           </Text>
         </View>
       </View>
@@ -123,7 +88,7 @@ export default function SuperLikeHistoryScreen({ navigation }) {
         >
           <Ionicons name="arrow-back" size={24} color="#333" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>交易历史</Text>
+        <Text style={styles.headerTitle}>{t('superLike.history.title')}</Text>
         <View style={{ width: 44 }} />
       </View>
 
@@ -142,14 +107,14 @@ export default function SuperLikeHistoryScreen({ navigation }) {
         {loading ? (
           <View style={styles.emptyContainer}>
             <Ionicons name="hourglass-outline" size={48} color="#d1d5db" />
-            <Text style={styles.emptyText}>加载中...</Text>
+            <Text style={styles.emptyText}>{t('superLike.history.loading')}</Text>
           </View>
         ) : transactions.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Ionicons name="receipt-outline" size={48} color="#d1d5db" />
-            <Text style={styles.emptyText}>暂无交易记录</Text>
+            <Text style={styles.emptyText}>{t('superLike.history.empty')}</Text>
             <Text style={styles.emptyHint}>
-              购买或使用超级赞后，记录将显示在这里
+              {t('superLike.history.emptyHint')}
             </Text>
           </View>
         ) : (

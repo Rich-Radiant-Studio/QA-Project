@@ -3,8 +3,10 @@ import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, Alert 
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import superLikeCreditService from '../services/SuperLikeCreditService';
+import { useTranslation } from '../i18n/withTranslation';
 
 export default function SuperLikePurchaseScreen({ navigation }) {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   
   const [balance, setBalance] = useState(0);
@@ -39,54 +41,56 @@ export default function SuperLikePurchaseScreen({ navigation }) {
 
   // 处理购买
   const handlePurchase = async () => {
-    const amount = getCurrentAmount();
-    
-    if (!amount || amount <= 0) {
-      Alert.alert('提示', '请输入有效的购买数量');
-      return;
-    }
+      const amount = getCurrentAmount();
 
-    if (amount < 1 || amount > 100) {
-      Alert.alert('提示', '请输入有效的购买数量（1-100）');
-      return;
-    }
-
-    setLoading(true);
-    
-    try {
-      const result = await superLikeCreditService.purchase(amount);
-      
-      if (result.success) {
-        const totalCost = calculateTotalPrice();
-        
-        // 更新余额显示
-        setBalance(result.newBalance);
-        
-        // 显示成功提示
-        Alert.alert(
-          '购买成功',
-          `成功购买 ${amount} 个超级赞！\n花费：$${totalCost}\n您可以在任意回答上使用它们！`,
-          [
-            {
-              text: '确定',
-              onPress: () => {
-                // 重置选择
-                setSelectedAmount(null);
-                setCustomAmount('');
-              }
-            }
-          ]
-        );
-      } else {
-        Alert.alert('购买失败', result.error || '购买失败，请稍后重试');
+      if (!amount || amount <= 0) {
+        Alert.alert(t('superLike.purchase.alertTitle'), t('superLike.purchase.alertInvalidAmount'));
+        return;
       }
-    } catch (error) {
-      console.error('Purchase error:', error);
-      Alert.alert('购买失败', '购买失败，请稍后重试');
-    } finally {
-      setLoading(false);
-    }
-  };
+
+      if (amount < 1 || amount > 100) {
+        Alert.alert(t('superLike.purchase.alertTitle'), t('superLike.purchase.alertInvalidRange'));
+        return;
+      }
+
+      setLoading(true);
+
+      try {
+        const result = await superLikeCreditService.purchase(amount);
+
+        if (result.success) {
+          const totalCost = calculateTotalPrice();
+
+          // 更新余额显示
+          setBalance(result.newBalance);
+
+          // 显示成功提示
+          Alert.alert(
+            t('superLike.purchase.successTitle'),
+            t('superLike.purchase.successMessage')
+              .replace('{amount}', amount)
+              .replace('{cost}', totalCost),
+            [
+              {
+                text: t('common.confirm'),
+                onPress: () => {
+                  // 重置选择
+                  setSelectedAmount(null);
+                  setCustomAmount('');
+                }
+              }
+            ]
+          );
+        } else {
+          Alert.alert(t('superLike.purchase.alertTitle'), result.error || t('superLike.purchase.alertPurchaseFailed'));
+        }
+      } catch (error) {
+        console.error('Purchase error:', error);
+        Alert.alert(t('superLike.purchase.alertTitle'), t('superLike.purchase.alertPurchaseFailed'));
+      } finally {
+        setLoading(false);
+      }
+    };
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -100,7 +104,7 @@ export default function SuperLikePurchaseScreen({ navigation }) {
         </TouchableOpacity>
         <View style={styles.headerCenter}>
           <Ionicons name="star" size={20} color="#f59e0b" />
-          <Text style={styles.headerTitle}>购买超级赞</Text>
+          <Text style={styles.headerTitle}>{t('superLike.purchase.title')}</Text>
         </View>
         <View style={{ width: 44 }} />
       </View>
@@ -114,20 +118,20 @@ export default function SuperLikePurchaseScreen({ navigation }) {
         <View style={styles.currentInfo}>
           <View style={styles.infoCard}>
             <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>当前余额</Text>
+              <Text style={styles.infoLabel}>{t('superLike.purchase.currentBalance')}</Text>
               <View style={styles.countBadge}>
                 <Ionicons name="star" size={16} color="#f59e0b" />
-                <Text style={styles.countText}>{balance} 次</Text>
+                <Text style={styles.countText}>{balance} {t('superLike.credits')}</Text>
               </View>
             </View>
             <Text style={styles.infoDesc}>
-              购买超级赞次数后，您可以在任意回答上使用它们来提升排名
+              {t('superLike.purchase.infoDescription')}
             </Text>
           </View>
         </View>
 
         {/* 快速选择数量 */}
-        <Text style={styles.sectionTitle}>选择购买数量</Text>
+        <Text style={styles.sectionTitle}>{t('superLike.purchase.selectAmount')}</Text>
         <View style={styles.quickGrid}>
           {[5, 10, 20, 50, 100].map(amount => (
             <TouchableOpacity
@@ -155,12 +159,12 @@ export default function SuperLikePurchaseScreen({ navigation }) {
         </View>
 
         {/* 自定义数量 */}
-        <Text style={styles.sectionTitle}>或输入自定义数量</Text>
+        <Text style={styles.sectionTitle}>{t('superLike.purchase.customAmount')}</Text>
         <View style={styles.customInput}>
           <Ionicons name="star-outline" size={20} color="#f59e0b" />
           <TextInput
             style={styles.customField}
-            placeholder="最少 1 个"
+            placeholder={t('superLike.purchase.minAmount')}
             placeholderTextColor="#9ca3af"
             value={customAmount}
             onChangeText={(text) => {
@@ -177,17 +181,17 @@ export default function SuperLikePurchaseScreen({ navigation }) {
         {/* 价格说明 */}
         <View style={styles.priceInfo}>
           <View style={styles.priceRow}>
-            <Text style={styles.priceLabel}>单价</Text>
-            <Text style={styles.priceValue}>$2 / 次</Text>
+            <Text style={styles.priceLabel}>{t('superLike.purchase.unitPrice')}</Text>
+            <Text style={styles.priceValue}>{t('superLike.purchase.pricePerCredit')}</Text>
           </View>
           <View style={styles.priceRow}>
-            <Text style={styles.priceLabel}>购买数量</Text>
+            <Text style={styles.priceLabel}>{t('superLike.purchase.quantity')}</Text>
             <Text style={styles.priceValue}>
-              {getCurrentAmount()} 次
+              {getCurrentAmount()} {t('superLike.credits')}
             </Text>
           </View>
           <View style={[styles.priceRow, styles.priceTotal]}>
-            <Text style={styles.priceTotalLabel}>总计</Text>
+            <Text style={styles.priceTotalLabel}>{t('superLike.purchase.total')}</Text>
             <Text style={styles.priceTotalValue}>
               ${calculateTotalPrice()}
             </Text>
@@ -198,7 +202,7 @@ export default function SuperLikePurchaseScreen({ navigation }) {
         <View style={styles.tips}>
           <Ionicons name="information-circle-outline" size={16} color="#6b7280" />
           <Text style={styles.tipsText}>
-            购买超级赞次数后，您可以在任意回答上使用它们来提升排名，增加曝光机会
+            {t('superLike.purchase.tipsText')}
           </Text>
         </View>
 
@@ -213,7 +217,7 @@ export default function SuperLikePurchaseScreen({ navigation }) {
         >
           <Ionicons name="star" size={18} color="#fff" />
           <Text style={styles.confirmBtnText}>
-            {loading ? '处理中...' : `立即购买 ${getCurrentAmount()} 个超级赞`}
+            {loading ? t('superLike.purchase.processing') : t('superLike.purchase.confirmButton').replace('{amount}', getCurrentAmount())}
           </Text>
         </TouchableOpacity>
 
@@ -223,7 +227,7 @@ export default function SuperLikePurchaseScreen({ navigation }) {
           onPress={() => navigation.goBack()}
           disabled={loading}
         >
-          <Text style={styles.cancelBtnText}>取消</Text>
+          <Text style={styles.cancelBtnText}>{t('superLike.purchase.cancelButton')}</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

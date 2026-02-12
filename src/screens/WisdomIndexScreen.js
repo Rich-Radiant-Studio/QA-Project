@@ -2,8 +2,10 @@ import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from '../i18n/withTranslation';
 
 export default function WisdomIndexScreen({ navigation }) {
+  const { t } = useTranslation();
   const wisdomData = {
     index: 92.5,
     answerCount: 234,
@@ -49,10 +51,10 @@ export default function WisdomIndexScreen({ navigation }) {
   };
 
   const indicators = [
-    { label: '回答数', value: wisdomData.answerCount, icon: 'chatbubbles', color: '#3b82f6' },
-    { label: '回答采纳数', value: wisdomData.adoptedCount, icon: 'checkmark-circle', color: '#22c55e' },
-    { label: '粉丝数', value: wisdomData.fansCount, icon: 'people', color: '#f59e0b' },
-    { label: '上传智慧题目数', value: wisdomData.questionCount, icon: 'bulb', color: '#8b5cf6' },
+    { label: t('screens.wisdomIndex.indicators.answerCount'), value: wisdomData.answerCount, icon: 'chatbubbles', color: '#3b82f6' },
+    { label: t('screens.wisdomIndex.indicators.adoptedCount'), value: wisdomData.adoptedCount, icon: 'checkmark-circle', color: '#22c55e' },
+    { label: t('screens.wisdomIndex.indicators.fansCount'), value: wisdomData.fansCount, icon: 'people', color: '#f59e0b' },
+    { label: t('screens.wisdomIndex.indicators.questionCount'), value: wisdomData.questionCount, icon: 'bulb', color: '#8b5cf6' },
   ];
 
   return (
@@ -67,7 +69,7 @@ export default function WisdomIndexScreen({ navigation }) {
         >
           <Ionicons name="arrow-back" size={24} color="#374151" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>智慧指数</Text>
+        <Text style={styles.headerTitle}>{t('screens.wisdomIndex.title')}</Text>
         <View style={{ width: 24 }} />
       </View>
 
@@ -77,17 +79,17 @@ export default function WisdomIndexScreen({ navigation }) {
           <View style={styles.indexIconWrapper}>
             <Ionicons name="bulb" size={48} color="#f59e0b" />
           </View>
-          <Text style={styles.indexLabel}>当前智慧指数</Text>
+          <Text style={styles.indexLabel}>{t('screens.wisdomIndex.currentIndexLabel')}</Text>
           <Text style={styles.indexValue}>{wisdomData.index}</Text>
           <View style={styles.indexBar}>
             <View style={[styles.indexBarFill, { width: `${wisdomData.index}%` }]} />
           </View>
-          <Text style={styles.indexDesc}>超过了 {Math.floor(wisdomData.index)}% 的用户</Text>
+          <Text style={styles.indexDesc}>{t('screens.wisdomIndex.exceedsUsers').replace('{percent}', Math.floor(wisdomData.index))}</Text>
         </View>
 
         {/* 指标卡片 */}
         <View style={styles.indicatorsSection}>
-          <Text style={styles.sectionTitle}>智慧指标</Text>
+          <Text style={styles.sectionTitle}>{t('screens.wisdomIndex.indicators.title')}</Text>
           <View style={styles.indicatorsGrid}>
             {indicators.map((item, index) => (
               <View key={index} style={styles.indicatorCard}>
@@ -105,9 +107,9 @@ export default function WisdomIndexScreen({ navigation }) {
         <View style={styles.scoreCard}>
           <View style={styles.scoreHeader}>
             <Ionicons name="trophy" size={24} color="#f59e0b" />
-            <Text style={styles.scoreTitle}>智慧考核平均分数</Text>
+            <Text style={styles.scoreTitle}>{t('screens.wisdomIndex.avgScore.title')}</Text>
           </View>
-          <Text style={styles.scoreValue}>{wisdomData.avgScore}分</Text>
+          <Text style={styles.scoreValue}>{wisdomData.avgScore}{t('screens.wisdomIndex.avgScore.unit')}</Text>
           <View style={styles.scoreBar}>
             <View style={[styles.scoreBarFill, { width: `${wisdomData.avgScore}%` }]} />
           </View>
@@ -120,7 +122,7 @@ export default function WisdomIndexScreen({ navigation }) {
             onPress={() => navigation.navigate('WisdomExam')}
           >
             <Ionicons name="school" size={20} color="#fff" />
-            <Text style={styles.primaryBtnText}>每日智慧提升</Text>
+            <Text style={styles.primaryBtnText}>{t('screens.wisdomIndex.actions.dailyImprovement')}</Text>
           </TouchableOpacity>
 
           <View style={styles.secondaryBtns}>
@@ -129,7 +131,7 @@ export default function WisdomIndexScreen({ navigation }) {
               onPress={() => navigation.navigate('ExamHistory')}
             >
               <Ionicons name="list" size={20} color="#3b82f6" />
-              <Text style={styles.secondaryBtnText}>考核详情</Text>
+              <Text style={styles.secondaryBtnText}>{t('screens.wisdomIndex.actions.examDetail')}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity 
@@ -137,7 +139,7 @@ export default function WisdomIndexScreen({ navigation }) {
               onPress={() => navigation.navigate('QuestionBank')}
             >
               <Ionicons name="library" size={20} color="#8b5cf6" />
-              <Text style={styles.secondaryBtnText}>题库</Text>
+              <Text style={styles.secondaryBtnText}>{t('screens.wisdomIndex.actions.questionBank')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -145,13 +147,13 @@ export default function WisdomIndexScreen({ navigation }) {
         {/* 最近考核记录 */}
         <View style={styles.historySection}>
           <View style={styles.historySectionHeader}>
-            <Text style={styles.sectionTitle}>最近考核记录</Text>
+            <Text style={styles.sectionTitle}>{t('screens.wisdomIndex.recentExams.title')}</Text>
             <TouchableOpacity 
               onPress={() => navigation.navigate('ExamHistory')}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               activeOpacity={0.7}
             >
-              <Text style={styles.viewAllText}>查看全部</Text>
+              <Text style={styles.viewAllText}>{t('screens.wisdomIndex.recentExams.viewAll')}</Text>
             </TouchableOpacity>
           </View>
           {wisdomData.examHistory.map(exam => {
@@ -181,15 +183,15 @@ export default function WisdomIndexScreen({ navigation }) {
                       </View>
                       <View style={styles.historyMetaItem}>
                         <Ionicons name="person-outline" size={12} color="#9ca3af" />
-                        <Text style={styles.historyMetaText}>{exam.bankAuthor}</Text>
+                        <Text style={styles.historyMetaText}>{exam.bankAuthor === '平台' ? t('screens.wisdomIndex.recentExams.platform') : exam.bankAuthor}</Text>
                       </View>
                     </View>
                     <Text style={styles.historyDate}>{exam.date}</Text>
                   </View>
                 </View>
                 <View style={styles.historyRight}>
-                  <Text style={styles.historyScore}>{exam.score}分</Text>
-                  <Text style={styles.historyRank}>{exam.rank}</Text>
+                  <Text style={styles.historyScore}>{exam.score}{t('screens.wisdomIndex.recentExams.scoreUnit')}</Text>
+                  <Text style={styles.historyRank}>{exam.rank === '优秀' ? t('screens.wisdomIndex.recentExams.rank.excellent') : t('screens.wisdomIndex.recentExams.rank.good')}</Text>
                 </View>
               </TouchableOpacity>
             );

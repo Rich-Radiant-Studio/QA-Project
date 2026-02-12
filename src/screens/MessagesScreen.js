@@ -3,13 +3,14 @@ import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Modal, Tex
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import Avatar from '../components/Avatar';
+import { useTranslation } from '../i18n/withTranslation';
 
 // 顶部快捷入口数据
 const quickEntries = [
-  { key: 'comment', label: '评论转发', icon: 'chatbubbles', color: '#3b82f6', count: 12 },
-  { key: 'like', label: '赞同喜欢', icon: 'heart', color: '#ef4444', count: 28 },
-  { key: 'bookmark', label: '收藏了我', icon: 'bookmark', color: '#f59e0b', count: 5 },
-  { key: 'follow', label: '关注订阅', icon: 'person-add', color: '#22c55e', count: 8 },
+  { key: 'comment', icon: 'chatbubbles', color: '#3b82f6', count: 12 },
+  { key: 'like', icon: 'heart', color: '#ef4444', count: 28 },
+  { key: 'bookmark', icon: 'bookmark', color: '#f59e0b', count: 5 },
+  { key: 'follow', icon: 'person-add', color: '#22c55e', count: 8 },
 ];
 
 // 邀请回答数据
@@ -49,7 +50,6 @@ const messageGroups = [
     icon: 'megaphone', 
     iconBg: '#dbeafe', 
     iconColor: '#3b82f6', 
-    title: '官方账号', 
     lastMessage: '平台新功能上线通知：现已支持视频回答...', 
     time: '1小时前', 
     unread: 2 
@@ -59,7 +59,6 @@ const messageGroups = [
     icon: 'help-circle', 
     iconBg: '#dcfce7', 
     iconColor: '#22c55e', 
-    title: '问题新回答', 
     lastMessage: '您关注的问题「如何学习Python」有3个新回答', 
     time: '2小时前', 
     unread: 3 
@@ -69,7 +68,6 @@ const messageGroups = [
     icon: 'settings', 
     iconBg: '#f3f4f6', 
     iconColor: '#6b7280', 
-    title: '系统消息', 
     lastMessage: '您的账户安全设置已更新', 
     time: '昨天', 
     unread: 0 
@@ -96,6 +94,7 @@ const allUsers = [
 ];
 
 export default function MessagesScreen({ navigation }) {
+  const { t } = useTranslation();
   const [showPrivateModal, setShowPrivateModal] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [selectedUser, setSelectedUser] = useState(null);
@@ -107,23 +106,42 @@ export default function MessagesScreen({ navigation }) {
   const [showArbitrationResultModal, setShowArbitrationResultModal] = useState(false);
   const [currentArbitrationResult, setCurrentArbitrationResult] = useState(null);
 
+  // Get quick entry labels from translations
+  const quickEntryLabels = {
+    comment: t('screens.messagesScreen.quickEntries.commentForward'),
+    like: t('screens.messagesScreen.quickEntries.likeAgree'),
+    bookmark: t('screens.messagesScreen.quickEntries.bookmarked'),
+    follow: t('screens.messagesScreen.quickEntries.followSubscribe'),
+  };
+
+  // Get message group titles from translations
+  const messageGroupTitles = {
+    official: t('screens.messagesScreen.messageGroups.official'),
+    question: t('screens.messagesScreen.messageGroups.questionAnswer'),
+    system: t('screens.messagesScreen.messageGroups.system'),
+  };
+
   const handleMarkAllRead = () => {
-    Alert.alert('全部已读', '确定将所有消息标记为已读吗？', [
-      { text: '取消', style: 'cancel' },
-      { text: '确定', onPress: () => Alert.alert('成功', '所有消息已标记为已读') }
-    ]);
+    Alert.alert(
+      t('screens.messagesScreen.alerts.markAllReadTitle'), 
+      t('screens.messagesScreen.alerts.markAllReadMessage'), 
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        { text: t('common.confirm'), onPress: () => Alert.alert(t('screens.messagesScreen.alerts.success'), t('screens.messagesScreen.alerts.markAllReadSuccess')) }
+      ]
+    );
   };
 
   const handleSendMessage = () => {
     if (!selectedUser) {
-      Alert.alert('提示', '请选择要发送私信的用户');
+      Alert.alert(t('screens.messagesScreen.alerts.hint'), t('screens.messagesScreen.alerts.selectUserHint'));
       return;
     }
     if (!messageContent.trim()) {
-      Alert.alert('提示', '请输入私信内容');
+      Alert.alert(t('screens.messagesScreen.alerts.hint'), t('screens.messagesScreen.alerts.enterMessageHint'));
       return;
     }
-    Alert.alert('发送成功', `已向 ${selectedUser.name} 发送私信`);
+    Alert.alert(t('screens.messagesScreen.alerts.success'), t('screens.messagesScreen.alerts.sendSuccess').replace('{name}', selectedUser.name));
     setShowPrivateModal(false);
     setSelectedUser(null);
     setMessageContent('');
@@ -137,14 +155,14 @@ export default function MessagesScreen({ navigation }) {
 
   const handleSubmitVote = () => {
     if (!voteChoice) {
-      Alert.alert('提示', '请选择您的投票意见');
+      Alert.alert(t('screens.messagesScreen.alerts.hint'), t('screens.messagesScreen.alerts.selectVoteHint'));
       return;
     }
     if (!voteReason.trim()) {
-      Alert.alert('提示', '请填写投票理由');
+      Alert.alert(t('screens.messagesScreen.alerts.hint'), t('screens.messagesScreen.alerts.enterReasonHint'));
       return;
     }
-    Alert.alert('投票成功', '您的投票已提交，感谢您的参与！');
+    Alert.alert(t('screens.messagesScreen.alerts.success'), t('screens.messagesScreen.alerts.voteSuccess'));
     setShowVoteModal(false);
     setCurrentArbitration(null);
     setVoteChoice(null);
@@ -166,14 +184,14 @@ export default function MessagesScreen({ navigation }) {
         >
           <Ionicons name="arrow-back" size={22} color="#4b5563" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>消息</Text>
+        <Text style={styles.headerTitle}>{t('screens.messagesScreen.title')}</Text>
         <View style={styles.headerRight}>
           <TouchableOpacity 
             onPress={handleMarkAllRead}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             activeOpacity={0.7}
           >
-            <Text style={styles.markAllRead}>全部已读</Text>
+            <Text style={styles.markAllRead}>{t('screens.messagesScreen.markAllRead')}</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.sendMsgBtn} 
@@ -200,7 +218,7 @@ export default function MessagesScreen({ navigation }) {
                     </View>
                   )}
                 </View>
-                <Text style={styles.quickLabel}>{entry.label}</Text>
+                <Text style={styles.quickLabel}>{quickEntryLabels[entry.key]}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -211,23 +229,23 @@ export default function MessagesScreen({ navigation }) {
           <View style={styles.sectionHeader}>
             <View style={styles.sectionTitleRow}>
               <Ionicons name="hand-left" size={18} color="#f59e0b" />
-              <Text style={styles.sectionTitle}>邀请回答</Text>
+              <Text style={styles.sectionTitle}>{t('screens.messagesScreen.inviteAnswer.title')}</Text>
             </View>
             <TouchableOpacity>
-              <Text style={styles.sectionMore}>查看全部</Text>
+              <Text style={styles.sectionMore}>{t('screens.messagesScreen.inviteAnswer.viewAll')}</Text>
             </TouchableOpacity>
           </View>
           {inviteAnswers.map(item => (
             <TouchableOpacity key={item.id} style={styles.inviteItem}>
               <Avatar uri={item.avatar} name={item.name} size={40} />
               <View style={styles.inviteContent}>
-                <Text style={styles.inviteName}>{item.name} 邀请你回答</Text>
+                <Text style={styles.inviteName}>{item.name} {t('screens.messagesScreen.inviteAnswer.invitedYou')}</Text>
                 <Text style={styles.inviteQuestion} numberOfLines={1}>{item.question}</Text>
               </View>
               <View style={styles.inviteRight}>
                 <Text style={styles.inviteTime}>{item.time}</Text>
                 <TouchableOpacity style={styles.inviteBtn}>
-                  <Text style={styles.inviteBtnText}>去回答</Text>
+                  <Text style={styles.inviteBtnText}>{t('screens.messagesScreen.inviteAnswer.goAnswer')}</Text>
                 </TouchableOpacity>
               </View>
             </TouchableOpacity>
@@ -239,10 +257,10 @@ export default function MessagesScreen({ navigation }) {
           <View style={styles.sectionHeader}>
             <View style={styles.sectionTitleRow}>
               <Ionicons name="gavel" size={18} color="#ef4444" />
-              <Text style={styles.sectionTitle}>仲裁邀请</Text>
+              <Text style={styles.sectionTitle}>{t('screens.messagesScreen.arbitration.title')}</Text>
             </View>
             <TouchableOpacity>
-              <Text style={styles.sectionMore}>查看全部</Text>
+              <Text style={styles.sectionMore}>{t('screens.messagesScreen.inviteAnswer.viewAll')}</Text>
             </TouchableOpacity>
           </View>
           {arbitrationInvites.map(item => (
@@ -250,22 +268,22 @@ export default function MessagesScreen({ navigation }) {
               <Avatar uri={item.avatar} name={item.name} size={40} />
               <View style={styles.arbitrationContent}>
                 <View style={styles.arbitrationHeader}>
-                  <Text style={styles.arbitrationName}>{item.name} 邀请你参与仲裁</Text>
+                  <Text style={styles.arbitrationName}>{item.name} {t('screens.messagesScreen.arbitration.invitedYou')}</Text>
                   {item.status === 'voted' && (
                     <View style={styles.votedBadge}>
                       <Ionicons name="checkmark-circle" size={12} color="#22c55e" />
-                      <Text style={styles.votedBadgeText}>已投票</Text>
+                      <Text style={styles.votedBadgeText}>{t('screens.messagesScreen.arbitration.voted')}</Text>
                     </View>
                   )}
                 </View>
                 <Text style={styles.arbitrationQuestion} numberOfLines={1}>
-                  问题：{item.question}
+                  {t('screens.messagesScreen.arbitration.question')}：{item.question}
                 </Text>
                 <Text style={styles.arbitrationAnswer} numberOfLines={1}>
-                  答案作者：{item.answer}
+                  {t('screens.messagesScreen.arbitration.answerAuthor')}：{item.answer}
                 </Text>
                 <Text style={styles.arbitrationReason} numberOfLines={2}>
-                  理由：{item.reason}
+                  {t('screens.messagesScreen.arbitration.reason')}：{item.reason}
                 </Text>
               </View>
               <View style={styles.arbitrationRight}>
@@ -276,11 +294,11 @@ export default function MessagesScreen({ navigation }) {
                     onPress={() => handleOpenVoteModal(item)}
                   >
                     <Ionicons name="hand-right" size={14} color="#fff" />
-                    <Text style={styles.voteBtnText}>去投票</Text>
+                    <Text style={styles.voteBtnText}>{t('screens.messagesScreen.arbitration.goVote')}</Text>
                   </TouchableOpacity>
                 ) : (
                   <TouchableOpacity style={styles.viewVoteBtn}>
-                    <Text style={styles.viewVoteBtnText}>查看</Text>
+                    <Text style={styles.viewVoteBtnText}>{t('screens.messagesScreen.arbitration.view')}</Text>
                   </TouchableOpacity>
                 )}
               </View>
@@ -297,7 +315,7 @@ export default function MessagesScreen({ navigation }) {
               </View>
               <View style={styles.groupContent}>
                 <View style={styles.groupTitleRow}>
-                  <Text style={styles.groupTitle}>{group.title}</Text>
+                  <Text style={styles.groupTitle}>{messageGroupTitles[group.type]}</Text>
                   <Text style={styles.groupTime}>{group.time}</Text>
                 </View>
                 <Text style={styles.groupMessage} numberOfLines={1}>{group.lastMessage}</Text>
@@ -314,7 +332,7 @@ export default function MessagesScreen({ navigation }) {
         {/* 私信列表 */}
         <View style={styles.privateSection}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>私信</Text>
+            <Text style={styles.sectionTitle}>{t('screens.messagesScreen.privateMessages.title')}</Text>
           </View>
           {privateMessages.map(item => (
             <TouchableOpacity key={item.id} style={styles.privateItem}>
@@ -346,13 +364,13 @@ export default function MessagesScreen({ navigation }) {
             <TouchableOpacity onPress={() => { setShowPrivateModal(false); setSelectedUser(null); setMessageContent(''); setSearchText(''); }}>
               <Ionicons name="close" size={26} color="#333" />
             </TouchableOpacity>
-            <Text style={styles.privateModalTitle}>发送私信</Text>
+            <Text style={styles.privateModalTitle}>{t('screens.messagesScreen.privateModal.title')}</Text>
             <TouchableOpacity 
               style={[styles.sendBtn, (!selectedUser || !messageContent.trim()) && styles.sendBtnDisabled]}
               onPress={handleSendMessage}
               disabled={!selectedUser || !messageContent.trim()}
             >
-              <Text style={[styles.sendBtnText, (!selectedUser || !messageContent.trim()) && styles.sendBtnTextDisabled]}>发送</Text>
+              <Text style={[styles.sendBtnText, (!selectedUser || !messageContent.trim()) && styles.sendBtnTextDisabled]}>{t('screens.messagesScreen.privateModal.send')}</Text>
             </TouchableOpacity>
           </View>
 
@@ -362,7 +380,7 @@ export default function MessagesScreen({ navigation }) {
               <Ionicons name="search" size={18} color="#9ca3af" />
               <TextInput
                 style={styles.searchInput}
-                placeholder="搜索用户..."
+                placeholder={t('screens.messagesScreen.privateModal.searchPlaceholder')}
                 value={searchText}
                 onChangeText={setSearchText}
               />
@@ -376,7 +394,7 @@ export default function MessagesScreen({ navigation }) {
 
           {/* 已选择的用户 */}
           <View style={[styles.selectedUserSection, { display: selectedUser ? 'flex' : 'none' }]}>
-            <Text style={styles.selectedLabel}>发送给：</Text>
+            <Text style={styles.selectedLabel}>{t('screens.messagesScreen.privateModal.sendTo')}</Text>
             <View style={styles.selectedUserTag}>
               <Avatar uri={selectedUser?.avatar} name={selectedUser?.name} size={24} />
               <Text style={styles.selectedUserName}>{selectedUser?.name}</Text>
@@ -388,7 +406,7 @@ export default function MessagesScreen({ navigation }) {
 
           {/* 用户列表 */}
           <View style={[styles.userListSection, { display: selectedUser ? 'none' : 'flex' }]}>
-            <Text style={styles.userListTitle}>选择用户</Text>
+            <Text style={styles.userListTitle}>{t('screens.messagesScreen.privateModal.selectUser')}</Text>
             <ScrollView style={styles.userList}>
               {filteredUsers.map(user => (
                 <TouchableOpacity 
@@ -411,10 +429,10 @@ export default function MessagesScreen({ navigation }) {
 
           {/* 私信内容 */}
           <View style={[styles.messageInputSection, { display: selectedUser ? 'flex' : 'none' }]}>
-            <Text style={styles.messageInputLabel}>私信内容</Text>
+            <Text style={styles.messageInputLabel}>{t('screens.messagesScreen.privateModal.messageContent')}</Text>
             <TextInput
               style={styles.messageTextInput}
-              placeholder="请输入私信内容..."
+              placeholder={t('screens.messagesScreen.privateModal.messagePlaceholder')}
               placeholderTextColor="#bbb"
               value={messageContent}
               onChangeText={setMessageContent}
@@ -430,23 +448,23 @@ export default function MessagesScreen({ navigation }) {
         <View style={styles.voteModalOverlay}>
           <View style={styles.voteModal}>
             <View style={styles.voteModalHandle} />
-            <Text style={styles.voteModalTitle}>仲裁投票</Text>
+            <Text style={styles.voteModalTitle}>{t('screens.messagesScreen.voteModal.title')}</Text>
 
             {currentArbitration && (
               <ScrollView style={styles.voteModalContent} showsVerticalScrollIndicator={false}>
                 {/* 问题信息 */}
                 <View style={styles.voteQuestionCard}>
-                  <Text style={styles.voteQuestionLabel}>问题</Text>
+                  <Text style={styles.voteQuestionLabel}>{t('screens.messagesScreen.voteModal.questionLabel')}</Text>
                   <Text style={styles.voteQuestionText}>{currentArbitration.question}</Text>
                   <View style={styles.voteAnswerRow}>
-                    <Text style={styles.voteAnswerLabel}>答案作者：</Text>
+                    <Text style={styles.voteAnswerLabel}>{t('screens.messagesScreen.voteModal.answerAuthorLabel')}</Text>
                     <Text style={styles.voteAnswerAuthor}>{currentArbitration.answer}</Text>
                   </View>
                 </View>
 
                 {/* 仲裁理由 */}
                 <View style={styles.voteReasonCard}>
-                  <Text style={styles.voteReasonLabel}>申请理由</Text>
+                  <Text style={styles.voteReasonLabel}>{t('screens.messagesScreen.voteModal.reasonLabel')}</Text>
                   <Text style={styles.voteReasonText}>{currentArbitration.reason}</Text>
                   <View style={styles.voteApplicantRow}>
                     <Avatar uri={currentArbitration.avatar} name={currentArbitration.name} size={20} />
@@ -456,7 +474,7 @@ export default function MessagesScreen({ navigation }) {
                 </View>
 
                 {/* 投票选项 */}
-                <Text style={styles.voteChoiceTitle}>您的投票意见</Text>
+                <Text style={styles.voteChoiceTitle}>{t('screens.messagesScreen.voteModal.voteChoiceTitle')}</Text>
                 <View style={styles.voteChoices}>
                   <TouchableOpacity
                     style={[
@@ -477,9 +495,9 @@ export default function MessagesScreen({ navigation }) {
                       <Text style={[
                         styles.voteChoiceLabel,
                         voteChoice === 'agree' && styles.voteChoiceLabelActive
-                      ]}>同意推翻</Text>
+                      ]}>{t('screens.messagesScreen.voteModal.agreeOverthrow')}</Text>
                       <Text style={styles.voteChoiceDesc}>
-                        认为原答案存在问题，应该推翻采纳
+                        {t('screens.messagesScreen.voteModal.agreeOverthrowDesc')}
                       </Text>
                     </View>
                   </TouchableOpacity>
@@ -503,19 +521,19 @@ export default function MessagesScreen({ navigation }) {
                       <Text style={[
                         styles.voteChoiceLabel,
                         voteChoice === 'disagree' && styles.voteChoiceLabelActive
-                      ]}>维持原判</Text>
+                      ]}>{t('screens.messagesScreen.voteModal.maintainOriginal')}</Text>
                       <Text style={styles.voteChoiceDesc}>
-                        认为原答案合理，应该维持采纳
+                        {t('screens.messagesScreen.voteModal.maintainOriginalDesc')}
                       </Text>
                     </View>
                   </TouchableOpacity>
                 </View>
 
                 {/* 投票理由 */}
-                <Text style={styles.voteReasonInputLabel}>投票理由（必填）</Text>
+                <Text style={styles.voteReasonInputLabel}>{t('screens.messagesScreen.voteModal.reasonInputLabel')}</Text>
                 <TextInput
                   style={styles.voteReasonInput}
-                  placeholder="请详细说明您的投票理由..."
+                  placeholder={t('screens.messagesScreen.voteModal.reasonPlaceholder')}
                   placeholderTextColor="#9ca3af"
                   value={voteReason}
                   onChangeText={setVoteReason}
@@ -537,7 +555,7 @@ export default function MessagesScreen({ navigation }) {
                 onPress={handleSubmitVote}
                 disabled={!voteChoice || !voteReason.trim()}
               >
-                <Text style={styles.submitVoteBtnText}>提交投票</Text>
+                <Text style={styles.submitVoteBtnText}>{t('screens.messagesScreen.voteModal.submitVote')}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.cancelVoteBtn}
@@ -548,7 +566,7 @@ export default function MessagesScreen({ navigation }) {
                   setVoteReason('');
                 }}
               >
-                <Text style={styles.cancelVoteBtnText}>取消</Text>
+                <Text style={styles.cancelVoteBtnText}>{t('screens.messagesScreen.voteModal.cancel')}</Text>
               </TouchableOpacity>
             </View>
           </View>

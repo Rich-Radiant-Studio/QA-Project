@@ -3,8 +3,10 @@ import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, Alert 
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import Avatar from '../components/Avatar';
+import { useTranslation } from '../i18n/withTranslation';
 
 export default function InviteTeamMemberScreen({ navigation, route }) {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { teamName } = route?.params || {};
   
@@ -51,11 +53,11 @@ export default function InviteTeamMemberScreen({ navigation, route }) {
     if (selectedUsers.length === 0) return;
     
     Alert.alert(
-      '发送成功',
-      `已向 ${selectedUsers.length} 位用户发送邀请`,
+      t('screens.inviteTeamMember.alerts.successTitle'),
+      t('screens.inviteTeamMember.alerts.successMessage').replace('{count}', selectedUsers.length),
       [
         {
-          text: '确定',
+          text: t('screens.inviteTeamMember.alerts.confirm'),
           onPress: () => navigation.goBack()
         }
       ]
@@ -74,7 +76,7 @@ export default function InviteTeamMemberScreen({ navigation, route }) {
           <Ionicons name="close" size={26} color="#333" />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
-          <Text style={styles.headerTitle}>邀请用户加入团队</Text>
+          <Text style={styles.headerTitle}>{t('screens.inviteTeamMember.title')}</Text>
           {teamName && <Text style={styles.headerSubtitle}>{teamName}</Text>}
         </View>
         <View style={{ width: 44 }} />
@@ -92,7 +94,7 @@ export default function InviteTeamMemberScreen({ navigation, route }) {
         >
           <Ionicons name="people" size={18} color={inviteTab === 'platform' ? '#f59e0b' : '#9ca3af'} />
           <Text style={[styles.tabText, inviteTab === 'platform' && styles.tabTextActive]}>
-            本站用户
+            {t('screens.inviteTeamMember.tabs.platform')}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -105,7 +107,7 @@ export default function InviteTeamMemberScreen({ navigation, route }) {
         >
           <Ionicons name="logo-twitter" size={18} color={inviteTab === 'twitter' ? '#f59e0b' : '#9ca3af'} />
           <Text style={[styles.tabText, inviteTab === 'twitter' && styles.tabTextActive]}>
-            Twitter
+            {t('screens.inviteTeamMember.tabs.twitter')}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -118,7 +120,7 @@ export default function InviteTeamMemberScreen({ navigation, route }) {
         >
           <Ionicons name="logo-facebook" size={18} color={inviteTab === 'facebook' ? '#f59e0b' : '#9ca3af'} />
           <Text style={[styles.tabText, inviteTab === 'facebook' && styles.tabTextActive]}>
-            Facebook
+            {t('screens.inviteTeamMember.tabs.facebook')}
           </Text>
         </TouchableOpacity>
       </View>
@@ -128,7 +130,7 @@ export default function InviteTeamMemberScreen({ navigation, route }) {
         <Ionicons name="search" size={18} color="#9ca3af" />
         <TextInput
           style={styles.searchInput}
-          placeholder="搜索用户..."
+          placeholder={t('screens.inviteTeamMember.search.placeholder')}
           placeholderTextColor="#9ca3af"
           value={searchText}
           onChangeText={setSearchText}
@@ -139,7 +141,7 @@ export default function InviteTeamMemberScreen({ navigation, route }) {
       {selectedUsers.length > 0 && (
         <View style={styles.selectedCountBadge}>
           <Text style={styles.selectedCountText}>
-            已选择 {selectedUsers.length} 位用户
+            {t('screens.inviteTeamMember.selectedCount').replace('{count}', selectedUsers.length)}
           </Text>
         </View>
       )}
@@ -169,8 +171,8 @@ export default function InviteTeamMemberScreen({ navigation, route }) {
                   </View>
                   <Text style={styles.userMeta}>
                     {inviteTab === 'platform' && user.title}
-                    {inviteTab === 'twitter' && `${user.followers} 关注者`}
-                    {inviteTab === 'facebook' && `${user.members} 成员`}
+                    {inviteTab === 'twitter' && `${user.followers} ${t('screens.inviteTeamMember.userMeta.followers')}`}
+                    {inviteTab === 'facebook' && `${user.members} ${t('screens.inviteTeamMember.userMeta.members')}`}
                   </Text>
                 </View>
               </View>
@@ -188,7 +190,7 @@ export default function InviteTeamMemberScreen({ navigation, route }) {
           style={styles.cancelBtn}
           onPress={() => navigation.goBack()}
         >
-          <Text style={styles.cancelBtnText}>取消</Text>
+          <Text style={styles.cancelBtnText}>{t('screens.inviteTeamMember.actions.cancel')}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.sendBtn, selectedUsers.length === 0 && styles.sendBtnDisabled]}
@@ -196,7 +198,7 @@ export default function InviteTeamMemberScreen({ navigation, route }) {
           disabled={selectedUsers.length === 0}
         >
           <Ionicons name="send" size={16} color="#fff" />
-          <Text style={styles.sendBtnText}>发送邀请</Text>
+          <Text style={styles.sendBtnText}>{t('screens.inviteTeamMember.actions.sendInvite')}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

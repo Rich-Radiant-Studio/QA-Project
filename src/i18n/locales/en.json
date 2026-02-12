@@ -17,6 +17,7 @@
     "recommend": "Recommended",
     "hotList": "Hot List",
     "incomeRanking": "Income Ranking",
+    "questionRanking": "Question Ranking",
     "sameCity": "Same City",
     "country": "Country",
     "industry": "Industry",
@@ -56,10 +57,10 @@
     "payToView": "Pay ${amount} to view full content",
     "selectRegion": "Select Region",
     "confirm": "Confirm",
-    "country": "Country",
     "city": "City",
     "state": "State",
-    "district": "District"
+    "district": "District",
+    "fullText": "Full Text"
   },
   "emergency": {
     "title": "Emergency Help",
@@ -151,6 +152,8 @@
     "adopted": "Adopted",
     "share": "Share",
     "shareProfile": "Check out my profile on Q&A Community!",
+    "shareUrl": "https://qa-app.com/user/12345678",
+    "shareFailed": "Share failed",
     "rechargeSuccess": "Recharge Successful",
     "withdrawSuccess": "Withdrawal Submitted",
     "selectAmount": "Select Amount",
@@ -172,7 +175,151 @@
     "favoriteAnswers": "Answers",
     "favoriteComments": "Comments",
     "savedAt": "Saved",
-    "viewedAt": "Viewed"
+    "viewedAt": "Viewed",
+    "follow": "Follow",
+    "unfollow": "Unfollow",
+    "unfollowConfirmTitle": "Unfollow",
+    "unfollowConfirmMessage": "Are you sure you want to unfollow?",
+    "sendMessage": "Send Message",
+    "userNotFound": "User not found",
+    "noContent": "No content yet",
+    "tabs": {
+      "all": "All",
+      "articles": "Articles",
+      "videos": "Videos",
+      "microposts": "Microposts",
+      "reposts": "Reposts",
+      "questions": "Questions",
+      "answers": "Answers",
+      "favorites": "Favorites",
+      "history": "History"
+    },
+    "searchPlaceholder": "Search user's content",
+    "bio": "Love learning and sharing. Focus on Python and data analysis.",
+    "location": "Beijing",
+    "occupation": "Data Analyst",
+    "viewPublicProfile": "View Public Profile",
+    "superLike": "Super Like",
+    "purchase": "Purchase",
+    "history": "History",
+    "monthlyIncome": "Monthly answer income: ",
+    "monthlyExpense": "Monthly reward expense: ",
+    "withdrawEstimate": "Expected to arrive in 1-3 business days",
+    "verificationInfo": "Verification Info",
+    "verificationTime": "Verification Time: ",
+    "verificationOrg": "Verification Organization: Official Verification Center",
+    "verificationModal": {
+      "title": "Identity Verification",
+      "selectType": "Please select your verification type",
+      "personal": {
+        "title": "Personal Verification",
+        "desc": "Verify personal identity and get personal verification badge"
+      },
+      "enterprise": {
+        "title": "Enterprise Verification",
+        "desc": "Verify enterprise qualifications and get enterprise verification badge"
+      },
+      "government": {
+        "title": "Government Verification",
+        "desc": "Verify government identity and get official verification badge"
+      },
+      "idType": "ID Type",
+      "idCard": "ID Card",
+      "idNumber": "ID Number",
+      "idNumberPlaceholder": "Enter ID number",
+      "uploadIdPhotos": "Upload ID Photos",
+      "idFront": "ID Front",
+      "idBack": "ID Back",
+      "clickUpload": "Click to upload",
+      "uploadTip": "Please ensure ID information is clear and complete",
+      "qualifications": "Professional Qualifications",
+      "qualificationsDesc": "Please upload your professional qualification certificates (e.g., lawyer license, medical license, teacher certificate, etc.)",
+      "qualificationName": "Enter qualification name (e.g., Lawyer License)",
+      "addQualification": "Add Qualification",
+      "qualificationTip": "Supports uploading lawyer license, medical license, teacher certificate and other professional qualifications",
+      "enterpriseName": "Enterprise Name",
+      "enterpriseNamePlaceholder": "Enter full enterprise name",
+      "registrationNumber": "Registration Number",
+      "registrationNumberPlaceholder": "Enter enterprise registration number",
+      "taxNumber": "Tax Number",
+      "taxNumberPlaceholder": "Enter taxpayer identification number",
+      "address": "Enterprise Address",
+      "addressPlaceholder": "Enter enterprise registration address",
+      "contactPerson": "Contact Person",
+      "contactPersonPlaceholder": "Enter contact person name",
+      "contactMethod": "Contact Method",
+      "contactMethodDesc": "Please fill in at least one contact method",
+      "contactPhone": "Contact Phone",
+      "contactPhonePlaceholder": "Enter phone number",
+      "contactEmail": "Contact Email",
+      "contactEmailPlaceholder": "Enter email address",
+      "uploadLicense": "Upload Registration Documents",
+      "license": "Registration Document",
+      "licenseTip": "Please upload clear registration document photos (such as business license, organization code certificate, etc.), ensure information is complete and visible",
+      "governmentName": "Organization Name",
+      "governmentNamePlaceholder": "Enter full government organization name",
+      "governmentId": "Organization ID",
+      "governmentIdPlaceholder": "Enter organization ID",
+      "department": "Department Name",
+      "departmentPlaceholder": "Enter department name",
+      "authorizer": "Authorizer",
+      "authorizerPlaceholder": "Enter authorizer name",
+      "authorizerIdPhotos": "Upload Authorizer ID",
+      "authorizerIdFront": "ID Front",
+      "authorizerIdBack": "ID Back",
+      "authorizerIdTip": "Please upload authorizer's ID card front and back, ensure information is clear",
+      "position": "Position",
+      "positionPlaceholder": "Enter authorizer position",
+      "uploadCertificate": "Upload Official Documents",
+      "certificate": "Official Document",
+      "certificateTip": "Please upload official documents with official seal, such as: organization code certificate, public institution legal person certificate, etc.",
+      "submit": "Submit Verification",
+      "submitSuccess": "Submitted Successfully",
+      "submitSuccessMessage": "Your verification application has been submitted. We will complete the review within 1-3 business days. Please wait patiently.",
+      "required": "*",
+      "fillRequired": "Please fill in",
+      "uploadRequired": "Please upload",
+      "selectImage": "Upload Image",
+      "selectImageSource": "Select image source",
+      "camera": "Camera",
+      "album": "Album",
+      "deleteQualification": "Confirm Delete",
+      "deleteQualificationConfirm": "Are you sure you want to delete this qualification certificate?",
+      "validationErrors": {
+        "idNumberRequired": "Please fill in ID number",
+        "qualificationsRequired": "Please upload at least one professional qualification certificate",
+        "qualificationNameRequired": "Please fill in names for all qualification certificates",
+        "enterpriseInfoRequired": "Please fill in complete enterprise information",
+        "licenseRequired": "Please upload registration document",
+        "contactPersonRequired": "Please fill in contact person",
+        "contactMethodRequired": "Please fill in at least one contact method (phone or email)",
+        "phoneFormatError": "Please enter correct phone number format",
+        "emailFormatError": "Please enter correct email format",
+        "governmentInfoRequired": "Please fill in complete organization information",
+        "authorizerIdRequired": "Please upload authorizer's ID card front and back"
+      }
+    },
+    "contentTabs": {
+      "questions": "Questions",
+      "answers": "Answers",
+      "favorites": "Favorites",
+      "history": "History"
+    },
+    "favoriteCategories": {
+      "questions": "Questions",
+      "answers": "Answers",
+      "comments": "Comments"
+    },
+    "draftTypes": {
+      "question": "Question",
+      "answer": "Answer"
+    },
+    "time": {
+      "hoursAgo": "hours ago",
+      "yesterday": "Yesterday",
+      "daysAgo": "days ago",
+      "justNow": "Just now"
+    }
   },
   "question": {
     "views": "views",
@@ -248,6 +395,585 @@
     "passed": "Passed",
     "failed": "Failed"
   },
+  "screens": {
+    "teamDetail": {
+      "title": "Team Details",
+      "teamMembers": "Team Members",
+      "restrictedNotice": "You haven't joined this team yet, you can only view team member information",
+      "tabs": {
+        "discussion": "Discussion",
+        "announcement": "Announcements",
+        "approval": "Approvals"
+      },
+      "actions": {
+        "dismiss": "Dismiss",
+        "activity": "Activity",
+        "admin": "Admin",
+        "applied": "Applied",
+        "exit": "Exit",
+        "reply": "Reply",
+        "viewAll": "View All"
+      },
+      "stats": {
+        "members": "members",
+        "questions": "questions"
+      },
+      "roles": {
+        "leader": "Leader",
+        "member": "Member"
+      },
+      "chat": {
+        "inputPlaceholder": "Say something...",
+        "justNow": "Just now"
+      },
+      "announcement": {
+        "pinned": "Pinned",
+        "publishButton": "Publish Announcement",
+        "publishTitle": "Publish Announcement",
+        "titleLabel": "Announcement Title",
+        "titlePlaceholder": "Enter announcement title",
+        "contentLabel": "Announcement Content",
+        "contentPlaceholder": "Enter announcement content",
+        "pinnedCheckbox": "Pin Announcement"
+      },
+      "approval": {
+        "joinRequests": "Join Requests",
+        "adminRequests": "Admin Requests",
+        "reasonLabel": "Reason:",
+        "reject": "Reject",
+        "approve": "Approve",
+        "applyAdmin": "Apply for Admin",
+        "empty": "No pending approvals",
+        "emptyHint": "All requests have been processed"
+      },
+      "join": {
+        "applyButton": "Apply to Join Team",
+        "pendingNotice": "Application under review, requires approval from over 50% of members",
+        "applyTitle": "Apply to Join Team",
+        "applyMessage": "Are you sure you want to apply to join this team?\n\nAfter applying, you need to wait for team members to vote. You can join after more than 50% of members approve.",
+        "pendingModalTitle": "Application Submitted",
+        "pendingModalDesc": "Your application has been submitted successfully!\n\nTeam members will vote on your application. You can join after more than 50% of members approve.\n\nPlease wait patiently for the result. We will notify you in time.",
+        "pendingModalButton": "Got it"
+      },
+      "exit": {
+        "title": "Exit Team",
+        "message": "Are you sure you want to exit this team? You won't be able to view team messages after exiting",
+        "confirmButton": "Confirm Exit"
+      },
+      "dismiss": {
+        "title": "Dismiss Team",
+        "subtitle": "This action cannot be undone, please proceed with caution",
+        "warningTitle": "⚠️ The following will happen after dismissal:",
+        "warning1": "• All team data will be permanently deleted",
+        "warning2": "• All members will be removed from the team",
+        "warning3": "• Team discussion records cannot be recovered",
+        "warning4": "• All team announcements will be deleted",
+        "confirmLabel": "Please enter team name",
+        "confirmHighlight": "to confirm dismissal",
+        "confirmPlaceholder": "Enter team name",
+        "cancelButton": "Cancel",
+        "confirmButton": "Confirm Dismiss",
+        "incorrectName": "Team name entered incorrectly"
+      },
+      "applyAdmin": {
+        "title": "Apply to Become Admin",
+        "subtitle": "Application will be submitted to team creator for review",
+        "reasonLabel": "Reason",
+        "reasonRequired": "*",
+        "reasonPlaceholder": "Please explain why you want to become an admin, such as: your experience, what you can do for the team, etc...",
+        "tipsTitle": "Tips",
+        "tip1": "• Admins can invite users, publish announcements, and create activities",
+        "tip2": "• Application requires team creator's approval",
+        "tip3": "• Please fill in the reason carefully to improve approval rate",
+        "cancelButton": "Cancel",
+        "submitButton": "Submit Application",
+        "fillReason": "Please fill in the reason"
+      },
+      "reply": {
+        "title": "Reply to",
+        "placeholder": "Write your reply...",
+        "submitButton": "Post"
+      },
+      "members": {
+        "title": "All Members",
+        "count": "({count})"
+      },
+      "report": {
+        "title": "Report",
+        "message": "Are you sure you want to report this content?",
+        "submitted": "Report submitted, we will process it as soon as possible"
+      },
+      "invite": {
+        "selectUser": "Please select at least one user",
+        "sent": "Invitation sent to {count} users"
+      },
+      "alerts": {
+        "hint": "Hint",
+        "success": "Success",
+        "rejected": "Rejected",
+        "teamDismissed": "Team dismissed",
+        "teamExited": "Exited team",
+        "announcementPublished": "Announcement published successfully!",
+        "enterTitle": "Please enter announcement title",
+        "enterContent": "Please enter announcement content",
+        "applicationSubmitted": "Application submitted, waiting for creator's review",
+        "joinApproved": "Approved {user} to join the team",
+        "joinRejected": "Rejected {user}'s join request",
+        "adminApproved": "Approved {user} to become admin",
+        "adminRejected": "Rejected {user}'s admin request"
+      }
+    },
+    "supplementDetail": {
+      "title": "Supplement Detail",
+      "tabs": {
+        "allAnswers": "All Answers",
+        "allComments": "All Comments",
+        "invite": "Invite"
+      },
+      "actions": {
+        "follow": "Follow",
+        "share": "Share",
+        "report": "Report"
+      },
+      "stats": {
+        "views": "views"
+      },
+      "originalQuestion": {
+        "label": "Original Question"
+      },
+      "sort": {
+        "featured": "Featured",
+        "latest": "Latest"
+      },
+      "count": {
+        "answers": "{count} answers",
+        "comments": "{count} comments"
+      },
+      "answer": {
+        "adopted": "Adopted"
+      },
+      "comment": {
+        "replies": "replies"
+      },
+      "invite": {
+        "tabs": {
+          "local": "Local",
+          "twitter": "Twitter",
+          "facebook": "Facebook"
+        },
+        "search": {
+          "local": "Search users",
+          "twitter": "Search Twitter users",
+          "facebook": "Search Facebook users"
+        },
+        "invited": "Invited",
+        "answers": "answers",
+        "followers": "followers",
+        "friends": "friends"
+      },
+      "bottomBar": {
+        "commentPlaceholder": "Write a comment...",
+        "answerButton": "Answer"
+      },
+      "modal": {
+        "answerTitle": "Write Answer",
+        "answerPlaceholder": "Write your answer...",
+        "commentTitle": "Write Comment",
+        "commentPlaceholder": "Write your comment...",
+        "publish": "Publish"
+      },
+      "alerts": {
+        "shareFunction": "Share function",
+        "reportFunction": "Report function",
+        "forwardFunction": "Forward function",
+        "answerSubmitted": "Answer submitted successfully!",
+        "commentPublished": "Comment published successfully!"
+      }
+    },
+    "messagesScreen": {
+      "title": "Messages",
+      "markAllRead": "Mark All Read",
+      "quickEntries": {
+        "commentForward": "Comments & Forwards",
+        "likeAgree": "Likes & Agrees",
+        "bookmarked": "Bookmarked Me",
+        "followSubscribe": "Follows & Subscribes"
+      },
+      "inviteAnswer": {
+        "title": "Answer Invitations",
+        "viewAll": "View All",
+        "invitedYou": "invited you to answer",
+        "goAnswer": "Answer"
+      },
+      "arbitration": {
+        "title": "Arbitration Invitations",
+        "invitedYou": "invited you to participate in arbitration",
+        "voted": "Voted",
+        "question": "Question",
+        "answerAuthor": "Answer Author",
+        "reason": "Reason",
+        "goVote": "Vote",
+        "view": "View"
+      },
+      "messageGroups": {
+        "official": "Official Account",
+        "questionAnswer": "New Answers",
+        "system": "System Messages"
+      },
+      "privateMessages": {
+        "title": "Private Messages"
+      },
+      "time": {
+        "minutesAgo": "minutes ago",
+        "hoursAgo": "hours ago",
+        "yesterday": "Yesterday"
+      },
+      "privateModal": {
+        "title": "Send Private Message",
+        "send": "Send",
+        "searchPlaceholder": "Search users...",
+        "sendTo": "Send to:",
+        "selectUser": "Select User",
+        "messageContent": "Message Content",
+        "messagePlaceholder": "Enter message content..."
+      },
+      "voteModal": {
+        "title": "Arbitration Vote",
+        "questionLabel": "Question",
+        "answerAuthorLabel": "Answer Author:",
+        "reasonLabel": "Application Reason",
+        "voteChoiceTitle": "Your Vote",
+        "agreeOverthrow": "Agree to Overthrow",
+        "agreeOverthrowDesc": "Believe the original answer has issues and should be overturned",
+        "maintainOriginal": "Maintain Original",
+        "maintainOriginalDesc": "Believe the original answer is reasonable and should be maintained",
+        "reasonInputLabel": "Vote Reason (Required)",
+        "reasonPlaceholder": "Please explain your vote reason in detail...",
+        "submitVote": "Submit Vote",
+        "cancel": "Cancel"
+      },
+      "alerts": {
+        "markAllReadTitle": "Mark All Read",
+        "markAllReadMessage": "Are you sure you want to mark all messages as read?",
+        "markAllReadSuccess": "All messages marked as read",
+        "selectUserHint": "Please select a user to send message to",
+        "enterMessageHint": "Please enter message content",
+        "sendSuccess": "Message sent to {name}",
+        "selectVoteHint": "Please select your vote",
+        "enterReasonHint": "Please enter vote reason",
+        "voteSuccess": "Your vote has been submitted, thank you for your participation!",
+        "success": "Success",
+        "hint": "Hint"
+      },
+      "empty": "No messages yet"
+    },
+    "groupChat": {
+      "title": "Question Group",
+      "memberCount": "members joined",
+      "exitGroup": "Exit Group",
+      "exitConfirmTitle": "Exit Group",
+      "exitConfirmMessage": "Are you sure you want to exit this group? You won't be able to view group messages after leaving",
+      "cancel": "Cancel",
+      "confirmExit": "Confirm Exit",
+      "questioner": "Questioner",
+      "messagesSection": "Group Messages",
+      "messageCount": "messages",
+      "justNow": "Just now",
+      "minutesAgo": "minutes ago",
+      "hoursAgo": "hours ago",
+      "reply": "Reply",
+      "replyTo": "Reply to",
+      "replyModalTitle": "Reply",
+      "send": "Send",
+      "inputPlaceholder": "Post a message...",
+      "replyPlaceholder": "Reply to @{author}...",
+      "reportTitle": "Report",
+      "reportConfirm": "Are you sure you want to report this content?",
+      "reportSuccess": "Report submitted, we will process it as soon as possible",
+      "hint": "Hint"
+    },
+    "hotListScreen": {
+      "title": "Hot List",
+      "hotLabel": "Heat",
+      "answersCount": "answers",
+      "allTab": "All",
+      "updatedAt": "Updated {time} ago",
+      "selectRegion": "Select Region",
+      "country": "Country",
+      "city": "City",
+      "tabs": {
+        "siteWide": "Site-wide Hot List",
+        "national": "National Hot List",
+        "industry": "Industry Hot List",
+        "enterprise": "Enterprise Hot List",
+        "personal": "Personal Hot List"
+      },
+      "subTabs": {
+        "techDigital": "Tech & Digital",
+        "pythonProgramming": "Python Programming",
+        "careerDevelopment": "Career Development",
+        "healthWellness": "Health & Wellness",
+        "foodCooking": "Food & Cooking",
+        "travelTourism": "Travel & Tourism",
+        "policyRegulation": "Policy & Regulation",
+        "socialLivelihood": "Social Livelihood",
+        "economicDevelopment": "Economic Development",
+        "educationHealthcare": "Education & Healthcare",
+        "environmentalProtection": "Environmental Protection",
+        "infrastructure": "Infrastructure",
+        "internet": "Internet",
+        "finance": "Finance",
+        "medicalHealth": "Medical Health",
+        "educationTraining": "Education & Training",
+        "realEstate": "Real Estate",
+        "manufacturing": "Manufacturing",
+        "cateringService": "Catering Service",
+        "techCompanies": "Tech Companies",
+        "financialInstitutions": "Financial Institutions",
+        "manufacturingEnterprises": "Manufacturing Enterprises",
+        "internetCompanies": "Internet Companies",
+        "retailEnterprises": "Retail Enterprises",
+        "serviceIndustry": "Service Industry",
+        "careerGrowth": "Career Growth",
+        "emotionalLife": "Emotional Life",
+        "financialInvestment": "Financial Investment",
+        "learningGrowth": "Learning & Growth",
+        "familyRelations": "Family Relations"
+      }
+    },
+    "incomeRankingScreen": {
+      "title": "Income Ranking",
+      "tabs": {
+        "totalIncome": "Total Income",
+        "monthIncome": "Monthly Income",
+        "weekIncome": "Weekly Income"
+      },
+      "updateInfo": "Updated {time} ago",
+      "stats": {
+        "answers": "answers",
+        "adopted": "adopted",
+        "reward": "rewards"
+      },
+      "monthIncome": "This month",
+      "allShown": "All rankings shown",
+      "infoTitle": "Income Ranking Info",
+      "infoContent": "Income Ranking Info:\n\n1. Total Income: Total rewards earned from answering questions\n2. Monthly Income: Total rewards earned this month\n3. Weekly Income: Total rewards earned this week\n\nRankings are updated every hour"
+    },
+    "contributorsScreen": {
+      "title": "Reward Contributors",
+      "totalLabel": "Current Total Reward",
+      "totalDesc": "{count} contributors",
+      "closeButton": "Close"
+    },
+    "addRewardScreen": {
+      "title": "Add Reward",
+      "currentReward": {
+        "label": "Current Reward",
+        "contributors": "{count} contributors have added rewards"
+      },
+      "selectAmount": {
+        "title": "Select Amount to Add"
+      },
+      "customAmount": {
+        "title": "Or enter custom amount",
+        "placeholder": "Minimum $0.01"
+      },
+      "tips": {
+        "text": "Added rewards will be combined with the original reward to attract more quality answers"
+      },
+      "confirmButton": "Confirm Add ${amount}",
+      "cancelButton": "Cancel",
+      "validation": {
+        "hint": "Hint",
+        "invalidAmount": "Please enter a valid reward amount",
+        "minAmount": "Minimum amount is $0.01",
+        "maxAmount": "Maximum amount per addition is $1000"
+      },
+      "success": {
+        "title": "Success",
+        "message": "Successfully added ${amount} reward!",
+        "confirm": "OK"
+      }
+    },
+    "answerDetail": {
+      "title": "Answer Detail",
+      "tabs": {
+        "supplements": "Supplement Answers",
+        "comments": "All Comments"
+      },
+      "filter": {
+        "featured": "Featured",
+        "latest": "Latest"
+      },
+      "actions": {
+        "follow": "Follow",
+        "following": "Following",
+        "adopt": "Adopt",
+        "arbitration": "Arbitration",
+        "supplementAnswer": "Supplement Answer",
+        "reply": "Reply",
+        "publish": "Publish"
+      },
+      "stats": {
+        "views": "views",
+        "participants": "participants",
+        "supplementCount": "{count} supplement answers",
+        "commentCount": "{count} comments"
+      },
+      "badges": {
+        "adopted": "Adopted",
+        "invitedBy": "Invited by {name}"
+      },
+      "placeholders": {
+        "writeComment": "Write a comment...",
+        "writeReply": "Write your reply...",
+        "arbitrationReason": "Please explain your reason for requesting arbitration...",
+        "searchExpert": "Search expert name, title or expertise..."
+      },
+      "modals": {
+        "replyTitle": "Reply to {author}",
+        "arbitrationTitle": "Request Arbitration",
+        "supplementAnswerTitle": "Supplement Answer"
+      },
+      "arbitration": {
+        "info": "If you disagree with the adopted answer, you can request arbitration. Invite at least 3 experts to vote, and the adoption will be overturned if more than 50% agree.",
+        "reasonLabel": "Arbitration Reason",
+        "inviteExpertsLabel": "Invite Experts to Vote",
+        "expertsCount": "Selected {count}/5",
+        "recommendedExperts": "Recommended Experts",
+        "expertiseLabel": "Expertise: ",
+        "submitButton": "Submit Arbitration Request",
+        "noExpertsFound": "No matching experts found",
+        "tryOtherKeywords": "Try other keywords"
+      },
+      "alerts": {
+        "success": "Success",
+        "hint": "Hint",
+        "commentPublished": "Comment published",
+        "replyPublished": "Reply published",
+        "supplementSubmitted": "Supplement answer submitted",
+        "arbitrationSubmitted": "Arbitration request submitted, waiting for expert votes...",
+        "arbitrationReasonRequired": "Please explain your reason for arbitration",
+        "minExpertsRequired": "At least 3 experts are required for arbitration",
+        "maxExpertsExceeded": "Maximum 5 experts allowed",
+        "adoptAnswerTitle": "Adopt Answer",
+        "adoptAnswerMessage": "Confirm to adopt this answer?",
+        "adoptSupplementTitle": "Adopt Supplement Answer",
+        "adoptSupplementMessage": "Confirm to adopt this supplement answer?",
+        "cancel": "Cancel",
+        "confirm": "Confirm"
+      },
+      "time": {
+        "justNow": "Just now",
+        "minutesAgo": "minutes ago",
+        "hoursAgo": "hours ago",
+        "yesterday": "Yesterday",
+        "daysAgo": "days ago"
+      }
+    },
+    "questionDetail": {
+      "title": "Question Detail",
+      "tabs": {
+        "supplements": "Supplements",
+        "answers": "Answers",
+        "comments": "Comments",
+        "invite": "Invite"
+      },
+      "actions": {
+        "follow": "Follow"
+      },
+      "reward": {
+        "add": "Add Reward",
+        "contributors": "contributors"
+      },
+      "stats": {
+        "views": "views"
+      },
+      "pk": {
+        "solved": "Solved",
+        "unsolved": "Unsolved",
+        "pk": "PK"
+      },
+      "answer": {
+        "superLike": "Super Like",
+        "adopted": "Adopted",
+        "adopt": "Adopt",
+        "supplement": "Supplement Answer",
+        "authorAdopted": "Author Adopted",
+        "adoptedCount": "Adopted",
+        "invitedBy": "by",
+        "invited": "invited",
+        "collapse": "Collapse",
+        "expand": "Expand"
+      },
+      "comment": {
+        "replies": "replies"
+      },
+      "invite": {
+        "local": "Local",
+        "twitter": "Twitter",
+        "searchUser": "Search users",
+        "searchTwitterUser": "Search Twitter users"
+      },
+      "loading": "Loading...",
+      "loadMoreSupplements": "Load More Supplements",
+      "loadMoreAnswers": "Load More Answers",
+      "loadMoreComments": "Load More Comments",
+      "loadMoreInvites": "Load More Invites",
+      "recommended": {
+        "title": "Recommended Questions",
+        "subtitle": "Related content based on current question",
+        "hot": "Hot"
+      }
+    },
+    "questionRanking": {
+      "title": "Question Ranking",
+      "tabs": {
+        "mostAnswers": "Most Answers",
+        "mostComments": "Most Comments",
+        "mostFavorites": "Most Favorites",
+        "mostViews": "Most Views",
+        "mostLikes": "Most Likes"
+      },
+      "stats": {
+        "answers": "answers",
+        "comments": "comments",
+        "favorites": "favorites",
+        "views": "views",
+        "likes": "likes"
+      },
+      "allContentShown": "All content shown"
+    },
+    "report": {
+      "title": {
+        "question": "Report Question",
+        "answer": "Report Answer",
+        "supplement": "Report Supplement",
+        "comment": "Report Comment"
+      },
+      "subtitle": "Please select report reason(s) (multiple selection allowed)",
+      "reasons": {
+        "spam": "Spam",
+        "illegal": "Illegal Content",
+        "vulgar": "Vulgar Content",
+        "infringement": "Infringement",
+        "falseInfo": "False Information",
+        "other": "Other"
+      },
+      "remarkLabel": "Additional Details (Optional)",
+      "remarkPlaceholder": "Please describe the reason for reporting in detail to help us handle it better...",
+      "charCount": "{current}/200",
+      "submitButton": "Submit Report",
+      "cancelButton": "Cancel",
+      "alerts": {
+        "selectReasonTitle": "Hint",
+        "selectReasonMessage": "Please select at least one report reason",
+        "successTitle": "Report Submitted",
+        "successMessage": "Your report has been submitted: {reasons}",
+        "remarkNote": "\nAdditional Details: {remark}"
+      }
+    }
+  },
   "common": {
     "cancel": "Cancel",
     "confirm": "Confirm",
@@ -273,7 +999,95 @@
     "translate": "See translation",
     "translating": "Translating...",
     "showOriginal": "Show original",
-    "translateError": "Translation failed"
+    "translateError": "Translation failed",
+    "share": "Share",
+    "report": "Report",
+    "block": "Block",
+    "retry": "Retry",
+    "goBack": "Go back",
+    "noMoreContent": "No more content",
+    "follow": "Follow",
+    "unfollow": "Unfollow",
+    "views": "views",
+    "answers": "answers",
+    "likes": "likes",
+    "comments": "comments",
+    "followers": "followers",
+    "following": "following",
+    "questions": "questions",
+    "time": {
+      "justNow": "Just now",
+      "minutesAgo": " minutes ago",
+      "hoursAgo": " hours ago",
+      "yesterday": "Yesterday",
+      "daysAgo": " days ago"
+    }
+  },
+  "components": {
+    "answerListItem": {
+      "adopted": "Adopted",
+      "justNow": "Just now",
+      "hoursAgo": "hours ago",
+      "yesterday": "Yesterday",
+      "daysAgo": "days ago"
+    },
+    "questionListItem": {
+      "solved": "Solved",
+      "justNow": "Just now",
+      "hoursAgo": "hours ago",
+      "yesterday": "Yesterday",
+      "daysAgo": "days ago"
+    },
+    "favoriteListItem": {
+      "savedToday": "Saved today",
+      "savedYesterday": "Saved yesterday",
+      "savedDaysAgo": "Saved {days} days ago",
+      "savedWeeksAgo": "Saved {weeks} weeks ago",
+      "savedOn": "Saved on"
+    },
+    "superLikeBalance": {
+      "label": "Super Like Balance",
+      "unit": "credits"
+    },
+    "useSuperLikeButton": {
+      "button": "Super Like x{count}",
+      "processing": "Processing...",
+      "insufficientBalance": {
+        "title": "Insufficient Super Likes",
+        "message": "You don't have enough Super Likes. Would you like to purchase more?",
+        "cancel": "Cancel",
+        "purchase": "Purchase"
+      },
+      "confirm": {
+        "title": "Use Super Like",
+        "message": "Confirm using 1 Super Like to boost this answer's ranking?",
+        "cancel": "Cancel",
+        "confirm": "Confirm"
+      },
+      "success": {
+        "title": "Success",
+        "message": "Used 1 Super Like!\nRemaining: {balance} credits",
+        "ok": "OK"
+      },
+      "error": {
+        "title": "Failed",
+        "message": "Failed to use Super Like. Please try again later."
+      }
+    },
+    "identitySelector": {
+      "header": "Publish Identity",
+      "personal": {
+        "title": "Personal",
+        "description": "Publish as individual"
+      },
+      "team": {
+        "title": "Team",
+        "description": "Publish as team (multiple selection)"
+      },
+      "selectTeam": "Select Team",
+      "selectedCount": "Selected {count} teams",
+      "members": "members"
+    }
   },
   "channelManage": {
     "title": "Channel Management",
@@ -377,7 +1191,15 @@
       "successTitle": "Purchase Successful",
       "successMessage": "Successfully purchased {amount} super likes!\nCost: ${cost}\nYou can use them on any answer!",
       "errorInvalidAmount": "Please enter a valid amount (1-100)",
-      "errorStorageFailed": "Purchase failed, please try again later"
+      "errorStorageFailed": "Purchase failed, please try again later",
+      "infoDescription": "After purchasing super likes, you can use them on any answer to boost ranking",
+      "tipsText": "After purchasing super likes, you can use them on any answer to boost ranking and increase exposure",
+      "processing": "Processing...",
+      "pricePerCredit": "$2 / credit",
+      "alertTitle": "Notice",
+      "alertInvalidAmount": "Please enter a valid amount",
+      "alertInvalidRange": "Please enter a valid amount (1-100)",
+      "alertPurchaseFailed": "Purchase failed, please try again later"
     },
     "use": {
       "button": "Use Super Like",
@@ -391,11 +1213,19 @@
     },
     "history": {
       "title": "Transaction History",
+      "loading": "Loading...",
       "empty": "No transactions yet",
+      "emptyHint": "Records will appear here after purchasing or using super likes",
       "typePurchase": "Purchase",
       "typeUse": "Use",
-      "amount": "{amount} credits",
-      "usedOn": "Used on answer: {title}"
+      "amount": "credits",
+      "usedOn": "Used on answer: ",
+      "time": {
+        "justNow": "Just now",
+        "minutesAgo": "minutes ago",
+        "hoursAgo": "hours ago",
+        "daysAgo": "days ago"
+      }
     }
   }
 }

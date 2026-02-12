@@ -3,8 +3,10 @@ import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Switch, Alert, Te
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import Avatar from '../components/Avatar';
+import { useTranslation } from '../i18n/withTranslation';
 
 export default function SettingsScreen({ navigation }) {
+  const { t } = useTranslation();
   // 通知设置状态
   const [pushEnabled, setPushEnabled] = useState(true);
   const [likeNotify, setLikeNotify] = useState(true);
@@ -42,14 +44,14 @@ export default function SettingsScreen({ navigation }) {
   const handleSaveEdit = () => {
     setUserProfile({ ...userProfile, [editField]: editValue });
     setShowEditModal(false);
-    Alert.alert('保存成功', '资料已更新');
+    Alert.alert(t('screens.settings.alerts.saveSuccess.title'), t('screens.settings.alerts.saveSuccess.message'));
   };
 
   const handleChangeAvatar = () => {
-    Alert.alert('更换头像', '选择头像来源', [
-      { text: '拍照', onPress: () => Alert.alert('拍照', '打开相机') },
-      { text: '从相册选择', onPress: () => Alert.alert('相册', '打开相册') },
-      { text: '取消', style: 'cancel' }
+    Alert.alert(t('screens.settings.alerts.changeAvatar.title'), t('screens.settings.alerts.changeAvatar.message'), [
+      { text: t('screens.settings.alerts.changeAvatar.takePhoto'), onPress: () => Alert.alert(t('screens.settings.alerts.changeAvatar.takePhoto'), t('screens.settings.alerts.changeAvatar.openCamera')) },
+      { text: t('screens.settings.alerts.changeAvatar.chooseFromAlbum'), onPress: () => Alert.alert(t('screens.settings.alerts.changeAvatar.chooseFromAlbum'), t('screens.settings.alerts.changeAvatar.openAlbum')) },
+      { text: t('common.cancel'), style: 'cancel' }
     ]);
   };
 
@@ -65,7 +67,7 @@ export default function SettingsScreen({ navigation }) {
         >
           <Ionicons name="arrow-back" size={24} color="#1f2937" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>设置</Text>
+        <Text style={styles.headerTitle}>{t('screens.settings.title')}</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -80,21 +82,21 @@ export default function SettingsScreen({ navigation }) {
           </TouchableOpacity>
           <View style={styles.accountText}>
             <Text style={styles.accountName}>{userProfile.name}</Text>
-            <Text style={styles.accountId}>ID: 123456789</Text>
+            <Text style={styles.accountId}>{t('screens.settings.profile.userId')}: 123456789</Text>
           </View>
         </View>
 
         {/* 编辑资料 */}
         <View style={styles.sectionGroup}>
-          <Text style={styles.groupTitle}>个人资料</Text>
+          <Text style={styles.groupTitle}>{t('screens.settings.profile.groupTitle')}</Text>
           <View style={styles.section}>
             <TouchableOpacity 
               style={styles.menuItem}
-              onPress={() => handleEditProfile('name', '昵称', userProfile.name)}
+              onPress={() => handleEditProfile('name', t('screens.settings.profile.nickname'), userProfile.name)}
             >
               <View style={styles.menuLeft}>
                 <Ionicons name="person-outline" size={22} color="#6b7280" />
-                <Text style={styles.menuLabel}>昵称</Text>
+                <Text style={styles.menuLabel}>{t('screens.settings.profile.nickname')}</Text>
               </View>
               <View style={styles.menuRight}>
                 <Text style={styles.menuValue}>{userProfile.name}</Text>
@@ -104,11 +106,11 @@ export default function SettingsScreen({ navigation }) {
 
             <TouchableOpacity 
               style={styles.menuItem}
-              onPress={() => handleEditProfile('bio', '个人简介', userProfile.bio)}
+              onPress={() => handleEditProfile('bio', t('screens.settings.profile.bio'), userProfile.bio)}
             >
               <View style={styles.menuLeft}>
                 <Ionicons name="document-text-outline" size={22} color="#6b7280" />
-                <Text style={styles.menuLabel}>个人简介</Text>
+                <Text style={styles.menuLabel}>{t('screens.settings.profile.bio')}</Text>
               </View>
               <View style={styles.menuRight}>
                 <Text style={[styles.menuValue, { maxWidth: 180 }]} numberOfLines={1}>{userProfile.bio}</Text>
@@ -118,16 +120,16 @@ export default function SettingsScreen({ navigation }) {
 
             <TouchableOpacity 
               style={styles.menuItem}
-              onPress={() => Alert.alert('性别', '选择性别', [
-                { text: '男', onPress: () => setUserProfile({ ...userProfile, gender: '男' }) },
-                { text: '女', onPress: () => setUserProfile({ ...userProfile, gender: '女' }) },
-                { text: '保密', onPress: () => setUserProfile({ ...userProfile, gender: '保密' }) },
-                { text: '取消', style: 'cancel' }
+              onPress={() => Alert.alert(t('screens.settings.alerts.gender.title'), t('screens.settings.alerts.gender.message'), [
+                { text: t('screens.settings.alerts.gender.male'), onPress: () => setUserProfile({ ...userProfile, gender: t('screens.settings.alerts.gender.male') }) },
+                { text: t('screens.settings.alerts.gender.female'), onPress: () => setUserProfile({ ...userProfile, gender: t('screens.settings.alerts.gender.female') }) },
+                { text: t('screens.settings.alerts.gender.secret'), onPress: () => setUserProfile({ ...userProfile, gender: t('screens.settings.alerts.gender.secret') }) },
+                { text: t('common.cancel'), style: 'cancel' }
               ])}
             >
               <View style={styles.menuLeft}>
                 <Ionicons name="male-female-outline" size={22} color="#6b7280" />
-                <Text style={styles.menuLabel}>性别</Text>
+                <Text style={styles.menuLabel}>{t('screens.settings.profile.gender')}</Text>
               </View>
               <View style={styles.menuRight}>
                 <Text style={styles.menuValue}>{userProfile.gender}</Text>
@@ -137,11 +139,11 @@ export default function SettingsScreen({ navigation }) {
 
             <TouchableOpacity 
               style={styles.menuItem}
-              onPress={() => Alert.alert('生日', '选择生日日期')}
+              onPress={() => Alert.alert(t('screens.settings.alerts.birthday.title'), t('screens.settings.alerts.birthday.message'))}
             >
               <View style={styles.menuLeft}>
                 <Ionicons name="calendar-outline" size={22} color="#6b7280" />
-                <Text style={styles.menuLabel}>生日</Text>
+                <Text style={styles.menuLabel}>{t('screens.settings.profile.birthday')}</Text>
               </View>
               <View style={styles.menuRight}>
                 <Text style={styles.menuValue}>{userProfile.birthday}</Text>
@@ -151,11 +153,11 @@ export default function SettingsScreen({ navigation }) {
 
             <TouchableOpacity 
               style={styles.menuItem}
-              onPress={() => handleEditProfile('location', '所在地', userProfile.location)}
+              onPress={() => handleEditProfile('location', t('screens.settings.profile.location'), userProfile.location)}
             >
               <View style={styles.menuLeft}>
                 <Ionicons name="location-outline" size={22} color="#6b7280" />
-                <Text style={styles.menuLabel}>所在地</Text>
+                <Text style={styles.menuLabel}>{t('screens.settings.profile.location')}</Text>
               </View>
               <View style={styles.menuRight}>
                 <Text style={styles.menuValue}>{userProfile.location}</Text>
@@ -165,11 +167,11 @@ export default function SettingsScreen({ navigation }) {
 
             <TouchableOpacity 
               style={[styles.menuItem, styles.menuItemLast]}
-              onPress={() => handleEditProfile('occupation', '职业', userProfile.occupation)}
+              onPress={() => handleEditProfile('occupation', t('screens.settings.profile.occupation'), userProfile.occupation)}
             >
               <View style={styles.menuLeft}>
                 <Ionicons name="briefcase-outline" size={22} color="#6b7280" />
-                <Text style={styles.menuLabel}>职业</Text>
+                <Text style={styles.menuLabel}>{t('screens.settings.profile.occupation')}</Text>
               </View>
               <View style={styles.menuRight}>
                 <Text style={styles.menuValue}>{userProfile.occupation}</Text>
@@ -181,26 +183,26 @@ export default function SettingsScreen({ navigation }) {
 
         {/* 账号与安全 */}
         <View style={styles.sectionGroup}>
-          <Text style={styles.groupTitle}>账号与安全</Text>
+          <Text style={styles.groupTitle}>{t('screens.settings.account.groupTitle')}</Text>
           <View style={styles.section}>
             <TouchableOpacity 
               style={styles.menuItem}
-              onPress={() => Alert.alert('修改密码', '请输入原密码和新密码')}
+              onPress={() => Alert.alert(t('screens.settings.alerts.changePassword.title'), t('screens.settings.alerts.changePassword.message'))}
             >
               <View style={styles.menuLeft}>
                 <Ionicons name="key-outline" size={22} color="#6b7280" />
-                <Text style={styles.menuLabel}>修改密码</Text>
+                <Text style={styles.menuLabel}>{t('screens.settings.account.changePassword')}</Text>
               </View>
               <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
             </TouchableOpacity>
 
             <TouchableOpacity 
               style={styles.menuItem}
-              onPress={() => Alert.alert('绑定手机', '当前绑定：138****8888')}
+              onPress={() => Alert.alert(t('screens.settings.alerts.bindPhone.title'), t('screens.settings.alerts.bindPhone.message'))}
             >
               <View style={styles.menuLeft}>
                 <Ionicons name="phone-portrait-outline" size={22} color="#6b7280" />
-                <Text style={styles.menuLabel}>绑定手机</Text>
+                <Text style={styles.menuLabel}>{t('screens.settings.account.bindPhone')}</Text>
               </View>
               <View style={styles.menuRight}>
                 <Text style={styles.menuValue}>138****8888</Text>
@@ -210,14 +212,14 @@ export default function SettingsScreen({ navigation }) {
 
             <TouchableOpacity 
               style={[styles.menuItem, styles.menuItemLast]}
-              onPress={() => Alert.alert('绑定邮箱', '未绑定邮箱')}
+              onPress={() => Alert.alert(t('screens.settings.alerts.bindEmail.title'), t('screens.settings.alerts.bindEmail.message'))}
             >
               <View style={styles.menuLeft}>
                 <Ionicons name="mail-outline" size={22} color="#6b7280" />
-                <Text style={styles.menuLabel}>绑定邮箱</Text>
+                <Text style={styles.menuLabel}>{t('screens.settings.account.bindEmail')}</Text>
               </View>
               <View style={styles.menuRight}>
-                <Text style={styles.menuValue}>未绑定</Text>
+                <Text style={styles.menuValue}>{t('screens.settings.account.notBound')}</Text>
                 <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
               </View>
             </TouchableOpacity>
@@ -226,14 +228,14 @@ export default function SettingsScreen({ navigation }) {
 
         {/* 消息通知 */}
         <View style={styles.sectionGroup}>
-          <Text style={styles.groupTitle}>消息通知</Text>
+          <Text style={styles.groupTitle}>{t('screens.settings.notifications.groupTitle')}</Text>
           <View style={styles.section}>
             <View style={styles.switchItem}>
               <View style={styles.menuLeft}>
                 <Ionicons name="notifications-outline" size={22} color="#6b7280" />
                 <View style={styles.switchInfo}>
-                  <Text style={styles.menuLabel}>推送通知</Text>
-                  <Text style={styles.switchDesc}>接收应用推送消息</Text>
+                  <Text style={styles.menuLabel}>{t('screens.settings.notifications.push')}</Text>
+                  <Text style={styles.switchDesc}>{t('screens.settings.notifications.pushDesc')}</Text>
                 </View>
               </View>
               <Switch 
@@ -247,7 +249,7 @@ export default function SettingsScreen({ navigation }) {
             <View style={styles.switchItem}>
               <View style={styles.menuLeft}>
                 <Ionicons name="heart-outline" size={22} color="#6b7280" />
-                <Text style={styles.menuLabel}>点赞通知</Text>
+                <Text style={styles.menuLabel}>{t('screens.settings.notifications.like')}</Text>
               </View>
               <Switch 
                 value={likeNotify} 
@@ -260,7 +262,7 @@ export default function SettingsScreen({ navigation }) {
             <View style={styles.switchItem}>
               <View style={styles.menuLeft}>
                 <Ionicons name="chatbubble-outline" size={22} color="#6b7280" />
-                <Text style={styles.menuLabel}>评论通知</Text>
+                <Text style={styles.menuLabel}>{t('screens.settings.notifications.comment')}</Text>
               </View>
               <Switch 
                 value={commentNotify} 
@@ -273,7 +275,7 @@ export default function SettingsScreen({ navigation }) {
             <View style={styles.switchItem}>
               <View style={styles.menuLeft}>
                 <Ionicons name="person-add-outline" size={22} color="#6b7280" />
-                <Text style={styles.menuLabel}>关注通知</Text>
+                <Text style={styles.menuLabel}>{t('screens.settings.notifications.follow')}</Text>
               </View>
               <Switch 
                 value={followNotify} 
@@ -286,7 +288,7 @@ export default function SettingsScreen({ navigation }) {
             <View style={[styles.switchItem, styles.menuItemLast]}>
               <View style={styles.menuLeft}>
                 <Ionicons name="megaphone-outline" size={22} color="#6b7280" />
-                <Text style={styles.menuLabel}>系统通知</Text>
+                <Text style={styles.menuLabel}>{t('screens.settings.notifications.system')}</Text>
               </View>
               <Switch 
                 value={systemNotify} 
@@ -300,14 +302,14 @@ export default function SettingsScreen({ navigation }) {
 
         {/* 隐私设置 */}
         <View style={styles.sectionGroup}>
-          <Text style={styles.groupTitle}>隐私设置</Text>
+          <Text style={styles.groupTitle}>{t('screens.settings.privacy.groupTitle')}</Text>
           <View style={styles.section}>
             <View style={styles.switchItem}>
               <View style={styles.menuLeft}>
                 <Ionicons name="eye-outline" size={22} color="#6b7280" />
                 <View style={styles.switchInfo}>
-                  <Text style={styles.menuLabel}>显示在线状态</Text>
-                  <Text style={styles.switchDesc}>其他用户可以看到你是否在线</Text>
+                  <Text style={styles.menuLabel}>{t('screens.settings.privacy.showOnline')}</Text>
+                  <Text style={styles.switchDesc}>{t('screens.settings.privacy.showOnlineDesc')}</Text>
                 </View>
               </View>
               <Switch 
@@ -322,8 +324,8 @@ export default function SettingsScreen({ navigation }) {
               <View style={styles.menuLeft}>
                 <Ionicons name="mail-open-outline" size={22} color="#6b7280" />
                 <View style={styles.switchInfo}>
-                  <Text style={styles.menuLabel}>允许陌生人私信</Text>
-                  <Text style={styles.switchDesc}>关闭后只有互相关注的人可以私信</Text>
+                  <Text style={styles.menuLabel}>{t('screens.settings.privacy.allowMessage')}</Text>
+                  <Text style={styles.switchDesc}>{t('screens.settings.privacy.allowMessageDesc')}</Text>
                 </View>
               </View>
               <Switch 
@@ -336,11 +338,11 @@ export default function SettingsScreen({ navigation }) {
 
             <TouchableOpacity 
               style={[styles.menuItem, styles.menuItemLast]}
-              onPress={() => Alert.alert('黑名单', '您的黑名单为空')}
+              onPress={() => Alert.alert(t('screens.settings.alerts.blacklist.title'), t('screens.settings.alerts.blacklist.message'))}
             >
               <View style={styles.menuLeft}>
                 <Ionicons name="ban-outline" size={22} color="#6b7280" />
-                <Text style={styles.menuLabel}>黑名单管理</Text>
+                <Text style={styles.menuLabel}>{t('screens.settings.privacy.blacklist')}</Text>
               </View>
               <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
             </TouchableOpacity>
@@ -349,18 +351,18 @@ export default function SettingsScreen({ navigation }) {
 
         {/* 通用设置 */}
         <View style={styles.sectionGroup}>
-          <Text style={styles.groupTitle}>通用</Text>
+          <Text style={styles.groupTitle}>{t('screens.settings.general.groupTitle')}</Text>
           <View style={styles.section}>
             <TouchableOpacity 
               style={styles.menuItem}
-              onPress={() => Alert.alert('清除缓存', '确定要清除缓存吗？', [
-                { text: '取消', style: 'cancel' },
-                { text: '确定', onPress: () => Alert.alert('成功', '缓存已清除') }
+              onPress={() => Alert.alert(t('screens.settings.alerts.clearCache.title'), t('screens.settings.alerts.clearCache.message'), [
+                { text: t('common.cancel'), style: 'cancel' },
+                { text: t('common.confirm'), onPress: () => Alert.alert(t('common.ok'), t('screens.settings.alerts.clearCache.success')) }
               ])}
             >
               <View style={styles.menuLeft}>
                 <Ionicons name="trash-outline" size={22} color="#6b7280" />
-                <Text style={styles.menuLabel}>清除缓存</Text>
+                <Text style={styles.menuLabel}>{t('screens.settings.general.clearCache')}</Text>
               </View>
               <View style={styles.menuRight}>
                 <Text style={styles.menuValue}>128.5 MB</Text>
@@ -370,14 +372,14 @@ export default function SettingsScreen({ navigation }) {
 
             <TouchableOpacity 
               style={[styles.menuItem, styles.menuItemLast]}
-              onPress={() => Alert.alert('语言设置', '当前语言：简体中文')}
+              onPress={() => Alert.alert(t('screens.settings.alerts.language.title'), t('screens.settings.alerts.language.message'))}
             >
               <View style={styles.menuLeft}>
                 <Ionicons name="language-outline" size={22} color="#6b7280" />
-                <Text style={styles.menuLabel}>语言</Text>
+                <Text style={styles.menuLabel}>{t('screens.settings.general.language')}</Text>
               </View>
               <View style={styles.menuRight}>
-                <Text style={styles.menuValue}>简体中文</Text>
+                <Text style={styles.menuValue}>{t('screens.settings.general.languageChinese')}</Text>
                 <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
               </View>
             </TouchableOpacity>
@@ -386,7 +388,7 @@ export default function SettingsScreen({ navigation }) {
 
         {/* 钱包与超级赞 */}
         <View style={styles.sectionGroup}>
-          <Text style={styles.groupTitle}>钱包与超级赞</Text>
+          <Text style={styles.groupTitle}>{t('screens.settings.wallet.groupTitle')}</Text>
           <View style={styles.section}>
             <TouchableOpacity 
               style={styles.menuItem}
@@ -394,7 +396,7 @@ export default function SettingsScreen({ navigation }) {
             >
               <View style={styles.menuLeft}>
                 <Ionicons name="star" size={22} color="#f59e0b" />
-                <Text style={styles.menuLabel}>购买超级赞</Text>
+                <Text style={styles.menuLabel}>{t('screens.settings.wallet.purchaseSuperLike')}</Text>
               </View>
               <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
             </TouchableOpacity>
@@ -405,7 +407,7 @@ export default function SettingsScreen({ navigation }) {
             >
               <View style={styles.menuLeft}>
                 <Ionicons name="time-outline" size={22} color="#6b7280" />
-                <Text style={styles.menuLabel}>超级赞历史</Text>
+                <Text style={styles.menuLabel}>{t('screens.settings.wallet.superLikeHistory')}</Text>
               </View>
               <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
             </TouchableOpacity>
@@ -414,41 +416,41 @@ export default function SettingsScreen({ navigation }) {
 
         {/* 帮助与反馈 */}
         <View style={styles.sectionGroup}>
-          <Text style={styles.groupTitle}>帮助与反馈</Text>
+          <Text style={styles.groupTitle}>{t('screens.settings.help.groupTitle')}</Text>
           <View style={styles.section}>
             <TouchableOpacity 
               style={styles.menuItem}
-              onPress={() => Alert.alert('常见问题', '查看常见问题解答')}
+              onPress={() => Alert.alert(t('screens.settings.alerts.faq.title'), t('screens.settings.alerts.faq.message'))}
             >
               <View style={styles.menuLeft}>
                 <Ionicons name="help-circle-outline" size={22} color="#6b7280" />
-                <Text style={styles.menuLabel}>常见问题</Text>
+                <Text style={styles.menuLabel}>{t('screens.settings.help.faq')}</Text>
               </View>
               <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
             </TouchableOpacity>
 
             <TouchableOpacity 
               style={styles.menuItem}
-              onPress={() => Alert.alert('在线客服', '客服工作时间：9:00-21:00')}
+              onPress={() => Alert.alert(t('screens.settings.alerts.customerService.title'), t('screens.settings.alerts.customerService.message'))}
             >
               <View style={styles.menuLeft}>
                 <Ionicons name="chatbubbles-outline" size={22} color="#6b7280" />
-                <Text style={styles.menuLabel}>在线客服</Text>
+                <Text style={styles.menuLabel}>{t('screens.settings.help.customerService')}</Text>
               </View>
               <View style={styles.menuRight}>
                 <View style={styles.onlineDot} />
-                <Text style={styles.onlineText}>在线</Text>
+                <Text style={styles.onlineText}>{t('screens.settings.help.online')}</Text>
                 <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
               </View>
             </TouchableOpacity>
 
             <TouchableOpacity 
               style={[styles.menuItem, styles.menuItemLast]}
-              onPress={() => Alert.alert('意见反馈', '感谢您的反馈！')}
+              onPress={() => Alert.alert(t('screens.settings.alerts.feedback.title'), t('screens.settings.alerts.feedback.message'))}
             >
               <View style={styles.menuLeft}>
                 <Ionicons name="create-outline" size={22} color="#6b7280" />
-                <Text style={styles.menuLabel}>意见反馈</Text>
+                <Text style={styles.menuLabel}>{t('screens.settings.help.feedback')}</Text>
               </View>
               <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
             </TouchableOpacity>
@@ -457,15 +459,15 @@ export default function SettingsScreen({ navigation }) {
 
         {/* 关于我们 */}
         <View style={styles.sectionGroup}>
-          <Text style={styles.groupTitle}>关于</Text>
+          <Text style={styles.groupTitle}>{t('screens.settings.about.groupTitle')}</Text>
           <View style={styles.section}>
             <TouchableOpacity 
               style={styles.menuItem}
-              onPress={() => Alert.alert('检查更新', '当前已是最新版本 v1.0.0')}
+              onPress={() => Alert.alert(t('screens.settings.alerts.checkUpdate.title'), t('screens.settings.alerts.checkUpdate.message'))}
             >
               <View style={styles.menuLeft}>
                 <Ionicons name="refresh-outline" size={22} color="#6b7280" />
-                <Text style={styles.menuLabel}>检查更新</Text>
+                <Text style={styles.menuLabel}>{t('screens.settings.about.checkUpdate')}</Text>
               </View>
               <View style={styles.menuRight}>
                 <Text style={styles.menuValue}>v1.0.0</Text>
@@ -475,33 +477,33 @@ export default function SettingsScreen({ navigation }) {
 
             <TouchableOpacity 
               style={styles.menuItem}
-              onPress={() => Alert.alert('用户协议', '查看用户协议内容')}
+              onPress={() => Alert.alert(t('screens.settings.alerts.userAgreement.title'), t('screens.settings.alerts.userAgreement.message'))}
             >
               <View style={styles.menuLeft}>
                 <Ionicons name="document-text-outline" size={22} color="#6b7280" />
-                <Text style={styles.menuLabel}>用户协议</Text>
+                <Text style={styles.menuLabel}>{t('screens.settings.about.userAgreement')}</Text>
               </View>
               <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
             </TouchableOpacity>
 
             <TouchableOpacity 
               style={styles.menuItem}
-              onPress={() => Alert.alert('隐私政策', '查看隐私政策内容')}
+              onPress={() => Alert.alert(t('screens.settings.alerts.privacyPolicy.title'), t('screens.settings.alerts.privacyPolicy.message'))}
             >
               <View style={styles.menuLeft}>
                 <Ionicons name="shield-outline" size={22} color="#6b7280" />
-                <Text style={styles.menuLabel}>隐私政策</Text>
+                <Text style={styles.menuLabel}>{t('screens.settings.about.privacyPolicy')}</Text>
               </View>
               <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
             </TouchableOpacity>
 
             <TouchableOpacity 
               style={[styles.menuItem, styles.menuItemLast]}
-              onPress={() => Alert.alert('关于我们', '问答社区 v1.0.0\n\n© 2026 All Rights Reserved')}
+              onPress={() => Alert.alert(t('screens.settings.alerts.aboutUs.title'), t('screens.settings.alerts.aboutUs.message'))}
             >
               <View style={styles.menuLeft}>
                 <Ionicons name="information-circle-outline" size={22} color="#6b7280" />
-                <Text style={styles.menuLabel}>关于我们</Text>
+                <Text style={styles.menuLabel}>{t('screens.settings.about.aboutUs')}</Text>
               </View>
               <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
             </TouchableOpacity>
@@ -512,15 +514,15 @@ export default function SettingsScreen({ navigation }) {
         <TouchableOpacity 
           style={styles.logoutBtn}
           onPress={() => Alert.alert(
-            '退出登录',
-            '确定要退出登录吗？',
+            t('screens.settings.alerts.logout.title'),
+            t('screens.settings.alerts.logout.message'),
             [
-              { text: '取消', style: 'cancel' },
-              { text: '退出', style: 'destructive', onPress: () => navigation.navigate('Login') }
+              { text: t('common.cancel'), style: 'cancel' },
+              { text: t('screens.settings.alerts.logout.button'), style: 'destructive', onPress: () => navigation.navigate('Login') }
             ]
           )}
         >
-          <Text style={styles.logoutText}>退出登录</Text>
+          <Text style={styles.logoutText}>{t('screens.settings.logout')}</Text>
         </TouchableOpacity>
 
         <View style={{ height: 40 }} />
@@ -532,11 +534,11 @@ export default function SettingsScreen({ navigation }) {
           <View style={styles.editModal}>
             <View style={styles.editModalHeader}>
               <TouchableOpacity onPress={() => setShowEditModal(false)}>
-                <Text style={styles.editModalCancel}>取消</Text>
+                <Text style={styles.editModalCancel}>{t('screens.settings.editModal.cancel')}</Text>
               </TouchableOpacity>
               <Text style={styles.editModalTitle}>{editTitle}</Text>
               <TouchableOpacity onPress={handleSaveEdit}>
-                <Text style={styles.editModalSave}>保存</Text>
+                <Text style={styles.editModalSave}>{t('screens.settings.editModal.save')}</Text>
               </TouchableOpacity>
             </View>
             <View style={styles.editModalContent}>
@@ -544,17 +546,17 @@ export default function SettingsScreen({ navigation }) {
                 style={[styles.editInput, editField === 'bio' && styles.editInputMultiline]}
                 value={editValue}
                 onChangeText={setEditValue}
-                placeholder={`请输入${editTitle}`}
+                placeholder={`${t('screens.settings.editModal.placeholder')}${editTitle}`}
                 placeholderTextColor="#9ca3af"
                 multiline={editField === 'bio'}
                 textAlignVertical={editField === 'bio' ? 'top' : 'center'}
                 autoFocus
               />
               <Text style={styles.editHint}>
-                {editField === 'name' && '昵称长度为2-20个字符'}
-                {editField === 'bio' && '简介不超过100个字符，展示你的个性'}
-                {editField === 'location' && '填写你的所在城市'}
-                {editField === 'occupation' && '填写你的职业或身份'}
+                {editField === 'name' && t('screens.settings.editModal.hints.nickname')}
+                {editField === 'bio' && t('screens.settings.editModal.hints.bio')}
+                {editField === 'location' && t('screens.settings.editModal.hints.location')}
+                {editField === 'occupation' && t('screens.settings.editModal.hints.occupation')}
               </Text>
             </View>
           </View>

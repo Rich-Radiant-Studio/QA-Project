@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from '../i18n/withTranslation';
 
 const searchHistory = ['Python学习', '养猫攻略', '职业规划', '数据分析'];
 const hotSearches = [
@@ -22,6 +23,7 @@ const hotTopics = [
 ];
 
 export default function SearchScreen({ navigation }) {
+  const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [history, setHistory] = useState(searchHistory);
@@ -37,9 +39,9 @@ export default function SearchScreen({ navigation }) {
   };
 
   const clearHistory = () => {
-    Alert.alert('清除历史', '确定要清除搜索历史吗？', [
-      { text: '取消', style: 'cancel' },
-      { text: '确定', onPress: () => setHistory([]) }
+    Alert.alert(t('screens.search.alerts.clearHistoryTitle'), t('screens.search.alerts.clearHistoryMessage'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('common.confirm'), onPress: () => setHistory([]) }
     ]);
   };
 
@@ -71,7 +73,7 @@ export default function SearchScreen({ navigation }) {
           <Ionicons name="search" size={18} color="#9ca3af" />
           <TextInput
             style={styles.searchInput}
-            placeholder="搜索问题、话题或用户"
+            placeholder={t('screens.search.searchPlaceholder')}
             value={query}
             onChangeText={(text) => { setQuery(text); setIsSearching(text.length > 0); }}
             autoFocus
@@ -83,7 +85,7 @@ export default function SearchScreen({ navigation }) {
           )}
         </View>
         <TouchableOpacity style={styles.searchBtn} onPress={handleSearch}>
-          <Text style={styles.searchBtnText}>搜索</Text>
+          <Text style={styles.searchBtnText}>{t('screens.search.searchButton')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -92,7 +94,7 @@ export default function SearchScreen({ navigation }) {
         {history.length > 0 && (
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>搜索历史</Text>
+              <Text style={styles.sectionTitle}>{t('screens.search.history.title')}</Text>
               <TouchableOpacity onPress={clearHistory}><Ionicons name="trash-outline" size={18} color="#9ca3af" /></TouchableOpacity>
             </View>
             <View style={styles.tagList}>
@@ -108,10 +110,10 @@ export default function SearchScreen({ navigation }) {
         {/* 热门搜索 */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>热门搜索</Text>
+            <Text style={styles.sectionTitle}>{t('screens.search.hotSearches.title')}</Text>
             <TouchableOpacity style={styles.refreshBtn} onPress={refreshHotList}>
               <Ionicons name="refresh" size={14} color="#9ca3af" />
-              <Text style={styles.refreshText}>换一批</Text>
+              <Text style={styles.refreshText}>{t('screens.search.hotSearches.refresh')}</Text>
             </TouchableOpacity>
           </View>
           {hotList.map((item) => (
@@ -120,8 +122,8 @@ export default function SearchScreen({ navigation }) {
                 <Text style={styles.rankText}>{item.rank}</Text>
               </View>
               <Text style={styles.hotText}>{item.text}</Text>
-              {item.hot && <Text style={styles.hotTag}>🔥 热</Text>}
-              {item.rising && <Text style={styles.risingTag}>↑ 升</Text>}
+              {item.hot && <Text style={styles.hotTag}>🔥 {t('screens.search.hotSearches.hotTag')}</Text>}
+              {item.rising && <Text style={styles.risingTag}>↑ {t('screens.search.hotSearches.risingTag')}</Text>}
             </TouchableOpacity>
           ))}
         </View>
@@ -129,8 +131,8 @@ export default function SearchScreen({ navigation }) {
         {/* 热门话题 */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>热门话题</Text>
-            <TouchableOpacity onPress={() => Alert.alert('查看更多', '查看更多热门话题')}><Text style={styles.moreText}>查看更多</Text></TouchableOpacity>
+            <Text style={styles.sectionTitle}>{t('screens.search.hotTopics.title')}</Text>
+            <TouchableOpacity onPress={() => Alert.alert(t('screens.search.alerts.viewMoreTitle'), t('screens.search.alerts.viewMoreMessage'))}><Text style={styles.moreText}>{t('screens.search.hotTopics.viewMore')}</Text></TouchableOpacity>
           </View>
           <View style={styles.tagList}>
             {hotTopics.map((topic, index) => (

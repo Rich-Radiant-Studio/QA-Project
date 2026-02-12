@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import Avatar from '../components/Avatar';
 import IdentitySelector from '../components/IdentitySelector';
+import { useTranslation } from '../i18n/withTranslation';
 
 // 评论数据
 const initialComments = [
@@ -22,9 +23,20 @@ const supplementAnswers = [
 const answerTabs = ['补充回答 (2)', '全部评论 (128)'];
 
 export default function AnswerDetailScreen({ navigation, route }) {
+  const { t } = useTranslation();
+  
+  // Generate tabs with translations
+  const getTabLabel = (index, count) => {
+    if (index === 0) {
+      return `${t('screens.answerDetail.tabs.supplements')} (${count})`;
+    } else {
+      return `${t('screens.answerDetail.tabs.comments')} (${count})`;
+    }
+  };
+  
   const [inputText, setInputText] = useState('');
-  const [activeTab, setActiveTab] = useState('全部评论 (128)');
-  const [sortFilter, setSortFilter] = useState('精选'); // 精选 or 最新
+  const [activeTab, setActiveTab] = useState(1); // 0 for supplements, 1 for comments
+  const [sortFilter, setSortFilter] = useState('featured'); // featured or latest
   const [liked, setLiked] = useState({});
   const [disliked, setDisliked] = useState({});
   const [bookmarked, setBookmarked] = useState({});
@@ -51,7 +63,7 @@ export default function AnswerDetailScreen({ navigation, route }) {
   // 提交补充回答
   const handleSubmitSupplementAnswer = () => {
     if (!supplementAnswerText.trim()) return;
-    Alert.alert('成功', '补充回答已提交');
+    Alert.alert(t('screens.answerDetail.alerts.success'), t('screens.answerDetail.alerts.supplementSubmitted'));
     setSupplementAnswerText('');
     setShowSupplementAnswerModal(false);
   };
@@ -86,19 +98,19 @@ export default function AnswerDetailScreen({ navigation, route }) {
   // 处理仲裁申请
   const handleSubmitArbitration = () => {
     if (!arbitrationReason.trim()) {
-      Alert.alert('提示', '请说明申请仲裁的理由');
+      Alert.alert(t('screens.answerDetail.alerts.hint'), t('screens.answerDetail.alerts.arbitrationReasonRequired'));
       return;
     }
     if (selectedExperts.length < 3) {
-      Alert.alert('提示', '至少需要邀请 3 位专家参与仲裁');
+      Alert.alert(t('screens.answerDetail.alerts.hint'), t('screens.answerDetail.alerts.minExpertsRequired'));
       return;
     }
     if (selectedExperts.length > 5) {
-      Alert.alert('提示', '最多只能邀请 5 位专家');
+      Alert.alert(t('screens.answerDetail.alerts.hint'), t('screens.answerDetail.alerts.maxExpertsExceeded'));
       return;
     }
 
-    Alert.alert('成功', '仲裁申请已提交，等待专家投票中...');
+    Alert.alert(t('screens.answerDetail.alerts.success'), t('screens.answerDetail.alerts.arbitrationSubmitted'));
     setShowArbitrationModal(false);
     setArbitrationReason('');
     setSelectedExperts([]);
@@ -110,7 +122,7 @@ export default function AnswerDetailScreen({ navigation, route }) {
       setSelectedExperts(selectedExperts.filter(id => id !== expertId));
     } else {
       if (selectedExperts.length >= 5) {
-        Alert.alert('提示', '最多只能邀请 5 位专家');
+        Alert.alert(t('screens.answerDetail.alerts.hint'), t('screens.answerDetail.alerts.maxExpertsExceeded'));
         return;
       }
       setSelectedExperts([...selectedExperts, expertId]);
@@ -131,7 +143,7 @@ export default function AnswerDetailScreen({ navigation, route }) {
 
   const submitReply = () => {
     if (replyText.trim()) {
-      Alert.alert('成功', '回复已发布');
+      Alert.alert(t('screens.answerDetail.alerts.success'), t('screens.answerDetail.alerts.replyPublished'));
       setReplyText('');
       setShowReplyModal(false);
     }
@@ -148,11 +160,11 @@ export default function AnswerDetailScreen({ navigation, route }) {
         dislikes: 0,
         shares: 0,
         bookmarks: 0,
-        time: '刚刚'
+        time: t('screens.answerDetail.time.justNow')
       };
       setComments([newComment, ...comments]);
       setInputText('');
-      Alert.alert('成功', '评论已发布');
+      Alert.alert(t('screens.answerDetail.alerts.success'), t('screens.answerDetail.alerts.commentPublished'));
     }
   };
 
@@ -163,7 +175,7 @@ export default function AnswerDetailScreen({ navigation, route }) {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <Ionicons name="arrow-back" size={24} color="#374151" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>回答详情</Text>
+        <Text style={styles.headerTitle}>{t('screens.answerDetail.title')}</Text>
         <View style={styles.headerRight}>
           <TouchableOpacity style={styles.shareBtn}>
             <Ionicons name="arrow-redo-outline" size={22} color="#6b7280" />
@@ -189,13 +201,13 @@ export default function AnswerDetailScreen({ navigation, route }) {
                 <TouchableOpacity 
                   style={styles.adoptAnswerBtn}
                   onPress={() => {
-                    Alert.alert('采纳答案', '确认采纳这个答案吗？', [
-                      { text: '取消', style: 'cancel' },
-                      { text: '确认', onPress: () => console.log('采纳答案') }
+                    Alert.alert(t('screens.answerDetail.alerts.adoptAnswerTitle'), t('screens.answerDetail.alerts.adoptAnswerMessage'), [
+                      { text: t('screens.answerDetail.alerts.cancel'), style: 'cancel' },
+                      { text: t('screens.answerDetail.alerts.confirm'), onPress: () => console.log('采纳答案') }
                     ]);
                   }}
                 >
-                  <Text style={styles.adoptAnswerBtnText}>采纳</Text>
+                  <Text style={styles.adoptAnswerBtnText}>{t('screens.answerDetail.actions.adopt')}</Text>
                 </TouchableOpacity>
               </View>
               <Text style={styles.answerAuthorTitle}>{answer.title}</Text>
@@ -205,7 +217,7 @@ export default function AnswerDetailScreen({ navigation, route }) {
               onPress={() => setFollowing(!following)}
             >
               <Text style={[styles.followBtnText, following && styles.followBtnTextActive]}>
-                {following ? '已关注' : '关注'}
+                {following ? t('screens.answerDetail.actions.following') : t('screens.answerDetail.actions.follow')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -216,7 +228,7 @@ export default function AnswerDetailScreen({ navigation, route }) {
           <View style={styles.answerMetaWithBadges}>
             <View style={styles.answerMetaLeft}>
               <Ionicons name="eye-outline" size={14} color="#9ca3af" />
-              <Text style={styles.answerViews}>{answer.views || 0} 浏览</Text>
+              <Text style={styles.answerViews}>{answer.views || 0} {t('screens.answerDetail.stats.views')}</Text>
               <Text style={styles.answerMetaSeparator}>·</Text>
               <Text style={styles.answerTime}>{answer.time}</Text>
             </View>
@@ -226,7 +238,7 @@ export default function AnswerDetailScreen({ navigation, route }) {
               {/* 已采纳标签 */}
               {answer.adopted && (
                 <View style={styles.adoptedBadgeCompact}>
-                  <Text style={styles.adoptedBadgeCompactText}>已采纳</Text>
+                  <Text style={styles.adoptedBadgeCompactText}>{t('screens.answerDetail.badges.adopted')}</Text>
                 </View>
               )}
               
@@ -234,7 +246,7 @@ export default function AnswerDetailScreen({ navigation, route }) {
               {answer.invitedBy && (
                 <View style={styles.inviterBadgeCompact}>
                   <Image source={{ uri: answer.invitedBy.avatar }} style={styles.inviterAvatarCompact} />
-                  <Text style={styles.inviterTextCompact}>由 {answer.invitedBy.name} 邀请</Text>
+                  <Text style={styles.inviterTextCompact}>{t('screens.answerDetail.badges.invitedBy').replace('{name}', answer.invitedBy.name)}</Text>
                 </View>
               )}
 
@@ -245,7 +257,7 @@ export default function AnswerDetailScreen({ navigation, route }) {
                   onPress={() => setShowArbitrationModal(true)}
                 >
                   <Ionicons name="gavel-outline" size={12} color="#6b7280" />
-                  <Text style={styles.arbitrationBtnTextCompact}>仲裁</Text>
+                  <Text style={styles.arbitrationBtnTextCompact}>{t('screens.answerDetail.actions.arbitration')}</Text>
                 </TouchableOpacity>
               )}
             </View>
@@ -255,47 +267,49 @@ export default function AnswerDetailScreen({ navigation, route }) {
         {/* Tab标签 */}
         <View style={styles.tabsSection}>
           <View style={styles.tabs}>
-            {answerTabs.map(tab => (
-              <TouchableOpacity 
-                key={tab} 
-                style={styles.tabItem}
-                onPress={() => setActiveTab(tab)}
-              >
-                <Text style={[styles.tabText, activeTab === tab && styles.tabTextActive]}>{tab}</Text>
-                {activeTab === tab && <View style={styles.tabIndicator} />}
-              </TouchableOpacity>
-            ))}
+            {[0, 1].map(tabIndex => {
+              const count = tabIndex === 0 ? supplementAnswers.length : comments.length;
+              const label = getTabLabel(tabIndex, count);
+              return (
+                <TouchableOpacity 
+                  key={tabIndex} 
+                  style={styles.tabItem}
+                  onPress={() => setActiveTab(tabIndex)}
+                >
+                  <Text style={[styles.tabText, activeTab === tabIndex && styles.tabTextActive]}>{label}</Text>
+                  {activeTab === tabIndex && <View style={styles.tabIndicator} />}
+                </TouchableOpacity>
+              );
+            })}
           </View>
 
           {/* 筛选条 */}
-          {(activeTab === '补充回答 (2)' || activeTab === '全部评论 (128)') && (
-            <View style={styles.sortFilterBar}>
-              <View style={styles.sortFilterLeft}>
-                <TouchableOpacity 
-                  style={[styles.sortFilterBtn, sortFilter === '精选' && styles.sortFilterBtnActive]}
-                  onPress={() => setSortFilter('精选')}
-                >
-                  <Ionicons name="star" size={14} color={sortFilter === '精选' ? '#ef4444' : '#9ca3af'} />
-                  <Text style={[styles.sortFilterText, sortFilter === '精选' && styles.sortFilterTextActive]}>精选</Text>
-                </TouchableOpacity>
-                <TouchableOpacity 
-                  style={[styles.sortFilterBtn, sortFilter === '最新' && styles.sortFilterBtnActive]}
-                  onPress={() => setSortFilter('最新')}
-                >
-                  <Ionicons name="time" size={14} color={sortFilter === '最新' ? '#ef4444' : '#9ca3af'} />
-                  <Text style={[styles.sortFilterText, sortFilter === '最新' && styles.sortFilterTextActive]}>最新</Text>
-                </TouchableOpacity>
-              </View>
-              <Text style={styles.sortFilterCount}>
-                {activeTab === '补充回答 (2)' ? `共 ${supplementAnswers.length} 条补充回答` : `共 ${comments.length} 条评论`}
-              </Text>
+          <View style={styles.sortFilterBar}>
+            <View style={styles.sortFilterLeft}>
+              <TouchableOpacity 
+                style={[styles.sortFilterBtn, sortFilter === 'featured' && styles.sortFilterBtnActive]}
+                onPress={() => setSortFilter('featured')}
+              >
+                <Ionicons name="star" size={14} color={sortFilter === 'featured' ? '#ef4444' : '#9ca3af'} />
+                <Text style={[styles.sortFilterText, sortFilter === 'featured' && styles.sortFilterTextActive]}>{t('screens.answerDetail.filter.featured')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.sortFilterBtn, sortFilter === 'latest' && styles.sortFilterBtnActive]}
+                onPress={() => setSortFilter('latest')}
+              >
+                <Ionicons name="time" size={14} color={sortFilter === 'latest' ? '#ef4444' : '#9ca3af'} />
+                <Text style={[styles.sortFilterText, sortFilter === 'latest' && styles.sortFilterTextActive]}>{t('screens.answerDetail.filter.latest')}</Text>
+              </TouchableOpacity>
             </View>
-          )}
+            <Text style={styles.sortFilterCount}>
+              {activeTab === 0 ? t('screens.answerDetail.stats.supplementCount').replace('{count}', supplementAnswers.length) : t('screens.answerDetail.stats.commentCount').replace('{count}', comments.length)}
+            </Text>
+          </View>
         </View>
 
         {/* 内容区域 */}
         <View style={styles.contentSection}>
-          {activeTab === '补充回答 (2)' ? (
+          {activeTab === 0 ? (
             // 补充回答列表
             <>
               {supplementAnswers.map(supplement => (
@@ -310,13 +324,13 @@ export default function AnswerDetailScreen({ navigation, route }) {
                         <TouchableOpacity 
                           style={styles.adoptAnswerBtn}
                           onPress={() => {
-                            Alert.alert('采纳补充回答', '确认采纳这个补充回答吗？', [
-                              { text: '取消', style: 'cancel' },
-                              { text: '确认', onPress: () => console.log('采纳补充回答') }
+                            Alert.alert(t('screens.answerDetail.alerts.adoptSupplementTitle'), t('screens.answerDetail.alerts.adoptSupplementMessage'), [
+                              { text: t('screens.answerDetail.alerts.cancel'), style: 'cancel' },
+                              { text: t('screens.answerDetail.alerts.confirm'), onPress: () => console.log('采纳补充回答') }
                             ]);
                           }}
                         >
-                          <Text style={styles.adoptAnswerBtnText}>采纳</Text>
+                          <Text style={styles.adoptAnswerBtnText}>{t('screens.answerDetail.actions.adopt')}</Text>
                         </TouchableOpacity>
                       </View>
                       <View style={styles.supplementMeta}>
@@ -390,7 +404,7 @@ export default function AnswerDetailScreen({ navigation, route }) {
                           onPress={() => handleReply(comment)}
                         >
                           <Ionicons name="chatbubble-outline" size={14} color="#9ca3af" />
-                          <Text style={styles.commentActionText}>回复</Text>
+                          <Text style={styles.commentActionText}>{t('screens.answerDetail.actions.reply')}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.commentActionBtn}>
                           <Ionicons name="arrow-redo-outline" size={14} color="#9ca3af" />
@@ -476,7 +490,7 @@ export default function AnswerDetailScreen({ navigation, route }) {
               // 可以打开评论输入弹窗或聚焦输入框
             }}
           >
-            <Text style={styles.bottomCommentPlaceholder}>写评论...</Text>
+            <Text style={styles.bottomCommentPlaceholder}>{t('screens.answerDetail.placeholders.writeComment')}</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.bottomSupplementBtn}
@@ -485,7 +499,7 @@ export default function AnswerDetailScreen({ navigation, route }) {
             }}
           >
             <Ionicons name="add-circle-outline" size={16} color="#fff" />
-            <Text style={styles.bottomSupplementBtnText}>补充回答</Text>
+            <Text style={styles.bottomSupplementBtnText}>{t('screens.answerDetail.actions.supplementAnswer')}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -495,14 +509,14 @@ export default function AnswerDetailScreen({ navigation, route }) {
         <View style={styles.modalOverlay}>
           <View style={styles.replyModal}>
             <View style={styles.replyModalHeader}>
-              <Text style={styles.replyModalTitle}>回复 {replyTarget?.author}</Text>
+              <Text style={styles.replyModalTitle}>{t('screens.answerDetail.modals.replyTitle').replace('{author}', replyTarget?.author || '')}</Text>
               <TouchableOpacity onPress={() => setShowReplyModal(false)}>
                 <Ionicons name="close" size={24} color="#6b7280" />
               </TouchableOpacity>
             </View>
             <TextInput
               style={styles.replyInput}
-              placeholder="写下你的回复..."
+              placeholder={t('screens.answerDetail.placeholders.writeReply')}
               placeholderTextColor="#9ca3af"
               value={replyText}
               onChangeText={setReplyText}
@@ -514,7 +528,7 @@ export default function AnswerDetailScreen({ navigation, route }) {
               onPress={submitReply}
               disabled={!replyText.trim()}
             >
-              <Text style={styles.replySubmitText}>发布</Text>
+              <Text style={styles.replySubmitText}>{t('screens.answerDetail.actions.publish')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -526,7 +540,7 @@ export default function AnswerDetailScreen({ navigation, route }) {
           <View style={styles.arbitrationModal}>
             <View style={styles.arbitrationModalHandle} />
             <View style={styles.arbitrationModalHeader}>
-              <Text style={styles.arbitrationModalTitle}>申请仲裁</Text>
+              <Text style={styles.arbitrationModalTitle}>{t('screens.answerDetail.modals.arbitrationTitle')}</Text>
               <TouchableOpacity onPress={() => setShowArbitrationModal(false)}>
                 <Ionicons name="close" size={24} color="#6b7280" />
               </TouchableOpacity>
@@ -537,15 +551,15 @@ export default function AnswerDetailScreen({ navigation, route }) {
               <View style={styles.arbitrationInfo}>
                 <Ionicons name="information-circle" size={20} color="#3b82f6" />
                 <Text style={styles.arbitrationInfoText}>
-                  如果您对已采纳的答案持有不同意见，可以申请仲裁。邀请至少3位专家投票，超过50%同意则推翻采纳。
+                  {t('screens.answerDetail.arbitration.info')}
                 </Text>
               </View>
 
               {/* 仲裁理由 */}
-              <Text style={styles.arbitrationSectionTitle}>仲裁理由</Text>
+              <Text style={styles.arbitrationSectionTitle}>{t('screens.answerDetail.arbitration.reasonLabel')}</Text>
               <TextInput
                 style={styles.arbitrationReasonInput}
-                placeholder="请详细说明您申请仲裁的理由..."
+                placeholder={t('screens.answerDetail.placeholders.arbitrationReason')}
                 placeholderTextColor="#9ca3af"
                 value={arbitrationReason}
                 onChangeText={setArbitrationReason}
@@ -556,9 +570,9 @@ export default function AnswerDetailScreen({ navigation, route }) {
 
               {/* 邀请专家 */}
               <View style={styles.arbitrationExpertsHeader}>
-                <Text style={styles.arbitrationSectionTitle}>邀请专家投票</Text>
+                <Text style={styles.arbitrationSectionTitle}>{t('screens.answerDetail.arbitration.inviteExpertsLabel')}</Text>
                 <Text style={styles.arbitrationExpertsCount}>
-                  已选 {selectedExperts.length}/5 位
+                  {t('screens.answerDetail.arbitration.expertsCount').replace('{count}', selectedExperts.length)}
                 </Text>
               </View>
 
@@ -567,7 +581,7 @@ export default function AnswerDetailScreen({ navigation, route }) {
                 <Ionicons name="search-outline" size={18} color="#9ca3af" />
                 <TextInput
                   style={styles.expertSearchInput}
-                  placeholder="搜索专家姓名、职称或领域..."
+                  placeholder={t('screens.answerDetail.placeholders.searchExpert')}
                   placeholderTextColor="#9ca3af"
                   value={expertSearchText}
                   onChangeText={setExpertSearchText}
@@ -582,7 +596,7 @@ export default function AnswerDetailScreen({ navigation, route }) {
               {/* 推荐专家标题 */}
               <View style={styles.recommendedExpertsHeader}>
                 <Ionicons name="star" size={16} color="#f59e0b" />
-                <Text style={styles.recommendedExpertsTitle}>推荐专家</Text>
+                <Text style={styles.recommendedExpertsTitle}>{t('screens.answerDetail.arbitration.recommendedExperts')}</Text>
               </View>
 
               {expertsList
@@ -611,7 +625,7 @@ export default function AnswerDetailScreen({ navigation, route }) {
                       {expert.verified && <Ionicons name="checkmark-circle" size={14} color="#3b82f6" />}
                     </View>
                     <Text style={styles.expertTitle}>{expert.title}</Text>
-                    <Text style={styles.expertExpertise}>擅长：{expert.expertise}</Text>
+                    <Text style={styles.expertExpertise}>{t('screens.answerDetail.arbitration.expertiseLabel')}{expert.expertise}</Text>
                   </View>
                   <View style={[
                     styles.expertCheckbox,
@@ -635,8 +649,8 @@ export default function AnswerDetailScreen({ navigation, route }) {
               }).length === 0 && (
                 <View style={styles.noExpertsFound}>
                   <Ionicons name="search-outline" size={32} color="#d1d5db" />
-                  <Text style={styles.noExpertsFoundText}>未找到匹配的专家</Text>
-                  <Text style={styles.noExpertsFoundDesc}>试试其他关键词</Text>
+                  <Text style={styles.noExpertsFoundText}>{t('screens.answerDetail.arbitration.noExpertsFound')}</Text>
+                  <Text style={styles.noExpertsFoundDesc}>{t('screens.answerDetail.arbitration.tryOtherKeywords')}</Text>
                 </View>
               )}
 
@@ -653,7 +667,7 @@ export default function AnswerDetailScreen({ navigation, route }) {
                 disabled={!arbitrationReason.trim() || selectedExperts.length < 3}
               >
                 <Text style={styles.submitArbitrationBtnText}>
-                  提交仲裁申请
+                  {t('screens.answerDetail.arbitration.submitButton')}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -664,7 +678,7 @@ export default function AnswerDetailScreen({ navigation, route }) {
                   setSelectedExperts([]);
                 }}
               >
-                <Text style={styles.cancelArbitrationBtnText}>取消</Text>
+                <Text style={styles.cancelArbitrationBtnText}>{t('screens.answerDetail.alerts.cancel')}</Text>
               </TouchableOpacity>
             </View>
           </View>

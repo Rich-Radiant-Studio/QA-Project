@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, Modal, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from '../i18n/withTranslation';
 
 const activitiesData = [
   { id: 1, title: 'Python学习交流会', type: '线上活动', date: '2026-01-20', time: '19:00-21:00', location: '腾讯会议', participants: 45, maxParticipants: 100, organizer: '张三丰', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user1', status: '报名中', description: '本次活动将邀请多位Python专家分享学习经验和实战技巧,适合零基础和有一定基础的学习者参加。' },
@@ -10,51 +11,78 @@ const activitiesData = [
 ];
 
 export default function QuestionActivityListScreen({ navigation, route }) {
+  const { t } = useTranslation();
   const { questionId, questionTitle } = route?.params || {};
   const [joinedActivities, setJoinedActivities] = useState({});
   const [showActivityModal, setShowActivityModal] = useState(false);
   const [activityForm, setActivityForm] = useState({ 
     title: '', 
     description: '', 
-    startDate: '', 
     startTime: '', 
-    endDate: '', 
     endTime: '', 
     location: '', 
     maxParticipants: '', 
-    activityType: '线上活动' 
+    activityType: 'online',
+    organizerType: 'personal',
+    images: []
   });
 
   const handleJoinActivity = (activityId) => {
     setJoinedActivities({ ...joinedActivities, [activityId]: !joinedActivities[activityId] });
     if (!joinedActivities[activityId]) {
-      alert('报名成功!');
+      alert(t('screens.questionActivityList.joinSuccess'));
     } else {
-      alert('已取消报名');
+      alert(t('screens.questionActivityList.cancelSuccess'));
     }
   };
 
   const handleCreateActivity = () => {
     if (!activityForm.title.trim()) {
-      alert('请输入活动标题');
+      alert(t('screens.questionActivityList.modal.validation.titleRequired'));
       return;
     }
-    if (activityForm.activityType === '线下活动' && !activityForm.location.trim()) {
-      alert('线下活动请填写活动地址');
+    if (!activityForm.description.trim()) {
+      alert(t('screens.questionActivityList.modal.validation.descriptionRequired'));
       return;
     }
-    alert('活动创建成功！');
+    if (!activityForm.startTime || !activityForm.endTime) {
+      alert(t('screens.questionActivityList.modal.validation.timeRequired'));
+      return;
+    }
+    if (activityForm.activityType === 'offline' && !activityForm.location.trim()) {
+      alert(t('screens.questionActivityList.modal.validation.locationRequired'));
+      return;
+    }
+    alert(t('screens.questionActivityList.modal.createSuccess'));
     setShowActivityModal(false);
     setActivityForm({ 
       title: '', 
       description: '', 
-      startDate: '', 
       startTime: '', 
-      endDate: '', 
       endTime: '', 
       location: '', 
       maxParticipants: '', 
-      activityType: '线上活动' 
+      activityType: 'online',
+      organizerType: 'personal',
+      images: []
+    });
+  };
+
+  const addActivityImage = () => {
+    if (activityForm.images.length < 9) {
+      setActivityForm({
+        ...activityForm,
+        images: [...activityForm.images, `https://images.unsplash.com/photo-${Math.floor(Math.random() * 1000000)}?w=800&h=600&fit=crop`]
+      });
+    } else {
+      alert(t('screens.questionActivityList.modal.images.maxLimit'));
+    }
+  };
+
+  const removeActivityImage = (index) => {
+    setActivityForm({
+      ...activityForm,
+      images: activityForm.images.filter((_, i) => i !== index)
     });
   };
 
@@ -70,7 +98,7 @@ export default function QuestionActivityListScreen({ navigation, route }) {
           <Ionicons name="arrow-back" size={24} color="#374151" />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
-          <Text style={styles.headerTitle}>相关活动</Text>
+          <Text style={styles.headerTitle}>{t('screens.questionActivityList.title')}</Text>
           <Text style={styles.headerSubtitle} numberOfLines={1}>{questionTitle}</Text>
         </View>
         <TouchableOpacity 
@@ -79,7 +107,7 @@ export default function QuestionActivityListScreen({ navigation, route }) {
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           activeOpacity={0.7}
         >
-          <Text style={styles.publishBtnText}>发布</Text>
+          <Text style={styles.publishBtnText}>{t('screens.questionActivityList.publish')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -87,26 +115,26 @@ export default function QuestionActivityListScreen({ navigation, route }) {
         <View style={styles.statsBar}>
           <View style={styles.statItem}>
             <Text style={styles.statNumber}>{activitiesData.length}</Text>
-            <Text style={styles.statLabel}>活动总数</Text>
+            <Text style={styles.statLabel}>{t('screens.questionActivityList.stats.totalActivities')}</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
             <Text style={styles.statNumber}>{activitiesData.filter(a => a.status === '报名中').length}</Text>
-            <Text style={styles.statLabel}>报名中</Text>
+            <Text style={styles.statLabel}>{t('screens.questionActivityList.stats.enrolling')}</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
             <Text style={styles.statNumber}>{activitiesData.reduce((sum, a) => sum + a.participants, 0)}</Text>
-            <Text style={styles.statLabel}>参与人数</Text>
+            <Text style={styles.statLabel}>{t('screens.questionActivityList.stats.totalParticipants')}</Text>
           </View>
         </View>
 
         <View style={styles.activitiesSection}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>活动列表</Text>
+            <Text style={styles.sectionTitle}>{t('screens.questionActivityList.activityList')}</Text>
             <TouchableOpacity style={styles.filterBtn}>
               <Ionicons name="filter-outline" size={16} color="#6b7280" />
-              <Text style={styles.filterText}>筛选</Text>
+              <Text style={styles.filterText}>{t('screens.questionActivityList.filter')}</Text>
             </TouchableOpacity>
           </View>
 
@@ -124,12 +152,12 @@ export default function QuestionActivityListScreen({ navigation, route }) {
                     color={activity.type === '线上活动' ? '#3b82f6' : '#22c55e'} 
                   />
                   <Text style={[styles.activityTypeText, { color: activity.type === '线上活动' ? '#3b82f6' : '#22c55e' }]}>
-                    {activity.type}
+                    {activity.type === '线上活动' ? t('screens.questionActivityList.activityType.online') : t('screens.questionActivityList.activityType.offline')}
                   </Text>
                 </View>
                 <View style={[styles.activityStatusTag, activity.status === '即将开始' && styles.activityStatusTagUrgent]}>
                   <Text style={[styles.activityStatusText, activity.status === '即将开始' && styles.activityStatusTextUrgent]}>
-                    {activity.status}
+                    {activity.status === '报名中' ? t('screens.questionActivityList.status.enrolling') : t('screens.questionActivityList.status.starting')}
                   </Text>
                 </View>
               </View>
@@ -152,7 +180,7 @@ export default function QuestionActivityListScreen({ navigation, route }) {
                 <View style={styles.activityOrganizer}>
                   <Image source={{ uri: activity.avatar }} style={styles.organizerAvatar} />
                   <View style={styles.organizerInfo}>
-                    <Text style={styles.organizerLabel}>发起人</Text>
+                    <Text style={styles.organizerLabel}>{t('screens.questionActivityList.organizer')}</Text>
                     <Text style={styles.organizerName}>{activity.organizer}</Text>
                   </View>
                 </View>
@@ -171,7 +199,7 @@ export default function QuestionActivityListScreen({ navigation, route }) {
                       color={joinedActivities[activity.id] ? "#22c55e" : "#fff"} 
                     />
                     <Text style={[styles.joinBtnText, joinedActivities[activity.id] && styles.joinBtnTextActive]}>
-                      {joinedActivities[activity.id] ? '已报名' : '立即报名'}
+                      {joinedActivities[activity.id] ? t('screens.questionActivityList.joined') : t('screens.questionActivityList.join')}
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -191,14 +219,14 @@ export default function QuestionActivityListScreen({ navigation, route }) {
               <Ionicons name="close" size={26} color="#333" />
             </TouchableOpacity>
             <View style={styles.activityHeaderCenter}>
-              <Text style={styles.activityModalTitle}>发起活动</Text>
+              <Text style={styles.activityModalTitle}>{t('screens.questionActivityList.modal.createTitle')}</Text>
             </View>
             <TouchableOpacity 
               style={[styles.activityPublishBtn, !activityForm.title.trim() && styles.activityPublishBtnDisabled]}
               onPress={handleCreateActivity}
               disabled={!activityForm.title.trim()}
             >
-              <Text style={[styles.activityPublishText, !activityForm.title.trim() && styles.activityPublishTextDisabled]}>发布</Text>
+              <Text style={[styles.activityPublishText, !activityForm.title.trim() && styles.activityPublishTextDisabled]}>{t('screens.questionActivityList.modal.publish')}</Text>
             </TouchableOpacity>
           </View>
 
@@ -206,117 +234,160 @@ export default function QuestionActivityListScreen({ navigation, route }) {
           <View style={styles.boundQuestionCard}>
             <View style={styles.boundQuestionHeader}>
               <Ionicons name="link" size={16} color="#22c55e" />
-              <Text style={styles.boundQuestionLabel}>绑定问题</Text>
+              <Text style={styles.boundQuestionLabel}>{t('screens.questionActivityList.modal.boundQuestion')}</Text>
             </View>
             <Text style={styles.boundQuestionText} numberOfLines={2}>{questionTitle}</Text>
           </View>
 
           <ScrollView style={styles.activityFormArea} keyboardShouldPersistTaps="handled">
-            {/* 活动类型选择 */}
+            {/* 发起身份选择 */}
             <View style={styles.formGroup}>
-              <Text style={styles.formLabel}>活动类型 *</Text>
-              <View style={styles.activityTypeSelector}>
+              <Text style={styles.formLabel}>{t('screens.questionActivityList.modal.organizerType.label')} <Text style={styles.required}>{t('screens.questionActivityList.modal.organizerType.required')}</Text></Text>
+              <View style={styles.organizerSelector}>
                 <TouchableOpacity 
-                  style={[styles.activityTypeSelectorBtn, activityForm.activityType === '线上活动' && styles.activityTypeSelectorBtnActive]}
-                  onPress={() => setActivityForm({...activityForm, activityType: '线上活动'})}
+                  style={[styles.organizerOption, activityForm.organizerType === 'personal' && styles.organizerOptionActive]}
+                  onPress={() => setActivityForm({...activityForm, organizerType: 'personal'})}
                 >
-                  <Ionicons name="videocam" size={18} color={activityForm.activityType === '线上活动' ? '#fff' : '#6b7280'} />
-                  <Text style={[styles.activityTypeSelectorText, activityForm.activityType === '线上活动' && styles.activityTypeSelectorTextActive]}>线上活动</Text>
+                  <Ionicons name="person" size={20} color={activityForm.organizerType === 'personal' ? '#fff' : '#666'} />
+                  <Text style={[styles.organizerOptionText, activityForm.organizerType === 'personal' && styles.organizerOptionTextActive]}>{t('screens.questionActivityList.modal.organizerType.personal')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity 
-                  style={[styles.activityTypeSelectorBtn, activityForm.activityType === '线下活动' && styles.activityTypeSelectorBtnActive]}
-                  onPress={() => setActivityForm({...activityForm, activityType: '线下活动'})}
+                  style={[styles.organizerOption, activityForm.organizerType === 'team' && styles.organizerOptionActive]}
+                  onPress={() => setActivityForm({...activityForm, organizerType: 'team'})}
                 >
-                  <Ionicons name="location" size={18} color={activityForm.activityType === '线下活动' ? '#fff' : '#6b7280'} />
-                  <Text style={[styles.activityTypeSelectorText, activityForm.activityType === '线下活动' && styles.activityTypeSelectorTextActive]}>线下活动</Text>
+                  <Ionicons name="people" size={20} color={activityForm.organizerType === 'team' ? '#fff' : '#666'} />
+                  <Text style={[styles.organizerOptionText, activityForm.organizerType === 'team' && styles.organizerOptionTextActive]}>{t('screens.questionActivityList.modal.organizerType.team')}</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* 活动类型选择 */}
+            <View style={styles.formGroup}>
+              <Text style={styles.formLabel}>{t('screens.questionActivityList.modal.activityType.label')}</Text>
+              <View style={styles.activityTypeSelector}>
+                <TouchableOpacity 
+                  style={[styles.activityTypeSelectorBtn, activityForm.activityType === 'online' && styles.activityTypeSelectorBtnActive]}
+                  onPress={() => setActivityForm({...activityForm, activityType: 'online'})}
+                >
+                  <Ionicons name="globe-outline" size={20} color={activityForm.activityType === 'online' ? '#fff' : '#666'} />
+                  <Text style={[styles.activityTypeSelectorText, activityForm.activityType === 'online' && styles.activityTypeSelectorTextActive]}>{t('screens.questionActivityList.modal.activityType.online')}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={[styles.activityTypeSelectorBtn, activityForm.activityType === 'offline' && styles.activityTypeSelectorBtnActive]}
+                  onPress={() => setActivityForm({...activityForm, activityType: 'offline'})}
+                >
+                  <Ionicons name="location-outline" size={20} color={activityForm.activityType === 'offline' ? '#fff' : '#666'} />
+                  <Text style={[styles.activityTypeSelectorText, activityForm.activityType === 'offline' && styles.activityTypeSelectorTextActive]}>{t('screens.questionActivityList.modal.activityType.offline')}</Text>
                 </TouchableOpacity>
               </View>
             </View>
 
             <View style={styles.formGroup}>
-              <Text style={styles.formLabel}>活动标题 *</Text>
+              <Text style={styles.formLabel}>{t('screens.questionActivityList.modal.title.label')} <Text style={styles.required}>{t('screens.questionActivityList.modal.title.required')}</Text></Text>
               <TextInput
                 style={styles.formInput}
-                placeholder="请输入活动标题"
+                placeholder={t('screens.questionActivityList.modal.title.placeholder')}
                 placeholderTextColor="#bbb"
                 value={activityForm.title}
                 onChangeText={(text) => setActivityForm({...activityForm, title: text})}
+                maxLength={50}
               />
             </View>
 
             <View style={styles.formGroup}>
-              <Text style={styles.formLabel}>活动描述</Text>
+              <Text style={styles.formLabel}>{t('screens.questionActivityList.modal.description.label')} <Text style={styles.required}>{t('screens.questionActivityList.modal.description.required')}</Text></Text>
               <TextInput
                 style={[styles.formInput, styles.formTextarea]}
-                placeholder="请输入活动描述..."
+                placeholder={t('screens.questionActivityList.modal.description.placeholder')}
                 placeholderTextColor="#bbb"
                 value={activityForm.description}
                 onChangeText={(text) => setActivityForm({...activityForm, description: text})}
                 multiline
                 textAlignVertical="top"
+                maxLength={500}
               />
             </View>
 
-            {/* 开始日期时间 */}
+            {/* 活动时间 */}
             <View style={styles.formGroup}>
-              <Text style={styles.formLabel}>开始时间</Text>
-              <View style={styles.formRow}>
-                <TouchableOpacity style={[styles.formSelectBtn, { flex: 1, marginRight: 8 }]}>
-                  <Ionicons name="calendar-outline" size={18} color="#6b7280" />
-                  <Text style={styles.formSelectText}>{activityForm.startDate || '选择日期'}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.formSelectBtn, { flex: 1, marginLeft: 8 }]}>
-                  <Ionicons name="time-outline" size={18} color="#6b7280" />
-                  <Text style={styles.formSelectText}>{activityForm.startTime || '选择时间'}</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            {/* 结束日期时间 */}
-            <View style={styles.formGroup}>
-              <Text style={styles.formLabel}>结束时间</Text>
-              <View style={styles.formRow}>
-                <TouchableOpacity style={[styles.formSelectBtn, { flex: 1, marginRight: 8 }]}>
-                  <Ionicons name="calendar-outline" size={18} color="#6b7280" />
-                  <Text style={styles.formSelectText}>{activityForm.endDate || '选择日期'}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.formSelectBtn, { flex: 1, marginLeft: 8 }]}>
-                  <Ionicons name="time-outline" size={18} color="#6b7280" />
-                  <Text style={styles.formSelectText}>{activityForm.endTime || '选择时间'}</Text>
-                </TouchableOpacity>
+              <Text style={styles.formLabel}>{t('screens.questionActivityList.modal.time.label')} <Text style={styles.required}>{t('screens.questionActivityList.modal.time.required')}</Text></Text>
+              <View style={styles.timeContainer}>
+                <View style={styles.timeInputWrapper}>
+                  <Text style={styles.timeInputLabel}>{t('screens.questionActivityList.modal.time.startDate')}</Text>
+                  <TextInput
+                    style={styles.timeInputField}
+                    placeholder={t('screens.questionActivityList.modal.time.startPlaceholder')}
+                    placeholderTextColor="#9ca3af"
+                    value={activityForm.startTime}
+                    onChangeText={(text) => setActivityForm({...activityForm, startTime: text})}
+                  />
+                </View>
+                <View style={styles.timeSeparatorWrapper}>
+                  <Text style={styles.timeSeparator}>{t('screens.questionActivityList.modal.time.to')}</Text>
+                </View>
+                <View style={styles.timeInputWrapper}>
+                  <Text style={styles.timeInputLabel}>{t('screens.questionActivityList.modal.time.endDate')}</Text>
+                  <TextInput
+                    style={styles.timeInputField}
+                    placeholder={t('screens.questionActivityList.modal.time.endPlaceholder')}
+                    placeholderTextColor="#9ca3af"
+                    value={activityForm.endTime}
+                    onChangeText={(text) => setActivityForm({...activityForm, endTime: text})}
+                  />
+                </View>
               </View>
             </View>
 
             {/* 活动地址 - 仅线下活动显示 */}
-            <View style={[styles.formGroup, { display: activityForm.activityType === '线下活动' ? 'flex' : 'none' }]}>
-              <Text style={styles.formLabel}>
-                活动地址 <Text style={{ color: '#ef4444' }}>*</Text>
-              </Text>
-              <View style={styles.formInputWithIcon}>
-                <Ionicons name="location-outline" size={18} color="#6b7280" />
+            {activityForm.activityType === 'offline' && (
+              <View style={styles.formGroup}>
+                <Text style={styles.formLabel}>
+                  {t('screens.questionActivityList.modal.location.label')} <Text style={styles.required}>{t('screens.questionActivityList.modal.location.required')}</Text>
+                </Text>
                 <TextInput
-                  style={styles.formInputInner}
-                  placeholder="请输入详细地址（必填）"
+                  style={styles.formInput}
+                  placeholder={t('screens.questionActivityList.modal.location.placeholder')}
                   placeholderTextColor="#bbb"
                   value={activityForm.location}
                   onChangeText={(text) => setActivityForm({...activityForm, location: text})}
                 />
               </View>
+            )}
+
+            {/* 活动图片 */}
+            <View style={styles.formGroup}>
+              <Text style={styles.formLabel}>{t('screens.questionActivityList.modal.images.label')}</Text>
+              <View style={styles.imageGrid}>
+                {activityForm.images.map((img, idx) => (
+                  <View key={idx} style={styles.imageItem}>
+                    <Image source={{ uri: img }} style={styles.uploadedImage} />
+                    <TouchableOpacity 
+                      style={styles.removeImage} 
+                      onPress={() => removeActivityImage(idx)}
+                    >
+                      <Ionicons name="close-circle" size={20} color="#ef4444" />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+                {activityForm.images.length < 9 && (
+                  <TouchableOpacity style={styles.addImageBtn} onPress={addActivityImage}>
+                    <Ionicons name="add" size={24} color="#9ca3af" />
+                    <Text style={styles.addImageText}>{t('screens.questionActivityList.modal.images.add')}</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
             </View>
 
+            {/* 联系方式 */}
             <View style={styles.formGroup}>
-              <Text style={styles.formLabel}>人数上限</Text>
-              <View style={styles.formInputWithIcon}>
-                <Ionicons name="people-outline" size={18} color="#6b7280" />
-                <TextInput
-                  style={styles.formInputInner}
-                  placeholder="不限"
-                  placeholderTextColor="#bbb"
-                  value={activityForm.maxParticipants}
-                  onChangeText={(text) => setActivityForm({...activityForm, maxParticipants: text})}
-                  keyboardType="numeric"
-                />
-              </View>
+              <Text style={styles.formLabel}>{t('screens.questionActivityList.modal.contact.label')}</Text>
+              <TextInput
+                style={styles.formInput}
+                placeholder={t('screens.questionActivityList.modal.contact.placeholder')}
+                placeholderTextColor="#bbb"
+                value={activityForm.contact}
+                onChangeText={(text) => setActivityForm({...activityForm, contact: text})}
+              />
             </View>
 
             <View style={{ height: 40 }} />
@@ -403,4 +474,23 @@ const styles = StyleSheet.create({
   activityTypeSelectorBtnActive: { backgroundColor: '#ef4444', borderColor: '#ef4444' },
   activityTypeSelectorText: { fontSize: 14, color: '#6b7280', fontWeight: '500' },
   activityTypeSelectorTextActive: { color: '#fff' },
+  required: { color: '#ef4444' },
+  organizerSelector: { flexDirection: 'row', gap: 12 },
+  organizerOption: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 12, borderRadius: 8, borderWidth: 1, borderColor: '#e5e7eb', gap: 6 },
+  organizerOptionActive: { backgroundColor: '#3b82f6', borderColor: '#3b82f6' },
+  organizerOptionText: { fontSize: 14, color: '#666' },
+  organizerOptionTextActive: { color: '#fff' },
+  timeRow: { flexDirection: 'row', alignItems: 'center' },
+  timeContainer: { flexDirection: 'row', alignItems: 'flex-end', gap: 8 },
+  timeInputWrapper: { flex: 1 },
+  timeInputLabel: { fontSize: 12, color: '#6b7280', marginBottom: 6 },
+  timeInputField: { backgroundColor: '#f9fafb', borderRadius: 8, padding: 12, fontSize: 14, borderWidth: 1, borderColor: '#e5e7eb', color: '#1f2937' },
+  timeSeparatorWrapper: { paddingBottom: 12 },
+  timeSeparator: { fontSize: 14, color: '#6b7280', fontWeight: '500' },
+  imageGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  imageItem: { width: 80, height: 80, borderRadius: 8, backgroundColor: '#e5e7eb', position: 'relative', overflow: 'hidden' },
+  uploadedImage: { width: '100%', height: '100%' },
+  removeImage: { position: 'absolute', top: -8, right: -8, zIndex: 10 },
+  addImageBtn: { width: 80, height: 80, borderRadius: 8, borderWidth: 2, borderStyle: 'dashed', borderColor: '#d1d5db', justifyContent: 'center', alignItems: 'center' },
+  addImageText: { fontSize: 10, color: '#9ca3af', marginTop: 4 },
 });

@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, Dimensions }
 import { Ionicons } from '@expo/vector-icons';
 import Avatar from './Avatar';
 import { useTranslation } from '../i18n/useTranslation';
+import { formatNumber } from '../utils/numberFormatter';
 
 // 获取屏幕宽度
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -125,18 +126,6 @@ function ProfileHeader({ userData, onStatPress, isFollowing, onFollowPress, isOw
     occupation,
     mcn 
   } = userData;
-
-  /**
-   * 格式化数字（使用K表示千，万表示万）
-   */
-  const formatNumber = (num) => {
-    if (num >= 10000) {
-      return `${(num / 10000).toFixed(1)}万`;
-    } else if (num >= 1000) {
-      return `${(num / 1000).toFixed(1)}K`;
-    }
-    return num.toString();
-  };
 
   /**
    * 获取认证图标和颜色

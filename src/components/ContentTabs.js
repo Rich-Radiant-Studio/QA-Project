@@ -4,19 +4,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from '../i18n/useTranslation';
 
 /**
- * 内容标签栏组件（今日头条风格）
- * 包含：全部、文章、视频、微头条、转发五个标签
- * 右侧：搜索图标和音频图标
+ * 内容标签栏组件
+ * 包含：提问、回答、收藏三个标签
+ * 右侧：搜索图标
  */
-export default function ContentTabs({ activeTab, onTabChange, onSearchPress, onAudioPress }) {
+export default function ContentTabs({ activeTab, onTabChange, onSearchPress }) {
   const { t } = useTranslation();
 
   const tabs = [
-    { key: 'all', label: t('profile.tabs.all') },
-    { key: 'articles', label: t('profile.tabs.articles') },
-    { key: 'videos', label: t('profile.tabs.videos') },
-    { key: 'microposts', label: t('profile.tabs.microposts') },
-    { key: 'reposts', label: t('profile.tabs.reposts') },
+    { key: 'questions', label: '提问' },
+    { key: 'answers', label: '回答' },
+    { key: 'favorites', label: '收藏' },
   ];
 
   return (
@@ -55,13 +53,6 @@ export default function ContentTabs({ activeTab, onTabChange, onSearchPress, onA
           onPress={onSearchPress}
         >
           <Ionicons name="search" size={20} color="#6b7280" />
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={styles.iconButton}
-          onPress={onAudioPress}
-        >
-          <Ionicons name="headset" size={20} color="#6b7280" />
         </TouchableOpacity>
       </View>
     </View>

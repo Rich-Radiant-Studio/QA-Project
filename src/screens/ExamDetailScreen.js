@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from '../i18n/withTranslation';
 
 // 模拟考核详情数据
 const examDetail = {
@@ -9,7 +10,7 @@ const examDetail = {
   bankName: 'React Native基础知识',
   date: '2026-01-25 14:30',
   score: 95,
-  rank: '优秀',
+  rankKey: 'excellent', // Use key instead of translated text
   duration: '05:23',
   totalQuestions: 10,
   correctCount: 9,
@@ -99,15 +100,27 @@ const examDetail = {
 
 export default function ExamDetailScreen({ navigation, route }) {
   const { examId } = route.params;
+  const { t } = useTranslation();
 
-  const getRankColor = (rank) => {
-    switch (rank) {
-      case '优秀': return '#22c55e';
-      case '良好': return '#3b82f6';
-      case '及格': return '#f59e0b';
-      case '不及格': return '#ef4444';
-      default: return '#6b7280';
-    }
+  // Map rank keys to translation keys
+  const getRankTranslation = (rankKey) => {
+    const rankMap = {
+      'excellent': t('screens.examDetail.rank.excellent'),
+      'good': t('screens.examDetail.rank.good'),
+      'pass': t('screens.examDetail.rank.pass'),
+      'fail': t('screens.examDetail.rank.fail')
+    };
+    return rankMap[rankKey] || rankKey;
+  };
+
+  const getRankColor = (rankKey) => {
+    const colorMap = {
+      'excellent': '#22c55e',
+      'good': '#3b82f6',
+      'pass': '#f59e0b',
+      'fail': '#ef4444'
+    };
+    return colorMap[rankKey] || '#6b7280';
   };
 
   const getScoreColor = (score) => {
@@ -124,7 +137,7 @@ export default function ExamDetailScreen({ navigation, route }) {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <Ionicons name="arrow-back" size={24} color="#374151" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>考核详情</Text>
+        <Text style={styles.headerTitle}>{t('screens.examDetail.title')}</Text>
         <TouchableOpacity onPress={() => navigation.navigate('ExamHistory')} style={styles.historyBtn}>
           <Ionicons name="list" size={20} color="#f59e0b" />
         </TouchableOpacity>
@@ -138,59 +151,59 @@ export default function ExamDetailScreen({ navigation, route }) {
               <Ionicons name="library" size={20} color="#8b5cf6" />
               <Text style={styles.bankName}>{examDetail.bankName}</Text>
             </View>
-            <View style={[styles.rankBadge, { backgroundColor: `${getRankColor(examDetail.rank)}15` }]}>
-              <Text style={[styles.rankText, { color: getRankColor(examDetail.rank) }]}>{examDetail.rank}</Text>
+            <View style={[styles.rankBadge, { backgroundColor: `${getRankColor(examDetail.rankKey)}15` }]}>
+              <Text style={[styles.rankText, { color: getRankColor(examDetail.rankKey) }]}>{getRankTranslation(examDetail.rankKey)}</Text>
             </View>
           </View>
 
           <View style={styles.scoreSection}>
-            <Text style={[styles.scoreValue, { color: getScoreColor(examDetail.score) }]}>{examDetail.score}分</Text>
-            <Text style={styles.scoreLabel}>考核成绩</Text>
+            <Text style={[styles.scoreValue, { color: getScoreColor(examDetail.score) }]}>{examDetail.score}{t('screens.examDetail.scoreUnit')}</Text>
+            <Text style={styles.scoreLabel}>{t('screens.examDetail.scoreLabel')}</Text>
           </View>
 
           <View style={styles.overviewStats}>
             <View style={styles.overviewStatItem}>
               <Ionicons name="checkmark-circle" size={20} color="#22c55e" />
               <Text style={styles.overviewStatValue}>{examDetail.correctCount}</Text>
-              <Text style={styles.overviewStatLabel}>答对</Text>
+              <Text style={styles.overviewStatLabel}>{t('screens.examDetail.stats.correct')}</Text>
             </View>
             <View style={styles.overviewStatItem}>
               <Ionicons name="close-circle" size={20} color="#ef4444" />
               <Text style={styles.overviewStatValue}>{examDetail.totalQuestions - examDetail.correctCount}</Text>
-              <Text style={styles.overviewStatLabel}>答错</Text>
+              <Text style={styles.overviewStatLabel}>{t('screens.examDetail.stats.wrong')}</Text>
             </View>
             <View style={styles.overviewStatItem}>
               <Ionicons name="time" size={20} color="#3b82f6" />
               <Text style={styles.overviewStatValue}>{examDetail.duration}</Text>
-              <Text style={styles.overviewStatLabel}>用时</Text>
+              <Text style={styles.overviewStatLabel}>{t('screens.examDetail.stats.duration')}</Text>
             </View>
           </View>
 
           <View style={styles.examInfo}>
             <View style={styles.examInfoItem}>
               <Ionicons name="calendar-outline" size={16} color="#9ca3af" />
-              <Text style={styles.examInfoText}>考试时间：{examDetail.date}</Text>
+              <Text style={styles.examInfoText}>{t('screens.examDetail.examTime')}{examDetail.date}</Text>
             </View>
           </View>
         </View>
 
         {/* 答题详情 */}
         <View style={styles.questionsSection}>
-          <Text style={styles.sectionTitle}>答题详情</Text>
+          <Text style={styles.sectionTitle}>{t('screens.examDetail.questionsTitle')}</Text>
           
           {examDetail.questions.map((q, index) => (
             <View key={q.id} style={styles.questionCard}>
               <View style={styles.questionHeader}>
-                <Text style={styles.questionNumber}>第 {index + 1} 题</Text>
+                <Text style={styles.questionNumber}>{t('screens.examDetail.questionNumber').replace('{number}', index + 1)}</Text>
                 {q.isCorrect ? (
                   <View style={styles.correctBadge}>
                     <Ionicons name="checkmark-circle" size={16} color="#22c55e" />
-                    <Text style={styles.correctText}>正确</Text>
+                    <Text style={styles.correctText}>{t('screens.examDetail.status.correct')}</Text>
                   </View>
                 ) : (
                   <View style={styles.wrongBadge}>
                     <Ionicons name="close-circle" size={16} color="#ef4444" />
-                    <Text style={styles.wrongText}>错误</Text>
+                    <Text style={styles.wrongText}>{t('screens.examDetail.status.wrong')}</Text>
                   </View>
                 )}
               </View>
@@ -234,8 +247,8 @@ export default function ExamDetailScreen({ navigation, route }) {
                 <View style={styles.answerNote}>
                   <Ionicons name="information-circle" size={16} color="#3b82f6" />
                   <Text style={styles.answerNoteText}>
-                    您的答案：{String.fromCharCode(65 + q.userAnswer)} | 
-                    正确答案：{String.fromCharCode(65 + q.correctAnswer)}
+                    {t('screens.examDetail.answerNote.yourAnswer')}{String.fromCharCode(65 + q.userAnswer)} | 
+                    {t('screens.examDetail.answerNote.correctAnswer')}{String.fromCharCode(65 + q.correctAnswer)}
                   </Text>
                 </View>
               )}

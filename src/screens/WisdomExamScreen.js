@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from '../i18n/withTranslation';
+import { formatDuration } from '../utils/timeFormatter';
 
 // 模拟题库
 const questionBank = [
@@ -23,6 +25,7 @@ const questionBank = [
 ];
 
 export default function WisdomExamScreen({ navigation }) {
+  const { t } = useTranslation();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState({});
   const [timeLeft, setTimeLeft] = useState(600); // 10分钟
@@ -47,12 +50,6 @@ export default function WisdomExamScreen({ navigation }) {
       handleSubmit();
     }
   }, [timeLeft, examStarted, examFinished]);
-
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
 
   const handleStartExam = () => {
     setExamStarted(true);
@@ -112,7 +109,7 @@ export default function WisdomExamScreen({ navigation }) {
           >
             <Ionicons name="arrow-back" size={24} color="#374151" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>智慧考核</Text>
+          <Text style={styles.headerTitle}>{t('screens.wisdomExam.title')}</Text>
           <View style={{ width: 24 }} />
         </View>
 
@@ -120,31 +117,31 @@ export default function WisdomExamScreen({ navigation }) {
           <View style={styles.startIcon}>
             <Ionicons name="school" size={64} color="#f59e0b" />
           </View>
-          <Text style={styles.startTitle}>智慧考核</Text>
-          <Text style={styles.startDesc}>本次考核共10道题，限时10分钟</Text>
+          <Text style={styles.startTitle}>{t('screens.wisdomExam.start.title')}</Text>
+          <Text style={styles.startDesc}>{t('screens.wisdomExam.start.description')}</Text>
 
           <View style={styles.rulesCard}>
-            <Text style={styles.rulesTitle}>考核规则</Text>
+            <Text style={styles.rulesTitle}>{t('screens.wisdomExam.start.rulesTitle')}</Text>
             <View style={styles.ruleItem}>
               <Ionicons name="checkmark-circle" size={20} color="#22c55e" />
-              <Text style={styles.ruleText}>共10道选择题，每题10分</Text>
+              <Text style={styles.ruleText}>{t('screens.wisdomExam.start.rule1')}</Text>
             </View>
             <View style={styles.ruleItem}>
               <Ionicons name="time" size={20} color="#3b82f6" />
-              <Text style={styles.ruleText}>考核时间为10分钟</Text>
+              <Text style={styles.ruleText}>{t('screens.wisdomExam.start.rule2')}</Text>
             </View>
             <View style={styles.ruleItem}>
               <Ionicons name="trophy" size={20} color="#f59e0b" />
-              <Text style={styles.ruleText}>60分及以上为合格</Text>
+              <Text style={styles.ruleText}>{t('screens.wisdomExam.start.rule3')}</Text>
             </View>
             <View style={styles.ruleItem}>
               <Ionicons name="warning" size={20} color="#ef4444" />
-              <Text style={styles.ruleText}>提交后无法修改答案</Text>
+              <Text style={styles.ruleText}>{t('screens.wisdomExam.start.rule4')}</Text>
             </View>
           </View>
 
           <TouchableOpacity style={styles.startBtn} onPress={handleStartExam}>
-            <Text style={styles.startBtnText}>开始考核</Text>
+            <Text style={styles.startBtnText}>{t('screens.wisdomExam.start.startButton')}</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -154,7 +151,7 @@ export default function WisdomExamScreen({ navigation }) {
   // 结果页面
   if (examFinished) {
     const passed = score >= 60;
-    const rank = score >= 90 ? '优秀' : score >= 80 ? '良好' : score >= 60 ? '及格' : '不及格';
+    const rank = score >= 90 ? t('screens.wisdomExam.result.rank.excellent') : score >= 80 ? t('screens.wisdomExam.result.rank.good') : score >= 60 ? t('screens.wisdomExam.result.rank.pass') : t('screens.wisdomExam.result.rank.fail');
 
     return (
       <SafeAreaView style={styles.container}>
@@ -167,7 +164,7 @@ export default function WisdomExamScreen({ navigation }) {
           >
             <Ionicons name="arrow-back" size={24} color="#374151" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>考核结果</Text>
+          <Text style={styles.headerTitle}>{t('screens.wisdomExam.result.title')}</Text>
           <View style={{ width: 24 }} />
         </View>
 
@@ -176,26 +173,26 @@ export default function WisdomExamScreen({ navigation }) {
             <Ionicons name={passed ? "checkmark-circle" : "close-circle"} size={80} color={passed ? '#22c55e' : '#ef4444'} />
           </View>
 
-          <Text style={styles.resultTitle}>{passed ? '考核通过！' : '继续加油！'}</Text>
-          <Text style={styles.resultScore}>{score.toFixed(0)}分</Text>
+          <Text style={styles.resultTitle}>{passed ? t('screens.wisdomExam.result.passed') : t('screens.wisdomExam.result.failed')}</Text>
+          <Text style={styles.resultScore}>{score.toFixed(0)}{t('screens.wisdomIndex.avgScore.unit')}</Text>
           <Text style={styles.resultRank}>{rank}</Text>
 
           <View style={styles.resultStats}>
             <View style={styles.resultStatItem}>
               <Text style={styles.resultStatValue}>{examQuestions.length}</Text>
-              <Text style={styles.resultStatLabel}>总题数</Text>
+              <Text style={styles.resultStatLabel}>{t('screens.wisdomExam.result.totalQuestions')}</Text>
             </View>
             <View style={styles.resultStatItem}>
               <Text style={[styles.resultStatValue, { color: '#22c55e' }]}>
                 {Object.keys(selectedAnswers).filter(key => selectedAnswers[key] === examQuestions[key].answer).length}
               </Text>
-              <Text style={styles.resultStatLabel}>答对</Text>
+              <Text style={styles.resultStatLabel}>{t('screens.wisdomExam.result.correct')}</Text>
             </View>
             <View style={styles.resultStatItem}>
               <Text style={[styles.resultStatValue, { color: '#ef4444' }]}>
                 {examQuestions.length - Object.keys(selectedAnswers).filter(key => selectedAnswers[key] === examQuestions[key].answer).length}
               </Text>
-              <Text style={styles.resultStatLabel}>答错</Text>
+              <Text style={styles.resultStatLabel}>{t('screens.wisdomExam.result.wrong')}</Text>
             </View>
           </View>
 
@@ -203,7 +200,7 @@ export default function WisdomExamScreen({ navigation }) {
             style={styles.resultBtn}
             onPress={() => navigation.goBack()}
           >
-            <Text style={styles.resultBtnText}>返回</Text>
+            <Text style={styles.resultBtnText}>{t('screens.wisdomExam.result.backButton')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
@@ -217,7 +214,7 @@ export default function WisdomExamScreen({ navigation }) {
               setTimeLeft(600);
             }}
           >
-            <Text style={styles.resultSecondaryBtnText}>再考一次</Text>
+            <Text style={styles.resultSecondaryBtnText}>{t('screens.wisdomExam.result.retryButton')}</Text>
           </TouchableOpacity>
         </ScrollView>
       </SafeAreaView>
@@ -233,7 +230,7 @@ export default function WisdomExamScreen({ navigation }) {
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <View style={{ width: 24 }} />
-          <Text style={styles.headerTitle}>考核说明</Text>
+          <Text style={styles.headerTitle}>{t('screens.wisdomExam.explanation.title')}</Text>
           <View style={{ width: 24 }} />
         </View>
 
@@ -242,55 +239,55 @@ export default function WisdomExamScreen({ navigation }) {
             <Ionicons name="information-circle" size={64} color="#3b82f6" />
           </View>
 
-          <Text style={styles.explanationTitle}>考核已完成</Text>
-          <Text style={styles.explanationDesc}>您的答题已提交，系统正在为您生成考核报告</Text>
+          <Text style={styles.explanationTitle}>{t('screens.wisdomExam.explanation.completed')}</Text>
+          <Text style={styles.explanationDesc}>{t('screens.wisdomExam.explanation.description')}</Text>
 
           <View style={styles.explanationCard}>
-            <Text style={styles.explanationCardTitle}>本次考核概况</Text>
+            <Text style={styles.explanationCardTitle}>{t('screens.wisdomExam.explanation.overviewTitle')}</Text>
             
             <View style={styles.explanationRow}>
-              <Text style={styles.explanationLabel}>考核时间</Text>
-              <Text style={styles.explanationValue}>{formatTime(600 - timeLeft)}</Text>
+              <Text style={styles.explanationLabel}>{t('screens.wisdomExam.explanation.examTime')}</Text>
+              <Text style={styles.explanationValue}>{formatDuration(600 - timeLeft)}</Text>
             </View>
 
             <View style={styles.explanationRow}>
-              <Text style={styles.explanationLabel}>答题数量</Text>
+              <Text style={styles.explanationLabel}>{t('screens.wisdomExam.explanation.answeredCount')}</Text>
               <Text style={styles.explanationValue}>{Object.keys(selectedAnswers).length}/{examQuestions.length}</Text>
             </View>
 
             <View style={styles.explanationRow}>
-              <Text style={styles.explanationLabel}>答对题数</Text>
+              <Text style={styles.explanationLabel}>{t('screens.wisdomExam.explanation.correctCount')}</Text>
               <Text style={[styles.explanationValue, { color: '#22c55e' }]}>{correctCount}</Text>
             </View>
 
             <View style={styles.explanationRow}>
-              <Text style={styles.explanationLabel}>预估分数</Text>
-              <Text style={[styles.explanationValue, { color: '#f59e0b', fontWeight: 'bold' }]}>{score.toFixed(0)}分</Text>
+              <Text style={styles.explanationLabel}>{t('screens.wisdomExam.explanation.estimatedScore')}</Text>
+              <Text style={[styles.explanationValue, { color: '#f59e0b', fontWeight: 'bold' }]}>{score.toFixed(0)}{t('screens.wisdomIndex.avgScore.unit')}</Text>
             </View>
           </View>
 
           <View style={styles.explanationNotice}>
             <Ionicons name="bulb" size={20} color="#f59e0b" />
             <View style={styles.explanationNoticeContent}>
-              <Text style={styles.explanationNoticeTitle}>智慧指数说明</Text>
+              <Text style={styles.explanationNoticeTitle}>{t('screens.wisdomExam.explanation.wisdomNoticeTitle')}</Text>
               <Text style={styles.explanationNoticeText}>
-                本次考核成绩将影响您的智慧指数。考核分数越高，智慧指数提升越多。
+                {t('screens.wisdomExam.explanation.wisdomNoticeText')}
               </Text>
             </View>
           </View>
 
           <View style={styles.explanationTips}>
-            <Text style={styles.explanationTipsTitle}>温馨提示</Text>
-            <Text style={styles.explanationTipsText}>• 考核成绩将记录在您的考核历史中</Text>
-            <Text style={styles.explanationTipsText}>• 建议定期参加考核以保持智慧指数</Text>
-            <Text style={styles.explanationTipsText}>• 可在题库中查看更多练习题目</Text>
+            <Text style={styles.explanationTipsTitle}>{t('screens.wisdomExam.explanation.tipsTitle')}</Text>
+            <Text style={styles.explanationTipsText}>{t('screens.wisdomExam.explanation.tip1')}</Text>
+            <Text style={styles.explanationTipsText}>{t('screens.wisdomExam.explanation.tip2')}</Text>
+            <Text style={styles.explanationTipsText}>{t('screens.wisdomExam.explanation.tip3')}</Text>
           </View>
 
           <TouchableOpacity 
             style={styles.explanationBtn}
             onPress={handleConfirmResult}
           >
-            <Text style={styles.explanationBtnText}>查看详细结果</Text>
+            <Text style={styles.explanationBtnText}>{t('screens.wisdomExam.explanation.viewResultButton')}</Text>
           </TouchableOpacity>
         </ScrollView>
       </SafeAreaView>
@@ -312,10 +309,10 @@ export default function WisdomExamScreen({ navigation }) {
         >
           <Ionicons name="arrow-back" size={24} color="#374151" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>智慧考核</Text>
+        <Text style={styles.headerTitle}>{t('screens.wisdomExam.title')}</Text>
         <View style={styles.timerBadge}>
           <Ionicons name="time" size={16} color="#ef4444" />
-          <Text style={styles.timerText}>{formatTime(timeLeft)}</Text>
+          <Text style={styles.timerText}>{formatDuration(timeLeft)}</Text>
         </View>
       </View>
 
@@ -328,8 +325,8 @@ export default function WisdomExamScreen({ navigation }) {
         {/* 题目卡片 */}
         <View style={styles.questionCard}>
           <View style={styles.questionHeader}>
-            <Text style={styles.questionNumber}>第 {currentQuestion + 1} 题</Text>
-            <Text style={styles.questionCount}>{currentQuestion + 1}/{examQuestions.length}</Text>
+            <Text style={styles.questionNumber}>{t('screens.wisdomExam.exam.questionNumber', { number: currentQuestion + 1 })}</Text>
+            <Text style={styles.questionCount}>{t('screens.wisdomExam.exam.questionCount', { current: currentQuestion + 1, total: examQuestions.length })}</Text>
           </View>
           <Text style={styles.questionText}>{question.question}</Text>
         </View>
@@ -365,7 +362,7 @@ export default function WisdomExamScreen({ navigation }) {
 
         {/* 答题卡 */}
         <View style={styles.answerSheet}>
-          <Text style={styles.answerSheetTitle}>答题卡</Text>
+          <Text style={styles.answerSheetTitle}>{t('screens.wisdomExam.exam.answerSheet')}</Text>
           <View style={styles.answerSheetGrid}>
             {examQuestions.map((_, index) => (
               <TouchableOpacity
@@ -398,16 +395,16 @@ export default function WisdomExamScreen({ navigation }) {
           disabled={currentQuestion === 0}
         >
           <Ionicons name="chevron-back" size={20} color={currentQuestion === 0 ? '#9ca3af' : '#374151'} />
-          <Text style={[styles.footerBtnText, currentQuestion === 0 && styles.footerBtnTextDisabled]}>上一题</Text>
+          <Text style={[styles.footerBtnText, currentQuestion === 0 && styles.footerBtnTextDisabled]}>{t('screens.wisdomExam.exam.previous')}</Text>
         </TouchableOpacity>
 
         {currentQuestion === examQuestions.length - 1 ? (
           <TouchableOpacity style={styles.submitBtn} onPress={handleConfirmSubmit}>
-            <Text style={styles.submitBtnText}>提交考核</Text>
+            <Text style={styles.submitBtnText}>{t('screens.wisdomExam.exam.submit')}</Text>
           </TouchableOpacity>
         ) : (
           <TouchableOpacity style={styles.nextBtn} onPress={handleNext}>
-            <Text style={styles.nextBtnText}>下一题</Text>
+            <Text style={styles.nextBtnText}>{t('screens.wisdomExam.exam.next')}</Text>
             <Ionicons name="chevron-forward" size={20} color="#fff" />
           </TouchableOpacity>
         )}
@@ -420,22 +417,21 @@ export default function WisdomExamScreen({ navigation }) {
             <View style={styles.confirmModalIcon}>
               <Ionicons name="alert-circle" size={56} color="#f59e0b" />
             </View>
-            <Text style={styles.confirmModalTitle}>提交考核</Text>
+            <Text style={styles.confirmModalTitle}>{t('screens.wisdomExam.confirmModal.title')}</Text>
             <Text style={styles.confirmModalDesc}>
-              确定要提交考核吗？{'\n'}
-              提交后将无法修改答案
+              {t('screens.wisdomExam.confirmModal.description')}
             </Text>
             <View style={styles.confirmModalStats}>
               <View style={styles.confirmModalStatItem}>
-                <Text style={styles.confirmModalStatLabel}>已答题</Text>
+                <Text style={styles.confirmModalStatLabel}>{t('screens.wisdomExam.confirmModal.answeredLabel')}</Text>
                 <Text style={styles.confirmModalStatValue}>
                   {Object.keys(selectedAnswers).length}/{examQuestions.length}
                 </Text>
               </View>
               <View style={styles.confirmModalStatDivider} />
               <View style={styles.confirmModalStatItem}>
-                <Text style={styles.confirmModalStatLabel}>剩余时间</Text>
-                <Text style={styles.confirmModalStatValue}>{formatTime(timeLeft)}</Text>
+                <Text style={styles.confirmModalStatLabel}>{t('screens.wisdomExam.confirmModal.timeLeftLabel')}</Text>
+                <Text style={styles.confirmModalStatValue}>{formatDuration(timeLeft)}</Text>
               </View>
             </View>
             <View style={styles.confirmModalButtons}>
@@ -443,7 +439,7 @@ export default function WisdomExamScreen({ navigation }) {
                 style={styles.confirmModalCancelBtn}
                 onPress={() => setShowConfirmModal(false)}
               >
-                <Text style={styles.confirmModalCancelText}>再检查一下</Text>
+                <Text style={styles.confirmModalCancelText}>{t('screens.wisdomExam.confirmModal.cancelButton')}</Text>
               </TouchableOpacity>
               <TouchableOpacity 
                 style={styles.confirmModalConfirmBtn}
@@ -452,7 +448,7 @@ export default function WisdomExamScreen({ navigation }) {
                   handleSubmit();
                 }}
               >
-                <Text style={styles.confirmModalConfirmText}>确定提交</Text>
+                <Text style={styles.confirmModalConfirmText}>{t('screens.wisdomExam.confirmModal.confirmButton')}</Text>
               </TouchableOpacity>
             </View>
           </View>

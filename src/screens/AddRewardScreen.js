@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, Alert } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from '../i18n/withTranslation';
 
 export default function AddRewardScreen({ navigation, route }) {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   const { currentReward = 50, rewardContributors = 3 } = route?.params || {};
   
   const [addRewardAmount, setAddRewardAmount] = useState('');
@@ -13,24 +15,24 @@ export default function AddRewardScreen({ navigation, route }) {
   const handleAddReward = () => {
     const amount = selectedAddRewardAmount || parseFloat(addRewardAmount);
     if (!amount || amount <= 0) {
-      Alert.alert('提示', '请输入有效的悬赏金额');
+      Alert.alert(t('screens.addRewardScreen.validation.hint'), t('screens.addRewardScreen.validation.invalidAmount'));
       return;
     }
-    if (amount < 5) {
-      Alert.alert('提示', '最低追加金额为 $5');
+    if (amount < 0.01) {
+      Alert.alert(t('screens.addRewardScreen.validation.hint'), t('screens.addRewardScreen.validation.minAmount'));
       return;
     }
     if (amount > 1000) {
-      Alert.alert('提示', '单次追加金额不能超过 $1000');
+      Alert.alert(t('screens.addRewardScreen.validation.hint'), t('screens.addRewardScreen.validation.maxAmount'));
       return;
     }
     
     Alert.alert(
-      '追加成功',
-      `成功追加 $${amount} 悬赏！`,
+      t('screens.addRewardScreen.success.title'),
+      t('screens.addRewardScreen.success.message').replace('${amount}', amount),
       [
         {
-          text: '确定',
+          text: t('screens.addRewardScreen.success.confirm'),
           onPress: () => navigation.goBack()
         }
       ]
@@ -47,7 +49,7 @@ export default function AddRewardScreen({ navigation, route }) {
         >
           <Ionicons name="close" size={26} color="#333" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>追加悬赏</Text>
+        <Text style={styles.headerTitle}>{t('screens.addRewardScreen.title')}</Text>
         <View style={{ width: 44 }} />
       </View>
 
@@ -55,16 +57,18 @@ export default function AddRewardScreen({ navigation, route }) {
         {/* 当前悬赏信息 */}
         <View style={styles.currentRewardInfo}>
           <View style={styles.currentRewardRow}>
-            <Text style={styles.currentRewardLabel}>当前悬赏</Text>
+            <Text style={styles.currentRewardLabel}>{t('screens.addRewardScreen.currentReward.label')}</Text>
             <Text style={styles.currentRewardAmount}>${currentReward}</Text>
           </View>
           <View style={styles.currentRewardRow}>
-            <Text style={styles.currentRewardDesc}>已有 {rewardContributors} 人追加悬赏</Text>
+            <Text style={styles.currentRewardDesc}>
+              {t('screens.addRewardScreen.currentReward.contributors').replace('{count}', rewardContributors)}
+            </Text>
           </View>
         </View>
 
         {/* 快速选择金额 */}
-        <Text style={styles.sectionTitle}>选择追加金额</Text>
+        <Text style={styles.sectionTitle}>{t('screens.addRewardScreen.selectAmount.title')}</Text>
         <View style={styles.quickAmountGrid}>
           {[10, 20, 50, 100, 200, 500].map(amount => (
             <TouchableOpacity
@@ -87,12 +91,12 @@ export default function AddRewardScreen({ navigation, route }) {
         </View>
 
         {/* 自定义金额 */}
-        <Text style={styles.sectionTitle}>或输入自定义金额</Text>
+        <Text style={styles.sectionTitle}>{t('screens.addRewardScreen.customAmount.title')}</Text>
         <View style={styles.customAmountInput}>
           <Text style={styles.currencySymbol}>$</Text>
           <TextInput
             style={styles.customAmountField}
-            placeholder="最低 $5"
+            placeholder={t('screens.addRewardScreen.customAmount.placeholder')}
             placeholderTextColor="#9ca3af"
             value={addRewardAmount}
             onChangeText={(text) => {
@@ -105,9 +109,9 @@ export default function AddRewardScreen({ navigation, route }) {
 
         {/* 提示信息 */}
         <View style={styles.tips}>
-          <Ionicons name="information-circle-outline" size={16} color="#6b7280" />
+          <Ionicons name="information-circle-outline" size={16} color="#d97706" />
           <Text style={styles.tipsText}>
-            追加的悬赏将与原悬赏合并，吸引更多优质回答
+            {t('screens.addRewardScreen.tips.text')}
           </Text>
         </View>
 
@@ -121,7 +125,7 @@ export default function AddRewardScreen({ navigation, route }) {
           disabled={!selectedAddRewardAmount && !addRewardAmount}
         >
           <Text style={styles.confirmBtnText}>
-            确认追加 ${selectedAddRewardAmount || addRewardAmount || 0}
+            {t('screens.addRewardScreen.confirmButton').replace('${amount}', selectedAddRewardAmount || addRewardAmount || 0)}
           </Text>
         </TouchableOpacity>
 
@@ -130,7 +134,7 @@ export default function AddRewardScreen({ navigation, route }) {
           style={styles.cancelBtn}
           onPress={() => navigation.goBack()}
         >
-          <Text style={styles.cancelBtnText}>取消</Text>
+          <Text style={styles.cancelBtnText}>{t('screens.addRewardScreen.cancelButton')}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -164,10 +168,12 @@ const styles = StyleSheet.create({
   },
   content: { flex: 1, paddingHorizontal: 16, paddingTop: 20 },
   currentRewardInfo: { 
-    backgroundColor: '#fef3c7', 
+    backgroundColor: '#d1fae5', // 浅翠绿色背景
     borderRadius: 12, 
     padding: 16, 
-    marginBottom: 24 
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: '#6ee7b7', // 翠绿色边框
   },
   currentRewardRow: { 
     flexDirection: 'row', 
@@ -175,13 +181,13 @@ const styles = StyleSheet.create({
     alignItems: 'center', 
     marginBottom: 8 
   },
-  currentRewardLabel: { fontSize: 14, color: '#92400e' },
+  currentRewardLabel: { fontSize: 14, color: '#065f46' }, // 深绿色文字
   currentRewardAmount: { 
     fontSize: 28, 
     fontWeight: 'bold', 
-    color: '#f59e0b' 
+    color: '#10b981' // 翠绿色金额
   },
-  currentRewardDesc: { fontSize: 12, color: '#92400e' },
+  currentRewardDesc: { fontSize: 12, color: '#065f46' },
   sectionTitle: { 
     fontSize: 15, 
     fontWeight: '600', 
@@ -204,15 +210,15 @@ const styles = StyleSheet.create({
     alignItems: 'center' 
   },
   quickAmountBtnActive: { 
-    backgroundColor: '#fef3c7', 
-    borderColor: '#f59e0b' 
+    backgroundColor: '#d1fae5', // 浅翠绿色背景
+    borderColor: '#10b981' // 翠绿色边框
   },
   quickAmountText: { 
     fontSize: 16, 
     fontWeight: '600', 
     color: '#6b7280' 
   },
-  quickAmountTextActive: { color: '#f59e0b' },
+  quickAmountTextActive: { color: '#059669' }, // 深翠绿色文字
   customAmountInput: { 
     flexDirection: 'row', 
     alignItems: 'center', 
@@ -238,28 +244,37 @@ const styles = StyleSheet.create({
   tips: { 
     flexDirection: 'row', 
     alignItems: 'center', 
-    backgroundColor: '#f9fafb', 
+    backgroundColor: '#fef3c7', // 浅黄色背景
     padding: 12, 
     borderRadius: 8, 
     gap: 8, 
-    marginBottom: 24 
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: '#fde68a', // 黄色边框
   },
   tipsText: { 
     flex: 1, 
     fontSize: 13, 
-    color: '#6b7280', 
+    color: '#92400e', // 深棕色文字
     lineHeight: 18 
   },
   confirmBtn: { 
-    backgroundColor: '#f59e0b', 
+    backgroundColor: '#10b981', // 翠绿色按钮
     paddingVertical: 16, 
     borderRadius: 12, 
     alignItems: 'center', 
-    marginBottom: 12 
+    marginBottom: 12,
+    shadowColor: '#10b981',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   confirmBtnDisabled: { 
-    backgroundColor: '#fcd34d', 
-    opacity: 0.5 
+    backgroundColor: '#6ee7b7', // 浅翠绿色禁用状态
+    opacity: 0.6,
+    shadowOpacity: 0,
+    elevation: 0,
   },
   confirmBtnText: { 
     fontSize: 16, 

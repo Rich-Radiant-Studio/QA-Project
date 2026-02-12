@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, Modal, TextInput, Alert, Dimensions, Platform } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from '../i18n/withTranslation';
 
 const initialActivities = [
   { 
@@ -24,26 +25,25 @@ const initialActivities = [
     startTime: '2026-01-10', 
     endTime: '2026-01-20', 
     type: 'online', 
-    tag: '热门', 
+    tag: 'hot', 
     status: 'active', 
     joined: false, 
-    organizer: '官方', 
+    organizer: 'platform', 
     organizerType: 'platform' 
   },
-  { id: 2, title: 'Python学习打卡活动', desc: '每日打卡学习Python，坚持21天获得认证徽章', image: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=400&h=200&fit=crop', participants: 8956, startTime: '2026-01-05', endTime: '2026-01-26', type: 'online', tag: '新活动', status: 'active', joined: true, progress: '12/21天', organizer: 'Python学习互助团队', organizerType: 'team' },
-  { id: 3, title: '程序员线下交流会', desc: '北京站程序员面对面交流，分享技术心得', image: 'https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=400&h=200&fit=crop', participants: 156, startTime: '2026-01-25', endTime: '2026-01-25', type: 'offline', address: '北京市朝阳区望京SOHO', tag: '热门', status: 'active', joined: false, organizer: '张三', organizerType: 'personal' },
-  { id: 4, title: '优质回答评选', desc: '本周最佳回答评选，获奖者可获得专属勋章', image: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=200&fit=crop', participants: 5623, startTime: '2026-01-01', endTime: '2026-01-10', type: 'online', tag: '已结束', status: 'ended', joined: true, progress: '已完成', organizer: '官方', organizerType: 'platform' },
-  { id: 5, title: '邀请好友得红包', desc: '邀请好友注册，双方各得5元红包', image: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?w=400&h=200&fit=crop', participants: 23456, startTime: '2026-01-01', endTime: '2026-12-31', type: 'online', tag: '热门', status: 'active', joined: false, organizer: '官方', organizerType: 'platform' },
+  { id: 2, title: 'Python学习打卡活动', desc: '每日打卡学习Python，坚持21天获得认证徽章', image: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=400&h=200&fit=crop', participants: 8956, startTime: '2026-01-05', endTime: '2026-01-26', type: 'online', tag: 'new', status: 'active', joined: true, progress: '12/21天', organizer: 'Python学习互助团队', organizerType: 'team' },
+  { id: 3, title: '程序员线下交流会', desc: '北京站程序员面对面交流，分享技术心得', image: 'https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=400&h=200&fit=crop', participants: 156, startTime: '2026-01-25', endTime: '2026-01-25', type: 'offline', address: '北京市朝阳区望京SOHO', tag: 'hot', status: 'active', joined: false, organizer: '张三', organizerType: 'personal' },
+  { id: 4, title: '优质回答评选', desc: '本周最佳回答评选，获奖者可获得专属勋章', image: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=200&fit=crop', participants: 5623, startTime: '2026-01-01', endTime: '2026-01-10', type: 'online', tag: 'ended', status: 'ended', joined: true, progress: '已完成', organizer: 'platform', organizerType: 'platform' },
+  { id: 5, title: '邀请好友得红包', desc: '邀请好友注册，双方各得5元红包', image: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?w=400&h=200&fit=crop', participants: 23456, startTime: '2026-01-01', endTime: '2026-12-31', type: 'online', tag: 'hot', status: 'active', joined: false, organizer: 'platform', organizerType: 'platform' },
 ];
-
-const tabs = ['全部', '热门', '新活动', '已结束', '我的活动'];
 
 export default function ActivityScreen({ navigation, route }) {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   
   // 检查是否从我的页面跳转过来
   const isFromProfile = route?.params?.fromProfile === true;
-  const initialTab = isFromProfile ? '我的活动' : '全部';
+  const initialTab = isFromProfile ? t('screens.activity.tabs.mine') : t('screens.activity.tabs.all');
   
   // 检查是否从团队页面跳转过来创建活动
   const createMode = route?.params?.createMode === true;
@@ -60,23 +60,18 @@ export default function ActivityScreen({ navigation, route }) {
   // 监听路由参数变化
   useEffect(() => {
     if (route?.params?.fromProfile) {
-      setActiveTab('我的活动');
+      setActiveTab(t('screens.activity.tabs.mine'));
     }
   }, [route?.params?.fromProfile]);
 
   const getFilteredActivities = () => {
-    switch (activeTab) {
-      case '热门':
-        return activities.filter(a => a.tag === '热门' && a.status === 'active');
-      case '新活动':
-        return activities.filter(a => a.tag === '新活动' && a.status === 'active');
-      case '已结束':
-        return activities.filter(a => a.status === 'ended');
-      case '我的活动':
-        return activities.filter(a => a.joined);
-      default:
-        return activities;
-    }
+    const tabs = {
+      [t('screens.activity.tabs.hot')]: activities.filter(a => a.tag === 'hot' && a.status === 'active'),
+      [t('screens.activity.tabs.new')]: activities.filter(a => a.tag === 'new' && a.status === 'active'),
+      [t('screens.activity.tabs.ended')]: activities.filter(a => a.status === 'ended'),
+      [t('screens.activity.tabs.mine')]: activities.filter(a => a.joined),
+    };
+    return tabs[activeTab] || activities;
   };
 
   // 处理图片点击
@@ -88,7 +83,7 @@ export default function ActivityScreen({ navigation, route }) {
       setShowImageViewer(true);
     } else {
       // 单张图片或无图片，进入活动详情页
-      Alert.alert('提示', '进入活动详情页（待开发）');
+      Alert.alert(t('common.ok'), t('screens.activity.actions.viewDetail'));
     }
   };
 
@@ -96,9 +91,9 @@ export default function ActivityScreen({ navigation, route }) {
     setActivities(activities.map(a => {
       if (a.id === id) {
         if (a.joined) {
-          Alert.alert('提示', '确定要退出该活动吗？', [
-            { text: '取消', style: 'cancel' },
-            { text: '确定', onPress: () => {
+          Alert.alert(t('common.ok'), t('screens.activity.actions.quitConfirm'), [
+            { text: t('common.cancel'), style: 'cancel' },
+            { text: t('common.confirm'), onPress: () => {
               setActivities(prev => prev.map(item => 
                 item.id === id ? { ...item, joined: false, participants: item.participants - 1 } : item
               ));
@@ -114,9 +109,9 @@ export default function ActivityScreen({ navigation, route }) {
 
   const getTagColor = (tag) => {
     switch (tag) {
-      case '热门': return '#ef4444';
-      case '新活动': return '#3b82f6';
-      case '已结束': return '#9ca3af';
+      case 'hot': return '#ef4444';
+      case 'new': return '#3b82f6';
+      case 'ended': return '#9ca3af';
       default: return '#6b7280';
     }
   };
@@ -140,6 +135,14 @@ export default function ActivityScreen({ navigation, route }) {
   };
 
   const filteredActivities = getFilteredActivities();
+  
+  const tabs = [
+    t('screens.activity.tabs.all'),
+    t('screens.activity.tabs.hot'),
+    t('screens.activity.tabs.new'),
+    t('screens.activity.tabs.ended'),
+    t('screens.activity.tabs.mine')
+  ];
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -157,7 +160,7 @@ export default function ActivityScreen({ navigation, route }) {
         ) : (
           <View style={{ width: 32 }} />
         )}
-        <Text style={styles.headerTitle}>{isFromProfile ? '我的活动' : '活动中心'}</Text>
+        <Text style={styles.headerTitle}>{isFromProfile ? t('screens.activity.myActivities') : t('screens.activity.title')}</Text>
         <TouchableOpacity 
           onPress={() => navigation.navigate('CreateActivity')}
           style={styles.createBtn}
@@ -165,7 +168,7 @@ export default function ActivityScreen({ navigation, route }) {
           activeOpacity={0.7}
         >
           <Ionicons name="add" size={20} color="#fff" />
-          <Text style={styles.createBtnText}>发起</Text>
+          <Text style={styles.createBtnText}>{t('screens.activity.create')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -210,11 +213,11 @@ export default function ActivityScreen({ navigation, route }) {
                 {/* 标签 */}
                 <View style={styles.activityBadges}>
                   <View style={[styles.activityTag, { backgroundColor: getTagColor(item.tag) }]}>
-                    <Text style={styles.activityTagText}>{item.tag}</Text>
+                    <Text style={styles.activityTagText}>{t(`screens.activity.tag.${item.tag}`)}</Text>
                   </View>
                   <View style={[styles.typeTag, { backgroundColor: item.type === 'online' ? '#8b5cf6' : '#f59e0b' }]}>
                     <Ionicons name={item.type === 'online' ? 'globe-outline' : 'location-outline'} size={10} color="#fff" />
-                    <Text style={styles.typeTagText}>{item.type === 'online' ? '线上' : '线下'}</Text>
+                    <Text style={styles.typeTagText}>{t(`screens.activity.type.${item.type}`)}</Text>
                   </View>
                 </View>
               </TouchableOpacity>
@@ -232,11 +235,13 @@ export default function ActivityScreen({ navigation, route }) {
                 <View style={styles.activityMeta}>
                   <View style={styles.metaItem}>
                     <Ionicons name={getOrganizerIcon(item.organizerType)} size={14} color={getOrganizerColor(item.organizerType)} />
-                    <Text style={[styles.metaText, { color: getOrganizerColor(item.organizerType) }]}>{item.organizer}</Text>
+                    <Text style={[styles.metaText, { color: getOrganizerColor(item.organizerType) }]}>
+                      {item.organizerType === 'platform' ? t('screens.activity.organizer.platform') : item.organizer}
+                    </Text>
                   </View>
                   <View style={styles.metaItem}>
                     <Ionicons name="people-outline" size={14} color="#9ca3af" />
-                    <Text style={styles.metaText}>{item.participants}人参与</Text>
+                    <Text style={styles.metaText}>{item.participants}{t('screens.activity.participants')}</Text>
                   </View>
                   <View style={styles.metaItem}>
                     <Ionicons name="calendar-outline" size={14} color="#9ca3af" />
@@ -245,7 +250,7 @@ export default function ActivityScreen({ navigation, route }) {
                 </View>
                 {item.joined && item.progress && (
                   <View style={styles.progressRow}>
-                    <Text style={styles.progressLabel}>我的进度：</Text>
+                    <Text style={styles.progressLabel}>{t('screens.activity.progress')}</Text>
                     <Text style={styles.progressText}>{item.progress}</Text>
                   </View>
                 )}
@@ -255,7 +260,7 @@ export default function ActivityScreen({ navigation, route }) {
                   disabled={item.status === 'ended'}
                 >
                   <Text style={[styles.joinBtnText, item.joined && styles.joinedBtnText]}>
-                    {item.status === 'ended' ? '已结束' : item.joined ? '已参与' : '立即参与'}
+                    {item.status === 'ended' ? t('screens.activity.actions.ended') : item.joined ? t('screens.activity.actions.joined') : t('screens.activity.actions.join')}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -264,7 +269,7 @@ export default function ActivityScreen({ navigation, route }) {
         ) : (
           <View style={styles.emptyState}>
             <Ionicons name="calendar-outline" size={64} color="#d1d5db" />
-            <Text style={styles.emptyText}>暂无相关活动</Text>
+            <Text style={styles.emptyText}>{t('screens.activity.empty')}</Text>
           </View>
         )}
         <View style={{ height: 20 }} />

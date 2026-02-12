@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from '../i18n/withTranslation';
 
 // 模拟题库数据
 const platformBanks = [
@@ -18,6 +19,7 @@ const userBanks = [
 ];
 
 export default function QuestionBankScreen({ navigation }) {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('platform');
 
 
@@ -47,7 +49,7 @@ export default function QuestionBankScreen({ navigation }) {
         <View style={styles.bankMeta}>
           <View style={styles.bankMetaItem}>
             <Ionicons name="document-text-outline" size={14} color="#9ca3af" />
-            <Text style={styles.bankMetaText}>{bank.questionCount}道题</Text>
+            <Text style={styles.bankMetaText}>{bank.questionCount}{t('screens.questionBank.questionCount')}</Text>
           </View>
           <View style={styles.bankMetaItem}>
             <Ionicons name="folder-outline" size={14} color="#9ca3af" />
@@ -65,7 +67,7 @@ export default function QuestionBankScreen({ navigation }) {
             onPress={() => navigation.navigate('WisdomExam', { bankId: bank.id, bankName: bank.name })}
           >
             <Ionicons name="play-circle" size={16} color="#fff" />
-            <Text style={styles.startExamText}>开始考核</Text>
+            <Text style={styles.startExamText}>{t('screens.questionBank.startExam')}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -84,7 +86,7 @@ export default function QuestionBankScreen({ navigation }) {
         >
           <Ionicons name="arrow-back" size={24} color="#374151" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>题库</Text>
+        <Text style={styles.headerTitle}>{t('screens.questionBank.title')}</Text>
         <TouchableOpacity 
           style={styles.uploadBtn}
           onPress={() => navigation.navigate('UploadBank')}
@@ -92,7 +94,7 @@ export default function QuestionBankScreen({ navigation }) {
           activeOpacity={0.7}
         >
           <Ionicons name="add-circle" size={20} color="#f59e0b" />
-          <Text style={styles.uploadBtnText}>上传</Text>
+          <Text style={styles.uploadBtnText}>{t('screens.questionBank.upload')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -108,7 +110,7 @@ export default function QuestionBankScreen({ navigation }) {
             color={activeTab === 'platform' ? '#f59e0b' : '#9ca3af'} 
           />
           <Text style={[styles.tabText, activeTab === 'platform' && styles.tabTextActive]}>
-            平台推荐
+            {t('screens.questionBank.tabs.platform')}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity 
@@ -121,7 +123,7 @@ export default function QuestionBankScreen({ navigation }) {
             color={activeTab === 'user' ? '#f59e0b' : '#9ca3af'} 
           />
           <Text style={[styles.tabText, activeTab === 'user' && styles.tabTextActive]}>
-            用户上传
+            {t('screens.questionBank.tabs.user')}
           </Text>
         </TouchableOpacity>
       </View>

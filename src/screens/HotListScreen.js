@@ -1,7 +1,11 @@
-import { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, Modal } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from '../i18n/withTranslation';
+import i18n from '../i18n';
+import { getHotListData } from '../data/hotListData';
+import TranslateButton from '../components/TranslateButton';
 
 // 区域数据
 const regionData = {
@@ -218,8 +222,14 @@ const getRankBg = (rank) => {
 };
 
 // 热榜项组件 - 独立组件避免重渲染问题
-function HotItem({ item, onPress }) {
+function HotItem({ item, onPress, t }) {
+  const [translatedTitle, setTranslatedTitle] = useState(null);
   const hasTag = item.tag && item.tag !== '';
+  
+  const handleTranslated = (translated, isTranslated) => {
+    setTranslatedTitle(isTranslated ? translated : null);
+  };
+  
   return (
     <TouchableOpacity style={styles.hotItem} onPress={onPress}>
       <View style={[styles.rankBadge, { backgroundColor: getRankBg(item.rank) }]}>
@@ -227,17 +237,28 @@ function HotItem({ item, onPress }) {
       </View>
       <View style={styles.hotContent}>
         <View style={styles.hotTitleRow}>
-          <Text style={styles.hotTitle} numberOfLines={2}>{item.title}</Text>
+          <Text style={styles.hotTitle} numberOfLines={2}>
+            {translatedTitle || item.title}
+          </Text>
           {hasTag && (
             <View style={[styles.hotTag, { backgroundColor: item.tagColor }]}>
               <Text style={styles.hotTagText}>{item.tag}</Text>
             </View>
           )}
         </View>
+        
+        {/* 翻译按钮 */}
+        <TranslateButton 
+          text={item.title}
+          onTranslated={handleTranslated}
+          compact={true}
+          style={styles.translateButton}
+        />
+        
         <View style={styles.hotMeta}>
           <View style={styles.hotStats}>
             <Text style={styles.hotValue}>{item.hot}</Text>
-            <Text style={styles.hotLabel}>热度</Text>
+            <Text style={styles.hotLabel}>{t('screens.hotListScreen.hotLabel')}</Text>
             <Ionicons 
               name={item.isUp ? "trending-up" : "trending-down"} 
               size={14} 
@@ -247,7 +268,7 @@ function HotItem({ item, onPress }) {
           <View style={styles.hotAuthor}>
             <Image source={{ uri: item.avatar }} style={styles.authorAvatar} />
             <Text style={styles.authorName}>{item.author}</Text>
-            <Text style={styles.answerCount}>{item.answers}回答</Text>
+            <Text style={styles.answerCount}>{item.answers}{t('screens.hotListScreen.answersCount')}</Text>
           </View>
         </View>
       </View>
@@ -269,8 +290,64 @@ function SubTabItem({ label, isActive, onPress }) {
 }
 
 export default function HotListScreen({ navigation }) {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-  const [activeTab, setActiveTab] = useState('全站热榜');
+  
+  // Translation mapping for tabs
+  const hotTabs = [
+    t('screens.hotListScreen.tabs.siteWide'),
+    t('screens.hotListScreen.tabs.national'),
+    t('screens.hotListScreen.tabs.industry'),
+    t('screens.hotListScreen.tabs.enterprise'),
+    t('screens.hotListScreen.tabs.personal')
+  ];
+  
+  // Translation mapping for sub-tabs
+  const subTabsData = {
+    [t('screens.hotListScreen.tabs.siteWide')]: [
+      t('screens.hotListScreen.subTabs.techDigital'),
+      t('screens.hotListScreen.subTabs.pythonProgramming'),
+      t('screens.hotListScreen.subTabs.careerDevelopment'),
+      t('screens.hotListScreen.subTabs.healthWellness'),
+      t('screens.hotListScreen.subTabs.foodCooking'),
+      t('screens.hotListScreen.subTabs.travelTourism')
+    ],
+    [t('screens.hotListScreen.tabs.national')]: [
+      t('screens.hotListScreen.subTabs.policyRegulation'),
+      t('screens.hotListScreen.subTabs.socialLivelihood'),
+      t('screens.hotListScreen.subTabs.economicDevelopment'),
+      t('screens.hotListScreen.subTabs.educationHealthcare'),
+      t('screens.hotListScreen.subTabs.environmentalProtection'),
+      t('screens.hotListScreen.subTabs.infrastructure')
+    ],
+    [t('screens.hotListScreen.tabs.industry')]: [
+      t('screens.hotListScreen.subTabs.internet'),
+      t('screens.hotListScreen.subTabs.finance'),
+      t('screens.hotListScreen.subTabs.medicalHealth'),
+      t('screens.hotListScreen.subTabs.educationTraining'),
+      t('screens.hotListScreen.subTabs.realEstate'),
+      t('screens.hotListScreen.subTabs.manufacturing'),
+      t('screens.hotListScreen.subTabs.cateringService')
+    ],
+    [t('screens.hotListScreen.tabs.enterprise')]: [
+      t('screens.hotListScreen.subTabs.techCompanies'),
+      t('screens.hotListScreen.subTabs.financialInstitutions'),
+      t('screens.hotListScreen.subTabs.manufacturingEnterprises'),
+      t('screens.hotListScreen.subTabs.internetCompanies'),
+      t('screens.hotListScreen.subTabs.retailEnterprises'),
+      t('screens.hotListScreen.subTabs.serviceIndustry')
+    ],
+    [t('screens.hotListScreen.tabs.personal')]: [
+      t('screens.hotListScreen.subTabs.careerGrowth'),
+      t('screens.hotListScreen.subTabs.emotionalLife'),
+      t('screens.hotListScreen.subTabs.healthWellness'),
+      t('screens.hotListScreen.subTabs.financialInvestment'),
+      t('screens.hotListScreen.subTabs.learningGrowth'),
+      t('screens.hotListScreen.subTabs.familyRelations')
+    ]
+  };
+  
+  const [activeTab, setActiveTab] = useState(hotTabs[0]);
   const [activeSubTab, setActiveSubTab] = useState('');
   const [showRegionModal, setShowRegionModal] = useState(false);
   const [selectedRegion, setSelectedRegion] = useState({ type: 'country', id: 'cn', name: '中国', flag: '🇨🇳' });
@@ -278,12 +355,58 @@ export default function HotListScreen({ navigation }) {
   const tabScrollViewRef = useRef(null);
   const tabLayouts = useRef({});
 
+  // 创建翻译键到数据键的映射
+  const tabToDataKey = useMemo(() => ({
+    [t('screens.hotListScreen.tabs.siteWide')]: '全站热榜',
+    [t('screens.hotListScreen.tabs.national')]: '国家热榜',
+    [t('screens.hotListScreen.tabs.industry')]: '行业热榜',
+    [t('screens.hotListScreen.tabs.enterprise')]: '企业热榜',
+    [t('screens.hotListScreen.tabs.personal')]: '个人热榜',
+  }), [t]);
+
+  const subTabToDataKey = useMemo(() => ({
+    [t('screens.hotListScreen.subTabs.techDigital')]: '科技数码',
+    [t('screens.hotListScreen.subTabs.pythonProgramming')]: 'Python编程',
+    [t('screens.hotListScreen.subTabs.careerDevelopment')]: '职场发展',
+    [t('screens.hotListScreen.subTabs.healthWellness')]: '健康养生',
+    [t('screens.hotListScreen.subTabs.foodCooking')]: '美食烹饪',
+    [t('screens.hotListScreen.subTabs.travelTourism')]: '旅游出行',
+    [t('screens.hotListScreen.subTabs.policyRegulation')]: '政策法规',
+    [t('screens.hotListScreen.subTabs.socialLivelihood')]: '社会民生',
+    [t('screens.hotListScreen.subTabs.economicDevelopment')]: '经济发展',
+    [t('screens.hotListScreen.subTabs.educationHealthcare')]: '教育医疗',
+    [t('screens.hotListScreen.subTabs.environmentalProtection')]: '环境保护',
+    [t('screens.hotListScreen.subTabs.infrastructure')]: '基础设施',
+    [t('screens.hotListScreen.subTabs.internet')]: '互联网',
+    [t('screens.hotListScreen.subTabs.finance')]: '金融',
+    [t('screens.hotListScreen.subTabs.medicalHealth')]: '医疗健康',
+    [t('screens.hotListScreen.subTabs.educationTraining')]: '教育培训',
+    [t('screens.hotListScreen.subTabs.realEstate')]: '房地产',
+    [t('screens.hotListScreen.subTabs.manufacturing')]: '制造业',
+    [t('screens.hotListScreen.subTabs.cateringService')]: '餐饮服务',
+    [t('screens.hotListScreen.subTabs.techCompanies')]: '科技公司',
+    [t('screens.hotListScreen.subTabs.financialInstitutions')]: '金融机构',
+    [t('screens.hotListScreen.subTabs.manufacturingEnterprises')]: '制造企业',
+    [t('screens.hotListScreen.subTabs.internetCompanies')]: '互联网公司',
+    [t('screens.hotListScreen.subTabs.retailEnterprises')]: '零售企业',
+    [t('screens.hotListScreen.subTabs.serviceIndustry')]: '服务行业',
+    [t('screens.hotListScreen.subTabs.careerGrowth')]: '职业发展',
+    [t('screens.hotListScreen.subTabs.emotionalLife')]: '情感生活',
+    [t('screens.hotListScreen.subTabs.financialInvestment')]: '理财投资',
+    [t('screens.hotListScreen.subTabs.learningGrowth')]: '学习成长',
+    [t('screens.hotListScreen.subTabs.familyRelations')]: '家庭关系',
+  }), [t]);
+
   // 计算当前显示的二级标签
   const visibleSubTabs = subTabsData[activeTab] || [];
   const hasSubTabs = visibleSubTabs.length > 0;
 
-  // 计算当前显示的数据
-  const dataKey = activeSubTab || activeTab;
+  // 根据当前语言获取数据
+  const hotListData = useMemo(() => getHotListData(i18n.locale), []);
+
+  // 计算当前显示的数据 - 使用映射获取正确的数据键
+  const translatedKey = activeSubTab || activeTab;
+  const dataKey = subTabToDataKey[translatedKey] || tabToDataKey[translatedKey] || translatedKey;
   const currentData = hotListData[dataKey] || [];
   const displayTitle = activeSubTab || activeTab;
 
@@ -339,7 +462,7 @@ export default function HotListScreen({ navigation }) {
         >
           <Ionicons name="arrow-back" size={24} color="#374151" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>热榜</Text>
+        <Text style={styles.headerTitle}>{t('screens.hotListScreen.title')}</Text>
         <TouchableOpacity 
           style={styles.refreshBtn}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
@@ -391,7 +514,7 @@ export default function HotListScreen({ navigation }) {
         <View style={styles.subTabBar}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <SubTabItem 
-              label="全部"
+              label={t('screens.hotListScreen.allTab')}
               isActive={activeSubTab === ''}
               onPress={() => setActiveSubTab('')}
             />
@@ -409,12 +532,12 @@ export default function HotListScreen({ navigation }) {
 
       <View style={styles.updateInfo}>
         <Ionicons name="time-outline" size={14} color="#9ca3af" />
-        <Text style={styles.updateText}>{displayTitle} · 更新于 5分钟前</Text>
+        <Text style={styles.updateText}>{displayTitle} · {t('screens.hotListScreen.updatedAt', { time: '5分钟前' })}</Text>
       </View>
 
       <ScrollView style={styles.list}>
         {currentData.map((item) => (
-          <HotItem key={item.id} item={item} onPress={() => handleItemPress(item)} />
+          <HotItem key={item.id} item={item} onPress={() => handleItemPress(item)} t={t} />
         ))}
         <View style={styles.listFooter} />
       </ScrollView>
@@ -435,7 +558,7 @@ export default function HotListScreen({ navigation }) {
             <View style={[styles.regionModal, { paddingBottom: 30 }]}>
               <View style={styles.regionModalHandle} />
               <View style={styles.regionModalHeader}>
-                <Text style={styles.regionModalTitle}>选择区域</Text>
+                <Text style={styles.regionModalTitle}>{t('screens.hotListScreen.selectRegion')}</Text>
                 <TouchableOpacity onPress={() => setShowRegionModal(false)}>
                   <Ionicons name="close" size={24} color="#6b7280" />
                 </TouchableOpacity>
@@ -447,7 +570,7 @@ export default function HotListScreen({ navigation }) {
                 onPress={() => setRegionType('country')}
               >
                 <Text style={[styles.regionTypeTabText, regionType === 'country' && styles.regionTypeTabTextActive]}>
-                  国家
+                  {t('screens.hotListScreen.country')}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity 
@@ -455,7 +578,7 @@ export default function HotListScreen({ navigation }) {
                 onPress={() => setRegionType('city')}
               >
                 <Text style={[styles.regionTypeTabText, regionType === 'city' && styles.regionTypeTabTextActive]}>
-                  城市
+                  {t('screens.hotListScreen.city')}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -545,10 +668,11 @@ const styles = StyleSheet.create({
   rankBadge: { width: 24, height: 24, borderRadius: 4, alignItems: 'center', justifyContent: 'center', marginRight: 12 },
   rankText: { fontSize: 12, fontWeight: 'bold', color: '#fff' },
   hotContent: { flex: 1 },
-  hotTitleRow: { flexDirection: 'row', alignItems: 'flex-start' },
+  hotTitleRow: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 8 },
   hotTitle: { flex: 1, fontSize: 15, fontWeight: '500', color: '#1f2937', lineHeight: 22 },
   hotTag: { marginLeft: 8, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
   hotTagText: { fontSize: 10, color: '#fff', fontWeight: '600' },
+  translateButton: { marginTop: -4, marginBottom: 4 },
   hotMeta: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 },
   hotStats: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   hotValue: { fontSize: 13, color: '#ef4444', fontWeight: '600' },

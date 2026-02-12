@@ -17,6 +17,7 @@
     "recommend": "推荐",
     "hotList": "热榜",
     "incomeRanking": "收入榜",
+    "questionRanking": "问题榜",
     "sameCity": "同城",
     "country": "国家",
     "industry": "行业",
@@ -56,10 +57,10 @@
     "payToView": "支付 $${amount} 查看完整内容",
     "selectRegion": "选择区域",
     "confirm": "确定",
-    "country": "国家",
     "city": "城市",
     "state": "省份",
-    "district": "区"
+    "district": "区",
+    "fullText": "全文"
   },
   "emergency": {
     "title": "紧急求助",
@@ -151,6 +152,8 @@
     "adopted": "已采纳",
     "share": "分享",
     "shareProfile": "来看看我在问答社区的主页吧！",
+    "shareUrl": "https://qa-app.com/user/12345678",
+    "shareFailed": "分享失败",
     "rechargeSuccess": "充值成功",
     "withdrawSuccess": "提现申请已提交",
     "selectAmount": "请选择充值金额",
@@ -185,7 +188,137 @@
       "articles": "文章",
       "videos": "视频",
       "microposts": "微头条",
-      "reposts": "转发"
+      "reposts": "转发",
+      "questions": "提问",
+      "answers": "回答",
+      "favorites": "收藏",
+      "history": "浏览历史"
+    },
+    "searchPlaceholder": "搜索该用户的内容",
+    "bio": "热爱学习，乐于分享。专注Python、数据分析领域。",
+    "location": "北京",
+    "occupation": "数据分析师",
+    "viewPublicProfile": "查看公开主页",
+    "superLike": "超级赞",
+    "purchase": "购买",
+    "history": "历史",
+    "monthlyIncome": "本月回答收入：",
+    "monthlyExpense": "本月悬赏支出：",
+    "withdrawEstimate": "预计1-3个工作日到账",
+    "verificationInfo": "认证信息",
+    "verificationTime": "认证时间：",
+    "verificationOrg": "认证机构：官方认证中心",
+    "verificationModal": {
+      "title": "身份认证",
+      "selectType": "请选择您的认证类型",
+      "personal": {
+        "title": "个人认证",
+        "desc": "验证个人身份，获得个人认证标识"
+      },
+      "enterprise": {
+        "title": "企业认证",
+        "desc": "验证企业资质，获得企业认证标识"
+      },
+      "government": {
+        "title": "政府机构认证",
+        "desc": "验证政府身份，获得官方认证标识"
+      },
+      "idType": "证件类型",
+      "idCard": "身份证",
+      "idNumber": "证件号码",
+      "idNumberPlaceholder": "请输入证件号码",
+      "uploadIdPhotos": "上传证件照片",
+      "idFront": "证件正面",
+      "idBack": "证件反面",
+      "clickUpload": "点击上传",
+      "uploadTip": "请确保证件信息清晰可见，照片完整无遮挡",
+      "qualifications": "专业资质认证",
+      "qualificationsDesc": "请上传您的专业资质证书（如：律师证、医师证、教师证等）",
+      "qualificationName": "请输入资质名称（如：律师执业证）",
+      "addQualification": "添加资质证书",
+      "qualificationTip": "支持上传律师证、医师证、教师证等专业资质证书",
+      "enterpriseName": "企业名称",
+      "enterpriseNamePlaceholder": "请输入企业全称",
+      "registrationNumber": "注册号",
+      "registrationNumberPlaceholder": "请输入企业注册号",
+      "taxNumber": "税号",
+      "taxNumberPlaceholder": "请输入纳税人识别号",
+      "address": "企业地址",
+      "addressPlaceholder": "请输入企业注册地址",
+      "contactPerson": "企业联系人",
+      "contactPersonPlaceholder": "请输入联系人姓名",
+      "contactMethod": "联系方式",
+      "contactMethodDesc": "请至少填写一种联系方式",
+      "contactPhone": "联系电话",
+      "contactPhonePlaceholder": "请输入手机号码",
+      "contactEmail": "联系邮箱",
+      "contactEmailPlaceholder": "请输入邮箱地址",
+      "uploadLicense": "上传注册文件",
+      "license": "注册文件",
+      "licenseTip": "请上传清晰的注册文件照片（如营业执照、组织机构代码证等），确保信息完整可见",
+      "governmentName": "机构名称",
+      "governmentNamePlaceholder": "请输入政府机构全称",
+      "governmentId": "机构ID",
+      "governmentIdPlaceholder": "请输入机构ID",
+      "department": "部门名称",
+      "departmentPlaceholder": "请输入所属部门名称",
+      "authorizer": "授权人",
+      "authorizerPlaceholder": "请输入授权人姓名",
+      "authorizerIdPhotos": "上传授权人身份证",
+      "authorizerIdFront": "身份证正面",
+      "authorizerIdBack": "身份证反面",
+      "authorizerIdTip": "请上传授权人身份证正反面，确保信息清晰可见",
+      "position": "职位",
+      "positionPlaceholder": "请输入授权人职位",
+      "uploadCertificate": "上传官方文件",
+      "certificate": "官方文件",
+      "certificateTip": "请上传加盖公章的官方文件，如：组织机构代码证、事业单位法人证书等",
+      "submit": "提交认证申请",
+      "submitSuccess": "提交成功",
+      "submitSuccessMessage": "您的认证申请已提交，我们将在1-3个工作日内完成审核，请耐心等待。",
+      "required": "*",
+      "fillRequired": "请填写",
+      "uploadRequired": "请上传",
+      "selectImage": "上传图片",
+      "selectImageSource": "请选择图片来源",
+      "camera": "相机",
+      "album": "相册",
+      "deleteQualification": "确认删除",
+      "deleteQualificationConfirm": "确定要删除这个资质证书吗？",
+      "validationErrors": {
+        "idNumberRequired": "请填写证件号码",
+        "qualificationsRequired": "请至少上传一个专业资质证书",
+        "qualificationNameRequired": "请为所有资质证书填写名称",
+        "enterpriseInfoRequired": "请填写完整的企业信息",
+        "licenseRequired": "请上传注册文件",
+        "contactPersonRequired": "请填写企业联系人",
+        "contactMethodRequired": "请至少填写一种联系方式（电话或邮箱）",
+        "phoneFormatError": "请输入正确的手机号码格式",
+        "emailFormatError": "请输入正确的邮箱格式",
+        "governmentInfoRequired": "请填写完整的机构信息",
+        "authorizerIdRequired": "请上传授权人身份证正反面"
+      }
+    },
+    "contentTabs": {
+      "questions": "提问",
+      "answers": "回答",
+      "favorites": "收藏",
+      "history": "浏览历史"
+    },
+    "favoriteCategories": {
+      "questions": "问题",
+      "answers": "回答",
+      "comments": "评论"
+    },
+    "draftTypes": {
+      "question": "提问",
+      "answer": "回答"
+    },
+    "time": {
+      "hoursAgo": "小时前",
+      "yesterday": "昨天",
+      "daysAgo": "天前",
+      "justNow": "刚刚"
     }
   },
   "question": {
@@ -262,6 +395,585 @@
     "passed": "通过",
     "failed": "未通过"
   },
+  "screens": {
+    "teamDetail": {
+      "title": "团队详情页",
+      "teamMembers": "团队成员",
+      "restrictedNotice": "您还未加入该团队，仅可查看团队成员信息",
+      "tabs": {
+        "discussion": "团队讨论",
+        "announcement": "团队公告",
+        "approval": "审批消息"
+      },
+      "actions": {
+        "dismiss": "解散",
+        "activity": "活动",
+        "admin": "管理员",
+        "applied": "已申请",
+        "exit": "退出",
+        "reply": "回复",
+        "viewAll": "查看全部"
+      },
+      "stats": {
+        "members": "成员",
+        "questions": "问题"
+      },
+      "roles": {
+        "leader": "队长",
+        "member": "成员"
+      },
+      "chat": {
+        "inputPlaceholder": "说点什么...",
+        "justNow": "刚刚"
+      },
+      "announcement": {
+        "pinned": "置顶",
+        "publishButton": "发布公告",
+        "publishTitle": "发布公告",
+        "titleLabel": "公告标题",
+        "titlePlaceholder": "请输入公告标题",
+        "contentLabel": "公告内容",
+        "contentPlaceholder": "请输入公告内容",
+        "pinnedCheckbox": "置顶公告"
+      },
+      "approval": {
+        "joinRequests": "加入团队申请",
+        "adminRequests": "管理员申请",
+        "reasonLabel": "申请理由：",
+        "reject": "拒绝",
+        "approve": "同意",
+        "applyAdmin": "申请管理员",
+        "empty": "暂无待审批消息",
+        "emptyHint": "所有申请都已处理完毕"
+      },
+      "join": {
+        "applyButton": "申请加入团队",
+        "pendingNotice": "申请审核中，需要50%以上成员同意",
+        "applyTitle": "申请加入团队",
+        "applyMessage": "确定要申请加入这个团队吗？\n\n申请后需要等待团队成员投票，超过50%的成员同意后即可加入。",
+        "pendingModalTitle": "申请已提交",
+        "pendingModalDesc": "您的加入申请已提交成功！\n\n团队成员将对您的申请进行投票，需要超过50%的成员同意后才能加入团队。\n\n请耐心等待审核结果，我们会及时通知您。",
+        "pendingModalButton": "我知道了"
+      },
+      "exit": {
+        "title": "退出团队",
+        "message": "确定要退出该团队吗？退出后将无法查看团队消息",
+        "confirmButton": "确定退出"
+      },
+      "dismiss": {
+        "title": "解散团队",
+        "subtitle": "此操作不可恢复，请谨慎操作",
+        "warningTitle": "⚠️ 解散后将发生以下情况：",
+        "warning1": "• 团队所有数据将被永久删除",
+        "warning2": "• 所有成员将被移出团队",
+        "warning3": "• 团队讨论记录将无法恢复",
+        "warning4": "• 团队公告将全部删除",
+        "confirmLabel": "请输入团队名称",
+        "confirmHighlight": "以确认解散",
+        "confirmPlaceholder": "请输入团队名称",
+        "cancelButton": "取消",
+        "confirmButton": "确认解散",
+        "incorrectName": "团队名称输入不正确"
+      },
+      "applyAdmin": {
+        "title": "申请成为管理员",
+        "subtitle": "申请将提交给团队创建者审核",
+        "reasonLabel": "申请理由",
+        "reasonRequired": "*",
+        "reasonPlaceholder": "请说明您申请成为管理员的理由，例如：您的经验、能为团队做什么等...",
+        "tipsTitle": "温馨提示",
+        "tip1": "• 管理员可以邀请用户、发布公告、发起活动",
+        "tip2": "• 申请需要团队创建者审核通过",
+        "tip3": "• 请认真填写申请理由，提高通过率",
+        "cancelButton": "取消",
+        "submitButton": "提交申请",
+        "fillReason": "请填写申请理由"
+      },
+      "reply": {
+        "title": "回复",
+        "placeholder": "写下你的回复...",
+        "submitButton": "发布"
+      },
+      "members": {
+        "title": "全部成员",
+        "count": "({count})"
+      },
+      "report": {
+        "title": "举报",
+        "message": "确定要举报该内容吗？",
+        "submitted": "举报已提交，我们会尽快处理"
+      },
+      "invite": {
+        "selectUser": "请至少选择一位用户",
+        "sent": "已向 {count} 位用户发送邀请"
+      },
+      "alerts": {
+        "hint": "提示",
+        "success": "成功",
+        "rejected": "已拒绝",
+        "teamDismissed": "团队已解散",
+        "teamExited": "已退出团队",
+        "announcementPublished": "公告发布成功！",
+        "enterTitle": "请输入公告标题",
+        "enterContent": "请输入公告内容",
+        "applicationSubmitted": "申请已提交，等待创建者审核",
+        "joinApproved": "已同意 {user} 加入团队",
+        "joinRejected": "已拒绝 {user} 的加入申请",
+        "adminApproved": "已同意 {user} 成为管理员",
+        "adminRejected": "已拒绝 {user} 的管理员申请"
+      }
+    },
+    "supplementDetail": {
+      "title": "补充问题详情",
+      "tabs": {
+        "allAnswers": "全部回答",
+        "allComments": "全部评论",
+        "invite": "邀请"
+      },
+      "actions": {
+        "follow": "关注",
+        "share": "分享",
+        "report": "举报"
+      },
+      "stats": {
+        "views": "浏览"
+      },
+      "originalQuestion": {
+        "label": "原问题"
+      },
+      "sort": {
+        "featured": "精选",
+        "latest": "最新"
+      },
+      "count": {
+        "answers": "共 {count} 条回答",
+        "comments": "共 {count} 条评论"
+      },
+      "answer": {
+        "adopted": "已采纳"
+      },
+      "comment": {
+        "replies": "回复"
+      },
+      "invite": {
+        "tabs": {
+          "local": "本站",
+          "twitter": "推特",
+          "facebook": "Facebook"
+        },
+        "search": {
+          "local": "搜索用户",
+          "twitter": "搜索推特用户",
+          "facebook": "搜索Facebook用户"
+        },
+        "invited": "已邀请",
+        "answers": "回答",
+        "followers": "关注者",
+        "friends": "好友"
+      },
+      "bottomBar": {
+        "commentPlaceholder": "写评论...",
+        "answerButton": "回答"
+      },
+      "modal": {
+        "answerTitle": "写回答",
+        "answerPlaceholder": "写下你的回答...",
+        "commentTitle": "写评论",
+        "commentPlaceholder": "写下你的评论...",
+        "publish": "发布"
+      },
+      "alerts": {
+        "shareFunction": "分享功能",
+        "reportFunction": "举报功能",
+        "forwardFunction": "转发功能",
+        "answerSubmitted": "回答提交成功!",
+        "commentPublished": "评论发布成功!"
+      }
+    },
+    "messagesScreen": {
+      "title": "消息",
+      "markAllRead": "全部已读",
+      "quickEntries": {
+        "commentForward": "评论转发",
+        "likeAgree": "赞同喜欢",
+        "bookmarked": "收藏了我",
+        "followSubscribe": "关注订阅"
+      },
+      "inviteAnswer": {
+        "title": "邀请回答",
+        "viewAll": "查看全部",
+        "invitedYou": "邀请你回答",
+        "goAnswer": "去回答"
+      },
+      "arbitration": {
+        "title": "仲裁邀请",
+        "invitedYou": "邀请你参与仲裁",
+        "voted": "已投票",
+        "question": "问题",
+        "answerAuthor": "答案作者",
+        "reason": "理由",
+        "goVote": "去投票",
+        "view": "查看"
+      },
+      "messageGroups": {
+        "official": "官方账号",
+        "questionAnswer": "问题新回答",
+        "system": "系统消息"
+      },
+      "privateMessages": {
+        "title": "私信"
+      },
+      "time": {
+        "minutesAgo": "分钟前",
+        "hoursAgo": "小时前",
+        "yesterday": "昨天"
+      },
+      "privateModal": {
+        "title": "发送私信",
+        "send": "发送",
+        "searchPlaceholder": "搜索用户...",
+        "sendTo": "发送给：",
+        "selectUser": "选择用户",
+        "messageContent": "私信内容",
+        "messagePlaceholder": "请输入私信内容..."
+      },
+      "voteModal": {
+        "title": "仲裁投票",
+        "questionLabel": "问题",
+        "answerAuthorLabel": "答案作者：",
+        "reasonLabel": "申请理由",
+        "voteChoiceTitle": "您的投票意见",
+        "agreeOverthrow": "同意推翻",
+        "agreeOverthrowDesc": "认为原答案存在问题，应该推翻采纳",
+        "maintainOriginal": "维持原判",
+        "maintainOriginalDesc": "认为原答案合理，应该维持采纳",
+        "reasonInputLabel": "投票理由（必填）",
+        "reasonPlaceholder": "请详细说明您的投票理由...",
+        "submitVote": "提交投票",
+        "cancel": "取消"
+      },
+      "alerts": {
+        "markAllReadTitle": "全部已读",
+        "markAllReadMessage": "确定将所有消息标记为已读吗？",
+        "markAllReadSuccess": "所有消息已标记为已读",
+        "selectUserHint": "请选择要发送私信的用户",
+        "enterMessageHint": "请输入私信内容",
+        "sendSuccess": "已向 {name} 发送私信",
+        "selectVoteHint": "请选择您的投票意见",
+        "enterReasonHint": "请填写投票理由",
+        "voteSuccess": "您的投票已提交，感谢您的参与！",
+        "success": "成功",
+        "hint": "提示"
+      },
+      "empty": "暂无消息"
+    },
+    "groupChat": {
+      "title": "问题群组",
+      "memberCount": "人已加入",
+      "exitGroup": "退出群组",
+      "exitConfirmTitle": "退出群组",
+      "exitConfirmMessage": "确定要退出该群组吗？退出后将无法查看群组消息",
+      "cancel": "取消",
+      "confirmExit": "确定退出",
+      "questioner": "提问者",
+      "messagesSection": "群组留言",
+      "messageCount": "条留言",
+      "justNow": "刚刚",
+      "minutesAgo": "分钟前",
+      "hoursAgo": "小时前",
+      "reply": "回复",
+      "replyTo": "回复",
+      "replyModalTitle": "回复",
+      "send": "发送",
+      "inputPlaceholder": "发表留言...",
+      "replyPlaceholder": "回复 @{author}...",
+      "reportTitle": "举报",
+      "reportConfirm": "确定要举报该内容吗？",
+      "reportSuccess": "举报已提交，我们会尽快处理",
+      "hint": "提示"
+    },
+    "hotListScreen": {
+      "title": "热榜",
+      "hotLabel": "热度",
+      "answersCount": "回答",
+      "allTab": "全部",
+      "updatedAt": "更新于 {time}",
+      "selectRegion": "选择区域",
+      "country": "国家",
+      "city": "城市",
+      "tabs": {
+        "siteWide": "全站热榜",
+        "national": "国家热榜",
+        "industry": "行业热榜",
+        "enterprise": "企业热榜",
+        "personal": "个人热榜"
+      },
+      "subTabs": {
+        "techDigital": "科技数码",
+        "pythonProgramming": "Python编程",
+        "careerDevelopment": "职场发展",
+        "healthWellness": "健康养生",
+        "foodCooking": "美食烹饪",
+        "travelTourism": "旅游出行",
+        "policyRegulation": "政策法规",
+        "socialLivelihood": "社会民生",
+        "economicDevelopment": "经济发展",
+        "educationHealthcare": "教育医疗",
+        "environmentalProtection": "环境保护",
+        "infrastructure": "基础设施",
+        "internet": "互联网",
+        "finance": "金融",
+        "medicalHealth": "医疗健康",
+        "educationTraining": "教育培训",
+        "realEstate": "房地产",
+        "manufacturing": "制造业",
+        "cateringService": "餐饮服务",
+        "techCompanies": "科技公司",
+        "financialInstitutions": "金融机构",
+        "manufacturingEnterprises": "制造企业",
+        "internetCompanies": "互联网公司",
+        "retailEnterprises": "零售企业",
+        "serviceIndustry": "服务行业",
+        "careerGrowth": "职业发展",
+        "emotionalLife": "情感生活",
+        "financialInvestment": "理财投资",
+        "learningGrowth": "学习成长",
+        "familyRelations": "家庭关系"
+      }
+    },
+    "incomeRankingScreen": {
+      "title": "收入榜",
+      "tabs": {
+        "totalIncome": "总收入榜",
+        "monthIncome": "月收入榜",
+        "weekIncome": "周收入榜"
+      },
+      "updateInfo": "更新于 {time}",
+      "stats": {
+        "answers": "回答",
+        "adopted": "采纳",
+        "reward": "悬赏"
+      },
+      "monthIncome": "本月",
+      "allShown": "已显示全部排名",
+      "infoTitle": "收入榜说明",
+      "infoContent": "收入榜说明：\n\n1. 总收入：用户通过回答问题获得的所有悬赏总和\n2. 月收入：当月获得的悬赏总和\n3. 周收入：本周获得的悬赏总和\n\n排名每小时更新一次"
+    },
+    "contributorsScreen": {
+      "title": "追加悬赏名单",
+      "totalLabel": "当前总悬赏",
+      "totalDesc": "共 {count} 人追加悬赏",
+      "closeButton": "关闭"
+    },
+    "addRewardScreen": {
+      "title": "追加悬赏",
+      "currentReward": {
+        "label": "当前悬赏",
+        "contributors": "已有 {count} 人追加悬赏"
+      },
+      "selectAmount": {
+        "title": "选择追加金额"
+      },
+      "customAmount": {
+        "title": "或输入自定义金额",
+        "placeholder": "最低 $0.01"
+      },
+      "tips": {
+        "text": "追加的悬赏将与原悬赏合并，吸引更多优质回答"
+      },
+      "confirmButton": "确认追加 ${amount}",
+      "cancelButton": "取消",
+      "validation": {
+        "hint": "提示",
+        "invalidAmount": "请输入有效的悬赏金额",
+        "minAmount": "最低追加金额为 $0.01",
+        "maxAmount": "单次追加金额不能超过 $1000"
+      },
+      "success": {
+        "title": "追加成功",
+        "message": "成功追加 ${amount} 悬赏！",
+        "confirm": "确定"
+      }
+    },
+    "answerDetail": {
+      "title": "回答详情",
+      "tabs": {
+        "supplements": "补充回答",
+        "comments": "全部评论"
+      },
+      "filter": {
+        "featured": "精选",
+        "latest": "最新"
+      },
+      "actions": {
+        "follow": "关注",
+        "following": "已关注",
+        "adopt": "采纳",
+        "arbitration": "仲裁",
+        "supplementAnswer": "补充回答",
+        "reply": "回复",
+        "publish": "发布"
+      },
+      "stats": {
+        "views": "浏览",
+        "participants": "人参与",
+        "supplementCount": "共 {count} 条补充回答",
+        "commentCount": "共 {count} 条评论"
+      },
+      "badges": {
+        "adopted": "已采纳",
+        "invitedBy": "由 {name} 邀请"
+      },
+      "placeholders": {
+        "writeComment": "写评论...",
+        "writeReply": "写下你的回复...",
+        "arbitrationReason": "请详细说明您申请仲裁的理由...",
+        "searchExpert": "搜索专家姓名、职称或领域..."
+      },
+      "modals": {
+        "replyTitle": "回复 {author}",
+        "arbitrationTitle": "申请仲裁",
+        "supplementAnswerTitle": "补充回答"
+      },
+      "arbitration": {
+        "info": "如果您对已采纳的答案持有不同意见，可以申请仲裁。邀请至少3位专家投票，超过50%同意则推翻采纳。",
+        "reasonLabel": "仲裁理由",
+        "inviteExpertsLabel": "邀请专家投票",
+        "expertsCount": "已选 {count}/5 位",
+        "recommendedExperts": "推荐专家",
+        "expertiseLabel": "擅长：",
+        "submitButton": "提交仲裁申请",
+        "noExpertsFound": "未找到匹配的专家",
+        "tryOtherKeywords": "试试其他关键词"
+      },
+      "alerts": {
+        "success": "成功",
+        "hint": "提示",
+        "commentPublished": "评论已发布",
+        "replyPublished": "回复已发布",
+        "supplementSubmitted": "补充回答已提交",
+        "arbitrationSubmitted": "仲裁申请已提交，等待专家投票中...",
+        "arbitrationReasonRequired": "请说明申请仲裁的理由",
+        "minExpertsRequired": "至少需要邀请 3 位专家参与仲裁",
+        "maxExpertsExceeded": "最多只能邀请 5 位专家",
+        "adoptAnswerTitle": "采纳答案",
+        "adoptAnswerMessage": "确认采纳这个答案吗？",
+        "adoptSupplementTitle": "采纳补充回答",
+        "adoptSupplementMessage": "确认采纳这个补充回答吗？",
+        "cancel": "取消",
+        "confirm": "确认"
+      },
+      "time": {
+        "justNow": "刚刚",
+        "minutesAgo": "分钟前",
+        "hoursAgo": "小时前",
+        "yesterday": "昨天",
+        "daysAgo": "天前"
+      }
+    },
+    "questionDetail": {
+      "title": "问题详情",
+      "tabs": {
+        "supplements": "补充",
+        "answers": "回答",
+        "comments": "评论",
+        "invite": "邀请"
+      },
+      "actions": {
+        "follow": "关注"
+      },
+      "reward": {
+        "add": "追加",
+        "contributors": "人追加"
+      },
+      "stats": {
+        "views": "浏览"
+      },
+      "pk": {
+        "solved": "已解决",
+        "unsolved": "未解决",
+        "pk": "PK"
+      },
+      "answer": {
+        "superLike": "超级赞",
+        "adopted": "已采纳",
+        "adopt": "采纳",
+        "supplement": "补充回答",
+        "authorAdopted": "作者采纳",
+        "adoptedCount": "被采纳",
+        "invitedBy": "由",
+        "invited": "邀请",
+        "collapse": "收起",
+        "expand": "展开"
+      },
+      "comment": {
+        "replies": "回复"
+      },
+      "invite": {
+        "local": "本站",
+        "twitter": "推特",
+        "searchUser": "搜索用户",
+        "searchTwitterUser": "搜索推特用户"
+      },
+      "loading": "加载中...",
+      "loadMoreSupplements": "查看更多补充",
+      "loadMoreAnswers": "查看更多回答",
+      "loadMoreComments": "查看更多评论",
+      "loadMoreInvites": "查看更多邀请",
+      "recommended": {
+        "title": "推荐问题",
+        "subtitle": "根据当前问题为您推荐相关内容",
+        "hot": "热"
+      }
+    },
+    "questionRanking": {
+      "title": "问题榜",
+      "tabs": {
+        "mostAnswers": "最多回答",
+        "mostComments": "最多评论",
+        "mostFavorites": "最多收藏",
+        "mostViews": "最多浏览",
+        "mostLikes": "最多点赞"
+      },
+      "stats": {
+        "answers": "回答",
+        "comments": "评论",
+        "favorites": "收藏",
+        "views": "浏览",
+        "likes": "点赞"
+      },
+      "allContentShown": "已显示全部内容"
+    },
+    "report": {
+      "title": {
+        "question": "举报问题",
+        "answer": "举报回答",
+        "supplement": "举报补充",
+        "comment": "举报评论"
+      },
+      "subtitle": "请选择举报原因（可多选）",
+      "reasons": {
+        "spam": "垃圾广告",
+        "illegal": "违法违规",
+        "vulgar": "低俗色情",
+        "infringement": "侵权",
+        "falseInfo": "虚假信息",
+        "other": "其他"
+      },
+      "remarkLabel": "补充说明（选填）",
+      "remarkPlaceholder": "请详细描述举报原因，帮助我们更好地处理...",
+      "charCount": "{current}/200",
+      "submitButton": "提交举报",
+      "cancelButton": "取消",
+      "alerts": {
+        "selectReasonTitle": "提示",
+        "selectReasonMessage": "请至少选择一个举报原因",
+        "successTitle": "举报成功",
+        "successMessage": "您的举报已提交：{reasons}",
+        "remarkNote": "\n补充说明：{remark}"
+      }
+    }
+  },
   "common": {
     "cancel": "取消",
     "confirm": "确认",
@@ -293,7 +1005,89 @@
     "block": "拉黑",
     "retry": "重试",
     "goBack": "返回",
-    "noMoreContent": "没有更多内容了"
+    "noMoreContent": "没有更多内容了",
+    "follow": "关注",
+    "unfollow": "取消关注",
+    "views": "浏览",
+    "answers": "回答",
+    "likes": "赞",
+    "comments": "评论",
+    "followers": "关注者",
+    "following": "关注",
+    "questions": "问题",
+    "time": {
+      "justNow": "刚刚",
+      "minutesAgo": "分钟前",
+      "hoursAgo": "小时前",
+      "yesterday": "昨天",
+      "daysAgo": "天前"
+    }
+  },
+  "components": {
+    "answerListItem": {
+      "adopted": "已采纳",
+      "justNow": "刚刚",
+      "hoursAgo": "小时前",
+      "yesterday": "昨天",
+      "daysAgo": "天前"
+    },
+    "questionListItem": {
+      "solved": "已解决",
+      "justNow": "刚刚",
+      "hoursAgo": "小时前",
+      "yesterday": "昨天",
+      "daysAgo": "天前"
+    },
+    "favoriteListItem": {
+      "savedToday": "收藏于今天",
+      "savedYesterday": "收藏于昨天",
+      "savedDaysAgo": "收藏于{days}天前",
+      "savedWeeksAgo": "收藏于{weeks}周前",
+      "savedOn": "收藏于"
+    },
+    "superLikeBalance": {
+      "label": "超级赞余额",
+      "unit": "次"
+    },
+    "useSuperLikeButton": {
+      "button": "超级赞 x{count}",
+      "processing": "处理中...",
+      "insufficientBalance": {
+        "title": "超级赞次数不足",
+        "message": "您的超级赞次数不足，是否购买？",
+        "cancel": "取消",
+        "purchase": "去购买"
+      },
+      "confirm": {
+        "title": "使用超级赞",
+        "message": "确认使用 1 次超级赞提升此回答的排名？",
+        "cancel": "取消",
+        "confirm": "确认"
+      },
+      "success": {
+        "title": "使用成功",
+        "message": "已使用 1 次超级赞！\n剩余：{balance} 次",
+        "ok": "确定"
+      },
+      "error": {
+        "title": "使用失败",
+        "message": "使用失败，请稍后重试"
+      }
+    },
+    "identitySelector": {
+      "header": "发布身份",
+      "personal": {
+        "title": "个人身份",
+        "description": "以个人名义发布"
+      },
+      "team": {
+        "title": "团队身份",
+        "description": "以团队名义发布（可多选）"
+      },
+      "selectTeam": "选择团队",
+      "selectedCount": "已选 {count} 个团队",
+      "members": "成员"
+    }
   },
   "channelManage": {
     "title": "频道管理",
@@ -397,7 +1191,15 @@
       "successTitle": "购买成功",
       "successMessage": "成功购买 {amount} 个超级赞！\n花费：${cost}\n您可以在任意回答上使用它们！",
       "errorInvalidAmount": "请输入有效的购买数量（1-100）",
-      "errorStorageFailed": "购买失败，请稍后重试"
+      "errorStorageFailed": "购买失败，请稍后重试",
+      "infoDescription": "购买超级赞次数后，您可以在任意回答上使用它们来提升排名",
+      "tipsText": "购买超级赞次数后，您可以在任意回答上使用它们来提升排名，增加曝光机会",
+      "processing": "处理中...",
+      "pricePerCredit": "$2 / 次",
+      "alertTitle": "提示",
+      "alertInvalidAmount": "请输入有效的购买数量",
+      "alertInvalidRange": "请输入有效的购买数量（1-100）",
+      "alertPurchaseFailed": "购买失败，请稍后重试"
     },
     "use": {
       "button": "使用超级赞",
@@ -411,11 +1213,19 @@
     },
     "history": {
       "title": "交易历史",
+      "loading": "加载中...",
       "empty": "暂无交易记录",
+      "emptyHint": "购买或使用超级赞后，记录将显示在这里",
       "typePurchase": "购买",
       "typeUse": "使用",
-      "amount": "{amount} 次",
-      "usedOn": "用于回答：{title}"
+      "amount": "次",
+      "usedOn": "用于回答：",
+      "time": {
+        "justNow": "刚刚",
+        "minutesAgo": "分钟前",
+        "hoursAgo": "小时前",
+        "daysAgo": "天前"
+      }
     }
   }
 }

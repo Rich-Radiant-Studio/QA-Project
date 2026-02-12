@@ -3,8 +3,10 @@ import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-nati
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import Avatar from '../components/Avatar';
+import { useTranslation } from '../i18n/withTranslation';
 
 export default function ContributorsScreen({ navigation, route }) {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { currentReward = 50, rewardContributors = 3 } = route?.params || {};
   
@@ -25,16 +27,16 @@ export default function ContributorsScreen({ navigation, route }) {
         >
           <Ionicons name="close" size={26} color="#333" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>追加悬赏名单</Text>
+        <Text style={styles.headerTitle}>{t('screens.contributorsScreen.title')}</Text>
         <View style={{ width: 44 }} />
       </View>
 
       <View style={styles.totalInfo}>
         <View style={styles.totalRow}>
-          <Text style={styles.totalLabel}>当前总悬赏</Text>
+          <Text style={styles.totalLabel}>{t('screens.contributorsScreen.totalLabel')}</Text>
           <Text style={styles.totalAmount}>${currentReward}</Text>
         </View>
-        <Text style={styles.totalDesc}>共 {rewardContributors} 人追加悬赏</Text>
+        <Text style={styles.totalDesc}>{t('screens.contributorsScreen.totalDesc').replace('{count}', rewardContributors)}</Text>
       </View>
 
       <ScrollView 
@@ -65,7 +67,7 @@ export default function ContributorsScreen({ navigation, route }) {
           style={styles.closeButton}
           onPress={() => navigation.goBack()}
         >
-          <Text style={styles.closeButtonText}>关闭</Text>
+          <Text style={styles.closeButtonText}>{t('screens.contributorsScreen.closeButton')}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

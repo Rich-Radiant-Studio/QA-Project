@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, Modal } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, Modal, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import Avatar from '../components/Avatar';
+import { useTranslation } from '../i18n/withTranslation';
 
 const supplementAnswers = [
   { id: 1, author: '数学老师', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=matht1', verified: true, title: '高中数学教师 · 8年经验', content: '学Python其实不需要太高深的数学基础。基础的加减乘除、简单的逻辑思维就够了。如果要做数据分析,了解一些统计学知识会更好,但这些都可以边学边补。', likes: 89, bookmarks: 34, shares: 18, comments: 12, time: '1小时前' },
@@ -25,8 +26,19 @@ const repliesData = {
 };
 
 export default function SupplementDetailScreen({ navigation, route }) {
-  const [activeTab, setActiveTab] = useState('全部回答');
-  const [sortFilter, setSortFilter] = useState('精选');
+  const { t } = useTranslation();
+  const [activeTab, setActiveTab] = useState('');
+  const [sortFilter, setSortFilter] = useState('');
+  
+  // Initialize state with translated values
+  React.useEffect(() => {
+    if (!activeTab) {
+      setActiveTab(t('screens.supplementDetail.tabs.allAnswers'));
+    }
+    if (!sortFilter) {
+      setSortFilter(t('screens.supplementDetail.sort.featured'));
+    }
+  }, [t, activeTab, sortFilter]);
   const [liked, setLiked] = useState({});
   const [disliked, setDisliked] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
@@ -43,7 +55,14 @@ export default function SupplementDetailScreen({ navigation, route }) {
   const [currentAnswerId, setCurrentAnswerId] = useState(null);
   const [showAnswerCommentModal, setShowAnswerCommentModal] = useState(false);
   const [answerCommentText, setAnswerCommentText] = useState('');
-  const [inviteTab, setInviteTab] = useState('本站');
+  const [inviteTab, setInviteTab] = useState('');
+  
+  // Initialize inviteTab with translated value
+  React.useEffect(() => {
+    if (!inviteTab) {
+      setInviteTab(t('screens.supplementDetail.invite.tabs.local'));
+    }
+  }, [t, inviteTab]);
   const [searchLocalUser, setSearchLocalUser] = useState('');
   const [searchTwitterUser, setSearchTwitterUser] = useState('');
   const [searchFacebookUser, setSearchFacebookUser] = useState('');
@@ -72,7 +91,7 @@ export default function SupplementDetailScreen({ navigation, route }) {
 
   const handleSubmitAnswer = () => {
     if (!answerText.trim()) return;
-    alert('回答提交成功!');
+    alert(t('screens.supplementDetail.alerts.answerSubmitted'));
     setAnswerText('');
     setShowAnswerModal(false);
   };
@@ -88,18 +107,18 @@ export default function SupplementDetailScreen({ navigation, route }) {
         >
           <Ionicons name="arrow-back" size={24} color="#374151" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>补充问题详情</Text>
+        <Text style={styles.headerTitle}>{t('screens.supplementDetail.title')}</Text>
         <View style={styles.headerRight}>
           <TouchableOpacity 
             style={styles.shareBtn} 
-            onPress={() => alert('分享功能')}
+            onPress={() => alert(t('screens.supplementDetail.alerts.shareFunction'))}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             activeOpacity={0.7}
           >
             <Ionicons name="arrow-redo-outline" size={22} color="#6b7280" />
             <Text style={styles.shareBtnText}>{supplementQuestion.shares}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.shareBtn} onPress={() => alert('举报功能')}>
+          <TouchableOpacity style={styles.shareBtn} onPress={() => alert(t('screens.supplementDetail.alerts.reportFunction'))}>
             <Ionicons name="flag-outline" size={22} color="#ef4444" />
           </TouchableOpacity>
         </View>
@@ -114,7 +133,7 @@ export default function SupplementDetailScreen({ navigation, route }) {
                 <Text style={styles.supplementAuthor}>{supplementQuestion.author}</Text>
                 <TouchableOpacity style={styles.followBtnSmall}>
                   <Ionicons name="add" size={12} color="#ef4444" />
-                  <Text style={styles.followBtnSmallText}>关注</Text>
+                  <Text style={styles.followBtnSmallText}>{t('screens.supplementDetail.actions.follow')}</Text>
                 </TouchableOpacity>
               </View>
               <View style={styles.supplementMetaRow}>
@@ -127,14 +146,14 @@ export default function SupplementDetailScreen({ navigation, route }) {
           <Text style={styles.supplementContent}>{supplementQuestion.content}</Text>
           <View style={styles.supplementViewsRow}>
             <Ionicons name="eye-outline" size={14} color="#9ca3af" />
-            <Text style={styles.supplementViewsText}>1.2k 浏览</Text>
+            <Text style={styles.supplementViewsText}>1.2k {t('screens.supplementDetail.stats.views')}</Text>
           </View>
         </View>
 
         <View style={styles.originalQuestionCard}>
           <View style={styles.originalQuestionHeader}>
             <Ionicons name="link-outline" size={14} color="#9ca3af" />
-            <Text style={styles.originalQuestionLabel}>原问题</Text>
+            <Text style={styles.originalQuestionLabel}>{t('screens.supplementDetail.originalQuestion.label')}</Text>
           </View>
           <Text style={styles.originalQuestionTitle} numberOfLines={2}>{originalQuestion.title}</Text>
           <View style={styles.originalQuestionFooter}>
@@ -146,47 +165,47 @@ export default function SupplementDetailScreen({ navigation, route }) {
 
         <View style={styles.tabsSection}>
           <View style={styles.tabs}>
-            <TouchableOpacity style={styles.tabItem} onPress={() => { setActiveTab('全部回答'); setSortFilter('精选'); }}>
-              <Text style={[styles.tabText, activeTab === '全部回答' && styles.tabTextActive]}>全部回答</Text>
-              {activeTab === '全部回答' && <View style={styles.tabIndicator} />}
+            <TouchableOpacity style={styles.tabItem} onPress={() => { setActiveTab(t('screens.supplementDetail.tabs.allAnswers')); setSortFilter(t('screens.supplementDetail.sort.featured')); }}>
+              <Text style={[styles.tabText, activeTab === t('screens.supplementDetail.tabs.allAnswers') && styles.tabTextActive]}>{t('screens.supplementDetail.tabs.allAnswers')}</Text>
+              {activeTab === t('screens.supplementDetail.tabs.allAnswers') && <View style={styles.tabIndicator} />}
             </TouchableOpacity>
-            <TouchableOpacity style={styles.tabItem} onPress={() => { setActiveTab('全部评论'); setSortFilter('精选'); }}>
-              <Text style={[styles.tabText, activeTab === '全部评论' && styles.tabTextActive]}>全部评论</Text>
-              {activeTab === '全部评论' && <View style={styles.tabIndicator} />}
+            <TouchableOpacity style={styles.tabItem} onPress={() => { setActiveTab(t('screens.supplementDetail.tabs.allComments')); setSortFilter(t('screens.supplementDetail.sort.featured')); }}>
+              <Text style={[styles.tabText, activeTab === t('screens.supplementDetail.tabs.allComments') && styles.tabTextActive]}>{t('screens.supplementDetail.tabs.allComments')}</Text>
+              {activeTab === t('screens.supplementDetail.tabs.allComments') && <View style={styles.tabIndicator} />}
             </TouchableOpacity>
-            <TouchableOpacity style={styles.tabItem} onPress={() => setActiveTab('邀请')}>
-              <Text style={[styles.tabText, activeTab === '邀请' && styles.tabTextActive]}>邀请</Text>
-              {activeTab === '邀请' && <View style={styles.tabIndicator} />}
+            <TouchableOpacity style={styles.tabItem} onPress={() => setActiveTab(t('screens.supplementDetail.tabs.invite'))}>
+              <Text style={[styles.tabText, activeTab === t('screens.supplementDetail.tabs.invite') && styles.tabTextActive]}>{t('screens.supplementDetail.tabs.invite')}</Text>
+              {activeTab === t('screens.supplementDetail.tabs.invite') && <View style={styles.tabIndicator} />}
             </TouchableOpacity>
           </View>
 
-          {(activeTab === '全部回答' || activeTab === '全部评论') && (
+          {(activeTab === t('screens.supplementDetail.tabs.allAnswers') || activeTab === t('screens.supplementDetail.tabs.allComments')) && (
             <View style={styles.sortFilterBar}>
               <View style={styles.sortFilterLeft}>
                 <TouchableOpacity 
-                  style={[styles.sortFilterBtn, sortFilter === '精选' && styles.sortFilterBtnActive]}
-                  onPress={() => setSortFilter('精选')}
+                  style={[styles.sortFilterBtn, sortFilter === t('screens.supplementDetail.sort.featured') && styles.sortFilterBtnActive]}
+                  onPress={() => setSortFilter(t('screens.supplementDetail.sort.featured'))}
                 >
-                  <Ionicons name="star" size={14} color={sortFilter === '精选' ? '#ef4444' : '#9ca3af'} />
-                  <Text style={[styles.sortFilterText, sortFilter === '精选' && styles.sortFilterTextActive]}>精选</Text>
+                  <Ionicons name="star" size={14} color={sortFilter === t('screens.supplementDetail.sort.featured') ? '#ef4444' : '#9ca3af'} />
+                  <Text style={[styles.sortFilterText, sortFilter === t('screens.supplementDetail.sort.featured') && styles.sortFilterTextActive]}>{t('screens.supplementDetail.sort.featured')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity 
-                  style={[styles.sortFilterBtn, sortFilter === '最新' && styles.sortFilterBtnActive]}
-                  onPress={() => setSortFilter('最新')}
+                  style={[styles.sortFilterBtn, sortFilter === t('screens.supplementDetail.sort.latest') && styles.sortFilterBtnActive]}
+                  onPress={() => setSortFilter(t('screens.supplementDetail.sort.latest'))}
                 >
-                  <Ionicons name="time" size={14} color={sortFilter === '最新' ? '#ef4444' : '#9ca3af'} />
-                  <Text style={[styles.sortFilterText, sortFilter === '最新' && styles.sortFilterTextActive]}>最新</Text>
+                  <Ionicons name="time" size={14} color={sortFilter === t('screens.supplementDetail.sort.latest') ? '#ef4444' : '#9ca3af'} />
+                  <Text style={[styles.sortFilterText, sortFilter === t('screens.supplementDetail.sort.latest') && styles.sortFilterTextActive]}>{t('screens.supplementDetail.sort.latest')}</Text>
                 </TouchableOpacity>
               </View>
               <Text style={styles.sortFilterCount}>
-                {activeTab === '全部回答' ? '共 2 条回答' : '共 2 条评论'}
+                {activeTab === t('screens.supplementDetail.tabs.allAnswers') ? t('screens.supplementDetail.count.answers', { count: 2 }) : t('screens.supplementDetail.count.comments', { count: 2 })}
               </Text>
             </View>
           )}
         </View>
 
         <View style={styles.contentSection}>
-          {activeTab === '全部回答' ? (
+          {activeTab === t('screens.supplementDetail.tabs.allAnswers') ? (
             <>
               {supplementAnswers.map(answer => (
                 <TouchableOpacity 
@@ -246,30 +265,30 @@ export default function SupplementDetailScreen({ navigation, route }) {
                 </TouchableOpacity>
               ))}
             </>
-          ) : activeTab === '邀请' ? (
+          ) : activeTab === t('screens.supplementDetail.tabs.invite') ? (
             // 邀请列表 - 二级tab标签
             <View style={styles.inviteContainer}>
               {/* 二级tab标签 */}
               <View style={styles.inviteSubTabs}>
                 <TouchableOpacity 
-                  style={[styles.inviteSubTabItem, inviteTab === '本站' && styles.inviteSubTabItemActive]}
-                  onPress={() => setInviteTab('本站')}
+                  style={[styles.inviteSubTabItem, inviteTab === t('screens.supplementDetail.invite.tabs.local') && styles.inviteSubTabItemActive]}
+                  onPress={() => setInviteTab(t('screens.supplementDetail.invite.tabs.local'))}
                 >
-                  <Text style={[styles.inviteSubTabText, inviteTab === '本站' && styles.inviteSubTabTextActive]}>本站</Text>
+                  <Text style={[styles.inviteSubTabText, inviteTab === t('screens.supplementDetail.invite.tabs.local') && styles.inviteSubTabTextActive]}>{t('screens.supplementDetail.invite.tabs.local')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity 
-                  style={[styles.inviteSubTabItem, inviteTab === '推特' && styles.inviteSubTabItemActive]}
-                  onPress={() => setInviteTab('推特')}
+                  style={[styles.inviteSubTabItem, inviteTab === t('screens.supplementDetail.invite.tabs.twitter') && styles.inviteSubTabItemActive]}
+                  onPress={() => setInviteTab(t('screens.supplementDetail.invite.tabs.twitter'))}
                 >
-                  <Ionicons name="logo-twitter" size={14} color={inviteTab === '推特' ? '#1DA1F2' : '#9ca3af'} />
-                  <Text style={[styles.inviteSubTabText, inviteTab === '推特' && styles.inviteSubTabTextActive]}>推特</Text>
+                  <Ionicons name="logo-twitter" size={14} color={inviteTab === t('screens.supplementDetail.invite.tabs.twitter') ? '#1DA1F2' : '#9ca3af'} />
+                  <Text style={[styles.inviteSubTabText, inviteTab === t('screens.supplementDetail.invite.tabs.twitter') && styles.inviteSubTabTextActive]}>{t('screens.supplementDetail.invite.tabs.twitter')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity 
-                  style={[styles.inviteSubTabItem, inviteTab === 'Facebook' && styles.inviteSubTabItemActive]}
-                  onPress={() => setInviteTab('Facebook')}
+                  style={[styles.inviteSubTabItem, inviteTab === t('screens.supplementDetail.invite.tabs.facebook') && styles.inviteSubTabItemActive]}
+                  onPress={() => setInviteTab(t('screens.supplementDetail.invite.tabs.facebook'))}
                 >
-                  <Ionicons name="logo-facebook" size={14} color={inviteTab === 'Facebook' ? '#4267B2' : '#9ca3af'} />
-                  <Text style={[styles.inviteSubTabText, inviteTab === 'Facebook' && styles.inviteSubTabTextActive]}>Facebook</Text>
+                  <Ionicons name="logo-facebook" size={14} color={inviteTab === t('screens.supplementDetail.invite.tabs.facebook') ? '#4267B2' : '#9ca3af'} />
+                  <Text style={[styles.inviteSubTabText, inviteTab === t('screens.supplementDetail.invite.tabs.facebook') && styles.inviteSubTabTextActive]}>{t('screens.supplementDetail.invite.tabs.facebook')}</Text>
                 </TouchableOpacity>
               </View>
 
@@ -279,12 +298,12 @@ export default function SupplementDetailScreen({ navigation, route }) {
                   <Ionicons name="search" size={14} color="#9ca3af" />
                   <TextInput
                     style={styles.inviteSearchInput}
-                    placeholder={inviteTab === '本站' ? '搜索用户' : inviteTab === '推特' ? '搜索推特用户' : '搜索Facebook用户'}
+                    placeholder={inviteTab === t('screens.supplementDetail.invite.tabs.local') ? t('screens.supplementDetail.invite.search.local') : inviteTab === t('screens.supplementDetail.invite.tabs.twitter') ? t('screens.supplementDetail.invite.search.twitter') : t('screens.supplementDetail.invite.search.facebook')}
                     placeholderTextColor="#9ca3af"
-                    value={inviteTab === '本站' ? searchLocalUser : inviteTab === '推特' ? searchTwitterUser : searchFacebookUser}
+                    value={inviteTab === t('screens.supplementDetail.invite.tabs.local') ? searchLocalUser : inviteTab === t('screens.supplementDetail.invite.tabs.twitter') ? searchTwitterUser : searchFacebookUser}
                     onChangeText={(text) => {
-                      if (inviteTab === '本站') setSearchLocalUser(text);
-                      else if (inviteTab === '推特') setSearchTwitterUser(text);
+                      if (inviteTab === t('screens.supplementDetail.invite.tabs.local')) setSearchLocalUser(text);
+                      else if (inviteTab === t('screens.supplementDetail.invite.tabs.twitter')) setSearchTwitterUser(text);
                       else setSearchFacebookUser(text);
                     }}
                   />
@@ -292,7 +311,7 @@ export default function SupplementDetailScreen({ navigation, route }) {
               </View>
 
               {/* 本站用户内容 */}
-              {inviteTab === '本站' && (
+              {inviteTab === t('screens.supplementDetail.invite.tabs.local') && (
                 <View style={styles.inviteTabContent}>
                   {/* 推荐邀请用户 - 横向滚动 */}
                   <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.recommendScroll}>
@@ -311,7 +330,7 @@ export default function SupplementDetailScreen({ navigation, route }) {
                   </ScrollView>
 
                   {/* 已邀请用户列表 */}
-                  <Text style={styles.invitedListTitle}>已邀请</Text>
+                  <Text style={styles.invitedListTitle}>{t('screens.supplementDetail.invite.invited')}</Text>
                   {[1, 2, 3, 4].map(i => (
                     <View key={`invited-local-${i}`} style={styles.inviteUserCard}>
                       <Image source={{ uri: `https://api.dicebear.com/7.x/avataaars/svg?seed=local${i}` }} style={styles.inviteUserAvatar} />
@@ -321,7 +340,7 @@ export default function SupplementDetailScreen({ navigation, route }) {
                       </View>
                       <View style={styles.invitedTag}>
                         <Ionicons name="checkmark-circle" size={16} color="#22c55e" />
-                        <Text style={styles.invitedTagText}>已邀请</Text>
+                        <Text style={styles.invitedTagText}>{t('screens.supplementDetail.invite.invited')}</Text>
                       </View>
                     </View>
                   ))}
@@ -329,7 +348,7 @@ export default function SupplementDetailScreen({ navigation, route }) {
               )}
 
               {/* 推特用户内容 */}
-              {inviteTab === '推特' && (
+              {inviteTab === t('screens.supplementDetail.invite.tabs.twitter') && (
                 <View style={styles.inviteTabContent}>
                   {/* 推荐邀请用户 - 横向滚动 */}
                   <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.recommendScroll}>
@@ -348,17 +367,17 @@ export default function SupplementDetailScreen({ navigation, route }) {
                   </ScrollView>
 
                   {/* 已邀请用户列表 */}
-                  <Text style={styles.invitedListTitle}>已邀请</Text>
+                  <Text style={styles.invitedListTitle}>{t('screens.supplementDetail.invite.invited')}</Text>
                   {[1, 2, 3].map(i => (
                     <View key={`invited-twitter-${i}`} style={styles.inviteUserCard}>
                       <Image source={{ uri: `https://api.dicebear.com/7.x/avataaars/svg?seed=twitter${i}` }} style={styles.inviteUserAvatar} />
                       <View style={styles.inviteUserInfo}>
                         <Text style={styles.inviteUserName}>@twitter_user{i}</Text>
-                        <Text style={styles.inviteUserDesc}>{i * 1000} 关注者</Text>
+                        <Text style={styles.inviteUserDesc}>{i * 1000} {t('screens.supplementDetail.invite.followers')}</Text>
                       </View>
                       <View style={styles.invitedTag}>
                         <Ionicons name="checkmark-circle" size={16} color="#22c55e" />
-                        <Text style={styles.invitedTagText}>已邀请</Text>
+                        <Text style={styles.invitedTagText}>{t('screens.supplementDetail.invite.invited')}</Text>
                       </View>
                     </View>
                   ))}
@@ -366,7 +385,7 @@ export default function SupplementDetailScreen({ navigation, route }) {
               )}
 
               {/* Facebook用户内容 */}
-              {inviteTab === 'Facebook' && (
+              {inviteTab === t('screens.supplementDetail.invite.tabs.facebook') && (
                 <View style={styles.inviteTabContent}>
                   {/* 推荐邀请用户 - 横向滚动 */}
                   <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.recommendScroll}>
@@ -385,17 +404,17 @@ export default function SupplementDetailScreen({ navigation, route }) {
                   </ScrollView>
 
                   {/* 已邀请用户列表 */}
-                  <Text style={styles.invitedListTitle}>已邀请</Text>
+                  <Text style={styles.invitedListTitle}>{t('screens.supplementDetail.invite.invited')}</Text>
                   {[1, 2, 3].map(i => (
                     <View key={`invited-facebook-${i}`} style={styles.inviteUserCard}>
                       <Image source={{ uri: `https://api.dicebear.com/7.x/avataaars/svg?seed=facebook${i}` }} style={styles.inviteUserAvatar} />
                       <View style={styles.inviteUserInfo}>
                         <Text style={styles.inviteUserName}>Facebook User {i}</Text>
-                        <Text style={styles.inviteUserDesc}>{i * 500} 好友</Text>
+                        <Text style={styles.inviteUserDesc}>{i * 500} {t('screens.supplementDetail.invite.friends')}</Text>
                       </View>
                       <View style={styles.invitedTag}>
                         <Ionicons name="checkmark-circle" size={16} color="#22c55e" />
-                        <Text style={styles.invitedTagText}>已邀请</Text>
+                        <Text style={styles.invitedTagText}>{t('screens.supplementDetail.invite.invited')}</Text>
                       </View>
                     </View>
                   ))}
@@ -428,11 +447,11 @@ export default function SupplementDetailScreen({ navigation, route }) {
                             onPress={() => setExpandedComments({ ...expandedComments, [comment.id]: !expandedComments[comment.id] })}
                           >
                             <Ionicons name="chatbubble-outline" size={14} color="#9ca3af" />
-                            <Text style={styles.commentActionText}>{comment.replies} 回复</Text>
+                            <Text style={styles.commentActionText}>{comment.replies} {t('screens.supplementDetail.comment.replies')}</Text>
                           </TouchableOpacity>
                           <TouchableOpacity 
                             style={styles.commentActionBtn}
-                            onPress={() => alert('转发功能')}
+                            onPress={() => alert(t('screens.supplementDetail.alerts.forwardFunction'))}
                           >
                             <Ionicons name="arrow-redo-outline" size={14} color="#9ca3af" />
                             <Text style={styles.commentActionText}>{comment.shares}</Text>
@@ -513,14 +532,14 @@ export default function SupplementDetailScreen({ navigation, route }) {
             style={styles.bottomCommentInput}
             onPress={() => setShowCommentModal(true)}
           >
-            <Text style={styles.bottomCommentPlaceholder}>写评论...</Text>
+            <Text style={styles.bottomCommentPlaceholder}>{t('screens.supplementDetail.bottomBar.commentPlaceholder')}</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.bottomAnswerBtn}
             onPress={() => setShowAnswerModal(true)}
           >
             <Ionicons name="create-outline" size={18} color="#fff" />
-            <Text style={styles.bottomAnswerText}>回答</Text>
+            <Text style={styles.bottomAnswerText}>{t('screens.supplementDetail.bottomBar.answerButton')}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -531,19 +550,19 @@ export default function SupplementDetailScreen({ navigation, route }) {
             <TouchableOpacity onPress={() => setShowAnswerModal(false)} style={styles.answerCloseBtn}>
               <Ionicons name="close" size={26} color="#333" />
             </TouchableOpacity>
-            <Text style={styles.answerModalTitle}>写回答</Text>
+            <Text style={styles.answerModalTitle}>{t('screens.supplementDetail.modal.answerTitle')}</Text>
             <TouchableOpacity 
               style={[styles.answerPublishBtn, !answerText.trim() && styles.answerPublishBtnDisabled]}
               onPress={handleSubmitAnswer}
               disabled={!answerText.trim()}
             >
-              <Text style={styles.answerPublishText}>发布</Text>
+              <Text style={styles.answerPublishText}>{t('screens.supplementDetail.modal.publish')}</Text>
             </TouchableOpacity>
           </View>
           <ScrollView style={styles.answerContentArea}>
             <TextInput
               style={styles.answerTextInput}
-              placeholder="写下你的回答..."
+              placeholder={t('screens.supplementDetail.modal.answerPlaceholder')}
               placeholderTextColor="#bbb"
               value={answerText}
               onChangeText={setAnswerText}
@@ -560,25 +579,25 @@ export default function SupplementDetailScreen({ navigation, route }) {
             <TouchableOpacity onPress={() => { setShowCommentModal(false); setCommentText(''); }} style={styles.commentCloseBtn}>
               <Ionicons name="close" size={26} color="#333" />
             </TouchableOpacity>
-            <Text style={styles.commentModalTitle}>写评论</Text>
+            <Text style={styles.commentModalTitle}>{t('screens.supplementDetail.modal.commentTitle')}</Text>
             <TouchableOpacity 
               style={[styles.commentPublishBtn, !commentText.trim() && styles.commentPublishBtnDisabled]}
               onPress={() => {
                 if (commentText.trim()) {
-                  alert('评论发布成功!');
+                  alert(t('screens.supplementDetail.alerts.commentPublished'));
                   setCommentText('');
                   setShowCommentModal(false);
                 }
               }}
               disabled={!commentText.trim()}
             >
-              <Text style={styles.commentPublishText}>发布</Text>
+              <Text style={styles.commentPublishText}>{t('screens.supplementDetail.modal.publish')}</Text>
             </TouchableOpacity>
           </View>
           <ScrollView style={styles.commentContentArea}>
             <TextInput
               style={styles.commentTextInput}
-              placeholder="写下你的评论..."
+              placeholder={t('screens.supplementDetail.modal.commentPlaceholder')}
               placeholderTextColor="#bbb"
               value={commentText}
               onChangeText={setCommentText}

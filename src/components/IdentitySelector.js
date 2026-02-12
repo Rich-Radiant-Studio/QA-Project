@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from '../i18n/withTranslation';
 
 // 模拟用户团队数据
 const userTeams = [
@@ -16,6 +17,7 @@ export default function IdentitySelector({
   onIdentityChange,
   onTeamsChange 
 }) {
+  const { t } = useTranslation();
   const [localIdentity, setLocalIdentity] = useState(selectedIdentity);
   const [localSelectedTeams, setLocalSelectedTeams] = useState(selectedTeams);
 
@@ -50,7 +52,7 @@ export default function IdentitySelector({
       {/* 身份选择标题 */}
       <View style={styles.header}>
         <Ionicons name="person-circle-outline" size={18} color="#6b7280" />
-        <Text style={styles.headerTitle}>发布身份</Text>
+        <Text style={styles.headerTitle}>{t('components.identitySelector.header')}</Text>
       </View>
 
       {/* 身份选项 */}
@@ -77,8 +79,8 @@ export default function IdentitySelector({
               <Text style={[
                 styles.identityName,
                 localIdentity === 'personal' && styles.identityNameActive
-              ]}>个人身份</Text>
-              <Text style={styles.identityDesc}>以个人名义发布</Text>
+              ]}>{t('components.identitySelector.personal.title')}</Text>
+              <Text style={styles.identityDesc}>{t('components.identitySelector.personal.description')}</Text>
             </View>
           </View>
           <Ionicons 
@@ -110,8 +112,8 @@ export default function IdentitySelector({
               <Text style={[
                 styles.identityName,
                 localIdentity === 'team' && styles.identityNameActive
-              ]}>团队身份</Text>
-              <Text style={styles.identityDesc}>以团队名义发布（可多选）</Text>
+              ]}>{t('components.identitySelector.team.title')}</Text>
+              <Text style={styles.identityDesc}>{t('components.identitySelector.team.description')}</Text>
             </View>
           </View>
           <Ionicons 
@@ -126,9 +128,9 @@ export default function IdentitySelector({
       {localIdentity === 'team' && (
         <View style={styles.teamsSection}>
           <View style={styles.teamsSectionHeader}>
-            <Text style={styles.teamsSectionTitle}>选择团队</Text>
+            <Text style={styles.teamsSectionTitle}>{t('components.identitySelector.selectTeam')}</Text>
             <Text style={styles.teamsCount}>
-              已选 {localSelectedTeams.length} 个团队
+              {t('components.identitySelector.selectedCount', { count: localSelectedTeams.length }).replace('{count}', localSelectedTeams.length)}
             </Text>
           </View>
           
@@ -155,7 +157,7 @@ export default function IdentitySelector({
                       <Ionicons name="checkmark-circle" size={14} color="#3b82f6" />
                     )}
                   </View>
-                  <Text style={styles.teamMembers}>{team.members} 成员</Text>
+                  <Text style={styles.teamMembers}>{team.members} {t('components.identitySelector.members')}</Text>
                 </View>
                 <View style={[
                   styles.teamCheckbox,

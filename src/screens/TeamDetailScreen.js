@@ -3,6 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, Alert,
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import Avatar from '../components/Avatar';
+import { useTranslation } from '../i18n/withTranslation';
 
 const initialMessages = [
   { id: 1, author: '张三', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=member1', content: '大家好，欢迎加入Python学习团队！', time: '2小时前', likes: 15, dislikes: 0, shares: 3, bookmarks: 8 },
@@ -34,14 +35,15 @@ const teamMembers = [
 ];
 
 // 根据是否是管理员显示不同的tabs
-const getTabsForRole = (isAdmin) => {
+const getTabsForRole = (isAdmin, t) => {
   if (isAdmin) {
-    return ['团队讨论', '团队公告', '审批消息'];
+    return [t('screens.teamDetail.tabs.discussion'), t('screens.teamDetail.tabs.announcement'), t('screens.teamDetail.tabs.approval')];
   }
-  return ['团队讨论', '团队公告'];
+  return [t('screens.teamDetail.tabs.discussion'), t('screens.teamDetail.tabs.announcement')];
 };
 
 export default function TeamDetailScreen({ navigation, route }) {
+  const { t } = useTranslation();
   const team = route?.params?.team || {
     id: 1,
     name: 'Python学习互助团队',
@@ -62,7 +64,14 @@ export default function TeamDetailScreen({ navigation, route }) {
   const routeIsJoined = route?.params?.isJoined;
   const routeIsPending = route?.params?.isPending;
 
-  const [activeTab, setActiveTab] = useState('团队讨论');
+  const [activeTab, setActiveTab] = useState('');
+  
+  // Initialize activeTab with translated value
+  React.useEffect(() => {
+    if (!activeTab) {
+      setActiveTab(t('screens.teamDetail.tabs.discussion'));
+    }
+  }, [t, activeTab]);
   const [messages, setMessages] = useState(initialMessages);
   const [inputText, setInputText] = useState('');
   const [liked, setLiked] = useState({});
@@ -105,7 +114,7 @@ export default function TeamDetailScreen({ navigation, route }) {
     { id: 3, user: '张伟', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user3', reason: '我有3年Python开发经验，可以帮助团队成员解决技术问题，组织学习活动', time: '1天前', type: 'admin', status: 'pending' },
   ]);
 
-  const tabs = getTabsForRole(team.isAdmin);
+  const tabs = getTabsForRole(team.isAdmin, t);
 
   // 可邀请的用户列表
   const platformUsers = [
@@ -140,7 +149,7 @@ export default function TeamDetailScreen({ navigation, route }) {
       author: '我',
       avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=me',
       content: inputText,
-      time: '刚刚',
+      time: t('screens.teamDetail.chat.justNow'),
       likes: 0,
       dislikes: 0,
       shares: 0,
@@ -162,10 +171,10 @@ export default function TeamDetailScreen({ navigation, route }) {
 
   const handleSendInvite = () => {
     if (selectedUsers.length === 0) {
-      Alert.alert('提示', '请至少选择一位用户');
+      Alert.alert(t('screens.teamDetail.alerts.hint'), t('screens.teamDetail.invite.selectUser'));
       return;
     }
-    Alert.alert('成功', `已向 ${selectedUsers.length} 位用户发送邀请`);
+    Alert.alert(t('screens.teamDetail.alerts.success'), t('screens.teamDetail.invite.sent').replace('{count}', selectedUsers.length));
     setShowInviteModal(false);
     setSelectedUsers([]);
     setSearchText('');
@@ -174,10 +183,10 @@ export default function TeamDetailScreen({ navigation, route }) {
   // 申请管理员处理
   const handleApplyAdmin = () => {
     if (!applyReason.trim()) {
-      Alert.alert('提示', '请填写申请理由');
+      Alert.alert(t('screens.teamDetail.alerts.hint'), t('screens.teamDetail.applyAdmin.fillReason'));
       return;
     }
-    Alert.alert('成功', '申请已提交，等待创建者审核');
+    Alert.alert(t('screens.teamDetail.alerts.success'), t('screens.teamDetail.alerts.applicationSubmitted'));
     setShowApplyAdminModal(false);
     setHasApplied(true);
     setApplyReason('');
@@ -187,10 +196,10 @@ export default function TeamDetailScreen({ navigation, route }) {
   const handleApproveJoin = (requestId, approve) => {
     const request = joinRequests.find(r => r.id === requestId);
     if (approve) {
-      Alert.alert('成功', `已同意 ${request.user} 加入团队`);
+      Alert.alert(t('screens.teamDetail.alerts.success'), t('screens.teamDetail.alerts.joinApproved').replace('{user}', request.user));
       setJoinRequests(joinRequests.filter(r => r.id !== requestId));
     } else {
-      Alert.alert('已拒绝', `已拒绝 ${request.user} 的加入申请`);
+      Alert.alert(t('screens.teamDetail.alerts.rejected'), t('screens.teamDetail.alerts.joinRejected').replace('{user}', request.user));
       setJoinRequests(joinRequests.filter(r => r.id !== requestId));
     }
   };
@@ -199,10 +208,10 @@ export default function TeamDetailScreen({ navigation, route }) {
   const handleApproveAdmin = (requestId, approve) => {
     const request = adminRequests.find(r => r.id === requestId);
     if (approve) {
-      Alert.alert('成功', `已同意 ${request.user} 成为管理员`);
+      Alert.alert(t('screens.teamDetail.alerts.success'), t('screens.teamDetail.alerts.adminApproved').replace('{user}', request.user));
       setAdminRequests(adminRequests.filter(r => r.id !== requestId));
     } else {
-      Alert.alert('已拒绝', `已拒绝 ${request.user} 的管理员申请`);
+      Alert.alert(t('screens.teamDetail.alerts.rejected'), t('screens.teamDetail.alerts.adminRejected').replace('{user}', request.user));
       setAdminRequests(adminRequests.filter(r => r.id !== requestId));
     }
   };
@@ -232,12 +241,12 @@ export default function TeamDetailScreen({ navigation, route }) {
 
   const handleExitTeam = () => {
     Alert.alert(
-      '退出团队',
-      '确定要退出该团队吗？退出后将无法查看团队消息',
+      t('screens.teamDetail.exit.title'),
+      t('screens.teamDetail.exit.message'),
       [
-        { text: '取消', style: 'cancel' },
-        { text: '确定退出', style: 'destructive', onPress: () => {
-          Alert.alert('成功', '已退出团队');
+        { text: t('common.cancel'), style: 'cancel' },
+        { text: t('screens.teamDetail.exit.confirmButton'), style: 'destructive', onPress: () => {
+          Alert.alert(t('screens.teamDetail.alerts.success'), t('screens.teamDetail.alerts.teamExited'));
           navigation.goBack();
         }}
       ]
@@ -250,10 +259,10 @@ export default function TeamDetailScreen({ navigation, route }) {
 
   const handleConfirmDismiss = () => {
     if (dismissConfirmText !== team.name) {
-      Alert.alert('提示', '团队名称输入不正确');
+      Alert.alert(t('screens.teamDetail.alerts.hint'), t('screens.teamDetail.dismiss.incorrectName'));
       return;
     }
-    Alert.alert('成功', '团队已解散');
+    Alert.alert(t('screens.teamDetail.alerts.success'), t('screens.teamDetail.alerts.teamDismissed'));
     setShowDismissModal(false);
     setDismissConfirmText('');
     navigation.goBack();
@@ -261,11 +270,11 @@ export default function TeamDetailScreen({ navigation, route }) {
 
   const handleJoinTeam = () => {
     Alert.alert(
-      '申请加入团队',
-      '确定要申请加入这个团队吗？\n\n申请后需要等待团队成员投票，超过50%的成员同意后即可加入。',
+      t('screens.teamDetail.join.applyTitle'),
+      t('screens.teamDetail.join.applyMessage'),
       [
-        { text: '取消', style: 'cancel' },
-        { text: '确定申请', onPress: () => {
+        { text: t('common.cancel'), style: 'cancel' },
+        { text: t('common.confirm'), onPress: () => {
           setIsPending(true);
           setShowPendingModal(true);
         }}
@@ -286,7 +295,7 @@ export default function TeamDetailScreen({ navigation, route }) {
       author: '我',
       avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=me',
       content: `回复 @${replyTarget.author}：${replyText}`,
-      time: '刚刚',
+      time: t('screens.teamDetail.chat.justNow'),
       likes: 0,
       dislikes: 0,
       shares: 0,
@@ -299,22 +308,22 @@ export default function TeamDetailScreen({ navigation, route }) {
   };
 
   const handleReport = (msg) => {
-    Alert.alert('举报', '确定要举报该内容吗？', [
-      { text: '取消', style: 'cancel' },
-      { text: '确定', onPress: () => Alert.alert('提示', '举报已提交，我们会尽快处理') }
+    Alert.alert(t('screens.teamDetail.report.title'), t('screens.teamDetail.report.message'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('common.confirm'), onPress: () => Alert.alert(t('screens.teamDetail.alerts.hint'), t('screens.teamDetail.report.submitted')) }
     ]);
   };
 
   const handlePublishAnnouncement = () => {
     if (!announcementTitle.trim()) {
-      Alert.alert('提示', '请输入公告标题');
+      Alert.alert(t('screens.teamDetail.alerts.hint'), t('screens.teamDetail.alerts.enterTitle'));
       return;
     }
     if (!announcementContent.trim()) {
-      Alert.alert('提示', '请输入公告内容');
+      Alert.alert(t('screens.teamDetail.alerts.hint'), t('screens.teamDetail.alerts.enterContent'));
       return;
     }
-    Alert.alert('成功', '公告发布成功！');
+    Alert.alert(t('screens.teamDetail.alerts.success'), t('screens.teamDetail.alerts.announcementPublished'));
     setAnnouncementTitle('');
     setAnnouncementContent('');
     setIsPinned(false);
@@ -334,7 +343,7 @@ export default function TeamDetailScreen({ navigation, route }) {
           <Ionicons name="arrow-back" size={24} color="#374151" />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
-          <Text style={styles.headerTitle}>{restrictedView ? '团队成员' : '团队详情页'}</Text>
+          <Text style={styles.headerTitle}>{restrictedView ? t('screens.teamDetail.teamMembers') : t('screens.teamDetail.title')}</Text>
         </View>
         {!restrictedView && (
           <View style={styles.headerActions}>
@@ -381,7 +390,7 @@ export default function TeamDetailScreen({ navigation, route }) {
         {restrictedView && (
           <View style={styles.restrictedNotice}>
             <Ionicons name="lock-closed" size={20} color="#f59e0b" />
-            <Text style={styles.restrictedNoticeText}>您还未加入该团队，仅可查看团队成员信息</Text>
+            <Text style={styles.restrictedNoticeText}>{t('screens.teamDetail.restrictedNotice')}</Text>
           </View>
         )}
 
@@ -397,7 +406,7 @@ export default function TeamDetailScreen({ navigation, route }) {
                   onPress={handleDismissTeam}
                 >
                   <Ionicons name="trash-outline" size={14} color="#ef4444" />
-                  <Text style={styles.compactDismissBtnText}>解散</Text>
+                  <Text style={styles.compactDismissBtnText}>{t('screens.teamDetail.actions.dismiss')}</Text>
                 </TouchableOpacity>
               )}
               {/* 普通成员：显示三个操作按钮 */}
@@ -418,7 +427,7 @@ export default function TeamDetailScreen({ navigation, route }) {
                     }}
                   >
                     <Ionicons name="calendar" size={14} color="#3b82f6" />
-                    <Text style={styles.compactActionBtnText}>活动</Text>
+                    <Text style={styles.compactActionBtnText}>{t('screens.teamDetail.actions.activity')}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity 
                     style={[styles.compactActionBtn, styles.compactActionBtnPurple, hasApplied && styles.compactActionBtnDisabled]}
@@ -427,7 +436,7 @@ export default function TeamDetailScreen({ navigation, route }) {
                   >
                     <Ionicons name="shield-checkmark-outline" size={14} color={hasApplied ? '#9ca3af' : '#8b5cf6'} />
                     <Text style={[styles.compactActionBtnText, styles.compactActionBtnTextPurple, hasApplied && styles.compactActionBtnTextDisabled]}>
-                      {hasApplied ? '已申请' : '管理员'}
+                      {hasApplied ? t('screens.teamDetail.actions.applied') : t('screens.teamDetail.actions.admin')}
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity 
@@ -435,7 +444,7 @@ export default function TeamDetailScreen({ navigation, route }) {
                     onPress={handleExitTeam}
                   >
                     <Ionicons name="exit-outline" size={14} color="#ef4444" />
-                    <Text style={[styles.compactActionBtnText, styles.compactActionBtnTextRed]}>退出</Text>
+                    <Text style={[styles.compactActionBtnText, styles.compactActionBtnTextRed]}>{t('screens.teamDetail.actions.exit')}</Text>
                   </TouchableOpacity>
                 </View>
               )}
@@ -444,11 +453,11 @@ export default function TeamDetailScreen({ navigation, route }) {
             <View style={styles.teamStats}>
               <View style={styles.teamStatItem}>
                 <Ionicons name="people" size={14} color="#9ca3af" />
-                <Text style={styles.teamStatText}>{team.members} 成员</Text>
+                <Text style={styles.teamStatText}>{team.members} {t('screens.teamDetail.stats.members')}</Text>
               </View>
               <View style={styles.teamStatItem}>
                 <Ionicons name="chatbubbles" size={14} color="#9ca3af" />
-                <Text style={styles.teamStatText}>{team.questions} 问题</Text>
+                <Text style={styles.teamStatText}>{team.questions} {t('screens.teamDetail.stats.questions')}</Text>
               </View>
             </View>
           </View>
@@ -457,10 +466,10 @@ export default function TeamDetailScreen({ navigation, route }) {
         {/* 团队成员区域 - 根据是否加入显示不同样式 */}
         <View style={styles.teamMembersSection}>
           <View style={styles.membersSectionHeader}>
-            <Text style={styles.teamMembersTitle}>团队成员 ({teamMembers.length})</Text>
+            <Text style={styles.teamMembersTitle}>{t('screens.teamDetail.teamMembers')} ({teamMembers.length})</Text>
             {!restrictedView && hasMoreMembers && (
               <TouchableOpacity onPress={() => setShowMembersModal(true)}>
-                <Text style={styles.viewAllText}>查看全部</Text>
+                <Text style={styles.viewAllText}>{t('screens.teamDetail.actions.viewAll')}</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -561,7 +570,7 @@ export default function TeamDetailScreen({ navigation, route }) {
                             onPress={() => openReplyModal(msg)}
                           >
                             <Ionicons name="chatbubble-outline" size={14} color="#9ca3af" />
-                            <Text style={styles.messageActionText}>回复</Text>
+                            <Text style={styles.messageActionText}>{t('screens.teamDetail.actions.reply')}</Text>
                           </TouchableOpacity>
                         </View>
                         <View style={styles.messageActionsRight}>
@@ -596,7 +605,7 @@ export default function TeamDetailScreen({ navigation, route }) {
                     {announcement.isPinned && (
                       <View style={styles.pinnedBadge}>
                         <Ionicons name="pin" size={12} color="#ef4444" />
-                        <Text style={styles.pinnedText}>置顶</Text>
+                        <Text style={styles.pinnedText}>{t('screens.teamDetail.announcement.pinned')}</Text>
                       </View>
                     )}
                     <Text style={styles.announcementTitle}>{announcement.title}</Text>
@@ -617,7 +626,7 @@ export default function TeamDetailScreen({ navigation, route }) {
                 {/* 加入团队申请 */}
                 {joinRequests.length > 0 && (
                   <View style={styles.approvalSection}>
-                    <Text style={styles.approvalSectionTitle}>加入团队申请 ({joinRequests.length})</Text>
+                    <Text style={styles.approvalSectionTitle}>{t('screens.teamDetail.approval.joinRequests')} ({joinRequests.length})</Text>
                     {joinRequests.map(request => (
                       <View key={request.id} style={styles.approvalItem}>
                         <View style={styles.approvalHeader}>
@@ -628,7 +637,7 @@ export default function TeamDetailScreen({ navigation, route }) {
                           </View>
                         </View>
                         <View style={styles.approvalReasonBox}>
-                          <Text style={styles.approvalReasonLabel}>申请理由：</Text>
+                          <Text style={styles.approvalReasonLabel}>{t('screens.teamDetail.approval.reasonLabel')}</Text>
                           <Text style={styles.approvalReasonText}>{request.reason}</Text>
                         </View>
                         <View style={styles.approvalActions}>
@@ -637,14 +646,14 @@ export default function TeamDetailScreen({ navigation, route }) {
                             onPress={() => handleApproveJoin(request.id, false)}
                           >
                             <Ionicons name="close-circle" size={18} color="#ef4444" />
-                            <Text style={styles.approvalRejectText}>拒绝</Text>
+                            <Text style={styles.approvalRejectText}>{t('screens.teamDetail.approval.reject')}</Text>
                           </TouchableOpacity>
                           <TouchableOpacity 
                             style={styles.approvalApproveBtn}
                             onPress={() => handleApproveJoin(request.id, true)}
                           >
                             <Ionicons name="checkmark-circle" size={18} color="#fff" />
-                            <Text style={styles.approvalApproveText}>同意</Text>
+                            <Text style={styles.approvalApproveText}>{t('screens.teamDetail.approval.approve')}</Text>
                           </TouchableOpacity>
                         </View>
                       </View>
@@ -655,7 +664,7 @@ export default function TeamDetailScreen({ navigation, route }) {
                 {/* 管理员申请 */}
                 {adminRequests.length > 0 && (
                   <View style={styles.approvalSection}>
-                    <Text style={styles.approvalSectionTitle}>管理员申请 ({adminRequests.length})</Text>
+                    <Text style={styles.approvalSectionTitle}>{t('screens.teamDetail.approval.adminRequests')} ({adminRequests.length})</Text>
                     {adminRequests.map(request => (
                       <View key={request.id} style={styles.approvalItem}>
                         <View style={styles.approvalHeader}>
@@ -665,14 +674,14 @@ export default function TeamDetailScreen({ navigation, route }) {
                               <Text style={styles.approvalUserName}>{request.user}</Text>
                               <View style={styles.adminApplyBadge}>
                                 <Ionicons name="shield-checkmark" size={12} color="#8b5cf6" />
-                                <Text style={styles.adminApplyBadgeText}>申请管理员</Text>
+                                <Text style={styles.adminApplyBadgeText}>{t('screens.teamDetail.approval.applyAdmin')}</Text>
                               </View>
                             </View>
                             <Text style={styles.approvalTime}>{request.time}</Text>
                           </View>
                         </View>
                         <View style={styles.approvalReasonBox}>
-                          <Text style={styles.approvalReasonLabel}>申请理由：</Text>
+                          <Text style={styles.approvalReasonLabel}>{t('screens.teamDetail.approval.reasonLabel')}</Text>
                           <Text style={styles.approvalReasonText}>{request.reason}</Text>
                         </View>
                         <View style={styles.approvalActions}>
@@ -681,14 +690,14 @@ export default function TeamDetailScreen({ navigation, route }) {
                             onPress={() => handleApproveAdmin(request.id, false)}
                           >
                             <Ionicons name="close-circle" size={18} color="#ef4444" />
-                            <Text style={styles.approvalRejectText}>拒绝</Text>
+                            <Text style={styles.approvalRejectText}>{t('screens.teamDetail.approval.reject')}</Text>
                           </TouchableOpacity>
                           <TouchableOpacity 
                             style={styles.approvalApproveBtn}
                             onPress={() => handleApproveAdmin(request.id, true)}
                           >
                             <Ionicons name="checkmark-circle" size={18} color="#fff" />
-                            <Text style={styles.approvalApproveText}>同意</Text>
+                            <Text style={styles.approvalApproveText}>{t('screens.teamDetail.approval.approve')}</Text>
                           </TouchableOpacity>
                         </View>
                       </View>
@@ -700,8 +709,8 @@ export default function TeamDetailScreen({ navigation, route }) {
                 {joinRequests.length === 0 && adminRequests.length === 0 && (
                   <View style={styles.approvalEmpty}>
                     <Ionicons name="checkmark-done-circle-outline" size={64} color="#d1d5db" />
-                    <Text style={styles.approvalEmptyText}>暂无待审批消息</Text>
-                    <Text style={styles.approvalEmptyHint}>所有申请都已处理完毕</Text>
+                    <Text style={styles.approvalEmptyText}>{t('screens.teamDetail.approval.empty')}</Text>
+                    <Text style={styles.approvalEmptyHint}>{t('screens.teamDetail.approval.emptyHint')}</Text>
                   </View>
                 )}
               </ScrollView>
@@ -715,7 +724,7 @@ export default function TeamDetailScreen({ navigation, route }) {
         <View style={styles.teamChatInputContainer}>
           <TextInput
             style={styles.teamChatInput}
-            placeholder="说点什么..."
+            placeholder={t('screens.teamDetail.chat.inputPlaceholder')}
             placeholderTextColor="#9ca3af"
             value={inputText}
             onChangeText={setInputText}
@@ -737,12 +746,12 @@ export default function TeamDetailScreen({ navigation, route }) {
           {isPending ? (
             <View style={styles.pendingNotice}>
               <Ionicons name="hourglass-outline" size={20} color="#f59e0b" />
-              <Text style={styles.pendingNoticeText}>申请审核中，需要50%以上成员同意</Text>
+              <Text style={styles.pendingNoticeText}>{t('screens.teamDetail.join.pendingNotice')}</Text>
             </View>
           ) : (
             <TouchableOpacity style={styles.teamJoinBtn} onPress={handleJoinTeam}>
               <Ionicons name="add-circle" size={20} color="#fff" />
-              <Text style={styles.teamJoinBtnText}>申请加入团队</Text>
+              <Text style={styles.teamJoinBtnText}>{t('screens.teamDetail.join.applyButton')}</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -753,14 +762,14 @@ export default function TeamDetailScreen({ navigation, route }) {
         <View style={styles.modalOverlay}>
           <View style={styles.replyModal}>
             <View style={styles.replyModalHeader}>
-              <Text style={styles.replyModalTitle}>回复 {replyTarget?.author}</Text>
+              <Text style={styles.replyModalTitle}>{t('screens.teamDetail.reply.title')} {replyTarget?.author}</Text>
               <TouchableOpacity onPress={() => setShowReplyModal(false)}>
                 <Ionicons name="close" size={24} color="#6b7280" />
               </TouchableOpacity>
             </View>
             <TextInput
               style={styles.replyInput}
-              placeholder="写下你的回复..."
+              placeholder={t('screens.teamDetail.reply.placeholder')}
               placeholderTextColor="#9ca3af"
               value={replyText}
               onChangeText={setReplyText}
@@ -772,7 +781,7 @@ export default function TeamDetailScreen({ navigation, route }) {
               onPress={handleReply}
               disabled={!replyText.trim()}
             >
-              <Text style={styles.replySubmitText}>发布</Text>
+              <Text style={styles.replySubmitText}>{t('screens.teamDetail.reply.submitButton')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -784,7 +793,7 @@ export default function TeamDetailScreen({ navigation, route }) {
           <View style={styles.modalOverlay}>
             <View style={styles.membersModal}>
               <View style={styles.membersModalHeader}>
-                <Text style={styles.membersModalTitle}>全部成员 ({teamMembers.length})</Text>
+                <Text style={styles.membersModalTitle}>{t('screens.teamDetail.members.title')} {t('screens.teamDetail.members.count').replace('{count}', teamMembers.length)}</Text>
                 <TouchableOpacity onPress={() => setShowMembersModal(false)}>
                   <Ionicons name="close" size={24} color="#6b7280" />
                 </TouchableOpacity>
@@ -799,7 +808,7 @@ export default function TeamDetailScreen({ navigation, route }) {
                         {member.role === '队长' && (
                           <View style={styles.leaderBadgeLarge}>
                             <Ionicons name="star" size={10} color="#f59e0b" />
-                            <Text style={styles.leaderBadgeText}>队长</Text>
+                            <Text style={styles.leaderBadgeText}>{t('screens.teamDetail.roles.leader')}</Text>
                           </View>
                         )}
                       </View>
@@ -818,25 +827,25 @@ export default function TeamDetailScreen({ navigation, route }) {
         <View style={styles.modalOverlay}>
           <View style={styles.publishAnnouncementModal}>
             <View style={styles.publishAnnouncementHeader}>
-              <Text style={styles.publishAnnouncementTitle}>发布公告</Text>
+              <Text style={styles.publishAnnouncementTitle}>{t('screens.teamDetail.announcement.publishTitle')}</Text>
               <TouchableOpacity onPress={() => setShowPublishAnnouncementModal(false)}>
                 <Ionicons name="close" size={24} color="#6b7280" />
               </TouchableOpacity>
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
               <View style={styles.publishAnnouncementForm}>
-                <Text style={styles.formLabel}>公告标题</Text>
+                <Text style={styles.formLabel}>{t('screens.teamDetail.announcement.titleLabel')}</Text>
                 <TextInput
                   style={styles.formInput}
-                  placeholder="请输入公告标题"
+                  placeholder={t('screens.teamDetail.announcement.titlePlaceholder')}
                   placeholderTextColor="#9ca3af"
                   value={announcementTitle}
                   onChangeText={setAnnouncementTitle}
                 />
-                <Text style={styles.formLabel}>公告内容</Text>
+                <Text style={styles.formLabel}>{t('screens.teamDetail.announcement.contentLabel')}</Text>
                 <TextInput
                   style={[styles.formInput, styles.formTextarea]}
-                  placeholder="请输入公告内容"
+                  placeholder={t('screens.teamDetail.announcement.contentPlaceholder')}
                   placeholderTextColor="#9ca3af"
                   value={announcementContent}
                   onChangeText={setAnnouncementContent}
@@ -853,7 +862,7 @@ export default function TeamDetailScreen({ navigation, route }) {
                     size={20} 
                     color={isPinned ? "#f59e0b" : "#9ca3af"} 
                   />
-                  <Text style={styles.pinnedCheckboxText}>置顶公告</Text>
+                  <Text style={styles.pinnedCheckboxText}>{t('screens.teamDetail.announcement.pinnedCheckbox')}</Text>
                 </TouchableOpacity>
               </View>
             </ScrollView>
@@ -861,7 +870,7 @@ export default function TeamDetailScreen({ navigation, route }) {
               style={styles.publishAnnouncementSubmitBtn}
               onPress={handlePublishAnnouncement}
             >
-              <Text style={styles.publishAnnouncementSubmitText}>发布</Text>
+              <Text style={styles.publishAnnouncementSubmitText}>{t('screens.teamDetail.announcement.publishButton')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -874,17 +883,15 @@ export default function TeamDetailScreen({ navigation, route }) {
             <View style={styles.pendingModalIcon}>
               <Ionicons name="hourglass" size={48} color="#f59e0b" />
             </View>
-            <Text style={styles.pendingModalTitle}>申请已提交</Text>
+            <Text style={styles.pendingModalTitle}>{t('screens.teamDetail.join.pendingModalTitle')}</Text>
             <Text style={styles.pendingModalDesc}>
-              您的加入申请已提交成功！{'\n\n'}
-              团队成员将对您的申请进行投票，需要超过50%的成员同意后才能加入团队。{'\n\n'}
-              请耐心等待审核结果，我们会及时通知您。
+              {t('screens.teamDetail.join.pendingModalDesc')}
             </Text>
             <TouchableOpacity 
               style={styles.pendingModalBtn}
               onPress={() => setShowPendingModal(false)}
             >
-              <Text style={styles.pendingModalBtnText}>我知道了</Text>
+              <Text style={styles.pendingModalBtnText}>{t('screens.teamDetail.join.pendingModalButton')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -897,18 +904,18 @@ export default function TeamDetailScreen({ navigation, route }) {
             <View style={styles.applyAdminModalHandle} />
             
             <View style={styles.applyAdminModalHeader}>
-              <Text style={styles.applyAdminModalTitle}>申请成为管理员</Text>
+              <Text style={styles.applyAdminModalTitle}>{t('screens.teamDetail.applyAdmin.title')}</Text>
               <Text style={styles.applyAdminModalSubtitle}>
-                申请将提交给团队创建者审核
+                {t('screens.teamDetail.applyAdmin.subtitle')}
               </Text>
             </View>
 
             <ScrollView style={styles.applyAdminModalContent} showsVerticalScrollIndicator={false}>
               <View style={styles.applyAdminSection}>
-                <Text style={styles.applyAdminLabel}>申请理由 <Text style={{ color: '#ef4444' }}>*</Text></Text>
+                <Text style={styles.applyAdminLabel}>{t('screens.teamDetail.applyAdmin.reasonLabel')} <Text style={{ color: '#ef4444' }}>{t('screens.teamDetail.applyAdmin.reasonRequired')}</Text></Text>
                 <TextInput
                   style={styles.applyAdminTextarea}
-                  placeholder="请说明您申请成为管理员的理由，例如：您的经验、能为团队做什么等..."
+                  placeholder={t('screens.teamDetail.applyAdmin.reasonPlaceholder')}
                   placeholderTextColor="#9ca3af"
                   value={applyReason}
                   onChangeText={setApplyReason}
@@ -918,10 +925,10 @@ export default function TeamDetailScreen({ navigation, route }) {
               </View>
 
               <View style={styles.applyAdminTips}>
-                <Text style={styles.applyAdminTipsTitle}>温馨提示</Text>
-                <Text style={styles.applyAdminTipsText}>• 管理员可以邀请用户、发布公告、发起活动</Text>
-                <Text style={styles.applyAdminTipsText}>• 申请需要团队创建者审核通过</Text>
-                <Text style={styles.applyAdminTipsText}>• 请认真填写申请理由，提高通过率</Text>
+                <Text style={styles.applyAdminTipsTitle}>{t('screens.teamDetail.applyAdmin.tipsTitle')}</Text>
+                <Text style={styles.applyAdminTipsText}>{t('screens.teamDetail.applyAdmin.tip1')}</Text>
+                <Text style={styles.applyAdminTipsText}>{t('screens.teamDetail.applyAdmin.tip2')}</Text>
+                <Text style={styles.applyAdminTipsText}>{t('screens.teamDetail.applyAdmin.tip3')}</Text>
               </View>
             </ScrollView>
 
@@ -933,14 +940,14 @@ export default function TeamDetailScreen({ navigation, route }) {
                   setApplyReason('');
                 }}
               >
-                <Text style={styles.cancelApplyBtnText}>取消</Text>
+                <Text style={styles.cancelApplyBtnText}>{t('screens.teamDetail.applyAdmin.cancelButton')}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.submitApplyBtn, !applyReason.trim() && styles.submitApplyBtnDisabled]}
                 onPress={handleApplyAdmin}
                 disabled={!applyReason.trim()}
               >
-                <Text style={styles.submitApplyBtnText}>提交申请</Text>
+                <Text style={styles.submitApplyBtnText}>{t('screens.teamDetail.applyAdmin.submitButton')}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -957,28 +964,28 @@ export default function TeamDetailScreen({ navigation, route }) {
               <View style={styles.dismissModalIconWrapper}>
                 <Ionicons name="warning" size={48} color="#ef4444" />
               </View>
-              <Text style={styles.dismissModalTitle}>解散团队</Text>
+              <Text style={styles.dismissModalTitle}>{t('screens.teamDetail.dismiss.title')}</Text>
               <Text style={styles.dismissModalSubtitle}>
-                此操作不可恢复，请谨慎操作
+                {t('screens.teamDetail.dismiss.subtitle')}
               </Text>
             </View>
 
             <View style={styles.dismissModalContent}>
               <View style={styles.dismissWarningBox}>
-                <Text style={styles.dismissWarningTitle}>⚠️ 解散后将发生以下情况：</Text>
-                <Text style={styles.dismissWarningText}>• 团队所有数据将被永久删除</Text>
-                <Text style={styles.dismissWarningText}>• 所有成员将被移出团队</Text>
-                <Text style={styles.dismissWarningText}>• 团队讨论记录将无法恢复</Text>
-                <Text style={styles.dismissWarningText}>• 团队公告将全部删除</Text>
+                <Text style={styles.dismissWarningTitle}>{t('screens.teamDetail.dismiss.warningTitle')}</Text>
+                <Text style={styles.dismissWarningText}>{t('screens.teamDetail.dismiss.warning1')}</Text>
+                <Text style={styles.dismissWarningText}>{t('screens.teamDetail.dismiss.warning2')}</Text>
+                <Text style={styles.dismissWarningText}>{t('screens.teamDetail.dismiss.warning3')}</Text>
+                <Text style={styles.dismissWarningText}>{t('screens.teamDetail.dismiss.warning4')}</Text>
               </View>
 
               <View style={styles.dismissConfirmSection}>
                 <Text style={styles.dismissConfirmLabel}>
-                  请输入团队名称 <Text style={styles.dismissTeamNameHighlight}>"{team.name}"</Text> 以确认解散
+                  {t('screens.teamDetail.dismiss.confirmLabel')} <Text style={styles.dismissTeamNameHighlight}>"{team.name}"</Text> {t('screens.teamDetail.dismiss.confirmHighlight')}
                 </Text>
                 <TextInput
                   style={styles.dismissConfirmInput}
-                  placeholder="请输入团队名称"
+                  placeholder={t('screens.teamDetail.dismiss.confirmPlaceholder')}
                   placeholderTextColor="#9ca3af"
                   value={dismissConfirmText}
                   onChangeText={setDismissConfirmText}
@@ -994,7 +1001,7 @@ export default function TeamDetailScreen({ navigation, route }) {
                   setDismissConfirmText('');
                 }}
               >
-                <Text style={styles.cancelDismissBtnText}>取消</Text>
+                <Text style={styles.cancelDismissBtnText}>{t('screens.teamDetail.dismiss.cancelButton')}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.confirmDismissBtn, dismissConfirmText !== team.name && styles.confirmDismissBtnDisabled]}
@@ -1002,7 +1009,7 @@ export default function TeamDetailScreen({ navigation, route }) {
                 disabled={dismissConfirmText !== team.name}
               >
                 <Ionicons name="trash" size={18} color="#fff" />
-                <Text style={styles.confirmDismissBtnText}>确认解散</Text>
+                <Text style={styles.confirmDismissBtnText}>{t('screens.teamDetail.dismiss.confirmButton')}</Text>
               </TouchableOpacity>
             </View>
           </View>

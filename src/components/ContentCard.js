@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Avatar from './Avatar';
 import { useTranslation } from '../i18n/useTranslation';
+import { formatNumber } from '../utils/numberFormatter';
 
 /**
  * 通用内容卡片组件
@@ -10,16 +11,6 @@ import { useTranslation } from '../i18n/useTranslation';
  */
 export default function ContentCard({ item, onPress, userData }) {
   const { t } = useTranslation();
-
-  /**
-   * 格式化数字
-   */
-  const formatNumber = (num) => {
-    if (num >= 10000) {
-      return `${(num / 10000).toFixed(1)}万`;
-    }
-    return num.toString();
-  };
 
   /**
    * 格式化时间

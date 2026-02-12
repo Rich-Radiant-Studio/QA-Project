@@ -1,12 +1,18 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, Alert, Image, Platform } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, Alert, Image, Platform, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import i18n from '../i18n';
 
 export default function EmergencyScreen({ navigation }) {
-  const t = (key) => i18n.t(key);
+  const t = (key) => {
+    if (!i18n || typeof i18n.t !== 'function') {
+      return key;
+    }
+    return i18n.t(key);
+  };
+  
   const [emergencyForm, setEmergencyForm] = useState({ 
     title: '', 
     description: '', 
@@ -15,6 +21,9 @@ export default function EmergencyScreen({ navigation }) {
     rescuerCount: 1 
   });
   const [emergencyImages, setEmergencyImages] = useState([]); // 紧急求助图片
+  const [showProgressModal, setShowProgressModal] = useState(false); // 显示进度模态框
+  const [notificationProgress, setNotificationProgress] = useState(0); // 通知发送进度
+  const [totalUsers, setTotalUsers] = useState(0); // 总用户数
 
   const freeCount = 1;
   const usedCount = 0;
@@ -29,11 +38,12 @@ export default function EmergencyScreen({ navigation }) {
 
   const rescuerFee = calculateRescuerFee(emergencyForm.rescuerCount || 1);
 
-  const quickTitles = [
+  // Use useMemo to prevent calling t() during initial render
+  const quickTitles = React.useMemo(() => [
     t('emergency.quickTitle1'),
     t('emergency.quickTitle2'),
     t('emergency.quickTitle3')
-  ];
+  ], []);
 
   // 请求相册权限
   const requestPermission = async () => {
@@ -151,14 +161,40 @@ export default function EmergencyScreen({ navigation }) {
       Alert.alert(t('emergency.enterTitle'));
       return;
     }
-    const feeInfo = rescuerFee > 0 ? `\n${t('emergency.needPay')}：${rescuerFee}` : '';
-    Alert.alert(
-      t('emergency.published'),
-      `${t('emergency.rescuersNeeded')}${emergencyForm.rescuerCount}${t('emergency.rescuerUnit')}${feeInfo}\n${t('emergency.nearbyNotified')}`,
-      [{ text: t('emergency.confirm'), onPress: () => navigation.goBack() }]
-    );
-    setEmergencyForm({ title: '', description: '', location: '', contact: '', rescuerCount: 1 });
-    setEmergencyImages([]); // 清空图片
+    
+    // 显示进度模态框
+    setShowProgressModal(true);
+    setNotificationProgress(0);
+    
+    // 模拟计算附近用户数量（实际应该从API获取）
+    const nearbyUserCount = Math.floor(Math.random() * 150) + 50; // 50-200之间的随机数
+    setTotalUsers(nearbyUserCount);
+    
+    // 模拟发送通知的过程
+    let currentCount = 0;
+    const interval = setInterval(() => {
+      currentCount += Math.floor(Math.random() * 15) + 5; // 每次增加5-20个
+      
+      if (currentCount >= nearbyUserCount) {
+        currentCount = nearbyUserCount;
+        clearInterval(interval);
+        
+        // 发送完成后延迟1秒关闭模态框
+        setTimeout(() => {
+          setShowProgressModal(false);
+          const feeInfo = rescuerFee > 0 ? `\n${t('emergency.needPay')}：${rescuerFee}` : '';
+          Alert.alert(
+            t('emergency.published'),
+            `${t('emergency.rescuersNeeded')}${emergencyForm.rescuerCount}${t('emergency.rescuerUnit')}${feeInfo}\n已通知${nearbyUserCount}位附近用户`,
+            [{ text: t('emergency.confirm'), onPress: () => navigation.goBack() }]
+          );
+          setEmergencyForm({ title: '', description: '', location: '', contact: '', rescuerCount: 1 });
+          setEmergencyImages([]);
+        }, 1000);
+      }
+      
+      setNotificationProgress(currentCount);
+    }, 200); // 每200毫秒更新一次
   };
 
   return (
@@ -418,6 +454,55 @@ export default function EmergencyScreen({ navigation }) {
 
         <View style={{ height: 40 }} />
       </ScrollView>
+
+      {/* 通知发送进度模态框 */}
+      <Modal
+        visible={showProgressModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => {}}
+      >
+        <View style={styles.progressModalOverlay}>
+          <View style={styles.progressModalContent}>
+            <View style={styles.progressHeader}>
+              <Ionicons name="notifications" size={32} color="#ef4444" />
+              <Text style={styles.progressTitle}>正在发送紧急通知</Text>
+            </View>
+            
+            <View style={styles.progressBody}>
+              <View style={styles.progressNumberContainer}>
+                <Text style={styles.progressNumber}>{notificationProgress}</Text>
+                <Text style={styles.progressTotal}>/ {totalUsers}</Text>
+              </View>
+              <Text style={styles.progressLabel}>已通知用户数</Text>
+              
+              {/* 进度条 */}
+              <View style={styles.progressBarContainer}>
+                <View 
+                  style={[
+                    styles.progressBarFill, 
+                    { width: `${totalUsers > 0 ? (notificationProgress / totalUsers) * 100 : 0}%` }
+                  ]} 
+                />
+              </View>
+              
+              <View style={styles.progressInfo}>
+                <Ionicons name="location" size={16} color="#6b7280" />
+                <Text style={styles.progressInfoText}>
+                  正在通知附近5公里内的用户
+                </Text>
+              </View>
+            </View>
+            
+            {notificationProgress >= totalUsers && (
+              <View style={styles.progressComplete}>
+                <Ionicons name="checkmark-circle" size={24} color="#22c55e" />
+                <Text style={styles.progressCompleteText}>通知发送完成！</Text>
+              </View>
+            )}
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -676,4 +761,101 @@ const styles = StyleSheet.create({
   },
   tipsTitle: { fontSize: 13, fontWeight: '500', color: '#991b1b', marginBottom: 8 },
   tipsText: { fontSize: 12, color: '#b91c1c', lineHeight: 20 },
+  
+  // 进度模态框样式
+  progressModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  progressModalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 24,
+    width: '100%',
+    maxWidth: 340,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  progressHeader: {
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  progressTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1f2937',
+    marginTop: 12,
+  },
+  progressBody: {
+    alignItems: 'center',
+  },
+  progressNumberContainer: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    marginBottom: 8,
+  },
+  progressNumber: {
+    fontSize: 48,
+    fontWeight: '700',
+    color: '#ef4444',
+    lineHeight: 56,
+  },
+  progressTotal: {
+    fontSize: 24,
+    fontWeight: '600',
+    color: '#9ca3af',
+    marginLeft: 4,
+  },
+  progressLabel: {
+    fontSize: 14,
+    color: '#6b7280',
+    marginBottom: 20,
+  },
+  progressBarContainer: {
+    width: '100%',
+    height: 8,
+    backgroundColor: '#f3f4f6',
+    borderRadius: 4,
+    overflow: 'hidden',
+    marginBottom: 16,
+  },
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: '#ef4444',
+    borderRadius: 4,
+  },
+  progressInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#f9fafb',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  progressInfoText: {
+    fontSize: 13,
+    color: '#6b7280',
+  },
+  progressComplete: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 20,
+    paddingTop: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#f3f4f6',
+  },
+  progressCompleteText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#22c55e',
+  },
 });

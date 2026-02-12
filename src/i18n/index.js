@@ -12,13 +12,50 @@ class SimpleI18n {
     this.locale = 'en';
     this.defaultLocale = 'en';
     this.translations = translations;
+    this.initialized = false;
+    
+    console.log('🌐 SimpleI18n constructor called');
     
     // 自动检测系统语言
-    const deviceLanguage = Localization.getLocales()[0]?.languageCode || 'en';
-    this.locale = deviceLanguage;
+    this.detectLanguage();
+    this.initialized = true;
+    
+    console.log('✅ SimpleI18n initialized, locale:', this.locale);
+  }
+
+  detectLanguage() {
+    try {
+      const locales = Localization.getLocales();
+      if (!locales || locales.length === 0) {
+        this.locale = this.defaultLocale;
+        console.log('⚠️ No locales detected, using default:', this.defaultLocale);
+        return;
+      }
+
+      const deviceLanguage = locales[0]?.languageCode || this.defaultLocale;
+      
+      // 规范化语言代码：提取主语言代码（如 zh-CN -> zh, en-US -> en）
+      const normalizedLanguage = deviceLanguage.split('-')[0];
+      
+      // 检查规范化后的语言是否在支持的翻译中
+      if (this.translations[normalizedLanguage]) {
+        this.locale = normalizedLanguage;
+        console.log('✅ Language detected:', normalizedLanguage);
+      } else {
+        this.locale = this.defaultLocale;
+        console.log('⚠️ Language not supported, using default:', this.defaultLocale);
+      }
+    } catch (error) {
+      console.warn('❌ Failed to detect system language:', error);
+      this.locale = this.defaultLocale;
+    }
   }
 
   t(key) {
+    if (!this.initialized) {
+      console.warn('⚠️ i18n.t() called before initialization for key:', key);
+    }
+    
     const keys = key.split('.');
     let translation = this.translations[this.locale];
     
@@ -38,6 +75,7 @@ class SimpleI18n {
           if (fallback && typeof fallback === 'object') {
             fallback = fallback[fk];
           } else {
+            console.warn('⚠️ Translation not found for key:', key);
             return key; // 都找不到，返回键本身
           }
         }
