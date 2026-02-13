@@ -1,9 +1,14 @@
-import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Switch, Alert, TextInput, Modal } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Switch, Alert, TextInput, Modal, ActivityIndicator, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import Avatar from '../components/Avatar';
+import EditTextModal from '../components/EditTextModal';
+import AvatarActionSheet from '../components/AvatarActionSheet';
 import { useTranslation } from '../i18n/withTranslation';
+import UserCacheService from '../services/UserCacheService';
+import userApi from '../services/api/userApi';
 
 export default function SettingsScreen({ navigation }) {
   const { t } = useTranslation();
@@ -24,6 +29,22 @@ export default function SettingsScreen({ navigation }) {
   const [editValue, setEditValue] = useState('');
   const [editTitle, setEditTitle] = useState('');
 
+  // 通用编辑弹窗状态
+  const [showTextModal, setShowTextModal] = useState(false);
+  const [textModalConfig, setTextModalConfig] = useState({
+    title: '',
+    field: '',
+    currentValue: '',
+    minLength: 0,
+    maxLength: 100,
+    multiline: false,
+    hint: '',
+  });
+  const [isLoading, setIsLoading] = useState(false);
+
+  // 头像操作弹窗状态
+  const [showAvatarSheet, setShowAvatarSheet] = useState(false);
+
   // 用户资料数据
   const [userProfile, setUserProfile] = useState({
     name: '张三丰',
@@ -32,7 +53,45 @@ export default function SettingsScreen({ navigation }) {
     occupation: '数据分析师',
     gender: '男',
     birthday: '1990-01-01',
+    avatar: null, // 头像 URL
   });
+
+  // 上传头像加载状态
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+
+  // 加载用户信息（使用缓存策略）
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      await UserCacheService.loadUserProfileWithCache(
+        // 缓存加载完成回调（立即显示）
+        (cachedProfile) => {
+          setUserProfile({
+            name: cachedProfile.nickName || '用户',
+            bio: cachedProfile.signature || '',
+            location: cachedProfile.location || '',
+            occupation: cachedProfile.profession || '',
+            gender: cachedProfile.gender || '保密',
+            birthday: cachedProfile.birthday || '',
+            avatar: cachedProfile.avatar || null,
+          });
+        },
+        // 最新数据加载完成回调（静默更新）
+        (freshProfile) => {
+          setUserProfile({
+            name: freshProfile.nickName || '用户',
+            bio: freshProfile.signature || '',
+            location: freshProfile.location || '',
+            occupation: freshProfile.profession || '',
+            gender: freshProfile.gender || '保密',
+            birthday: freshProfile.birthday || '',
+            avatar: freshProfile.avatar || null,
+          });
+        }
+      );
+    };
+
+    loadUserProfile();
+  }, []);
 
   const handleEditProfile = (field, title, currentValue) => {
     setEditField(field);
@@ -47,12 +106,302 @@ export default function SettingsScreen({ navigation }) {
     Alert.alert(t('screens.settings.alerts.saveSuccess.title'), t('screens.settings.alerts.saveSuccess.message'));
   };
 
+  // 打开通用编辑弹窗
+  const openTextModal = (field, title, currentValue, config = {}) => {
+    setTextModalConfig({
+      title,
+      field,
+      currentValue,
+      minLength: config.minLength || 0,
+      maxLength: config.maxLength || 100,
+      multiline: config.multiline || false,
+      hint: config.hint || '',
+    });
+    setShowTextModal(true);
+  };
+
+  // 保存通用编辑内容
+  const handleSaveText = async (newValue) => {
+    const field = textModalConfig.field;
+    
+    // 字段名映射：前端字段名 -> API字段名
+    const fieldMapping = {
+      name: 'nickName',
+      bio: 'signature',
+      occupation: 'profession',
+      location: 'location',
+    };
+
+    const apiFieldName = fieldMapping[field];
+    if (!apiFieldName) {
+      Alert.alert('错误', '未知的字段类型');
+      return;
+    }
+
+    // 构建API请求数据：只发送当前编辑的字段，其他字段设为null
+    const requestData = {
+      nickName: null,
+      signature: null,
+      profession: null,
+    };
+    
+    // 设置当前编辑的字段值（空字符串也发送null）
+    requestData[apiFieldName] = newValue.trim() || null;
+
+    setIsLoading(true);
+    
+    try {
+      // 使用缓存服务更新（自动更新缓存和服务器）
+      const updatedProfile = await UserCacheService.updateUserProfile(requestData);
+      
+      if (updatedProfile) {
+        // 更新本地状态
+        setUserProfile({
+          name: updatedProfile.nickName || '用户',
+          bio: updatedProfile.signature || '',
+          location: updatedProfile.location || '',
+          occupation: updatedProfile.profession || '',
+          gender: updatedProfile.gender || '保密',
+          birthday: updatedProfile.birthday || '',
+        });
+        
+        Alert.alert('保存成功', `${textModalConfig.title}已更新`);
+      }
+    } catch (error) {
+      console.error('更新资料失败:', error);
+      Alert.alert('保存失败', error.message || '网络错误，请检查连接后重试');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleChangeAvatar = () => {
-    Alert.alert(t('screens.settings.alerts.changeAvatar.title'), t('screens.settings.alerts.changeAvatar.message'), [
-      { text: t('screens.settings.alerts.changeAvatar.takePhoto'), onPress: () => Alert.alert(t('screens.settings.alerts.changeAvatar.takePhoto'), t('screens.settings.alerts.changeAvatar.openCamera')) },
-      { text: t('screens.settings.alerts.changeAvatar.chooseFromAlbum'), onPress: () => Alert.alert(t('screens.settings.alerts.changeAvatar.chooseFromAlbum'), t('screens.settings.alerts.changeAvatar.openAlbum')) },
-      { text: t('common.cancel'), style: 'cancel' }
-    ]);
+    setShowAvatarSheet(true);
+  };
+
+  /**
+   * 请求相机权限
+   */
+  const requestCameraPermission = async () => {
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      
+      if (status !== 'granted') {
+        Alert.alert(
+          '需要相机权限',
+          '请在设置中允许访问相机',
+          [{ text: '确定' }]
+        );
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('请求相机权限失败:', error);
+      return false;
+    }
+  };
+
+  /**
+   * 请求相册权限
+   */
+  const requestMediaLibraryPermission = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      
+      if (status !== 'granted') {
+        Alert.alert(
+          '需要相册权限',
+          '请在设置中允许访问相册',
+          [{ text: '确定' }]
+        );
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('请求相册权限失败:', error);
+      return false;
+    }
+  };
+
+  /**
+   * 将图片 URI 转换为 Base64（纯 JavaScript 方案）
+   * 使用 fetch + FileReader 实现，无需原生模块
+   */
+  const convertImageToBase64 = async (imageUri) => {
+    try {
+      console.log('🔄 转换图片为 Base64...');
+      
+      // 1. 使用 fetch 获取图片数据
+      const response = await fetch(imageUri);
+      const blob = await response.blob();
+      
+      // 2. 检查图片大小（5MB 限制）
+      const sizeInMB = blob.size / (1024 * 1024);
+      console.log(`📊 图片大小: ${sizeInMB.toFixed(2)} MB`);
+      
+      if (sizeInMB > 5) {
+        Alert.alert('图片过大', '请选择小于 5MB 的图片');
+        return null;
+      }
+      
+      // 3. 使用 FileReader 转换为 Base64
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        
+        reader.onloadend = () => {
+          // reader.result 已经包含 data:image/...;base64, 前缀
+          resolve(reader.result);
+        };
+        
+        reader.onerror = () => {
+          reject(new Error('读取图片失败'));
+        };
+        
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      console.error('转换图片为 Base64 失败:', error);
+      throw new Error('图片处理失败');
+    }
+  };
+
+  /**
+   * 上传图片到服务器
+   */
+  const uploadImageToServer = async (imageUri) => {
+    try {
+      setUploadingAvatar(true);
+      
+      // 1. 转换图片为 Base64
+      console.log('🔄 开始处理图片...');
+      console.log('📍 图片 URI:', imageUri);
+      
+      const base64Image = await convertImageToBase64(imageUri);
+      
+      if (!base64Image) {
+        return; // 图片过大，已提示用户
+      }
+      
+      console.log('📤 上传头像中...');
+      console.log('📊 Base64 长度:', base64Image.length);
+      console.log('📊 Base64 前100字符:', base64Image.substring(0, 100));
+      
+      // 2. 调用上传 API（传递 imageUri 用于 FormData）
+      const response = await userApi.uploadAvatar(base64Image, imageUri);
+      
+      console.log('📥 上传响应:', JSON.stringify(response, null, 2));
+      
+      if (response.code === 200 && response.data) {
+        console.log('✅ 头像上传成功');
+        
+        // 3. 从返回数据中获取新的头像路径
+        const newAvatarUrl = response.data.avatar 
+          || response.data.avatarUrl 
+          || response.data.url 
+          || response.data.avatarPath
+          || imageUri;
+        
+        console.log('🖼️ 新头像路径:', newAvatarUrl);
+        
+        // 4. 更新本地状态
+        setUserProfile(prev => ({
+          ...prev,
+          avatar: newAvatarUrl,
+        }));
+        
+        // 5. 刷新用户信息缓存
+        await UserCacheService.forceRefresh();
+        
+        Alert.alert('成功', '头像更新成功');
+      } else {
+        console.error('❌ 上传失败 - 响应码:', response.code);
+        console.error('❌ 错误信息:', response.msg);
+        throw new Error(response.msg || '上传失败');
+      }
+    } catch (error) {
+      console.error('❌ 上传头像失败:', error);
+      console.error('❌ 错误详情:', JSON.stringify(error, null, 2));
+      
+      // 更详细的错误提示
+      let errorMessage = '网络错误，请稍后重试';
+      
+      if (error.response) {
+        // 服务器返回了错误响应
+        console.error('❌ 服务器响应:', error.response);
+        errorMessage = `服务器错误 (${error.response.status}): ${error.response.data?.msg || '请稍后重试'}`;
+      } else if (error.request) {
+        // 请求已发送但没有收到响应
+        console.error('❌ 无响应:', error.request);
+        errorMessage = '无法连接到服务器，请检查网络';
+      } else if (error.message) {
+        // 其他错误
+        errorMessage = error.message;
+      }
+      
+      Alert.alert('上传失败', errorMessage);
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
+  /**
+   * 拍照
+   */
+  const handleTakePhoto = async () => {
+    try {
+      // 请求相机权限
+      const hasPermission = await requestCameraPermission();
+      if (!hasPermission) return;
+      
+      // 打开相机
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: false, // 暂时禁用裁剪，避免按钮显示问题
+        quality: 0.8, // 压缩质量
+      });
+      
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const imageUri = result.assets[0].uri;
+        console.log('📷 拍照成功:', imageUri);
+        
+        // 上传图片
+        await uploadImageToServer(imageUri);
+      }
+    } catch (error) {
+      console.error('拍照失败:', error);
+      Alert.alert('拍照失败', '请稍后重试');
+    }
+  };
+
+  /**
+   * 从相册选择
+   */
+  const handleChooseFromAlbum = async () => {
+    try {
+      // 请求相册权限
+      const hasPermission = await requestMediaLibraryPermission();
+      if (!hasPermission) return;
+      
+      // 打开相册
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: false, // 暂时禁用裁剪，避免按钮显示问题
+        quality: 0.8, // 压缩质量
+      });
+      
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const imageUri = result.assets[0].uri;
+        console.log('🖼️ 选择图片成功:', imageUri);
+        
+        // 上传图片
+        await uploadImageToServer(imageUri);
+      }
+    } catch (error) {
+      console.error('选择图片失败:', error);
+      Alert.alert('选择失败', '请稍后重试');
+    }
   };
 
   return (
@@ -74,10 +423,22 @@ export default function SettingsScreen({ navigation }) {
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* 账号信息 */}
         <View style={styles.accountSection}>
-          <TouchableOpacity style={styles.avatarContainer} onPress={handleChangeAvatar}>
-            <Avatar uri="https://api.dicebear.com/7.x/avataaars/svg?seed=myuser" name={userProfile.name} size={70} />
+          <TouchableOpacity 
+            style={styles.avatarContainer} 
+            onPress={handleChangeAvatar}
+            disabled={uploadingAvatar}
+          >
+            <Avatar 
+              uri={userProfile.avatar || null} 
+              name={userProfile.name} 
+              size={70} 
+            />
             <View style={styles.avatarBadge}>
-              <Ionicons name="camera" size={14} color="#fff" />
+              {uploadingAvatar ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Ionicons name="camera" size={14} color="#fff" />
+              )}
             </View>
           </TouchableOpacity>
           <View style={styles.accountText}>
@@ -92,7 +453,11 @@ export default function SettingsScreen({ navigation }) {
           <View style={styles.section}>
             <TouchableOpacity 
               style={styles.menuItem}
-              onPress={() => handleEditProfile('name', t('screens.settings.profile.nickname'), userProfile.name)}
+              onPress={() => openTextModal('name', '修改昵称', userProfile.name, {
+                minLength: 2,
+                maxLength: 20,
+                hint: '2-20个字符，可包含中英文、数字',
+              })}
             >
               <View style={styles.menuLeft}>
                 <Ionicons name="person-outline" size={22} color="#6b7280" />
@@ -106,7 +471,12 @@ export default function SettingsScreen({ navigation }) {
 
             <TouchableOpacity 
               style={styles.menuItem}
-              onPress={() => handleEditProfile('bio', t('screens.settings.profile.bio'), userProfile.bio)}
+              onPress={() => openTextModal('bio', '修改个人简介', userProfile.bio, {
+                minLength: 0,
+                maxLength: 100,
+                multiline: true,
+                hint: '介绍一下自己吧',
+              })}
             >
               <View style={styles.menuLeft}>
                 <Ionicons name="document-text-outline" size={22} color="#6b7280" />
@@ -153,7 +523,11 @@ export default function SettingsScreen({ navigation }) {
 
             <TouchableOpacity 
               style={styles.menuItem}
-              onPress={() => handleEditProfile('location', t('screens.settings.profile.location'), userProfile.location)}
+              onPress={() => openTextModal('location', '修改所在地', userProfile.location, {
+                minLength: 0,
+                maxLength: 30,
+                hint: '填写您的所在城市',
+              })}
             >
               <View style={styles.menuLeft}>
                 <Ionicons name="location-outline" size={22} color="#6b7280" />
@@ -167,7 +541,11 @@ export default function SettingsScreen({ navigation }) {
 
             <TouchableOpacity 
               style={[styles.menuItem, styles.menuItemLast]}
-              onPress={() => handleEditProfile('occupation', t('screens.settings.profile.occupation'), userProfile.occupation)}
+              onPress={() => openTextModal('occupation', '修改职业', userProfile.occupation, {
+                minLength: 0,
+                maxLength: 30,
+                hint: '填写您的职业或专业领域',
+              })}
             >
               <View style={styles.menuLeft}>
                 <Ionicons name="briefcase-outline" size={22} color="#6b7280" />
@@ -187,7 +565,7 @@ export default function SettingsScreen({ navigation }) {
           <View style={styles.section}>
             <TouchableOpacity 
               style={styles.menuItem}
-              onPress={() => Alert.alert(t('screens.settings.alerts.changePassword.title'), t('screens.settings.alerts.changePassword.message'))}
+              onPress={() => navigation.navigate('ChangePassword')}
             >
               <View style={styles.menuLeft}>
                 <Ionicons name="key-outline" size={22} color="#6b7280" />
@@ -498,6 +876,28 @@ export default function SettingsScreen({ navigation }) {
             </TouchableOpacity>
 
             <TouchableOpacity 
+              style={styles.menuItem}
+              onPress={() => navigation.navigate('ConnectionStatus')}
+            >
+              <View style={styles.menuLeft}>
+                <Ionicons name="wifi-outline" size={22} color="#6b7280" />
+                <Text style={styles.menuLabel}>连接状态</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={styles.menuItem}
+              onPress={() => navigation.navigate('DeviceInfo')}
+            >
+              <View style={styles.menuLeft}>
+                <Ionicons name="phone-portrait-outline" size={22} color="#6b7280" />
+                <Text style={styles.menuLabel}>设备信息</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
+            </TouchableOpacity>
+
+            <TouchableOpacity 
               style={[styles.menuItem, styles.menuItemLast]}
               onPress={() => Alert.alert(t('screens.settings.alerts.aboutUs.title'), t('screens.settings.alerts.aboutUs.message'))}
             >
@@ -562,6 +962,28 @@ export default function SettingsScreen({ navigation }) {
           </View>
         </View>
       </Modal>
+
+      {/* 通用文本编辑弹窗 */}
+      <EditTextModal
+        visible={showTextModal}
+        onClose={() => setShowTextModal(false)}
+        title={textModalConfig.title}
+        currentValue={textModalConfig.currentValue}
+        onSave={handleSaveText}
+        minLength={textModalConfig.minLength}
+        maxLength={textModalConfig.maxLength}
+        multiline={textModalConfig.multiline}
+        hint={textModalConfig.hint}
+        loading={isLoading}
+      />
+
+      {/* 头像操作弹窗 */}
+      <AvatarActionSheet
+        visible={showAvatarSheet}
+        onClose={() => setShowAvatarSheet(false)}
+        onTakePhoto={handleTakePhoto}
+        onChooseFromAlbum={handleChooseFromAlbum}
+      />
     </SafeAreaView>
   );
 }
