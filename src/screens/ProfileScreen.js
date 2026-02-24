@@ -1,14 +1,71 @@
-import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, Alert, Share, Modal, TextInput } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, Alert, Share, Modal, TextInput, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import Avatar from '../components/Avatar';
 import SuperLikeBalance from '../components/SuperLikeBalance';
+import LogoutConfirmModal from '../components/LogoutConfirmModal';
 import { useTranslation } from '../i18n/withTranslation';
+import UserCacheService from '../services/UserCacheService';
+import authApi from '../services/api/authApi';
 
 export default function ProfileScreen({ navigation, onLogout }) {
   const { t } = useTranslation();
+  
+  // 用户信息状态
+  const [userProfile, setUserProfile] = useState({
+    nickname: '张三',
+    userId: '12345678',
+    username: '',
+    avatar: null,
+    bio: '热爱学习，乐于分享。专注Python、数据分析领域。',
+    location: '北京',
+    occupation: '数据分析师',
+    passwordChanged: false, // 是否修改过密码（默认 false，表示未修改，会显示默认密码）
+  });
+  
+  // 加载用户信息
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      await UserCacheService.loadUserProfileWithCache(
+        // 缓存加载完成回调（立即显示）
+        (cachedProfile) => {
+          console.log('ProfileScreen: 从缓存加载用户信息', cachedProfile);
+          setUserProfile(prev => ({
+            ...prev,
+            nickname: cachedProfile.nickName || prev.nickname,
+            userId: cachedProfile.userId || prev.userId,
+            username: cachedProfile.username || prev.username,
+            avatar: cachedProfile.avatar || prev.avatar,
+            bio: cachedProfile.signature || prev.bio,
+            location: cachedProfile.location || prev.location,
+            occupation: cachedProfile.profession || prev.occupation,
+            // passwordChanged: 如果 API 返回了该字段则使用，否则默认 false（显示默认密码）
+            passwordChanged: cachedProfile.passwordChanged === true,
+          }));
+        },
+        // 最新数据加载完成回调（静默更新）
+        (freshProfile) => {
+          console.log('ProfileScreen: 从服务器更新用户信息', freshProfile);
+          setUserProfile(prev => ({
+            ...prev,
+            nickname: freshProfile.nickName || prev.nickname,
+            userId: freshProfile.userId || prev.userId,
+            username: freshProfile.username || prev.username,
+            avatar: freshProfile.avatar || prev.avatar,
+            bio: freshProfile.signature || prev.bio,
+            location: freshProfile.location || prev.location,
+            occupation: freshProfile.profession || prev.occupation,
+            // passwordChanged: 如果 API 返回了该字段则使用，否则默认 false（显示默认密码）
+            passwordChanged: freshProfile.passwordChanged === true,
+          }));
+        }
+      );
+    };
+    
+    loadUserProfile();
+  }, []);
   
   const stats = React.useMemo(() => [
     { label: t('profile.likes'), value: '3.5k', screen: 'Likes' },
@@ -77,6 +134,10 @@ export default function ProfileScreen({ navigation, onLogout }) {
   ], [t]);
 
   const [activeTab, setActiveTab] = useState('');
+  
+  // 退出登录确认弹窗状态
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   
   // Initialize activeTab with translated value
   React.useEffect(() => {
@@ -286,10 +347,33 @@ export default function ProfileScreen({ navigation, onLogout }) {
   };
 
   const handleLogout = () => {
-    Alert.alert(t('profile.logout'), t('profile.logoutConfirm'), [
-      { text: t('common.cancel'), style: 'cancel' },
-      { text: t('profile.logout'), style: 'destructive', onPress: () => { if (onLogout) onLogout(); } }
-    ]);
+    setShowLogoutModal(true);
+  };
+
+  const handleConfirmLogout = async () => {
+    setIsLoggingOut(true);
+    
+    try {
+      // 调用退出登录 API
+      const response = await authApi.logout();
+      
+      if (response.code === 200) {
+        console.log('✅ 退出登录成功');
+        // 调用父组件的 onLogout 回调
+        if (onLogout) {
+          onLogout();
+        }
+      } else {
+        console.error('❌ 退出登录失败:', response.msg);
+        Alert.alert('退出失败', response.msg || '退出登录失败，请重试');
+      }
+    } catch (error) {
+      console.error('❌ 退出登录异常:', error);
+      Alert.alert('退出失败', '网络错误，请检查连接后重试');
+    } finally {
+      setIsLoggingOut(false);
+      setShowLogoutModal(false);
+    }
   };
 
   const getFavoritesData = () => {
@@ -602,10 +686,10 @@ export default function ProfileScreen({ navigation, onLogout }) {
         {/* 用户信息卡片 */}
         <View style={styles.profileCard}>
           <View style={styles.profileHeader}>
-            <Avatar uri="https://api.dicebear.com/7.x/avataaars/svg?seed=myuser" name="我的账号" size={64} />
+            <Avatar uri={userProfile.avatar} name={userProfile.nickname} size={64} />
             <View style={styles.profileInfo}>
               <View style={styles.nameRow}>
-                <Text style={styles.userName}>张三</Text>
+                <Text style={styles.userName}>{userProfile.nickname}</Text>
                 
                 {/* 认证标识 */}
                 {verificationInfo.verified ? (
@@ -633,13 +717,13 @@ export default function ProfileScreen({ navigation, onLogout }) {
                   </TouchableOpacity>
                 )}
               </View>
-              <Text style={styles.userId}>ID: 12345678</Text>
+              <Text style={styles.userId}>ID: {userProfile.userId}</Text>
             </View>
           </View>
-          <Text style={styles.userBio}>{t('profile.bio')}</Text>
+          <Text style={styles.userBio}>{userProfile.bio}</Text>
           <View style={styles.userMeta}>
-            <View style={styles.metaItem}><Ionicons name="location-outline" size={14} color="#9ca3af" /><Text style={styles.metaText}>{t('profile.location')}</Text></View>
-            <View style={styles.metaItem}><Ionicons name="briefcase-outline" size={14} color="#9ca3af" /><Text style={styles.metaText}>{t('profile.occupation')}</Text></View>
+            <View style={styles.metaItem}><Ionicons name="location-outline" size={14} color="#9ca3af" /><Text style={styles.metaText}>{userProfile.location}</Text></View>
+            <View style={styles.metaItem}><Ionicons name="briefcase-outline" size={14} color="#9ca3af" /><Text style={styles.metaText}>{userProfile.occupation}</Text></View>
           </View>
           
           {/* 影响力和智慧指数 */}
@@ -1515,6 +1599,16 @@ export default function ProfileScreen({ navigation, onLogout }) {
           )}
         </SafeAreaView>
       </Modal>
+
+      {/* 退出登录确认弹窗 */}
+      <LogoutConfirmModal
+        visible={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={handleConfirmLogout}
+        username={userProfile.username || userProfile.nickname}
+        isLoading={isLoggingOut}
+        showDefaultPassword={!userProfile.passwordChanged}
+      />
     </SafeAreaView>
   );
 }

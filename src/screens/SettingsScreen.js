@@ -5,7 +5,11 @@ import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import Avatar from '../components/Avatar';
 import EditTextModal from '../components/EditTextModal';
+import EditUsernameModal from '../components/EditUsernameModal';
 import AvatarActionSheet from '../components/AvatarActionSheet';
+import BindContactModal from '../components/BindContactModal';
+import GenderPickerModal from '../components/GenderPickerModal';
+import DatePickerModal from '../components/DatePickerModal';
 import { useTranslation } from '../i18n/withTranslation';
 import UserCacheService from '../services/UserCacheService';
 import userApi from '../services/api/userApi';
@@ -45,8 +49,24 @@ export default function SettingsScreen({ navigation }) {
   // 头像操作弹窗状态
   const [showAvatarSheet, setShowAvatarSheet] = useState(false);
 
+  // 绑定联系方式弹窗状态
+  const [showBindModal, setShowBindModal] = useState(false);
+  const [bindType, setBindType] = useState('phone'); // 'phone' | 'email'
+
+  // 性别选择弹窗状态
+  const [showGenderModal, setShowGenderModal] = useState(false);
+
+  // 生日选择弹窗状态
+  const [showDateModal, setShowDateModal] = useState(false);
+
+  // 用户名编辑弹窗状态
+  const [showUsernameModal, setShowUsernameModal] = useState(false);
+
   // 用户资料数据
   const [userProfile, setUserProfile] = useState({
+    userId: '',
+    username: '', // 用户名（可修改，每半年一次）
+    usernameLastModified: null, // 用户名上次修改时间
     name: '张三丰',
     bio: '热爱学习，乐于分享。专注Python、数据分析领域。',
     location: '北京',
@@ -54,6 +74,8 @@ export default function SettingsScreen({ navigation }) {
     gender: '男',
     birthday: '1990-01-01',
     avatar: null, // 头像 URL
+    email: '',
+    phone: '',
   });
 
   // 上传头像加载状态
@@ -65,26 +87,38 @@ export default function SettingsScreen({ navigation }) {
       await UserCacheService.loadUserProfileWithCache(
         // 缓存加载完成回调（立即显示）
         (cachedProfile) => {
+          console.log('SettingsScreen: 从缓存加载用户信息', cachedProfile);
           setUserProfile({
+            userId: cachedProfile.userId || '',
+            username: cachedProfile.username || '',
+            usernameLastModified: cachedProfile.usernameLastModified || null,
             name: cachedProfile.nickName || '用户',
             bio: cachedProfile.signature || '',
             location: cachedProfile.location || '',
             occupation: cachedProfile.profession || '',
-            gender: cachedProfile.gender || '保密',
+            gender: cachedProfile.sex === '0' ? '男' : cachedProfile.sex === '1' ? '女' : '保密',
             birthday: cachedProfile.birthday || '',
             avatar: cachedProfile.avatar || null,
+            email: cachedProfile.email || '',
+            phone: cachedProfile.phonenumber || '',
           });
         },
         // 最新数据加载完成回调（静默更新）
         (freshProfile) => {
+          console.log('SettingsScreen: 从服务器更新用户信息', freshProfile);
           setUserProfile({
+            userId: freshProfile.userId || '',
+            username: freshProfile.username || '',
+            usernameLastModified: freshProfile.usernameLastModified || null,
             name: freshProfile.nickName || '用户',
             bio: freshProfile.signature || '',
             location: freshProfile.location || '',
             occupation: freshProfile.profession || '',
-            gender: freshProfile.gender || '保密',
+            gender: freshProfile.sex === '0' ? '男' : freshProfile.sex === '1' ? '女' : '保密',
             birthday: freshProfile.birthday || '',
             avatar: freshProfile.avatar || null,
+            email: freshProfile.email || '',
+            phone: freshProfile.phonenumber || '',
           });
         }
       );
@@ -157,12 +191,18 @@ export default function SettingsScreen({ navigation }) {
       if (updatedProfile) {
         // 更新本地状态
         setUserProfile({
+          userId: updatedProfile.userId || '',
+          username: updatedProfile.username || '',
+          usernameLastModified: updatedProfile.usernameLastModified || null,
           name: updatedProfile.nickName || '用户',
           bio: updatedProfile.signature || '',
           location: updatedProfile.location || '',
           occupation: updatedProfile.profession || '',
-          gender: updatedProfile.gender || '保密',
+          gender: updatedProfile.sex === '0' ? '男' : updatedProfile.sex === '1' ? '女' : '保密',
           birthday: updatedProfile.birthday || '',
+          avatar: updatedProfile.avatar || null,
+          email: updatedProfile.email || '',
+          phone: updatedProfile.phonenumber || '',
         });
         
         Alert.alert('保存成功', `${textModalConfig.title}已更新`);
@@ -175,8 +215,81 @@ export default function SettingsScreen({ navigation }) {
     }
   };
 
+  /**
+   * 保存用户名
+   */
+  const handleSaveUsername = async (newUsername) => {
+    setIsLoading(true);
+    
+    try {
+      // 调用 API 更新用户名
+      const requestData = {
+        username: newUsername,
+      };
+      
+      const updatedProfile = await UserCacheService.updateUserProfile(requestData);
+      
+      if (updatedProfile) {
+        // 更新本地状态
+        setUserProfile({
+          userId: updatedProfile.userId || '',
+          username: updatedProfile.username || newUsername,
+          usernameLastModified: new Date().toISOString(), // 记录修改时间
+          name: updatedProfile.nickName || userProfile.name,
+          bio: updatedProfile.signature || userProfile.bio,
+          location: updatedProfile.location || userProfile.location,
+          occupation: updatedProfile.profession || userProfile.occupation,
+          gender: updatedProfile.sex === '0' ? '男' : updatedProfile.sex === '1' ? '女' : '保密',
+          birthday: updatedProfile.birthday || userProfile.birthday,
+          avatar: updatedProfile.avatar || userProfile.avatar,
+          email: updatedProfile.email || userProfile.email,
+          phone: updatedProfile.phonenumber || userProfile.phone,
+        });
+        
+        setShowUsernameModal(false);
+        Alert.alert('保存成功', '用户名已更新');
+      }
+    } catch (error) {
+      console.error('更新用户名失败:', error);
+      Alert.alert('保存失败', error.message || '网络错误，请检查连接后重试');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleChangeAvatar = () => {
     setShowAvatarSheet(true);
+  };
+
+  /**
+   * 打开绑定手机号弹窗
+   */
+  const handleBindPhone = () => {
+    setBindType('phone');
+    setShowBindModal(true);
+  };
+
+  /**
+   * 打开绑定邮箱弹窗
+   */
+  const handleBindEmail = () => {
+    setBindType('email');
+    setShowBindModal(true);
+  };
+
+  /**
+   * 绑定成功回调
+   */
+  const handleBindSuccess = async (newValue) => {
+    console.log(`绑定成功: ${bindType} = ${newValue}`);
+    
+    // 刷新用户信息
+    try {
+      await UserCacheService.forceRefresh();
+      Alert.alert('绑定成功', `${bindType === 'phone' ? '手机号' : '邮箱'}已成功绑定`);
+    } catch (error) {
+      console.error('刷新用户信息失败:', error);
+    }
   };
 
   /**
@@ -443,7 +556,7 @@ export default function SettingsScreen({ navigation }) {
           </TouchableOpacity>
           <View style={styles.accountText}>
             <Text style={styles.accountName}>{userProfile.name}</Text>
-            <Text style={styles.accountId}>{t('screens.settings.profile.userId')}: 123456789</Text>
+            <Text style={styles.accountId}>{t('screens.settings.profile.userId')}: {userProfile.userId || '加载中...'}</Text>
           </View>
         </View>
 
@@ -471,6 +584,22 @@ export default function SettingsScreen({ navigation }) {
 
             <TouchableOpacity 
               style={styles.menuItem}
+              onPress={() => setShowUsernameModal(true)}
+            >
+              <View style={styles.menuLeft}>
+                <Ionicons name="at-outline" size={22} color="#6b7280" />
+                <Text style={styles.menuLabel}>用户名</Text>
+              </View>
+              <View style={styles.menuRight}>
+                <Text style={styles.menuValue}>
+                  {userProfile.username || '未设置'}
+                </Text>
+                <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={styles.menuItem}
               onPress={() => openTextModal('bio', '修改个人简介', userProfile.bio, {
                 minLength: 0,
                 maxLength: 100,
@@ -490,12 +619,7 @@ export default function SettingsScreen({ navigation }) {
 
             <TouchableOpacity 
               style={styles.menuItem}
-              onPress={() => Alert.alert(t('screens.settings.alerts.gender.title'), t('screens.settings.alerts.gender.message'), [
-                { text: t('screens.settings.alerts.gender.male'), onPress: () => setUserProfile({ ...userProfile, gender: t('screens.settings.alerts.gender.male') }) },
-                { text: t('screens.settings.alerts.gender.female'), onPress: () => setUserProfile({ ...userProfile, gender: t('screens.settings.alerts.gender.female') }) },
-                { text: t('screens.settings.alerts.gender.secret'), onPress: () => setUserProfile({ ...userProfile, gender: t('screens.settings.alerts.gender.secret') }) },
-                { text: t('common.cancel'), style: 'cancel' }
-              ])}
+              onPress={() => setShowGenderModal(true)}
             >
               <View style={styles.menuLeft}>
                 <Ionicons name="male-female-outline" size={22} color="#6b7280" />
@@ -509,7 +633,7 @@ export default function SettingsScreen({ navigation }) {
 
             <TouchableOpacity 
               style={styles.menuItem}
-              onPress={() => Alert.alert(t('screens.settings.alerts.birthday.title'), t('screens.settings.alerts.birthday.message'))}
+              onPress={() => setShowDateModal(true)}
             >
               <View style={styles.menuLeft}>
                 <Ionicons name="calendar-outline" size={22} color="#6b7280" />
@@ -576,28 +700,32 @@ export default function SettingsScreen({ navigation }) {
 
             <TouchableOpacity 
               style={styles.menuItem}
-              onPress={() => Alert.alert(t('screens.settings.alerts.bindPhone.title'), t('screens.settings.alerts.bindPhone.message'))}
+              onPress={handleBindPhone}
             >
               <View style={styles.menuLeft}>
                 <Ionicons name="phone-portrait-outline" size={22} color="#6b7280" />
                 <Text style={styles.menuLabel}>{t('screens.settings.account.bindPhone')}</Text>
               </View>
               <View style={styles.menuRight}>
-                <Text style={styles.menuValue}>138****8888</Text>
+                <Text style={styles.menuValue}>
+                  {userProfile.phone ? userProfile.phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2') : '未绑定'}
+                </Text>
                 <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
               </View>
             </TouchableOpacity>
 
             <TouchableOpacity 
               style={[styles.menuItem, styles.menuItemLast]}
-              onPress={() => Alert.alert(t('screens.settings.alerts.bindEmail.title'), t('screens.settings.alerts.bindEmail.message'))}
+              onPress={handleBindEmail}
             >
               <View style={styles.menuLeft}>
                 <Ionicons name="mail-outline" size={22} color="#6b7280" />
                 <Text style={styles.menuLabel}>{t('screens.settings.account.bindEmail')}</Text>
               </View>
               <View style={styles.menuRight}>
-                <Text style={styles.menuValue}>{t('screens.settings.account.notBound')}</Text>
+                <Text style={styles.menuValue}>
+                  {userProfile.email || t('screens.settings.account.notBound')}
+                </Text>
                 <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
               </View>
             </TouchableOpacity>
@@ -983,6 +1111,41 @@ export default function SettingsScreen({ navigation }) {
         onClose={() => setShowAvatarSheet(false)}
         onTakePhoto={handleTakePhoto}
         onChooseFromAlbum={handleChooseFromAlbum}
+      />
+
+      {/* 绑定联系方式弹窗 */}
+      <BindContactModal
+        visible={showBindModal}
+        onClose={() => setShowBindModal(false)}
+        type={bindType}
+        currentValue={bindType === 'phone' ? userProfile.phone : userProfile.email}
+        onSubmit={handleBindSuccess}
+      />
+
+      {/* 性别选择弹窗 */}
+      <GenderPickerModal
+        visible={showGenderModal}
+        onClose={() => setShowGenderModal(false)}
+        currentGender={userProfile.gender}
+        onSelect={(gender) => setUserProfile({ ...userProfile, gender })}
+      />
+
+      {/* 生日选择弹窗 */}
+      <DatePickerModal
+        visible={showDateModal}
+        onClose={() => setShowDateModal(false)}
+        currentDate={userProfile.birthday}
+        onSelect={(birthday) => setUserProfile({ ...userProfile, birthday })}
+      />
+
+      {/* 用户名编辑弹窗 */}
+      <EditUsernameModal
+        visible={showUsernameModal}
+        onClose={() => setShowUsernameModal(false)}
+        onSave={handleSaveUsername}
+        currentUsername={userProfile.username}
+        lastModifiedDate={userProfile.usernameLastModified}
+        isLoading={isLoading}
       />
     </SafeAreaView>
   );

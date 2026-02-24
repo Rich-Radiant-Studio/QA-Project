@@ -972,6 +972,273 @@
         "successMessage": "Your report has been submitted: {reasons}",
         "remarkNote": "\nAdditional Details: {remark}"
       }
+    },
+    "activity": {
+      "title": "Activities",
+      "myActivities": "My Activities",
+      "create": "Create",
+      "empty": "No activities",
+      "participants": " participants",
+      "progress": "Progress",
+      "tabs": {
+        "all": "All",
+        "hot": "Hot",
+        "new": "New",
+        "ended": "Ended",
+        "mine": "Mine"
+      },
+      "tag": {
+        "hot": "Hot",
+        "new": "New",
+        "ended": "Ended"
+      },
+      "type": {
+        "online": "Online",
+        "offline": "Offline"
+      },
+      "organizer": {
+        "platform": "Platform"
+      },
+      "actions": {
+        "join": "Join",
+        "joined": "Joined",
+        "ended": "Ended",
+        "viewDetail": "View Details",
+        "quitConfirm": "Are you sure you want to quit this activity?"
+      }
+    },
+    "createActivity": {
+      "title": "Create Activity",
+      "publish": "Publish",
+      "organizerType": {
+        "label": "Organizer Type",
+        "required": "*",
+        "personal": "Personal",
+        "team": "Team",
+        "teamBadge": "Team Activity"
+      },
+      "selectedTeam": {
+        "change": "Change Team",
+        "select": "Click to select team"
+      },
+      "activityType": {
+        "label": "Activity Type",
+        "online": "Online",
+        "offline": "Offline"
+      },
+      "activityTitle": {
+        "label": "Activity Title",
+        "required": "*",
+        "placeholder": "Enter activity title"
+      },
+      "description": {
+        "label": "Activity Description",
+        "required": "*",
+        "placeholder": "Please describe the activity content, rules, rewards, etc..."
+      },
+      "time": {
+        "label": "Activity Time",
+        "required": "*",
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "startPlaceholder": "2026-01-01",
+        "endPlaceholder": "2026-01-31",
+        "to": "to"
+      },
+      "location": {
+        "label": "Location",
+        "required": "*",
+        "placeholder": "Enter activity location"
+      },
+      "images": {
+        "label": "Activity Images",
+        "add": "Add Image",
+        "maxLimit": "Maximum 9 images allowed"
+      },
+      "contact": {
+        "label": "Contact",
+        "placeholder": "Enter contact information (optional)"
+      },
+      "teamSelector": {
+        "title": "Select Team",
+        "members": " members"
+      },
+      "validation": {
+        "hint": "Hint",
+        "titleRequired": "Please enter activity title",
+        "descriptionRequired": "Please enter activity description",
+        "timeRequired": "Please select activity time",
+        "locationRequired": "Offline activity requires location",
+        "teamRequired": "Please select a team"
+      },
+      "success": {
+        "title": "Success",
+        "message": "Activity created successfully!",
+        "confirm": "OK"
+      }
+    },
+    "inviteAnswer": {
+      "title": "Invite to Answer",
+      "tabs": {
+        "local": "Local",
+        "twitter": "Twitter"
+      },
+      "search": {
+        "placeholder": "Search users",
+        "placeholderTwitter": "Search Twitter users"
+      },
+      "userInfo": {
+        "developer": "Developer",
+        "answers": " answers",
+        "followers": "k followers"
+      },
+      "actions": {
+        "invite": "Invite"
+      },
+      "alerts": {
+        "invitedLocal": "Invited user ",
+        "invitedTwitter": "Invited Twitter user "
+      }
+    },
+    "questionTeams": {
+      "title": "Question Teams",
+      "defaultQuestionTitle": "How to learn Python from scratch in three months? Any...",
+      "createTeam": "Create Team",
+      "listHeader": {
+        "title": "Related Teams",
+        "description": "These teams are discussing this question"
+      },
+      "badges": {
+        "joined": "Joined",
+        "pending": "Pending"
+      },
+      "userRole": {
+        "label": "Your role: ",
+        "admin": "Admin",
+        "member": "Member",
+        "notJoined": "Not joined"
+      },
+      "meta": {
+        "people": " people"
+      },
+      "activeLevel": {
+        "veryActive": "Very Active",
+        "active": "Active",
+        "moderatelyActive": "Moderately Active"
+      },
+      "actions": {
+        "apply": "Apply",
+        "waitingVote": "Waiting for vote",
+        "enter": "Enter"
+      },
+      "empty": {
+        "title": "No related teams",
+        "hint": "Be the first to create a team"
+      },
+      "createModal": {
+        "title": "Create Team",
+        "nameLabel": "Team Name",
+        "nameRequired": "*",
+        "namePlaceholder": "Enter team name",
+        "descLabel": "Team Description",
+        "descPlaceholder": "Briefly describe the team's goals and features...",
+        "submit": "Create"
+      },
+      "pendingModal": {
+        "title": "Application Submitted",
+        "description": "Your application has been submitted successfully!\n\nTeam members will vote on your application. You need more than 50% approval to join.\n\nPlease wait patiently for the result. We will notify you in time.",
+        "button": "Got it"
+      },
+      "alerts": {
+        "applyTitle": "Apply to Join Team",
+        "applyMessage": "Are you sure you want to apply to join \"{name}\"?\n\nAfter applying, you need to wait for team members to vote. You can join after more than 50% approval.",
+        "cancel": "Cancel",
+        "confirmApply": "Confirm",
+        "hint": "Hint",
+        "nameRequired": "Please enter team name",
+        "success": "Success",
+        "createSuccess": "Team \"{name}\" created successfully!"
+      }
+    },
+    "questionActivityList": {
+      "title": "Question Activities",
+      "publish": "Create",
+      "joinSuccess": "Successfully enrolled!",
+      "cancelSuccess": "Enrollment cancelled",
+      "stats": {
+        "totalActivities": "Total Activities",
+        "enrolling": "Enrolling",
+        "totalParticipants": "Total Participants"
+      },
+      "activityList": "Activity List",
+      "filter": "Filter",
+      "activityType": {
+        "online": "Online",
+        "offline": "Offline"
+      },
+      "status": {
+        "enrolling": "Enrolling",
+        "starting": "Starting Soon"
+      },
+      "organizer": "Organizer",
+      "joined": "Enrolled",
+      "join": "Enroll",
+      "modal": {
+        "createTitle": "Create Activity",
+        "publish": "Publish",
+        "boundQuestion": "Bound Question",
+        "organizerType": {
+          "label": "Organizer Type",
+          "required": "*",
+          "personal": "Personal",
+          "team": "Team"
+        },
+        "activityType": {
+          "label": "Activity Type",
+          "online": "Online",
+          "offline": "Offline"
+        },
+        "title": {
+          "label": "Activity Title",
+          "required": "*",
+          "placeholder": "Enter activity title"
+        },
+        "description": {
+          "label": "Activity Description",
+          "required": "*",
+          "placeholder": "Please describe the activity content, rules, rewards, etc..."
+        },
+        "time": {
+          "label": "Activity Time",
+          "required": "*",
+          "startDate": "Start Time",
+          "endDate": "End Time",
+          "startPlaceholder": "2026-01-01 19:00",
+          "endPlaceholder": "2026-01-01 21:00",
+          "to": "to"
+        },
+        "location": {
+          "label": "Location",
+          "required": "*",
+          "placeholder": "Enter activity location"
+        },
+        "images": {
+          "label": "Activity Images",
+          "add": "Add Image",
+          "maxLimit": "Maximum 9 images allowed"
+        },
+        "contact": {
+          "label": "Contact",
+          "placeholder": "Enter contact information (optional)"
+        },
+        "validation": {
+          "titleRequired": "Please enter activity title",
+          "descriptionRequired": "Please enter activity description",
+          "timeRequired": "Please select activity time",
+          "locationRequired": "Offline activity requires location"
+        },
+        "createSuccess": "Activity created successfully!"
+      }
     }
   },
   "common": {

@@ -972,6 +972,431 @@
         "successMessage": "您的举报已提交：{reasons}",
         "remarkNote": "\n补充说明：{remark}"
       }
+    },
+    "settings": {
+      "title": "设置",
+      "profile": {
+        "groupTitle": "编辑资料",
+        "nickname": "昵称",
+        "bio": "个人简介",
+        "gender": "性别",
+        "birthday": "生日",
+        "location": "所在地",
+        "occupation": "职业",
+        "userId": "用户ID"
+      },
+      "account": {
+        "groupTitle": "账号与安全",
+        "changePassword": "修改密码",
+        "bindPhone": "绑定手机",
+        "bindEmail": "绑定邮箱",
+        "notBound": "未绑定"
+      },
+      "notifications": {
+        "groupTitle": "消息通知",
+        "push": "推送通知",
+        "pushDesc": "接收系统推送的消息通知",
+        "like": "赞和喜欢",
+        "comment": "评论",
+        "follow": "新增关注",
+        "system": "系统消息"
+      },
+      "privacy": {
+        "groupTitle": "隐私设置",
+        "showOnline": "显示在线状态",
+        "showOnlineDesc": "让其他用户看到您的在线状态",
+        "allowMessage": "允许陌生人私信",
+        "allowMessageDesc": "允许未关注的用户给您发私信",
+        "blacklist": "黑名单"
+      },
+      "general": {
+        "groupTitle": "通用设置",
+        "clearCache": "清除缓存",
+        "language": "语言",
+        "languageChinese": "简体中文"
+      },
+      "wallet": {
+        "groupTitle": "钱包与超级赞",
+        "purchaseSuperLike": "购买超级赞",
+        "superLikeHistory": "超级赞历史"
+      },
+      "help": {
+        "groupTitle": "帮助与反馈",
+        "faq": "常见问题",
+        "customerService": "在线客服",
+        "online": "在线",
+        "feedback": "意见反馈"
+      },
+      "about": {
+        "groupTitle": "关于我们",
+        "checkUpdate": "检查更新",
+        "userAgreement": "用户协议",
+        "privacyPolicy": "隐私政策",
+        "deviceInfo": "设备信息",
+        "aboutUs": "关于我们"
+      },
+      "logout": "退出登录",
+      "editModal": {
+        "cancel": "取消",
+        "save": "保存",
+        "placeholder": "请输入",
+        "hints": {
+          "nickname": "2-20个字符，可包含中英文、数字",
+          "bio": "简单介绍一下自己吧",
+          "location": "请输入您的所在地",
+          "occupation": "请输入您的职业"
+        }
+      },
+      "alerts": {
+        "saveSuccess": {
+          "title": "保存成功",
+          "message": "您的资料已更新"
+        },
+        "changeAvatar": {
+          "title": "更换头像",
+          "message": "请选择图片来源",
+          "takePhoto": "拍照",
+          "chooseFromAlbum": "从相册选择",
+          "openCamera": "打开相机功能",
+          "openAlbum": "打开相册功能"
+        },
+        "gender": {
+          "title": "选择性别",
+          "message": "请选择您的性别",
+          "male": "男",
+          "female": "女",
+          "secret": "保密"
+        },
+        "birthday": {
+          "title": "选择生日",
+          "message": "打开日期选择器"
+        },
+        "changePassword": {
+          "title": "修改密码",
+          "message": "打开修改密码页面"
+        },
+        "bindPhone": {
+          "title": "绑定手机",
+          "message": "打开手机绑定页面"
+        },
+        "bindEmail": {
+          "title": "绑定邮箱",
+          "message": "打开邮箱绑定页面"
+        },
+        "blacklist": {
+          "title": "黑名单",
+          "message": "打开黑名单管理页面"
+        },
+        "clearCache": {
+          "title": "清除缓存",
+          "message": "确定要清除缓存吗？",
+          "success": "缓存已清除"
+        },
+        "language": {
+          "title": "选择语言",
+          "message": "打开语言选择页面"
+        },
+        "checkUpdate": {
+          "title": "检查更新",
+          "message": "当前已是最新版本"
+        },
+        "userAgreement": {
+          "title": "用户协议",
+          "message": "打开用户协议页面"
+        },
+        "privacyPolicy": {
+          "title": "隐私政策",
+          "message": "打开隐私政策页面"
+        },
+        "aboutUs": {
+          "title": "关于我们",
+          "message": "Problem to Hero v1.0.0\n\n一个帮助人们解决问题的社区平台"
+        },
+        "faq": {
+          "title": "常见问题",
+          "message": "打开常见问题页面"
+        },
+        "customerService": {
+          "title": "在线客服",
+          "message": "打开在线客服页面"
+        },
+        "feedback": {
+          "title": "意见反馈",
+          "message": "打开意见反馈页面"
+        },
+        "logout": {
+          "title": "退出登录",
+          "message": "确定要退出登录吗？",
+          "button": "退出"
+        }
+      }
+    },
+    "activity": {
+      "title": "活动",
+      "myActivities": "我的活动",
+      "create": "创建",
+      "empty": "暂无活动",
+      "participants": "人参与",
+      "progress": "进度",
+      "tabs": {
+        "all": "全部",
+        "hot": "热门",
+        "new": "最新",
+        "ended": "已结束",
+        "mine": "我的"
+      },
+      "tag": {
+        "hot": "热门",
+        "new": "最新",
+        "ended": "已结束"
+      },
+      "type": {
+        "online": "线上",
+        "offline": "线下"
+      },
+      "organizer": {
+        "platform": "平台"
+      },
+      "actions": {
+        "join": "参加",
+        "joined": "已参加",
+        "ended": "已结束",
+        "viewDetail": "查看详情",
+        "quitConfirm": "确定要退出该活动吗？"
+      }
+    },
+    "createActivity": {
+      "title": "创建活动",
+      "publish": "发布",
+      "organizerType": {
+        "label": "发起身份",
+        "required": "*",
+        "personal": "个人发起",
+        "team": "团队发起",
+        "teamBadge": "团队活动"
+      },
+      "selectedTeam": {
+        "change": "更换团队",
+        "select": "点击选择团队"
+      },
+      "activityType": {
+        "label": "活动类型",
+        "online": "线上活动",
+        "offline": "线下活动"
+      },
+      "activityTitle": {
+        "label": "活动标题",
+        "required": "*",
+        "placeholder": "请输入活动标题"
+      },
+      "description": {
+        "label": "活动内容",
+        "required": "*",
+        "placeholder": "请详细描述活动内容、规则、奖励等信息..."
+      },
+      "time": {
+        "label": "活动时间",
+        "required": "*",
+        "startDate": "开始时间",
+        "endDate": "结束时间",
+        "startPlaceholder": "2026-01-01",
+        "endPlaceholder": "2026-01-31",
+        "to": "至"
+      },
+      "location": {
+        "label": "活动地址",
+        "required": "*",
+        "placeholder": "请输入活动举办地址"
+      },
+      "images": {
+        "label": "活动图片",
+        "add": "添加图片",
+        "maxLimit": "最多只能上传9张图片"
+      },
+      "contact": {
+        "label": "联系方式",
+        "placeholder": "请输入联系方式（选填）"
+      },
+      "teamSelector": {
+        "title": "选择团队",
+        "members": "名成员"
+      },
+      "validation": {
+        "hint": "提示",
+        "titleRequired": "请输入活动标题",
+        "descriptionRequired": "请输入活动内容",
+        "timeRequired": "请选择活动时间",
+        "locationRequired": "线下活动需要填写活动地址",
+        "teamRequired": "请选择发起团队"
+      },
+      "success": {
+        "title": "创建成功",
+        "message": "活动已创建成功！",
+        "confirm": "确定"
+      }
+    },
+    "inviteAnswer": {
+      "title": "邀请回答",
+      "tabs": {
+        "local": "本站",
+        "twitter": "推特"
+      },
+      "search": {
+        "placeholder": "搜索用户",
+        "placeholderTwitter": "搜索推特用户"
+      },
+      "userInfo": {
+        "developer": "开发者",
+        "answers": "个回答",
+        "followers": "k关注者"
+      },
+      "actions": {
+        "invite": "邀请"
+      },
+      "alerts": {
+        "invitedLocal": "已邀请用户",
+        "invitedTwitter": "已邀请推特用户"
+      }
+    },
+    "questionTeams": {
+      "title": "问题团队",
+      "defaultQuestionTitle": "如何在三个月内从零基础学会Python编程？有没有...",
+      "createTeam": "创建团队",
+      "listHeader": {
+        "title": "相关团队",
+        "description": "以下团队正在讨论这个问题"
+      },
+      "badges": {
+        "joined": "已加入",
+        "pending": "审核中"
+      },
+      "userRole": {
+        "label": "你的身份：",
+        "admin": "管理员",
+        "member": "成员",
+        "notJoined": "未加入"
+      },
+      "meta": {
+        "people": "人"
+      },
+      "activeLevel": {
+        "veryActive": "非常活跃",
+        "active": "活跃",
+        "moderatelyActive": "较活跃"
+      },
+      "actions": {
+        "apply": "申请加入",
+        "waitingVote": "等待投票",
+        "enter": "进入"
+      },
+      "empty": {
+        "title": "暂无相关团队",
+        "hint": "快来创建第一个团队吧"
+      },
+      "createModal": {
+        "title": "创建团队",
+        "nameLabel": "团队名称",
+        "nameRequired": "*",
+        "namePlaceholder": "请输入团队名称",
+        "descLabel": "团队简介",
+        "descPlaceholder": "简单介绍一下团队的目标和特色...",
+        "submit": "创建"
+      },
+      "pendingModal": {
+        "title": "申请已提交",
+        "description": "你的加入申请已提交成功！\n\n团队成员将对你的申请进行投票，需要超过50%的成员同意后才能加入团队。\n\n请耐心等待审核结果，我们会及时通知你。",
+        "button": "我知道了"
+      },
+      "alerts": {
+        "applyTitle": "申请加入团队",
+        "applyMessage": "确定要申请加入\"{name}\"吗？\n\n申请后需要等待团队成员投票，超过50%的成员同意后即可加入。",
+        "cancel": "取消",
+        "confirmApply": "确认申请",
+        "hint": "提示",
+        "nameRequired": "请输入团队名称",
+        "success": "成功",
+        "createSuccess": "团队\"{name}\"创建成功！"
+      }
+    },
+    "questionActivityList": {
+      "title": "问题活动",
+      "publish": "发起",
+      "joinSuccess": "报名成功！",
+      "cancelSuccess": "已取消报名",
+      "stats": {
+        "totalActivities": "活动总数",
+        "enrolling": "报名中",
+        "totalParticipants": "总参与人数"
+      },
+      "activityList": "活动列表",
+      "filter": "筛选",
+      "activityType": {
+        "online": "线上活动",
+        "offline": "线下活动"
+      },
+      "status": {
+        "enrolling": "报名中",
+        "starting": "即将开始"
+      },
+      "organizer": "发起人",
+      "joined": "已报名",
+      "join": "报名",
+      "modal": {
+        "createTitle": "发起活动",
+        "publish": "发布",
+        "boundQuestion": "绑定问题",
+        "organizerType": {
+          "label": "发起身份",
+          "required": "*",
+          "personal": "个人发起",
+          "team": "团队发起"
+        },
+        "activityType": {
+          "label": "活动类型",
+          "online": "线上活动",
+          "offline": "线下活动"
+        },
+        "title": {
+          "label": "活动标题",
+          "required": "*",
+          "placeholder": "请输入活动标题"
+        },
+        "description": {
+          "label": "活动内容",
+          "required": "*",
+          "placeholder": "请详细描述活动内容、规则、奖励等信息..."
+        },
+        "time": {
+          "label": "活动时间",
+          "required": "*",
+          "startDate": "开始时间",
+          "endDate": "结束时间",
+          "startPlaceholder": "2026-01-01 19:00",
+          "endPlaceholder": "2026-01-01 21:00",
+          "to": "至"
+        },
+        "location": {
+          "label": "活动地址",
+          "required": "*",
+          "placeholder": "请输入活动举办地址"
+        },
+        "images": {
+          "label": "活动图片",
+          "add": "添加图片",
+          "maxLimit": "最多只能上传9张图片"
+        },
+        "contact": {
+          "label": "联系方式",
+          "placeholder": "请输入联系方式（选填）"
+        },
+        "validation": {
+          "titleRequired": "请输入活动标题",
+          "descriptionRequired": "请输入活动内容",
+          "timeRequired": "请选择活动时间",
+          "locationRequired": "线下活动需要填写活动地址"
+        },
+        "createSuccess": "活动创建成功！"
+      }
     }
   },
   "common": {

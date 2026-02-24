@@ -213,10 +213,10 @@ export default function CreateActivityScreen({ navigation, route }) {
         </View>
 
         {/* 活动标题 */}
-        <Text style={styles.inputLabel}>{t('screens.createActivity.title.label')} <Text style={styles.required}>{t('screens.createActivity.title.required')}</Text></Text>
+        <Text style={styles.inputLabel}>{t('screens.createActivity.activityTitle.label')} <Text style={styles.required}>{t('screens.createActivity.activityTitle.required')}</Text></Text>
         <TextInput
           style={styles.input}
-          placeholder={t('screens.createActivity.title.placeholder')}
+          placeholder={t('screens.createActivity.activityTitle.placeholder')}
           value={newActivity.title}
           onChangeText={(text) => setNewActivity({ ...newActivity, title: text })}
           maxLength={50}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, TextInput, StyleSheet, Modal, Alert } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -789,7 +789,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
                   activeOpacity={0.7}
                 >
                   <View style={styles.suppHeader}>
-                    <Avatar uri={item.avatar} name={item.author} size={28} />
+                    <Avatar uri={item.avatar} name={item.author} size={24} />
                     <View style={styles.suppAuthorInfo}>
                       <View style={styles.suppAuthorRow}>
                         <Text style={styles.suppAuthor}>{item.author}</Text>
@@ -951,7 +951,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
               {commentsData.slice(0, showAllComments ? commentsData.length : 3).map(comment => (
                 <View key={comment.id} style={styles.commentCard}>
                   <View style={styles.commentHeader}>
-                    <Avatar uri={comment.avatar} name={comment.author} size={28} />
+                    <Avatar uri={comment.avatar} name={comment.author} size={24} />
                     <Text style={styles.commentAuthor}>{comment.author}</Text>
                     
                     {/* 超级赞按钮 - 在用户名后面 */}
@@ -1253,7 +1253,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
               {answers.slice(0, showAllAnswers ? answers.length : 3).map(answer => (
             <TouchableOpacity key={answer.id} style={[styles.answerCard, answer.adopted && styles.answerCardAdopted]} onPress={() => navigation.navigate('AnswerDetail', { answer })}>
               <View style={styles.answerHeader}>
-                <Avatar uri={answer.avatar} name={answer.author} size={28} />
+                <Avatar uri={answer.avatar} name={answer.author} size={24} />
                 <View style={styles.answerAuthorInfo}>
                   <View style={styles.answerAuthorRow}>
                     <Text style={styles.answerAuthor}>{answer.author}</Text>
@@ -1799,7 +1799,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
                 <View key={comment.id}>
                   <View style={styles.commentListCard}>
                     <View style={styles.commentListHeader}>
-                      <Avatar uri={comment.avatar} name={comment.author} size={28} />
+                      <Avatar uri={comment.avatar} name={comment.author} size={24} />
                       <Text style={styles.commentListAuthor}>{comment.author}</Text>
                       <View style={{ flex: 1 }} />
                       <Text style={styles.commentListTime}>{comment.time}</Text>
@@ -1834,7 +1834,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
                       {repliesData[comment.id].map(reply => (
                         <View key={reply.id} style={styles.replyCard}>
                           <View style={styles.replyHeader}>
-                            <Avatar uri={reply.avatar} name={reply.author} size={28} />
+                            <Avatar uri={reply.avatar} name={reply.author} size={24} />
                             <Text style={styles.replyAuthor}>{reply.author}</Text>
                             <View style={{ flex: 1 }} />
                             <Text style={styles.replyTime}>{reply.time}</Text>
@@ -2031,7 +2031,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
               {currentCommentId && repliesData[currentCommentId] && repliesData[currentCommentId].map(reply => (
                 <View key={reply.id} style={styles.replyCard}>
                   <View style={styles.replyHeader}>
-                    <Avatar uri={reply.avatar} name={reply.author} size={28} />
+                    <Avatar uri={reply.avatar} name={reply.author} size={24} />
                     <Text style={styles.replyAuthor}>{reply.author}</Text>
                     <View style={{ flex: 1 }} />
                     <Text style={styles.replyTime}>{reply.time}</Text>
@@ -2156,7 +2156,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
                 <View key={comment.id}>
                   <View style={styles.commentListCard}>
                     <View style={styles.commentListHeader}>
-                      <Avatar uri={comment.avatar} name={comment.author} size={28} />
+                      <Avatar uri={comment.avatar} name={comment.author} size={24} />
                       <Text style={styles.commentListAuthor}>{comment.author}</Text>
                       <View style={{ flex: 1 }} />
                       <Text style={styles.commentListTime}>{comment.time}</Text>
@@ -2191,7 +2191,7 @@ export default function QuestionDetailScreen({ navigation, route }) {
                       {repliesData[comment.id].map(reply => (
                         <View key={reply.id} style={styles.replyCard}>
                           <View style={styles.replyHeader}>
-                            <Avatar uri={reply.avatar} name={reply.author} size={28} />
+                            <Avatar uri={reply.avatar} name={reply.author} size={24} />
                             <Text style={styles.replyAuthor}>{reply.author}</Text>
                             <View style={{ flex: 1 }} />
                             <Text style={styles.replyTime}>{reply.time}</Text>
@@ -3295,8 +3295,8 @@ const styles = StyleSheet.create({
   arbitrationBtnTextCompact: { fontSize: 10, color: '#6b7280', fontWeight: '500' },
   viewArbitrationBtnCompact: { flexDirection: 'row', alignItems: 'center', gap: 2, paddingHorizontal: 6, paddingVertical: 2 },
   viewArbitrationBtnTextCompact: { fontSize: 10, color: '#6b7280' },
-  answerHeader: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 12 },
-  answerAvatar: { width: 40, height: 40, borderRadius: 20 },
+  answerHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
+  answerAvatar: { width: 36, height: 36, borderRadius: 18 },
   answerAuthorInfo: { flex: 1, marginLeft: 12 },
   answerAuthorRow: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
   answerAuthor: { fontSize: 12, fontWeight: '500', color: '#1f2937' },
@@ -3346,7 +3346,7 @@ const styles = StyleSheet.create({
   // 补充问题样式
   suppCard: { padding: 16, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
   suppHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
-  suppAvatar: { width: 40, height: 40, borderRadius: 20 },
+  suppAvatar: { width: 36, height: 36, borderRadius: 18 },
   suppAuthorInfo: { flex: 1, marginLeft: 12 },
   suppAuthorRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   suppAuthor: { fontSize: 12, fontWeight: '500', color: '#1f2937' },

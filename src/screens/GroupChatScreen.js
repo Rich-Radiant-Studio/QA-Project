@@ -6,11 +6,11 @@ import Avatar from '../components/Avatar';
 import { useTranslation } from '../i18n/withTranslation';
 
 const initialMessages = [
-  { id: 1, author: '技术小白', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=msg1', content: '这个问题我也很想知道答案，关注了！', time: '10', likes: 12, dislikes: 1, shares: 3, bookmarks: 5 },
-  { id: 2, author: 'Python爱好者', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=msg2', content: '我觉得3个月入门完全可以，关键是要坚持每天练习', time: '25', likes: 28, dislikes: 2, shares: 8, bookmarks: 15 },
-  { id: 3, author: '数据分析师', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=msg3', content: '推荐先从基础语法开始，然后学pandas和numpy，这两个库在数据分析中用得最多', time: '60', likes: 45, dislikes: 3, shares: 12, bookmarks: 28 },
-  { id: 4, author: '转行成功', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=msg4', content: '我就是文科转行的，现在已经做了2年数据分析了，加油！', time: '120', likes: 67, dislikes: 1, shares: 18, bookmarks: 34 },
-  { id: 5, author: '编程导师', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=msg5', content: '建议找一个实际项目来练手，比如爬虫或者数据可视化，这样学得更快', time: '180', likes: 89, dislikes: 2, shares: 25, bookmarks: 56 },
+  { id: 1, author: '技术小白', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=msg1', content: '这个问题我也很想知道答案，关注了！', time: '10', likes: 12, dislikes: 1, shares: 3, bookmarks: 5, isFeatured: false },
+  { id: 2, author: 'Python爱好者', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=msg2', content: '我觉得3个月入门完全可以，关键是要坚持每天练习', time: '25', likes: 28, dislikes: 2, shares: 8, bookmarks: 15, isFeatured: true },
+  { id: 3, author: '数据分析师', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=msg3', content: '推荐先从基础语法开始，然后学pandas和numpy，这两个库在数据分析中用得最多', time: '60', likes: 45, dislikes: 3, shares: 12, bookmarks: 28, isFeatured: true },
+  { id: 4, author: '转行成功', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=msg4', content: '我就是文科转行的，现在已经做了2年数据分析了，加油！', time: '120', likes: 67, dislikes: 1, shares: 18, bookmarks: 34, isFeatured: false },
+  { id: 5, author: '编程导师', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=msg5', content: '建议找一个实际项目来练手，比如爬虫或者数据可视化，这样学得更快', time: '180', likes: 89, dislikes: 2, shares: 25, bookmarks: 56, isFeatured: false },
 ];
 
 export default function GroupChatScreen({ navigation, route }) {
@@ -24,6 +24,7 @@ export default function GroupChatScreen({ navigation, route }) {
   const [showReplyModal, setShowReplyModal] = useState(false);
   const [replyTarget, setReplyTarget] = useState(null);
   const [replyText, setReplyText] = useState('');
+  const [activeTab, setActiveTab] = useState('all'); // featured | all | latest
 
   const question = route?.params?.question || {
     title: '如何在三个月内从零基础学会Python编程？有没有系统的学习路线推荐？',
@@ -105,6 +106,24 @@ export default function GroupChatScreen({ navigation, route }) {
     ]);
   };
 
+  // 获取过滤后的留言列表
+  const getFilteredMessages = () => {
+    switch (activeTab) {
+      case 'featured':
+        // 只显示精选留言
+        return messages.filter(m => m.isFeatured);
+      case 'all':
+      default:
+        // 精选置顶，其他按原顺序
+        const featured = messages.filter(m => m.isFeatured);
+        const others = messages.filter(m => !m.isFeatured);
+        return [...featured, ...others];
+    }
+  };
+
+  const filteredMessages = getFilteredMessages();
+  const featuredCount = messages.filter(m => m.isFeatured).length;
+
   return (
     <SafeAreaView style={styles.container}>
       {/* 头部 */}
@@ -141,40 +160,63 @@ export default function GroupChatScreen({ navigation, route }) {
             <Text style={styles.messageCount}>{messages.length} {t('screens.groupChat.messageCount')}</Text>
           </View>
 
-          {messages.map(msg => (
+          {/* Tab 切换 */}
+          <View style={styles.sortFilterBar}>
+            <View style={styles.sortFilterLeft}>
+              <TouchableOpacity 
+                style={[styles.sortFilterBtn, activeTab === 'featured' && styles.sortFilterBtnActive]}
+                onPress={() => setActiveTab('featured')}
+              >
+                <Ionicons name="star" size={14} color={activeTab === 'featured' ? '#ef4444' : '#9ca3af'} />
+                <Text style={[styles.sortFilterText, activeTab === 'featured' && styles.sortFilterTextActive]}>
+                  精选
+                </Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={[styles.sortFilterBtn, activeTab === 'all' && styles.sortFilterBtnActive]}
+                onPress={() => setActiveTab('all')}
+              >
+                <Ionicons name="list" size={14} color={activeTab === 'all' ? '#ef4444' : '#9ca3af'} />
+                <Text style={[styles.sortFilterText, activeTab === 'all' && styles.sortFilterTextActive]}>
+                  全部
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {filteredMessages.map(msg => (
             <View key={msg.id} style={styles.messageCard}>
-              <Image source={{ uri: msg.avatar }} style={styles.msgAvatar} />
-              <View style={styles.msgContent}>
-                <View style={styles.msgHeader}>
-                  <Text style={styles.msgAuthor}>{msg.author}</Text>
-                  <Text style={styles.msgTime}>{msg.time === '0' ? t('screens.groupChat.justNow') : formatTime(parseInt(msg.time))}</Text>
-                </View>
-                <Text style={styles.msgText}>{msg.content}</Text>
-                <View style={styles.msgActions}>
-                  <TouchableOpacity style={styles.msgActionBtn} onPress={() => setLiked({ ...liked, [msg.id]: !liked[msg.id] })}>
-                    <Ionicons name={liked[msg.id] ? "thumbs-up" : "thumbs-up-outline"} size={14} color={liked[msg.id] ? "#ef4444" : "#6b7280"} />
-                    <Text style={[styles.msgActionText, liked[msg.id] && { color: '#ef4444' }]}>{msg.likes + (liked[msg.id] ? 1 : 0)}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.msgActionBtn} onPress={() => setDisliked({ ...disliked, [msg.id]: !disliked[msg.id] })}>
-                    <Ionicons name={disliked[msg.id] ? "thumbs-down" : "thumbs-down-outline"} size={14} color={disliked[msg.id] ? "#3b82f6" : "#6b7280"} />
-                    <Text style={[styles.msgActionText, disliked[msg.id] && { color: '#3b82f6' }]}>{msg.dislikes + (disliked[msg.id] ? 1 : 0)}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.msgActionBtn}>
-                    <Ionicons name="arrow-redo-outline" size={14} color="#6b7280" />
-                    <Text style={styles.msgActionText}>{msg.shares}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.msgActionBtn} onPress={() => setBookmarked({ ...bookmarked, [msg.id]: !bookmarked[msg.id] })}>
-                    <Ionicons name={bookmarked[msg.id] ? "bookmark" : "star-outline"} size={14} color={bookmarked[msg.id] ? "#f59e0b" : "#6b7280"} />
-                    <Text style={[styles.msgActionText, bookmarked[msg.id] && { color: '#f59e0b' }]}>{msg.bookmarks + (bookmarked[msg.id] ? 1 : 0)}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.msgActionBtn} onPress={() => handleReport(msg)}>
-                    <Ionicons name="flag-outline" size={14} color="#6b7280" />
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.replyBtn} onPress={() => openReplyModal(msg)}>
-                    <Ionicons name="return-down-back-outline" size={14} color="#ef4444" />
-                    <Text style={styles.replyBtnText}>{t('screens.groupChat.reply')}</Text>
-                  </TouchableOpacity>
-                </View>
+              <View style={styles.msgHeader}>
+                <Avatar uri={msg.avatar} name={msg.author} size={24} />
+                <Text style={styles.msgAuthor}>{msg.author}</Text>
+                <Text style={styles.msgTime}>{msg.time === '0' ? t('screens.groupChat.justNow') : formatTime(parseInt(msg.time))}</Text>
+              </View>
+              <Text style={styles.msgText}>{msg.content}</Text>
+              <View style={styles.msgActions}>
+                <TouchableOpacity style={styles.msgActionBtn} onPress={() => setLiked({ ...liked, [msg.id]: !liked[msg.id] })}>
+                  <Ionicons name={liked[msg.id] ? "thumbs-up" : "thumbs-up-outline"} size={14} color={liked[msg.id] ? "#ef4444" : "#6b7280"} />
+                  <Text style={[styles.msgActionText, liked[msg.id] && { color: '#ef4444' }]}>{msg.likes + (liked[msg.id] ? 1 : 0)}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.msgActionBtn} onPress={() => setDisliked({ ...disliked, [msg.id]: !disliked[msg.id] })}>
+                  <Ionicons name={disliked[msg.id] ? "thumbs-down" : "thumbs-down-outline"} size={14} color={disliked[msg.id] ? "#3b82f6" : "#6b7280"} />
+                  <Text style={[styles.msgActionText, disliked[msg.id] && { color: '#3b82f6' }]}>{msg.dislikes + (disliked[msg.id] ? 1 : 0)}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.msgActionBtn}>
+                  <Ionicons name="arrow-redo-outline" size={14} color="#6b7280" />
+                  <Text style={styles.msgActionText}>{msg.shares}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.msgActionBtn} onPress={() => setBookmarked({ ...bookmarked, [msg.id]: !bookmarked[msg.id] })}>
+                  <Ionicons name={bookmarked[msg.id] ? "bookmark" : "star-outline"} size={14} color={bookmarked[msg.id] ? "#f59e0b" : "#6b7280"} />
+                  <Text style={[styles.msgActionText, bookmarked[msg.id] && { color: '#f59e0b' }]}>{msg.bookmarks + (bookmarked[msg.id] ? 1 : 0)}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.msgActionBtn} onPress={() => handleReport(msg)}>
+                  <Ionicons name="flag-outline" size={14} color="#6b7280" />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.replyBtn} onPress={() => openReplyModal(msg)}>
+                  <Ionicons name="return-down-back-outline" size={14} color="#ef4444" />
+                  <Text style={styles.replyBtnText}>{t('screens.groupChat.reply')}</Text>
+                </TouchableOpacity>
               </View>
             </View>
           ))}
@@ -276,14 +318,59 @@ const styles = StyleSheet.create({
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, marginBottom: 12 },
   sectionTitle: { fontSize: 15, fontWeight: '600', color: '#1f2937' },
   messageCount: { fontSize: 13, color: '#9ca3af' },
-  messageCard: { flexDirection: 'row', paddingHorizontal: 16, paddingVertical: 12, borderTopWidth: 1, borderTopColor: '#f3f4f6' },
-  msgAvatar: { width: 36, height: 36, borderRadius: 18 },
-  msgContent: { flex: 1, marginLeft: 12 },
-  msgHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
-  msgAuthor: { fontSize: 14, fontWeight: '500', color: '#1f2937' },
-  msgTime: { fontSize: 12, color: '#9ca3af' },
-  msgText: { fontSize: 14, color: '#4b5563', lineHeight: 20 },
-  msgActions: { flexDirection: 'row', alignItems: 'center', marginTop: 10, gap: 12 },
+  
+  // 筛选条样式（与问题详情页一致）
+  sortFilterBar: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'space-between', 
+    paddingHorizontal: 16, 
+    paddingVertical: 10, 
+    backgroundColor: '#fafafa', 
+    borderBottomWidth: 1, 
+    borderBottomColor: '#f3f4f6' 
+  },
+  sortFilterLeft: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    gap: 16 
+  },
+  sortFilterBtn: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    gap: 4, 
+    paddingVertical: 4, 
+    paddingHorizontal: 8, 
+    borderRadius: 12 
+  },
+  sortFilterBtnActive: { 
+    backgroundColor: '#fef2f2' 
+  },
+  sortFilterText: { 
+    fontSize: 13, 
+    color: '#9ca3af' 
+  },
+  sortFilterTextActive: { 
+    color: '#ef4444', 
+    fontWeight: '500' 
+  },
+  sortFilterCount: { 
+    fontSize: 12, 
+    color: '#9ca3af' 
+  },
+  
+  // 精选留言样式（已移除，不再显示精选标识）
+  messageCard: { 
+    paddingHorizontal: 16, 
+    paddingVertical: 12, 
+    borderTopWidth: 1, 
+    borderTopColor: '#f3f4f6',
+  },
+  msgHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 8 },
+  msgAuthor: { fontSize: 12, fontWeight: '500', color: '#9ca3af' },
+  msgTime: { fontSize: 12, color: '#9ca3af', marginLeft: 'auto' },
+  msgText: { fontSize: 14, color: '#4b5563', lineHeight: 20, marginBottom: 10 },
+  msgActions: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   msgActionBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   msgActionText: { fontSize: 12, color: '#6b7280' },
   replyBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, marginLeft: 'auto' },

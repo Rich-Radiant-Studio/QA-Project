@@ -10,14 +10,43 @@ const userApi = {
    * @param {string} userId - 用户ID（可选，不传则获取当前用户）
    * @returns {Promise<Object>}
    */
-  getProfile: (userId) => {
+  getProfile: async (userId) => {
+    console.log('\n📡 调用 getProfile API...');
+    console.log('   userId:', userId || '当前用户');
+    
+    let response;
     if (userId) {
       // 获取其他用户的资料
-      return apiClient.get(`${API_ENDPOINTS.USER.PROFILE}/${userId}`);
+      console.log('   请求 URL:', `${API_ENDPOINTS.USER.PROFILE}/${userId}`);
+      response = await apiClient.get(`${API_ENDPOINTS.USER.PROFILE}/${userId}`);
     } else {
       // 获取当前用户的详细信息
-      return apiClient.get(API_ENDPOINTS.USER.PROFILE_ME);
+      console.log('   请求 URL:', API_ENDPOINTS.USER.PROFILE_ME);
+      response = await apiClient.get(API_ENDPOINTS.USER.PROFILE_ME);
     }
+    
+    console.log('\n📥 /app/user/profile/me 接口返回数据:');
+    console.log('─────────────────────────────────────────────────────────────────');
+    console.log(JSON.stringify(response, null, 2));
+    console.log('─────────────────────────────────────────────────────────────────');
+    
+    if (response && response.data) {
+      console.log('\n📊 用户数据字段详情:');
+      console.log('   userId:', response.data.userId);
+      console.log('   username:', response.data.username, '(用户名)');
+      console.log('   usernameLastModified:', response.data.usernameLastModified, '(用户名上次修改时间)');
+      console.log('   nickName:', response.data.nickName);
+      console.log('   email:', response.data.email);
+      console.log('   phonenumber:', response.data.phonenumber);
+      console.log('   avatar:', response.data.avatar);
+      console.log('   signature:', response.data.signature);
+      console.log('   profession:', response.data.profession);
+      console.log('   location:', response.data.location);
+      console.log('   sex:', response.data.sex);
+      console.log('   passwordChanged:', response.data.passwordChanged, '(是否修改过密码)');
+    }
+    
+    return response;
   },
 
   /**
