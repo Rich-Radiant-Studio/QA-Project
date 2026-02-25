@@ -5,7 +5,6 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Alert,
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -14,6 +13,8 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authApi } from '../services/api';
 import DebugToken from '../utils/debugToken';
+import { showToast } from '../utils/toast';
+import PasswordChangedModal from '../components/PasswordChangedModal';
 
 /**
  * 修改密码页面
@@ -28,6 +29,8 @@ export default function ChangePasswordScreen({ navigation }) {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   
   const [loading, setLoading] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [username, setUsername] = useState('');
 
   // 密码强度计算
   const getPasswordStrength = (password) => {
@@ -65,32 +68,32 @@ export default function ChangePasswordScreen({ navigation }) {
   // 验证密码格式
   const validatePassword = () => {
     if (!oldPassword.trim()) {
-      Alert.alert('提示', '请输入当前密码');
+      showToast('请输入当前密码', 'error');
       return false;
     }
 
     if (!newPassword.trim()) {
-      Alert.alert('提示', '请输入新密码');
+      showToast('请输入新密码', 'error');
       return false;
     }
 
     if (newPassword.length < 8) {
-      Alert.alert('提示', '新密码长度不能少于8位');
+      showToast('新密码长度不能少于8位', 'error');
       return false;
     }
 
     if (newPassword.length > 20) {
-      Alert.alert('提示', '新密码长度不能超过20位');
+      showToast('新密码长度不能超过20位', 'error');
       return false;
     }
 
     if (newPassword === oldPassword) {
-      Alert.alert('提示', '新密码不能与当前密码相同');
+      showToast('新密码不能与当前密码相同', 'error');
       return false;
     }
 
     if (newPassword !== confirmPassword) {
-      Alert.alert('提示', '两次输入的新密码不一致');
+      showToast('两次输入的新密码不一致', 'error');
       return false;
     }
 
@@ -119,38 +122,54 @@ export default function ChangePasswordScreen({ navigation }) {
 
       // 检查返回的code
       if (response.code === 200) {
-        // 更新本地缓存：标记密码已修改
+        // 获取最新的用户名（优先从 UserCacheService 缓存读取）
+        let currentUsername = '';
+        
         try {
-          const cachedProfile = await AsyncStorage.getItem('userProfile');
+          // 1. 尝试从 UserCacheService 缓存读取
+          const cachedProfile = await AsyncStorage.getItem('userProfileCache');
           if (cachedProfile) {
-            const profile = JSON.parse(cachedProfile);
-            profile.passwordChanged = true;
-            await AsyncStorage.setItem('userProfile', JSON.stringify(profile));
-            console.log('✅ 已更新本地缓存：passwordChanged = true');
+            const cache = JSON.parse(cachedProfile);
+            currentUsername = cache.data?.username || '';
+            console.log('📝 从 UserCacheService 缓存读取用户名:', currentUsername);
           }
+          
+          // 2. 如果缓存中没有，尝试从 userInfo 读取
+          if (!currentUsername) {
+            const userInfo = await AsyncStorage.getItem('userInfo');
+            if (userInfo) {
+              const user = JSON.parse(userInfo);
+              currentUsername = user.username || '';
+              console.log('📝 从 userInfo 读取用户名:', currentUsername);
+            }
+          }
+          
+          // 3. 如果还是没有，尝试从 usernameLastModified 相关的存储读取
+          if (!currentUsername) {
+            const savedUsername = await AsyncStorage.getItem('currentUsername');
+            if (savedUsername) {
+              currentUsername = savedUsername;
+              console.log('📝 从 currentUsername 读取用户名:', currentUsername);
+            }
+          }
+        } catch (e) {
+          console.error('❌ 获取用户名失败:', e);
+        }
+        
+        setUsername(currentUsername);
+        
+        // 保存密码已修改标记到独立的键
+        try {
+          await AsyncStorage.setItem('passwordChanged', 'true');
+          console.log('✅ 已保存密码修改标记');
         } catch (error) {
-          console.error('❌ 更新本地缓存失败:', error);
+          console.error('❌ 保存密码修改标记失败:', error);
         }
 
-        Alert.alert(
-          '修改成功',
-          response.msg || '密码修改成功',
-          [
-            {
-              text: '确定',
-              onPress: () => {
-                // 清空表单
-                setOldPassword('');
-                setNewPassword('');
-                setConfirmPassword('');
-                // 返回上一页
-                navigation.goBack();
-              },
-            },
-          ]
-        );
+        // 显示成功模态框
+        setShowSuccessModal(true);
       } else {
-        Alert.alert('修改失败', response.msg || '密码修改失败，请稍后重试');
+        showToast(response.msg || '密码修改失败，请稍后重试', 'error');
       }
     } catch (error) {
       setLoading(false);
@@ -165,12 +184,44 @@ export default function ChangePasswordScreen({ navigation }) {
       }
       
       console.error('❌ 修改密码错误:', error);
-      Alert.alert('修改失败', errorMessage);
+      showToast(errorMessage, 'error');
+    }
+  };
+
+  // 处理确认按钮 - 退出登录
+  const handleConfirmLogout = async () => {
+    setShowSuccessModal(false);
+    
+    try {
+      // 调用退出登录 API（会清除所有 Token 和用户信息）
+      await authApi.logout();
+      
+      // 导航到登录页面
+      // 由于 App.js 会检测到 Token 被清除，会自动显示登录页面
+      // 这里只需要返回到主页面即可
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Main' }],
+      });
+    } catch (error) {
+      console.error('退出登录失败:', error);
+      // 即使失败也返回主页面
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Main' }],
+      });
     }
   };
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
+      {/* 密码修改成功模态框 */}
+      <PasswordChangedModal
+        visible={showSuccessModal}
+        username={username}
+        onConfirm={handleConfirmLogout}
+      />
+      
       {/* 头部 */}
       <View style={styles.header}>
         <TouchableOpacity

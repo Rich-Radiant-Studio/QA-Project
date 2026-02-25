@@ -8,12 +8,13 @@ import {
   KeyboardAvoidingView, 
   Platform, 
   ScrollView,
-  ActivityIndicator,
-  Alert
+  ActivityIndicator
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import authApi from '../services/api/authApi';
+import DeviceInfo from '../utils/deviceInfo';
+import { showToast } from '../utils/toast';
 
 /**
  * 用户名密码登录页面
@@ -25,6 +26,7 @@ export default function LoginScreen({ navigation, onLogin }) {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [deviceLoading, setDeviceLoading] = useState(false);
   const [errors, setErrors] = useState({ username: '', password: '' });
 
   // 验证用户名
@@ -82,17 +84,21 @@ export default function LoginScreen({ navigation, onLogin }) {
         console.log('✅ 登录成功！');
         console.log('   Token:', response.data.token);
         
+        // 显示成功提示
+        showToast('登录成功', 'success');
+        
         // 调用父组件的 onLogin 回调
         if (onLogin) {
           onLogin();
         }
       } else {
         console.error('❌ 登录失败:', response.msg);
-        Alert.alert('登录失败', response.msg || '用户名或密码错误');
+        showToast(response.msg || '用户名或密码错误', 'error');
       }
     } catch (error) {
-      console.error('❌ 登录异常:', error);
-      Alert.alert('登录失败', error.message || '网络错误，请检查连接后重试');
+      // 只记录错误类型，不显示详细信息
+      console.error('❌ 登录异常');
+      showToast(error.message || '网络错误，请检查连接后重试', 'error');
     } finally {
       setLoading(false);
     }
@@ -111,6 +117,89 @@ export default function LoginScreen({ navigation, onLogin }) {
     setPassword(value);
     if (errors.password) {
       setErrors({ ...errors, password: '' });
+    }
+  };
+
+  // 使用设备指纹登录（带重试机制）
+  const handleDeviceLogin = async () => {
+    setDeviceLoading(true);
+
+    // 重试函数
+    const loginWithRetry = async (fingerprint, maxRetries = 3) => {
+      for (let i = 0; i < maxRetries; i++) {
+        try {
+          console.log(`🔄 尝试设备登录 (${i + 1}/${maxRetries})...`);
+          const response = await authApi.registerByFingerprint(fingerprint);
+          
+          if (response.code === 200 && response.data) {
+            console.log('✅ 设备登录成功！');
+            return { success: true, data: response.data };
+          } else {
+            console.error(`⚠️ 第 ${i + 1} 次尝试返回错误:`, response.msg);
+          }
+        } catch (error) {
+          console.error(`❌ 第 ${i + 1} 次尝试失败:`, error.message);
+          
+          if (i < maxRetries - 1) {
+            const delay = Math.pow(2, i) * 1000;
+            console.log(`⏳ 等待 ${delay}ms 后重试...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+          }
+        }
+      }
+      
+      return { success: false };
+    };
+
+    try {
+      console.log('\n═══════════════════════════════════════════════════════════════');
+      console.log('📱 用户点击"使用设备登录"按钮');
+      console.log('⚙️  环境:', __DEV__ ? '开发环境' : '生产环境');
+      console.log('═══════════════════════════════════════════════════════════════');
+      
+      // 生成设备指纹
+      console.log('📱 步骤 1: 生成设备指纹');
+      const fingerprint = await DeviceInfo.generateFingerprintString();
+      console.log('   ✅ 设备指纹生成成功:', fingerprint);
+      
+      // 使用重试机制调用设备指纹注册接口
+      console.log('\n📡 步骤 2: 调用设备指纹注册/登录接口（带重试）');
+      const result = await loginWithRetry(fingerprint);
+      
+      console.log('\n📊 步骤 3: 处理响应');
+      
+      if (result.success && result.data) {
+        console.log('\n✅ 设备登录成功！');
+        console.log('═══════════════════════════════════════════════════════════════');
+        console.log('👤 用户信息:');
+        console.log('   用户名:', result.data.userBaseInfo?.username);
+        console.log('   用户ID:', result.data.userBaseInfo?.userId);
+        console.log('═══════════════════════════════════════════════════════════════');
+        
+        // 显示成功提示
+        showToast(`登录成功！您的用户名是 ${result.data.userBaseInfo?.username}`, 'success');
+        
+        // 调用父组件的 onLogin 回调
+        if (onLogin) {
+          onLogin();
+        }
+      } else {
+        console.error('\n❌ 设备登录失败（已重试3次）');
+        console.error('═══════════════════════════════════════════════════════════════');
+        
+        showToast('设备登录失败，请检查网络后重试', 'error');
+      }
+    } catch (error) {
+      console.error('\n❌ 设备登录异常');
+      console.error('═══════════════════════════════════════════════════════════════');
+      console.error('错误类型:', error.constructor.name);
+      console.error('错误消息:', error.message);
+      console.error('错误堆栈:', error.stack);
+      console.error('═══════════════════════════════════════════════════════════════');
+      
+      showToast(error.message || '网络错误，请检查连接后重试', 'error');
+    } finally {
+      setDeviceLoading(false);
     }
   };
 
@@ -218,6 +307,35 @@ export default function LoginScreen({ navigation, onLogin }) {
                 <Text style={styles.loginButtonText}>登录</Text>
               )}
             </TouchableOpacity>
+
+            {/* 分隔线 */}
+            <View style={styles.dividerContainer}>
+              <View style={styles.divider} />
+              <Text style={styles.dividerText}>或</Text>
+              <View style={styles.divider} />
+            </View>
+
+            {/* 设备登录按钮 */}
+            <TouchableOpacity
+              style={[styles.deviceLoginButton, deviceLoading && styles.deviceLoginButtonDisabled]}
+              onPress={handleDeviceLogin}
+              disabled={deviceLoading}
+              activeOpacity={0.8}
+            >
+              {deviceLoading ? (
+                <ActivityIndicator size="small" color="#ef4444" />
+              ) : (
+                <>
+                  <Ionicons name="phone-portrait-outline" size={20} color="#ef4444" style={{ marginRight: 8 }} />
+                  <Text style={styles.deviceLoginButtonText}>使用设备登录</Text>
+                </>
+              )}
+            </TouchableOpacity>
+
+            {/* 提示文本 */}
+            <Text style={styles.hintText}>
+              首次使用将自动创建账号，默认密码为 12345678
+            </Text>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -327,5 +445,46 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#fff',
+  },
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 24,
+  },
+  divider: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#e5e7eb',
+  },
+  dividerText: {
+    marginHorizontal: 16,
+    fontSize: 14,
+    color: '#9ca3af',
+  },
+  deviceLoginButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: '#ef4444',
+    height: 52,
+  },
+  deviceLoginButtonDisabled: {
+    borderColor: '#fca5a5',
+    opacity: 0.6,
+  },
+  deviceLoginButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#ef4444',
+  },
+  hintText: {
+    fontSize: 13,
+    color: '#6b7280',
+    textAlign: 'center',
+    marginTop: 16,
+    lineHeight: 20,
   },
 });

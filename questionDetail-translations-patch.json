@@ -1,0 +1,94 @@
+{
+  "zh": {
+    "screens": {
+      "questionDetail": {
+        "title": "问题详情",
+        "tabs": {
+          "supplements": "补充",
+          "answers": "回答",
+          "comments": "评论",
+          "invite": "邀请"
+        },
+        "actions": {
+          "follow": "关注"
+        },
+        "reward": {
+          "add": "追加",
+          "contributors": "人追加"
+        },
+        "stats": {
+          "views": "浏览"
+        },
+        "pk": {
+          "solved": "已解决",
+          "unsolved": "未解决",
+          "pk": "PK"
+        },
+        "answer": {
+          "superLike": "超级赞",
+          "adopted": "已采纳",
+          "adopt": "采纳"
+        },
+        "comment": {
+          "replies": "回复"
+        },
+        "invite": {
+          "local": "本站",
+          "twitter": "推特",
+          "searchUser": "搜索用户",
+          "searchTwitterUser": "搜索推特用户"
+        },
+        "loading": "加载中...",
+        "loadMoreSupplements": "查看更多补充",
+        "loadMoreComments": "查看更多评论",
+        "loadMoreInvites": "查看更多邀请"
+      }
+    }
+  },
+  "en": {
+    "screens": {
+      "questionDetail": {
+        "title": "Question Detail",
+        "tabs": {
+          "supplements": "Supplements",
+          "answers": "Answers",
+          "comments": "Comments",
+          "invite": "Invite"
+        },
+        "actions": {
+          "follow": "Follow"
+        },
+        "reward": {
+          "add": "Add Reward",
+          "contributors": "contributors"
+        },
+        "stats": {
+          "views": "views"
+        },
+        "pk": {
+          "solved": "Solved",
+          "unsolved": "Unsolved",
+          "pk": "PK"
+        },
+        "answer": {
+          "superLike": "Super Like",
+          "adopted": "Adopted",
+          "adopt": "Adopt"
+        },
+        "comment": {
+          "replies": "replies"
+        },
+        "invite": {
+          "local": "Local",
+          "twitter": "Twitter",
+          "searchUser": "Search users",
+          "searchTwitterUser": "Search Twitter users"
+        },
+        "loading": "Loading...",
+        "loadMoreSupplements": "Load More Supplements",
+        "loadMoreComments": "Load More Comments",
+        "loadMoreInvites": "Load More Invites"
+      }
+    }
+  }
+}

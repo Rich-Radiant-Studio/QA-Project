@@ -3,6 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, Alert, Sha
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Avatar from '../components/Avatar';
 import SuperLikeBalance from '../components/SuperLikeBalance';
 import LogoutConfirmModal from '../components/LogoutConfirmModal';
@@ -15,34 +16,37 @@ export default function ProfileScreen({ navigation, onLogout }) {
   
   // 用户信息状态
   const [userProfile, setUserProfile] = useState({
-    nickname: '张三',
-    userId: '12345678',
+    nickname: '',
+    userId: '',
     username: '',
     avatar: null,
-    bio: '热爱学习，乐于分享。专注Python、数据分析领域。',
-    location: '北京',
-    occupation: '数据分析师',
+    bio: '',
+    location: '',
+    occupation: '',
     passwordChanged: false, // 是否修改过密码（默认 false，表示未修改，会显示默认密码）
   });
   
   // 加载用户信息
   useEffect(() => {
     const loadUserProfile = async () => {
+      // 读取密码修改标记
+      const passwordChangedFlag = await AsyncStorage.getItem('passwordChanged');
+      const hasChangedPassword = passwordChangedFlag === 'true';
+      
       await UserCacheService.loadUserProfileWithCache(
         // 缓存加载完成回调（立即显示）
         (cachedProfile) => {
           console.log('ProfileScreen: 从缓存加载用户信息', cachedProfile);
           setUserProfile(prev => ({
             ...prev,
-            nickname: cachedProfile.nickName || prev.nickname,
-            userId: cachedProfile.userId || prev.userId,
-            username: cachedProfile.username || prev.username,
-            avatar: cachedProfile.avatar || prev.avatar,
-            bio: cachedProfile.signature || prev.bio,
-            location: cachedProfile.location || prev.location,
-            occupation: cachedProfile.profession || prev.occupation,
-            // passwordChanged: 如果 API 返回了该字段则使用，否则默认 false（显示默认密码）
-            passwordChanged: cachedProfile.passwordChanged === true,
+            nickname: cachedProfile.nickName || '',
+            userId: cachedProfile.userId || '',
+            username: cachedProfile.username || '',
+            avatar: cachedProfile.avatar || null,
+            bio: cachedProfile.signature || '',
+            location: cachedProfile.location || '',
+            occupation: cachedProfile.profession || '',
+            passwordChanged: cachedProfile.passwordChanged === true || hasChangedPassword,
           }));
         },
         // 最新数据加载完成回调（静默更新）
@@ -50,15 +54,14 @@ export default function ProfileScreen({ navigation, onLogout }) {
           console.log('ProfileScreen: 从服务器更新用户信息', freshProfile);
           setUserProfile(prev => ({
             ...prev,
-            nickname: freshProfile.nickName || prev.nickname,
-            userId: freshProfile.userId || prev.userId,
-            username: freshProfile.username || prev.username,
-            avatar: freshProfile.avatar || prev.avatar,
-            bio: freshProfile.signature || prev.bio,
-            location: freshProfile.location || prev.location,
-            occupation: freshProfile.profession || prev.occupation,
-            // passwordChanged: 如果 API 返回了该字段则使用，否则默认 false（显示默认密码）
-            passwordChanged: freshProfile.passwordChanged === true,
+            nickname: freshProfile.nickName || '',
+            userId: freshProfile.userId || '',
+            username: freshProfile.username || '',
+            avatar: freshProfile.avatar || null,
+            bio: freshProfile.signature || '',
+            location: freshProfile.location || '',
+            occupation: freshProfile.profession || '',
+            passwordChanged: freshProfile.passwordChanged === true || hasChangedPassword,
           }));
         }
       );
@@ -720,10 +723,22 @@ export default function ProfileScreen({ navigation, onLogout }) {
               <Text style={styles.userId}>ID: {userProfile.userId}</Text>
             </View>
           </View>
-          <Text style={styles.userBio}>{userProfile.bio}</Text>
+          {userProfile.bio ? (
+            <Text style={styles.userBio}>{userProfile.bio}</Text>
+          ) : null}
           <View style={styles.userMeta}>
-            <View style={styles.metaItem}><Ionicons name="location-outline" size={14} color="#9ca3af" /><Text style={styles.metaText}>{userProfile.location}</Text></View>
-            <View style={styles.metaItem}><Ionicons name="briefcase-outline" size={14} color="#9ca3af" /><Text style={styles.metaText}>{userProfile.occupation}</Text></View>
+            {userProfile.location ? (
+              <View style={styles.metaItem}>
+                <Ionicons name="location-outline" size={14} color="#9ca3af" />
+                <Text style={styles.metaText}>{userProfile.location}</Text>
+              </View>
+            ) : null}
+            {userProfile.occupation ? (
+              <View style={styles.metaItem}>
+                <Ionicons name="briefcase-outline" size={14} color="#9ca3af" />
+                <Text style={styles.metaText}>{userProfile.occupation}</Text>
+              </View>
+            ) : null}
           </View>
           
           {/* 影响力和智慧指数 */}

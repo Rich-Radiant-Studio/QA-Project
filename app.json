@@ -16,7 +16,10 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.qa.app",
       "infoPlist": {
-        "UIViewControllerBasedStatusBarAppearance": false
+        "UIViewControllerBasedStatusBarAppearance": false,
+        "NSPhotoLibraryUsageDescription": "允许访问您的相册以更换头像",
+        "NSCameraUsageDescription": "允许使用相机拍摄头像",
+        "NSPhotoLibraryAddUsageDescription": "允许保存照片到相册"
       }
     },
     "android": {
@@ -28,7 +31,13 @@
         "backgroundColor": "#ffffff",
         "barStyle": "dark-content"
       },
-      "softwareKeyboardLayoutMode": "resize"
+      "softwareKeyboardLayoutMode": "resize",
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "READ_MEDIA_IMAGES"
+      ]
     },
     "web": {
       "bundler": "metro"
@@ -40,8 +49,24 @@
     },
     "extra": {
       "eas": {
-        "projectId": "a26aa3e4-1181-430f-838b-a9b78c97a859"
+        "projectId": "2e6de8bb-4642-4ad3-9a2b-f914db1c07cc"
       }
-    }
+    },
+    "plugins": [
+      "@react-native-community/datetimepicker",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "允许访问您的相册以更换头像",
+          "cameraPermission": "允许使用相机拍摄头像"
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "允许使用相机拍摄照片和视频"
+        }
+      ]
+    ]
   }
 }

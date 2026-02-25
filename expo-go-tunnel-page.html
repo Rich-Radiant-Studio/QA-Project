@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QA App - Expo Go 公网访问</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        .badge {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+        .qrcode-wrapper {
+            background: #f8f9fa;
+            padding: 40px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        .qrcode-wrapper img {
+            width: 100%;
+            max-width: 350px;
+            height: auto;
+        }
+        .url-section {
+            margin-bottom: 30px;
+        }
+        .url-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .url-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 13px;
+            color: #495057;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .url-box:hover {
+            background: #e9ecef;
+        }
+        .copy-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        .copy-btn:hover {
+            background: #0056b3;
+        }
+        .instructions {
+            text-align: left;
+            background: #e7f3ff;
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 30px;
+        }
+        .instructions h3 {
+            color: #0066cc;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        .step {
+            margin-bottom: 20px;
+            padding-left: 35px;
+            position: relative;
+        }
+        .step-number {
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: #007bff;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .step-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .step-desc {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 25px;
+            text-align: left;
+        }
+        .warning-title {
+            color: #856404;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .warning ul {
+            margin-left: 20px;
+            color: #856404;
+        }
+        .warning li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 2px solid #e9ecef;
+            color: #6c757d;
+            font-size: 13px;
+        }
+        .platform-badges {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .platform-badge {
+            background: #f8f9fa;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 QA App</h1>
+        <div class="subtitle">React Native 问答应用</div>
+        <div class="badge">✓ Expo Go 公网访问已启用</div>
+        
+        <div class="qrcode-wrapper">
+            <img src="expo-go-tunnel-qrcode.png" alt="Expo Go QR Code">
+        </div>
+        
+        <div class="url-section">
+            <div class="url-label">📱 Expo Go 链接</div>
+            <div class="url-box" onclick="copyUrl('expo')">
+                exp://atllyxa-nizizizi-8081.exp.direct
+            </div>
+            <button class="copy-btn" onclick="copyUrl('expo')">📋 复制 Expo Go 链接</button>
+        </div>
+        
+        <div class="url-section">
+            <div class="url-label">🌐 浏览器访问</div>
+            <div class="url-box" onclick="copyUrl('web')">
+                http://atllyxa-nizizizi-8081.exp.direct/_expo/loading
+            </div>
+            <button class="copy-btn" onclick="copyUrl('web')">📋 复制浏览器链接</button>
+        </div>
+        
+        <div class="instructions">
+            <h3>📱 使用说明</h3>
+            
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-title">下载 Expo Go</div>
+                <div class="step-desc">
+                    在手机应用商店搜索并下载 "Expo Go"<br>
+                    • iOS: App Store<br>
+                    • Android: Google Play 或其他应用商店
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-title">打开 Expo Go</div>
+                <div class="step-desc">
+                    启动 Expo Go 应用
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-title">扫描二维码</div>
+                <div class="step-desc">
+                    • Android: 在 Expo Go 中点击 "Scan QR Code"<br>
+                    • iOS: 使用相机 APP 扫描，会自动打开 Expo Go
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-title">等待加载</div>
+                <div class="step-desc">
+                    首次加载可能需要 1-2 分钟，请耐心等待
+                </div>
+            </div>
+        </div>
+        
+        <div class="warning">
+            <div class="warning-title">⚠️ 注意事项</div>
+            <ul>
+                <li>Tunnel 模式速度较慢，首次加载需要 1-2 分钟</li>
+                <li>确保手机和电脑都连接到互联网</li>
+                <li>开发服务器必须保持运行状态</li>
+                <li>链接在服务器运行期间有效</li>
+            </ul>
+        </div>
+        
+        <div class="platform-badges">
+            <div class="platform-badge">📱 iOS 支持</div>
+            <div class="platform-badge">🤖 Android 支持</div>
+        </div>
+        
+        <div class="footer">
+            ⚡ Tunnel 模式 | Expo Go<br>
+            生成时间: 2026/2/10 22:02:12<br>
+            可在任何网络环境访问
+        </div>
+    </div>
+    
+    <script>
+        function copyUrl(type) {
+            const urls = {
+                'expo': 'exp://atllyxa-nizizizi-8081.exp.direct',
+                'web': 'http://atllyxa-nizizizi-8081.exp.direct/_expo/loading'
+            };
+            const url = urls[type];
+            navigator.clipboard.writeText(url).then(() => {
+                alert('✅ 链接已复制到剪贴板！');
+            }).catch(() => {
+                prompt('请手动复制链接:', url);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -30,15 +30,28 @@ export default function EditUsernameModal({
 
   // 计算距离下次可修改的剩余天数
   const getRemainingDays = () => {
-    if (!lastModifiedDate) return 0; // 从未修改过，可以修改
+    console.log('🔍 检查用户名修改限制:');
+    console.log('   lastModifiedDate:', lastModifiedDate);
+    
+    if (!lastModifiedDate) {
+      console.log('   ✅ 从未修改过，可以修改');
+      return 0; // 从未修改过，可以修改
+    }
     
     const lastDate = new Date(lastModifiedDate);
     const now = new Date();
     const sixMonthsLater = new Date(lastDate);
     sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6);
     
+    console.log('   上次修改时间:', lastDate.toISOString());
+    console.log('   当前时间:', now.toISOString());
+    console.log('   可再次修改时间:', sixMonthsLater.toISOString());
+    
     const diffTime = sixMonthsLater - now;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    console.log('   剩余天数:', diffDays);
+    console.log('   是否可修改:', diffDays <= 0 ? '✅ 是' : '❌ 否');
     
     return diffDays > 0 ? diffDays : 0;
   };
@@ -81,6 +94,11 @@ export default function EditUsernameModal({
   };
 
   const handleSave = () => {
+    // 前端拦截：如果不可修改，直接返回，不触发接口
+    if (!canModify) {
+      return;
+    }
+
     // 最终验证
     const errorMsg = validateUsername(username);
     if (errorMsg) {
@@ -94,7 +112,7 @@ export default function EditUsernameModal({
       return;
     }
 
-    // 调用保存回调
+    // 调用保存回调（触发接口）
     onSave(username);
   };
 
@@ -121,7 +139,7 @@ export default function EditUsernameModal({
             <View style={styles.warningBox}>
               <Ionicons name="time-outline" size={18} color="#f59e0b" />
               <Text style={styles.warningText}>
-                用户名每半年可修改一次，还需等待 {remainingDays} 天
+                用户名每半年可修改一次，还需等待 {remainingDays} 天后才能修改
               </Text>
             </View>
           )}
@@ -139,9 +157,9 @@ export default function EditUsernameModal({
                 autoCapitalize="none"
                 autoCorrect={false}
                 maxLength={20}
-                editable={canModify && !isLoading}
+                editable={!isLoading}
               />
-              {username.length > 0 && canModify && !isLoading && (
+              {username.length > 0 && !isLoading && (
                 <TouchableOpacity
                   onPress={() => {
                     setUsername('');

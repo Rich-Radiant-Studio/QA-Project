@@ -59,34 +59,106 @@ const userApi = {
   },
 
   /**
+   * 修改用户名
+   * @param {string} username - 新用户名
+   * @returns {Promise<Object>}
+   */
+  updateUsername: async (username) => {
+    console.log('\n📡 调用 updateUsername API...');
+    console.log('   新用户名:', username);
+    console.log('   请求 URL:', API_ENDPOINTS.USER.UPDATE_USERNAME);
+    
+    const response = await apiClient.put(API_ENDPOINTS.USER.UPDATE_USERNAME, { username });
+    
+    console.log('\n📥 /app/user/profile/username 接口返回数据:');
+    console.log('─────────────────────────────────────────────────────────────────');
+    console.log(JSON.stringify(response, null, 2));
+    console.log('─────────────────────────────────────────────────────────────────');
+    
+    return response;
+  },
+
+  /**
    * 上传头像
-   * @param {string} base64Image - Base64 编码的图片字符串 (data:image/...;base64,...)
    * @param {string} imageUri - 图片的本地 URI
    * @returns {Promise<Object>}
    */
-  uploadAvatar: async (base64Image, imageUri) => {
-    // 从 base64 字符串中提取纯 Base64 数据（去掉 data:image 前缀）
-    const matches = base64Image.match(/^data:image\/\w+;base64,(.+)$/);
-    const base64Data = matches ? matches[1] : base64Image;
+  uploadAvatar: async (imageUri) => {
+    console.log('🔧 准备上传头像:');
+    console.log('   imageUri:', imageUri);
     
-    console.log('🔧 准备上传数据:');
-    console.log('   base64Data length:', base64Data.length);
-    console.log('   base64Data 前50字符:', base64Data.substring(0, 50));
+    // 从 URI 中提取文件名和扩展名
+    const uriParts = imageUri.split('/');
+    const fileName = uriParts[uriParts.length - 1];
     
-    // 创建 FormData，直接放入 Base64 字符串
+    // 判断文件类型
+    let fileType = 'image/jpeg'; // 默认
+    if (fileName.toLowerCase().endsWith('.png')) {
+      fileType = 'image/png';
+    } else if (fileName.toLowerCase().endsWith('.jpg') || fileName.toLowerCase().endsWith('.jpeg')) {
+      fileType = 'image/jpeg';
+    } else if (fileName.toLowerCase().endsWith('.gif')) {
+      fileType = 'image/gif';
+    } else if (fileName.toLowerCase().endsWith('.bmp')) {
+      fileType = 'image/bmp';
+    }
+    
+    // 创建 FormData
     const formData = new FormData();
-    formData.append('avatarfile', base64Data);
     
-    console.log('📦 FormData 已创建（包含 Base64 字符串）');
+    // 尝试不同的方式添加文件
+    // 方式1：标准的 React Native FormData 格式
+    const file = {
+      uri: imageUri,
+      type: fileType,
+      name: fileName || 'avatar.jpg',
+    };
     
-    // 发送 multipart/form-data 请求
-    // 重要：删除默认的 Content-Type，让浏览器/axios 自动设置正确的 boundary
-    return apiClient.post(API_ENDPOINTS.USER.AVATAR, formData, {
-      headers: {
-        'Content-Type': undefined,  // 删除默认的 application/json
-      },
-      transformRequest: [(data) => data],  // 不要转换 FormData
-    });
+    formData.append('avatarfile', file);
+    
+    console.log('📦 FormData 已创建:');
+    console.log('   文件名:', fileName);
+    console.log('   文件类型:', fileType);
+    console.log('   URI:', imageUri);
+    console.log('   File对象:', JSON.stringify(file));
+    
+    try {
+      // 发送 multipart/form-data 请求
+      const response = await apiClient.post(API_ENDPOINTS.USER.AVATAR, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          // 不设置 Accept，使用默认值
+        },
+        transformRequest: (data) => data, // 不转换数据
+        timeout: 60000, // 60秒超时（上传文件需要更长时间）
+      });
+      
+      console.log('✅ 头像上传成功');
+      console.log('📥 响应数据:', JSON.stringify(response, null, 2));
+      return response;
+    } catch (error) {
+      console.error('❌ 头像上传失败:', error);
+      console.error('❌ 错误类型:', error.constructor.name);
+      console.error('❌ 错误消息:', error.message);
+      
+      if (error.response) {
+        console.error('❌ 响应状态:', error.response.status);
+        console.error('❌ 响应数据:', JSON.stringify(error.response.data, null, 2));
+        console.error('❌ 响应头:', JSON.stringify(error.response.headers, null, 2));
+      }
+      
+      // 提供更友好的错误信息
+      if (error.message === 'Network Error' || error.message.includes('网络')) {
+        throw new Error('网络连接失败，请检查网络后重试');
+      } else if (error.code === 'ECONNABORTED') {
+        throw new Error('上传超时，请检查网络或选择更小的图片');
+      } else if (error.response) {
+        const errorMsg = error.response.data?.msg || error.response.data?.message || '上传失败';
+        throw new Error(errorMsg);
+      } else {
+        throw new Error('上传失败：' + error.message);
+      }
+    }
   },
 
   /**

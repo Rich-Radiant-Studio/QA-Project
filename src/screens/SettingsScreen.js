@@ -3,6 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Switch, Alert, Te
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Avatar from '../components/Avatar';
 import EditTextModal from '../components/EditTextModal';
 import EditUsernameModal from '../components/EditUsernameModal';
@@ -10,12 +11,15 @@ import AvatarActionSheet from '../components/AvatarActionSheet';
 import BindContactModal from '../components/BindContactModal';
 import GenderPickerModal from '../components/GenderPickerModal';
 import DatePickerModal from '../components/DatePickerModal';
+import Toast from '../components/Toast';
 import { useTranslation } from '../i18n/withTranslation';
 import UserCacheService from '../services/UserCacheService';
 import userApi from '../services/api/userApi';
 
 export default function SettingsScreen({ navigation }) {
   const { t } = useTranslation();
+  // Toast 状态
+  const [toast, setToast] = useState({ visible: false, message: '', type: 'success' });
   // 通知设置状态
   const [pushEnabled, setPushEnabled] = useState(true);
   const [likeNotify, setLikeNotify] = useState(true);
@@ -81,9 +85,17 @@ export default function SettingsScreen({ navigation }) {
   // 上传头像加载状态
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
+  // 显示 Toast
+  const showToast = (message, type = 'success') => {
+    setToast({ visible: true, message, type });
+  };
+
   // 加载用户信息（使用缓存策略）
   useEffect(() => {
     const loadUserProfile = async () => {
+      // 读取本地保存的用户名修改时间
+      const savedModifiedTime = await AsyncStorage.getItem('usernameLastModified');
+      
       await UserCacheService.loadUserProfileWithCache(
         // 缓存加载完成回调（立即显示）
         (cachedProfile) => {
@@ -91,7 +103,7 @@ export default function SettingsScreen({ navigation }) {
           setUserProfile({
             userId: cachedProfile.userId || '',
             username: cachedProfile.username || '',
-            usernameLastModified: cachedProfile.usernameLastModified || null,
+            usernameLastModified: cachedProfile.usernameLastModified || savedModifiedTime || null,
             name: cachedProfile.nickName || '用户',
             bio: cachedProfile.signature || '',
             location: cachedProfile.location || '',
@@ -109,7 +121,7 @@ export default function SettingsScreen({ navigation }) {
           setUserProfile({
             userId: freshProfile.userId || '',
             username: freshProfile.username || '',
-            usernameLastModified: freshProfile.usernameLastModified || null,
+            usernameLastModified: freshProfile.usernameLastModified || savedModifiedTime || null,
             name: freshProfile.nickName || '用户',
             bio: freshProfile.signature || '',
             location: freshProfile.location || '',
@@ -205,11 +217,12 @@ export default function SettingsScreen({ navigation }) {
           phone: updatedProfile.phonenumber || '',
         });
         
-        Alert.alert('保存成功', `${textModalConfig.title}已更新`);
+        showToast(`${textModalConfig.title}已更新`, 'success');
       }
     } catch (error) {
-      console.error('更新资料失败:', error);
-      Alert.alert('保存失败', error.message || '网络错误，请检查连接后重试');
+      // 只记录错误类型，不显示详细信息
+      console.error('❌ 更新资料失败');
+      showToast(error.message || '更新失败，请重试', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -222,19 +235,26 @@ export default function SettingsScreen({ navigation }) {
     setIsLoading(true);
     
     try {
-      // 调用 API 更新用户名
-      const requestData = {
-        username: newUsername,
-      };
-      
-      const updatedProfile = await UserCacheService.updateUserProfile(requestData);
+      // 调用专用 API 更新用户名
+      const updatedProfile = await UserCacheService.updateUsername(newUsername);
       
       if (updatedProfile) {
+        // 记录修改时间（如果后端没有返回，使用当前时间）
+        const modifiedTime = updatedProfile.usernameLastModified || new Date().toISOString();
+        
+        // 保存修改时间到本地存储
+        await AsyncStorage.setItem('usernameLastModified', modifiedTime);
+        
+        // 保存当前用户名到独立的键（方便其他地方读取）
+        const finalUsername = updatedProfile.username || newUsername;
+        await AsyncStorage.setItem('currentUsername', finalUsername);
+        console.log('✅ 已保存当前用户名:', finalUsername);
+        
         // 更新本地状态
         setUserProfile({
           userId: updatedProfile.userId || '',
-          username: updatedProfile.username || newUsername,
-          usernameLastModified: new Date().toISOString(), // 记录修改时间
+          username: finalUsername,
+          usernameLastModified: modifiedTime,
           name: updatedProfile.nickName || userProfile.name,
           bio: updatedProfile.signature || userProfile.bio,
           location: updatedProfile.location || userProfile.location,
@@ -246,12 +266,19 @@ export default function SettingsScreen({ navigation }) {
           phone: updatedProfile.phonenumber || userProfile.phone,
         });
         
+        // 成功后关闭弹窗
         setShowUsernameModal(false);
-        Alert.alert('保存成功', '用户名已更新');
+        showToast('用户名已更新', 'success');
       }
     } catch (error) {
-      console.error('更新用户名失败:', error);
-      Alert.alert('保存失败', error.message || '网络错误，请检查连接后重试');
+      // 只记录错误类型，不显示详细信息
+      console.error('❌ 更新用户名失败');
+      
+      // 失败时也关闭弹窗（Toast 会显示错误提示）
+      setShowUsernameModal(false);
+      
+      // 显示友好的错误提示
+      showToast(error.message || '更新失败，请重试', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -286,9 +313,10 @@ export default function SettingsScreen({ navigation }) {
     // 刷新用户信息
     try {
       await UserCacheService.forceRefresh();
-      Alert.alert('绑定成功', `${bindType === 'phone' ? '手机号' : '邮箱'}已成功绑定`);
+      showToast(`${bindType === 'phone' ? '手机号' : '邮箱'}已成功绑定`, 'success');
     } catch (error) {
-      console.error('刷新用户信息失败:', error);
+      // 只记录错误类型，不显示详细信息
+      console.error('❌ 刷新用户信息失败');
     }
   };
 
@@ -310,7 +338,8 @@ export default function SettingsScreen({ navigation }) {
       
       return true;
     } catch (error) {
-      console.error('请求相机权限失败:', error);
+      // 只记录错误类型，不显示详细信息
+      console.error('❌ 请求相机权限失败');
       return false;
     }
   };
@@ -333,7 +362,8 @@ export default function SettingsScreen({ navigation }) {
       
       return true;
     } catch (error) {
-      console.error('请求相册权限失败:', error);
+      // 只记录错误类型，不显示详细信息
+      console.error('❌ 请求相册权限失败');
       return false;
     }
   };
@@ -381,35 +411,103 @@ export default function SettingsScreen({ navigation }) {
   };
 
   /**
+   * 验证图片文件
+   * @param {string} imageUri - 图片 URI
+   * @returns {Promise<{valid: boolean, error?: string, fileInfo?: object}>}
+   */
+  const validateImage = async (imageUri) => {
+    try {
+      // 1. 获取文件信息
+      const response = await fetch(imageUri);
+      const blob = await response.blob();
+      
+      // 2. 检查文件大小（最大 5MB）
+      const sizeInMB = blob.size / (1024 * 1024);
+      console.log(`📊 图片大小: ${sizeInMB.toFixed(2)} MB`);
+      
+      if (sizeInMB > 5) {
+        return {
+          valid: false,
+          error: '图片大小超过 5MB，请选择更小的图片',
+        };
+      }
+      
+      // 3. 检查文件格式
+      const fileType = blob.type.toLowerCase();
+      const allowedTypes = ['image/bmp', 'image/gif', 'image/jpg', 'image/jpeg', 'image/png'];
+      
+      console.log(`📄 文件类型: ${fileType}`);
+      
+      if (!allowedTypes.includes(fileType)) {
+        return {
+          valid: false,
+          error: '不支持的图片格式，请选择 BMP、GIF、JPG、JPEG 或 PNG 格式的图片',
+        };
+      }
+      
+      // 4. 额外检查：从文件名判断扩展名
+      const fileName = imageUri.split('/').pop().toLowerCase();
+      const validExtensions = ['.bmp', '.gif', '.jpg', '.jpeg', '.png'];
+      const hasValidExtension = validExtensions.some(ext => fileName.endsWith(ext));
+      
+      if (!hasValidExtension) {
+        return {
+          valid: false,
+          error: '不支持的文件扩展名，请选择 .bmp、.gif、.jpg、.jpeg 或 .png 文件',
+        };
+      }
+      
+      return {
+        valid: true,
+        fileInfo: {
+          size: blob.size,
+          sizeInMB: sizeInMB.toFixed(2),
+          type: fileType,
+          fileName: fileName,
+        },
+      };
+    } catch (error) {
+      // 只记录错误类型，不显示详细信息
+      console.error('❌ 验证图片失败');
+      return {
+        valid: false,
+        error: '无法读取图片信息，请重试',
+      };
+    }
+  };
+
+  /**
    * 上传图片到服务器
    */
   const uploadImageToServer = async (imageUri) => {
     try {
       setUploadingAvatar(true);
       
-      // 1. 转换图片为 Base64
-      console.log('🔄 开始处理图片...');
+      console.log('🔄 开始上传头像...');
       console.log('📍 图片 URI:', imageUri);
       
-      const base64Image = await convertImageToBase64(imageUri);
+      // 验证图片
+      const validation = await validateImage(imageUri);
       
-      if (!base64Image) {
-        return; // 图片过大，已提示用户
+      if (!validation.valid) {
+        showToast(validation.error, 'error');
+        return;
       }
       
-      console.log('📤 上传头像中...');
-      console.log('📊 Base64 长度:', base64Image.length);
-      console.log('📊 Base64 前100字符:', base64Image.substring(0, 100));
+      console.log('✅ 图片验证通过:');
+      console.log('   文件名:', validation.fileInfo.fileName);
+      console.log('   大小:', validation.fileInfo.sizeInMB, 'MB');
+      console.log('   类型:', validation.fileInfo.type);
       
-      // 2. 调用上传 API（传递 imageUri 用于 FormData）
-      const response = await userApi.uploadAvatar(base64Image, imageUri);
+      // 直接调用上传 API（传递 imageUri）
+      const response = await userApi.uploadAvatar(imageUri);
       
       console.log('📥 上传响应:', JSON.stringify(response, null, 2));
       
       if (response.code === 200 && response.data) {
         console.log('✅ 头像上传成功');
         
-        // 3. 从返回数据中获取新的头像路径
+        // 从返回数据中获取新的头像路径
         const newAvatarUrl = response.data.avatar 
           || response.data.avatarUrl 
           || response.data.url 
@@ -418,42 +516,60 @@ export default function SettingsScreen({ navigation }) {
         
         console.log('🖼️ 新头像路径:', newAvatarUrl);
         
-        // 4. 更新本地状态
-        setUserProfile(prev => ({
-          ...prev,
-          avatar: newAvatarUrl,
-        }));
+        // 1. 先刷新用户信息缓存（从服务器获取最新数据）
+        const freshProfile = await UserCacheService.forceRefresh();
         
-        // 5. 刷新用户信息缓存
-        await UserCacheService.forceRefresh();
+        // 2. 使用服务器返回的最新数据更新本地状态
+        if (freshProfile) {
+          console.log('✅ 用户信息已刷新，更新本地状态');
+          setUserProfile({
+            userId: freshProfile.userId || '',
+            username: freshProfile.username || '',
+            usernameLastModified: freshProfile.usernameLastModified || userProfile.usernameLastModified,
+            name: freshProfile.nickName || '用户',
+            bio: freshProfile.signature || '',
+            location: freshProfile.location || '',
+            occupation: freshProfile.profession || '',
+            gender: freshProfile.sex === '0' ? '男' : freshProfile.sex === '1' ? '女' : '保密',
+            birthday: freshProfile.birthday || '',
+            avatar: freshProfile.avatar || newAvatarUrl,  // 优先使用服务器返回的头像
+            email: freshProfile.email || '',
+            phone: freshProfile.phonenumber || '',
+          });
+        } else {
+          // 如果刷新失败，至少更新头像
+          console.log('⚠️ 刷新失败，仅更新头像');
+          setUserProfile(prev => ({
+            ...prev,
+            avatar: newAvatarUrl,
+          }));
+        }
         
-        Alert.alert('成功', '头像更新成功');
+        showToast('头像更新成功', 'success');
       } else {
         console.error('❌ 上传失败 - 响应码:', response.code);
         console.error('❌ 错误信息:', response.msg);
         throw new Error(response.msg || '上传失败');
       }
     } catch (error) {
-      console.error('❌ 上传头像失败:', error);
-      console.error('❌ 错误详情:', JSON.stringify(error, null, 2));
+      // 只记录错误类型，不显示详细信息
+      console.error('❌ 上传头像失败');
       
       // 更详细的错误提示
       let errorMessage = '网络错误，请稍后重试';
       
       if (error.response) {
         // 服务器返回了错误响应
-        console.error('❌ 服务器响应:', error.response);
-        errorMessage = `服务器错误 (${error.response.status}): ${error.response.data?.msg || '请稍后重试'}`;
+        errorMessage = `服务器错误: ${error.response.data?.msg || '请稍后重试'}`;
       } else if (error.request) {
         // 请求已发送但没有收到响应
-        console.error('❌ 无响应:', error.request);
         errorMessage = '无法连接到服务器，请检查网络';
       } else if (error.message) {
         // 其他错误
         errorMessage = error.message;
       }
       
-      Alert.alert('上传失败', errorMessage);
+      showToast(errorMessage, 'error');
     } finally {
       setUploadingAvatar(false);
     }
@@ -471,20 +587,22 @@ export default function SettingsScreen({ navigation }) {
       // 打开相机
       const result = await ImagePicker.launchCameraAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: false, // 暂时禁用裁剪，避免按钮显示问题
+        allowsEditing: false,
         quality: 0.8, // 压缩质量
+        // 注意：ImagePicker 不支持直接限制格式，需要在上传前验证
       });
       
       if (!result.canceled && result.assets && result.assets.length > 0) {
         const imageUri = result.assets[0].uri;
         console.log('📷 拍照成功:', imageUri);
         
-        // 上传图片
+        // 上传图片（会自动验证格式和大小）
         await uploadImageToServer(imageUri);
       }
     } catch (error) {
-      console.error('拍照失败:', error);
-      Alert.alert('拍照失败', '请稍后重试');
+      // 只记录错误类型，不显示详细信息
+      console.error('❌ 拍照失败');
+      showToast('拍照失败，请重试', 'error');
     }
   };
 
@@ -500,20 +618,22 @@ export default function SettingsScreen({ navigation }) {
       // 打开相册
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: false, // 暂时禁用裁剪，避免按钮显示问题
+        allowsEditing: false,
         quality: 0.8, // 压缩质量
+        // 注意：ImagePicker 不支持直接限制格式，需要在上传前验证
       });
       
       if (!result.canceled && result.assets && result.assets.length > 0) {
         const imageUri = result.assets[0].uri;
         console.log('🖼️ 选择图片成功:', imageUri);
         
-        // 上传图片
+        // 上传图片（会自动验证格式和大小）
         await uploadImageToServer(imageUri);
       }
     } catch (error) {
-      console.error('选择图片失败:', error);
-      Alert.alert('选择失败', '请稍后重试');
+      // 只记录错误类型，不显示详细信息
+      console.error('❌ 选择图片失败');
+      showToast('选择失败，请重试', 'error');
     }
   };
 
@@ -584,7 +704,12 @@ export default function SettingsScreen({ navigation }) {
 
             <TouchableOpacity 
               style={styles.menuItem}
-              onPress={() => setShowUsernameModal(true)}
+              onPress={() => {
+                console.log('📝 打开用户名编辑弹窗:');
+                console.log('   当前用户名:', userProfile.username);
+                console.log('   上次修改时间:', userProfile.usernameLastModified);
+                setShowUsernameModal(true);
+              }}
             >
               <View style={styles.menuLeft}>
                 <Ionicons name="at-outline" size={22} color="#6b7280" />
@@ -1146,6 +1271,14 @@ export default function SettingsScreen({ navigation }) {
         currentUsername={userProfile.username}
         lastModifiedDate={userProfile.usernameLastModified}
         isLoading={isLoading}
+      />
+
+      {/* Toast 提示 */}
+      <Toast
+        visible={toast.visible}
+        message={toast.message}
+        type={toast.type}
+        onHide={() => setToast({ ...toast, visible: false })}
       />
     </SafeAreaView>
   );

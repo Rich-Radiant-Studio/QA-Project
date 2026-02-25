@@ -4,10 +4,18 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
-import { View, Text, Modal, TouchableOpacity, TextInput, StyleSheet, ScrollView, SafeAreaView, Platform } from 'react-native';
+import { View, Text, Modal, TouchableOpacity, TextInput, StyleSheet, ScrollView, SafeAreaView, Platform, ActivityIndicator } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Font from 'expo-font';
 import i18n from './src/i18n';
 import superLikeCreditService from './src/services/SuperLikeCreditService';
+import DeviceInfo from './src/utils/deviceInfo';
+import authApi from './src/services/api/authApi';
+import DebugToken from './src/utils/debugToken';
+import UserCacheService from './src/services/UserCacheService';
+import ToastContainer from './src/components/ToastContainer';
+import { setToastRef, showToast } from './src/utils/toast';
 
 import HomeScreen from './src/screens/HomeScreen';
 import SearchScreen from './src/screens/SearchScreen';
@@ -16,8 +24,10 @@ import MessagesScreen from './src/screens/MessagesScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import QuestionDetailScreen from './src/screens/QuestionDetailScreen';
 import FollowScreen from './src/screens/FollowScreen';
+import DebugButton from './src/components/DebugButton';
 import HotListScreen from './src/screens/HotListScreen';
 import IncomeRankingScreen from './src/screens/IncomeRankingScreen';
+import QuestionRankingScreen from './src/screens/QuestionRankingScreen';
 import GroupChatScreen from './src/screens/GroupChatScreen';
 import AnswerDetailScreen from './src/screens/AnswerDetailScreen';
 import SupplementDetailScreen from './src/screens/SupplementDetailScreen';
@@ -45,13 +55,22 @@ import SuperLikePurchaseScreen from './src/screens/SuperLikePurchaseScreen';
 import SuperLikeHistoryScreen from './src/screens/SuperLikeHistoryScreen';
 import ContributorsScreen from './src/screens/ContributorsScreen';
 import PublicProfileScreen from './src/screens/PublicProfileScreen';
+import DeviceInfoScreen from './src/screens/DeviceInfoScreen';
+import ChangePasswordScreen from './src/screens/ChangePasswordScreen';
+import ConnectionStatusScreen from './src/screens/ConnectionStatusScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 // Emergency Help Modal Component
 function EmergencyModal({ visible, onClose, onSubmit }) {
-  const t = (key) => i18n.t(key);
+  const t = (key) => {
+    if (!i18n || typeof i18n.t !== 'function') {
+      return key;
+    }
+    return i18n.t(key);
+  };
+  
   const insets = useSafeAreaInsets();
   const [emergencyForm, setEmergencyForm] = useState({ title: '', description: '', location: '', contact: '', rescuerCount: 1 });
   const freeCount = 1;
@@ -68,11 +87,12 @@ function EmergencyModal({ visible, onClose, onSubmit }) {
 
   const rescuerFee = calculateRescuerFee(emergencyForm.rescuerCount || 1);
 
-  const quickTitles = [
+  // Use useMemo to prevent calling t() during initial render
+  const quickTitles = React.useMemo(() => [
     t('emergency.quickTitle1'),
     t('emergency.quickTitle2'),
     t('emergency.quickTitle3')
-  ];
+  ], []);
 
   const handleSubmit = () => {
     if (!emergencyForm.title.trim()) {
@@ -345,27 +365,43 @@ const modalStyles = StyleSheet.create({
 });
 
 function MainTabs({ onLogout }) {
-  const t = (key) => i18n.t(key);
   const insets = useSafeAreaInsets();
+  
+  // 定义固定的 tab 名称（使用英文 key）
+  const TAB_NAMES = {
+    HOME: 'Home',
+    ACTIVITY: 'Activity',
+    PUBLISH: 'Publish',
+    EMERGENCY: 'Emergency',
+    PROFILE: 'Profile'
+  };
   
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color }) => {
           let iconName;
-          if (route.name === t('tabs.home')) iconName = focused ? 'home' : 'home-outline';
-          else if (route.name === t('tabs.activity')) iconName = focused ? 'gift' : 'gift-outline';
-          else if (route.name === t('tabs.publish')) iconName = focused ? 'add-circle' : 'add-circle-outline';
-          else if (route.name === t('tabs.emergency')) iconName = focused ? 'warning' : 'warning-outline';
-          else if (route.name === t('tabs.profile')) iconName = focused ? 'person' : 'person-outline';
+          if (route.name === TAB_NAMES.HOME) iconName = focused ? 'home' : 'home-outline';
+          else if (route.name === TAB_NAMES.ACTIVITY) iconName = focused ? 'gift' : 'gift-outline';
+          else if (route.name === TAB_NAMES.PUBLISH) iconName = focused ? 'add-circle' : 'add-circle-outline';
+          else if (route.name === TAB_NAMES.EMERGENCY) iconName = focused ? 'warning' : 'warning-outline';
+          else if (route.name === TAB_NAMES.PROFILE) iconName = focused ? 'person' : 'person-outline';
           return <Ionicons name={iconName} size={24} color={color} />;
+        },
+        tabBarLabel: ({ focused }) => {
+          let labelKey;
+          if (route.name === TAB_NAMES.HOME) labelKey = 'tabs.home';
+          else if (route.name === TAB_NAMES.ACTIVITY) labelKey = 'tabs.activity';
+          else if (route.name === TAB_NAMES.PUBLISH) labelKey = 'tabs.publish';
+          else if (route.name === TAB_NAMES.EMERGENCY) labelKey = 'tabs.emergency';
+          else if (route.name === TAB_NAMES.PROFILE) labelKey = 'tabs.profile';
+          
+          // 直接使用 i18n.t，并添加安全检查
+          const labelText = i18n && i18n.t ? i18n.t(labelKey) : labelKey;
+          return <Text style={{ fontSize: 10, fontWeight: '400', color: focused ? '#f04444' : '#8a8a8a' }}>{labelText}</Text>;
         },
         tabBarActiveTintColor: '#f04444',
         tabBarInactiveTintColor: '#8a8a8a',
-        tabBarLabelStyle: {
-          fontSize: 10,
-          fontWeight: '400',
-        },
         tabBarIconStyle: {
           marginBottom: 2,
         },
@@ -382,11 +418,11 @@ function MainTabs({ onLogout }) {
         headerShown: false,
       })}
     >
-      <Tab.Screen name={t('tabs.home')} component={HomeScreen} />
-      <Tab.Screen name={t('tabs.activity')} component={ActivityScreen} />
-      <Tab.Screen name={t('tabs.publish')} component={PublishScreen} />
-      <Tab.Screen name={t('tabs.emergency')} component={EmergencyScreen} />
-      <Tab.Screen name={t('tabs.profile')}>
+      <Tab.Screen name={TAB_NAMES.HOME} component={HomeScreen} />
+      <Tab.Screen name={TAB_NAMES.ACTIVITY} component={ActivityScreen} />
+      <Tab.Screen name={TAB_NAMES.PUBLISH} component={PublishScreen} />
+      <Tab.Screen name={TAB_NAMES.EMERGENCY} component={EmergencyScreen} />
+      <Tab.Screen name={TAB_NAMES.PROFILE}>
         {(props) => <ProfileScreen {...props} onLogout={onLogout} />}
       </Tab.Screen>
     </Tab.Navigator>
@@ -394,21 +430,243 @@ function MainTabs({ onLogout }) {
 }
 
 export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+  const toastRef = React.useRef(null);
 
-  // 初始化超级赞积分系统
+  // 设置 Toast 引用
   useEffect(() => {
-    const initializeServices = async () => {
+    if (toastRef.current) {
+      setToastRef(toastRef.current);
+    }
+  }, []);
+
+  // 预加载字体
+  useEffect(() => {
+    async function loadFonts() {
       try {
-        await superLikeCreditService.initialize();
-        console.log('Services initialized successfully');
+        await Font.loadAsync({
+          ...Ionicons.font,
+        });
+        setFontsLoaded(true);
       } catch (error) {
-        console.error('Failed to initialize services:', error);
+        console.error('Error loading fonts:', error);
+        // 即使加载失败也继续，避免卡住
+        setFontsLoaded(true);
+      }
+    }
+    loadFonts();
+  }, []);
+
+  // 初始化服务和检查登录状态
+  useEffect(() => {
+    // 自动注册重试函数（开发和生产环境都使用）
+    const autoRegisterWithRetry = async (fingerprint, maxRetries = 3) => {
+      for (let i = 0; i < maxRetries; i++) {
+        try {
+          console.log(`🔄 尝试自动注册 (${i + 1}/${maxRetries})...`);
+          const response = await authApi.registerByFingerprint(fingerprint);
+          
+          if (response.code === 200 && response.data) {
+            console.log('✅ 自动注册成功！');
+            return { success: true, data: response.data };
+          } else {
+            console.error(`⚠️ 第 ${i + 1} 次尝试返回错误:`, response.msg);
+          }
+        } catch (error) {
+          console.error(`❌ 第 ${i + 1} 次尝试失败:`, error.message);
+          
+          if (i < maxRetries - 1) {
+            // 指数退避：1s, 2s, 4s
+            const delay = Math.pow(2, i) * 1000;
+            console.log(`⏳ 等待 ${delay}ms 后重试...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+          }
+        }
+      }
+      
+      return { success: false };
+    };
+
+    const initializeApp = async () => {
+      try {
+        console.log('🚀 应用启动中...');
+        console.log('⚙️  环境:', __DEV__ ? '开发环境' : '生产环境');
+        console.log('');
+        
+        // 初始化超级赞积分系统（异步，不阻塞）
+        superLikeCreditService.initialize().catch(error => {
+          console.error('⚠️ Service initialization failed:', error);
+        });
+        
+        // 检查是否有保存的 token（自动登录）
+        const savedToken = await AsyncStorage.getItem('authToken');
+        
+        if (savedToken) {
+          console.log('✅ 检测到已保存的 token，自动登录');
+          console.log('   Token (前20字符):', savedToken.substring(0, 20) + '...');
+          
+          // 调试：检查 token 状态（仅开发环境）
+          if (__DEV__) {
+            DebugToken.checkTokenStatus().catch(e => console.error('Debug check failed:', e));
+            DebugToken.testTokenInRequest().catch(e => console.error('Debug test failed:', e));
+          }
+          
+          // 立即设置登录状态，让用户进入应用
+          setIsLoggedIn(true);
+          setIsInitializing(false);
+          
+          // 后台加载用户信息（不阻塞UI）
+          console.log('\n👤 后台加载用户信息...');
+          UserCacheService.loadUserProfileWithCache(
+            (cachedProfile) => {
+              console.log('⚡ 从缓存加载用户信息:', cachedProfile?.nickName || 'Unknown');
+            },
+            (freshProfile) => {
+              console.log('🔄 用户信息已更新:', freshProfile?.nickName || 'Unknown');
+            }
+          ).catch(async (userError) => {
+            console.error('⚠️ User profile loading failed:', userError);
+            // 如果是登录状态过期或 401 错误，尝试重新注册
+            const errorMsg = userError.message || '';
+            if (errorMsg.includes('登录状态已过期') || errorMsg.includes('未授权') || userError.status === 401) {
+              console.log('🚪 检测到登录状态过期，尝试重新注册...');
+              
+              // 清除过期数据
+              await AsyncStorage.multiRemove(['authToken', 'refreshToken', 'userInfo']);
+              
+              // 尝试使用设备指纹重新注册（开发和生产环境都执行）
+              const savedFingerprint = await AsyncStorage.getItem('deviceFingerprint');
+              
+              if (savedFingerprint) {
+                console.log('🔄 使用已保存的设备指纹重新注册...');
+                const result = await autoRegisterWithRetry(savedFingerprint);
+                
+                if (result.success) {
+                  console.log('✅ 自动重新注册成功！');
+                  setIsLoggedIn(true);
+                  showToast('登录已更新', 'success');
+                } else {
+                  console.error('❌ 自动重新注册失败');
+                  setIsLoggedIn(false);
+                  showToast('登录状态已过期，请重新登录', 'error');
+                }
+              } else {
+                // 没有设备指纹，退出登录
+                setIsLoggedIn(false);
+                showToast('登录状态已过期，请重新登录', 'error');
+              }
+            }
+          });
+        } else {
+          console.log('📱 未检测到 token，检查设备指纹...');
+          
+          // 检查是否有保存的设备指纹
+          const savedFingerprint = await AsyncStorage.getItem('deviceFingerprint');
+          
+          if (savedFingerprint) {
+            console.log('⚠️ 检测到设备指纹但无 token，可能是用户退出登录');
+            console.log('   显示登录页面');
+            setIsInitializing(false);
+            // 用户已经注册过但退出了，显示登录页面
+          } else {
+            console.log('🆕 首次使用，开始设备指纹自动注册...');
+            console.log('═══════════════════════════════════════════════════════════════');
+            
+            try {
+              // 生成设备指纹字符串
+              console.log('📱 步骤 1: 生成设备指纹');
+              const fingerprint = await DeviceInfo.generateFingerprintString();
+              console.log('   ✅ 设备指纹生成成功:', fingerprint);
+              
+              // 使用重试机制调用自动注册接口
+              console.log('\n📡 步骤 2: 调用自动注册接口（带重试）');
+              const result = await autoRegisterWithRetry(fingerprint);
+              
+              console.log('\n📊 步骤 3: 处理注册结果');
+              
+              if (result.success && result.data) {
+                console.log('\n✅ 自动注册成功！');
+                console.log('═══════════════════════════════════════════════════════════════');
+                console.log('👤 用户信息:');
+                console.log('   用户名:', result.data.userBaseInfo?.username);
+                console.log('   用户ID:', result.data.userBaseInfo?.userId);
+                console.log('   默认密码: 12345678');
+                console.log('═══════════════════════════════════════════════════════════════');
+                
+                // 自动登录进入应用
+                setIsLoggedIn(true);
+                setIsInitializing(false);
+                
+                // 显示欢迎提示
+                setTimeout(() => {
+                  showToast(`欢迎使用！您的用户名是 ${result.data.userBaseInfo?.username}，默认密码是 12345678`, 'success');
+                }, 1000);
+              } else {
+                console.error('\n❌ 自动注册失败（已重试3次）');
+                console.error('═══════════════════════════════════════════════════════════════');
+                
+                setIsInitializing(false);
+                
+                // 自动注册失败，显示登录页面，用户可以手动重试
+                setTimeout(() => {
+                  showToast('首次启动初始化失败，请点击"使用设备登录"重试', 'error');
+                }, 500);
+              }
+            } catch (registerError) {
+              console.error('\n❌ 自动注册异常');
+              console.error('═══════════════════════════════════════════════════════════════');
+              console.error('错误类型:', registerError.constructor.name);
+              console.error('错误消息:', registerError.message);
+              console.error('错误堆栈:', registerError.stack);
+              console.error('═══════════════════════════════════════════════════════════════');
+              
+              setIsInitializing(false);
+              
+              // 网络错误或其他异常，显示登录页面
+              setTimeout(() => {
+                showToast('网络连接失败，请检查网络后点击"使用设备登录"', 'error');
+              }, 500);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('❌ Failed to initialize app:', error);
+        console.error('Error stack:', error.stack);
+        setIsInitializing(false);
       }
     };
 
-    initializeServices();
+    initializeApp();
   }, []);
+
+  // 监听 Token 变化，当 Token 被清除时自动退出登录
+  useEffect(() => {
+    if (!isLoggedIn) return;
+
+    const checkTokenInterval = setInterval(async () => {
+      const token = await AsyncStorage.getItem('authToken');
+      if (!token && isLoggedIn) {
+        console.log('🚪 检测到 Token 被清除，自动退出登录');
+        setIsLoggedIn(false);
+      }
+    }, 1000); // 每秒检查一次
+
+    return () => clearInterval(checkTokenInterval);
+  }, [isLoggedIn]);
+
+  // 显示加载界面直到字体和初始化完成
+  if (!fontsLoaded || isInitializing) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
+        <ActivityIndicator size="large" color="#ef4444" />
+        <Text style={{ marginTop: 16, fontSize: 14, color: '#6b7280' }}>
+          {!fontsLoaded ? '加载中...' : '正在初始化...'}
+        </Text>
+      </View>
+    );
+  }
 
   const handleLogin = () => {
     setIsLoggedIn(true);
@@ -423,6 +681,7 @@ export default function App() {
       <SafeAreaProvider>
         <StatusBar style="dark" />
         <LoginScreen onLogin={handleLogin} />
+        <ToastContainer ref={toastRef} />
       </SafeAreaProvider>
     );
   }
@@ -442,6 +701,7 @@ export default function App() {
         <Stack.Screen name="Follow" component={FollowScreen} />
         <Stack.Screen name="HotList" component={HotListScreen} />
         <Stack.Screen name="IncomeRanking" component={IncomeRankingScreen} />
+        <Stack.Screen name="QuestionRanking" component={QuestionRankingScreen} />
         <Stack.Screen name="Messages" component={MessagesScreen} />
         <Stack.Screen name="GroupChat" component={GroupChatScreen} />
         <Stack.Screen name="AnswerDetail" component={AnswerDetailScreen} />
@@ -465,8 +725,15 @@ export default function App() {
         <Stack.Screen name="SuperLikeHistory" component={SuperLikeHistoryScreen} />
         <Stack.Screen name="Contributors" component={ContributorsScreen} />
         <Stack.Screen name="PublicProfile" component={PublicProfileScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+        <Stack.Screen name="DeviceInfo" component={DeviceInfoScreen} />
+        <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
+        <Stack.Screen name="ConnectionStatus" component={ConnectionStatusScreen} />
+        </Stack.Navigator>
+        
+        {/* 调试按钮 - 仅开发环境显示 */}
+        <DebugButton />
+        <ToastContainer ref={toastRef} />
+      </NavigationContainer>
     </SafeAreaProvider>
   );
 }
