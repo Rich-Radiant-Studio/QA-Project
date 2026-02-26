@@ -86,6 +86,7 @@ const userApi = {
   uploadAvatar: async (imageUri) => {
     console.log('🔧 准备上传头像:');
     console.log('   imageUri:', imageUri);
+    console.log('   环境:', __DEV__ ? '开发环境' : '生产环境');
     
     // 从 URI 中提取文件名和扩展名
     const uriParts = imageUri.split('/');
@@ -93,21 +94,25 @@ const userApi = {
     
     // 判断文件类型
     let fileType = 'image/jpeg'; // 默认
-    if (fileName.toLowerCase().endsWith('.png')) {
+    const lowerFileName = fileName.toLowerCase();
+    if (lowerFileName.endsWith('.png')) {
       fileType = 'image/png';
-    } else if (fileName.toLowerCase().endsWith('.jpg') || fileName.toLowerCase().endsWith('.jpeg')) {
+    } else if (lowerFileName.endsWith('.jpg') || lowerFileName.endsWith('.jpeg')) {
       fileType = 'image/jpeg';
-    } else if (fileName.toLowerCase().endsWith('.gif')) {
+    } else if (lowerFileName.endsWith('.gif')) {
       fileType = 'image/gif';
-    } else if (fileName.toLowerCase().endsWith('.bmp')) {
+    } else if (lowerFileName.endsWith('.bmp')) {
       fileType = 'image/bmp';
     }
+    
+    console.log('📦 文件信息:');
+    console.log('   文件名:', fileName);
+    console.log('   文件类型:', fileType);
     
     // 创建 FormData
     const formData = new FormData();
     
-    // 尝试不同的方式添加文件
-    // 方式1：标准的 React Native FormData 格式
+    // React Native FormData 格式
     const file = {
       uri: imageUri,
       type: fileType,
@@ -116,38 +121,38 @@ const userApi = {
     
     formData.append('avatarfile', file);
     
-    console.log('📦 FormData 已创建:');
-    console.log('   文件名:', fileName);
-    console.log('   文件类型:', fileType);
-    console.log('   URI:', imageUri);
-    console.log('   File对象:', JSON.stringify(file));
+    console.log('✅ FormData 已创建');
     
     try {
+      console.log('📤 开始上传...');
+      
       // 发送 multipart/form-data 请求
       const response = await apiClient.post(API_ENDPOINTS.USER.AVATAR, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          // 不设置 Accept，使用默认值
         },
         transformRequest: (data) => data, // 不转换数据
-        timeout: 60000, // 60秒超时（上传文件需要更长时间）
+        timeout: 60000, // 60秒超时
       });
       
       console.log('✅ 头像上传成功');
-      console.log('📥 响应数据:', JSON.stringify(response, null, 2));
+      console.log('📥 响应码:', response.code);
+      
       return response;
     } catch (error) {
-      console.error('❌ 头像上传失败:', error);
-      console.error('❌ 错误类型:', error.constructor.name);
-      console.error('❌ 错误消息:', error.message);
+      console.error('❌ 头像上传失败');
+      console.error('   错误类型:', error.constructor.name);
+      console.error('   错误消息:', error.message);
       
-      if (error.response) {
-        console.error('❌ 响应状态:', error.response.status);
-        console.error('❌ 响应数据:', JSON.stringify(error.response.data, null, 2));
-        console.error('❌ 响应头:', JSON.stringify(error.response.headers, null, 2));
+      // 详细错误日志（仅开发环境）
+      if (__DEV__) {
+        if (error.response) {
+          console.error('   响应状态:', error.response.status);
+          console.error('   响应数据:', JSON.stringify(error.response.data, null, 2));
+        }
       }
       
-      // 提供更友好的错误信息
+      // 提供友好的错误信息
       if (error.message === 'Network Error' || error.message.includes('网络')) {
         throw new Error('网络连接失败，请检查网络后重试');
       } else if (error.code === 'ECONNABORTED') {

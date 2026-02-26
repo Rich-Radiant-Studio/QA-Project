@@ -1,4 +1,5 @@
 import Constants from 'expo-constants';
+import { SIMULATE_PRODUCTION } from './debugMode';
 
 // 环境配置
 const ENV = {
@@ -15,6 +16,12 @@ const ENV = {
 
 // 自动判断环境
 const getEnvVars = () => {
+  // 如果开启了模拟生产环境，返回生产配置
+  if (SIMULATE_PRODUCTION) {
+    console.log('🎭 使用生产环境配置（模拟模式）');
+    return ENV.prod;
+  }
+  
   // 通过 __DEV__ 判断是否为开发环境
   if (__DEV__) {
     return ENV.dev;
@@ -31,8 +38,8 @@ const getEnvVars = () => {
     return ENV.prod;
   }
   
-  // 默认返回开发环境
-  return ENV.dev;
+  // 默认返回生产环境（生产构建时）
+  return ENV.prod;
 };
 
 export default getEnvVars();

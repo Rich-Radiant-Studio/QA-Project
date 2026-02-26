@@ -4,7 +4,6 @@ import { Image, View, Text, StyleSheet } from 'react-native';
 /**
  * 通用头像组件
  * 自动处理加载失败，显示首字母占位符
- * 优化：防止不必要的重新加载
  */
 function Avatar({ uri, name = '用户', size = 40, style, textStyle }) {
   const [imageError, setImageError] = useState(false);
@@ -61,7 +60,7 @@ function Avatar({ uri, name = '用户', size = 40, style, textStyle }) {
           backgroundColor: '#f3f4f6'
         }}
         onError={(e) => {
-          console.log('头像加载失败:', uri, e.nativeEvent.error);
+          console.log('头像加载失败:', uri);
           setImageError(true);
         }}
       />

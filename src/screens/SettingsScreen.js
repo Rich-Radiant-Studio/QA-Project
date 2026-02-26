@@ -507,14 +507,50 @@ export default function SettingsScreen({ navigation }) {
       if (response.code === 200 && response.data) {
         console.log('✅ 头像上传成功');
         
-        // 从返回数据中获取新的头像路径
-        const newAvatarUrl = response.data.avatar 
-          || response.data.avatarUrl 
-          || response.data.url 
-          || response.data.avatarPath
-          || imageUri;
+        // 服务器返回的 data 直接就是头像 URL 字符串
+        let newAvatarUrl = typeof response.data === 'string' 
+          ? response.data 
+          : (response.data.avatar || response.data.avatarUrl || response.data.url);
         
-        console.log('🖼️ 新头像路径:', newAvatarUrl);
+        console.log('🖼️ 新头像 URL（原始）:', newAvatarUrl);
+        
+        // 测试图片 URL 是否可以访问
+        const testImageUrl = async (url) => {
+          try {
+            console.log('\n🔍 测试图片 URL 是否可访问...');
+            const testResponse = await fetch(url, {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${await AsyncStorage.getItem('authToken')}`,
+              },
+            });
+            
+            console.log('📥 图片 URL 测试结果:');
+            console.log('   状态码:', testResponse.status);
+            console.log('   Content-Type:', testResponse.headers.get('Content-Type'));
+            console.log('   Content-Length:', testResponse.headers.get('Content-Length'));
+            
+            if (testResponse.status !== 200) {
+              const errorText = await testResponse.text();
+              console.log('❌ 服务器返回错误:');
+              console.log(errorText.substring(0, 500));
+            }
+          } catch (error) {
+            console.error('❌ 测试图片 URL 失败:', error.message);
+          }
+        };
+        
+        await testImageUrl(newAvatarUrl);
+        
+        // 添加时间戳参数强制刷新图片缓存
+        if (newAvatarUrl) {
+          const timestamp = new Date().getTime();
+          newAvatarUrl = newAvatarUrl.includes('?') 
+            ? `${newAvatarUrl}&t=${timestamp}` 
+            : `${newAvatarUrl}?t=${timestamp}`;
+        }
+        
+        console.log('🖼️ 新头像 URL（带时间戳）:', newAvatarUrl);
         
         // 1. 先刷新用户信息缓存（从服务器获取最新数据）
         const freshProfile = await UserCacheService.forceRefresh();
@@ -522,6 +558,16 @@ export default function SettingsScreen({ navigation }) {
         // 2. 使用服务器返回的最新数据更新本地状态
         if (freshProfile) {
           console.log('✅ 用户信息已刷新，更新本地状态');
+          
+          // 给服务器返回的头像也添加时间戳
+          let serverAvatar = freshProfile.avatar;
+          if (serverAvatar) {
+            const timestamp = new Date().getTime();
+            serverAvatar = serverAvatar.includes('?') 
+              ? `${serverAvatar}&t=${timestamp}` 
+              : `${serverAvatar}?t=${timestamp}`;
+          }
+          
           setUserProfile({
             userId: freshProfile.userId || '',
             username: freshProfile.username || '',
@@ -532,7 +578,7 @@ export default function SettingsScreen({ navigation }) {
             occupation: freshProfile.profession || '',
             gender: freshProfile.sex === '0' ? '男' : freshProfile.sex === '1' ? '女' : '保密',
             birthday: freshProfile.birthday || '',
-            avatar: freshProfile.avatar || newAvatarUrl,  // 优先使用服务器返回的头像
+            avatar: serverAvatar || newAvatarUrl,  // 优先使用服务器返回的头像（带时间戳）
             email: freshProfile.email || '',
             phone: freshProfile.phonenumber || '',
           });
