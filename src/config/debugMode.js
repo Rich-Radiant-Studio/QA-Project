@@ -4,7 +4,8 @@
  */
 
 // 设置为 true 可以在开发环境中模拟生产环境
-export const SIMULATE_PRODUCTION = true;
+// 现在使用本地构建，不再需要模拟生产环境
+export const SIMULATE_PRODUCTION = false;
 
 /**
  * 判断是否为生产环境（或模拟生产环境）

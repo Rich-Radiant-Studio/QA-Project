@@ -1,4 +1,5 @@
 import apiClient from './apiClient';
+import contentApiClient from './contentApiClient';
 import { API_ENDPOINTS, replaceUrlParams } from '../../config/api';
 
 /**
@@ -30,14 +31,27 @@ const questionApi = {
   /**
    * 创建问题
    * @param {Object} data - 问题数据
-   * @param {string} data.title - 标题
-   * @param {string} data.content - 内容
-   * @param {Array} data.tags - 标签
-   * @param {number} data.reward - 悬赏金额
+   * @param {number} data.type - 问题类型：0=公开问题，1=悬赏问题，2=定向问题
+   * @param {number} data.categoryId - 二级分类ID（必填）
+   * @param {string} data.title - 问题标题（必填，5-50字）
+   * @param {string} data.description - 问题描述（必填）
+   * @param {string} data.subQuestions - 子问题（可选）
+   * @param {boolean} data.asDraft - 是否保存为草稿
+   * @param {number} data.bountyAmount - 悬赏金额（type=1或2时必填，单位：分）
+   * @param {number} data.payViewAmount - 付费查看金额（单位：分）
+   * @param {string} data.location - 位置信息（可选）
+   * @param {number} data.visibilityScope - 可见范围：0=所有人，1=仅关注我的人，2=仅自己
+   * @param {number} data.isAnonymous - 是否匿名：0=不匿名，1=匿名
+   * @param {number} data.isPublicAnswer - 是否公开答案：0=不公开，1=公开
+   * @param {number} data.teamId - 团队ID（以团队身份发布时必填）
+   * @param {Array<number>} data.expertIds - 专家ID列表（type=2时必填）
+   * @param {Array<number>} data.topicIds - 已有话题ID列表（可选）
+   * @param {Array<string>} data.topicNames - 新话题名称列表（可选）
+   * @param {Array<string>} data.imageUrls - 图片URL列表（最多9张）
    * @returns {Promise<Object>}
    */
   createQuestion: (data) => {
-    return apiClient.post(API_ENDPOINTS.QUESTION.CREATE, data);
+    return contentApiClient.post(API_ENDPOINTS.QUESTION.CREATE, data);
   },
 
   /**

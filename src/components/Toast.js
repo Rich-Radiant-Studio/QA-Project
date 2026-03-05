@@ -94,7 +94,7 @@ export default function Toast({ visible, message, type = 'error', duration = 200
     >
       <View style={[styles.toast, { borderLeftColor: getColor() }]}>
         <Ionicons name={getIcon()} size={20} color={getColor()} />
-        <Text style={styles.message}>{message}</Text>
+        <Text style={styles.message}>{message || ''}</Text>
       </View>
     </Animated.View>
   );

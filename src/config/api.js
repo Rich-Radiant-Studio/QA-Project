@@ -48,12 +48,17 @@ export const API_ENDPOINTS = {
   QUESTION: {
     LIST: '/questions',
     DETAIL: '/questions/:id',
-    CREATE: '/questions',
+    CREATE: '/app/content/question',
     UPDATE: '/questions/:id',
     DELETE: '/questions/:id',
     HOT: '/questions/hot',
     RANKING: '/questions/ranking',
     SEARCH: '/questions/search',
+  },
+  
+  // 分类相关
+  CATEGORY: {
+    LIST: '/app/content/category/list',
   },
   
   // 回答相关

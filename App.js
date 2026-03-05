@@ -17,6 +17,7 @@ import UserCacheService from './src/services/UserCacheService';
 import ToastContainer from './src/components/ToastContainer';
 import { setToastRef, showToast } from './src/utils/toast';
 import LocalMockService from './src/services/LocalMockService';
+// import UpdateChecker from './src/components/UpdateChecker'; // 临时注释：构建APK时不需要热更新功能
 
 import HomeScreen from './src/screens/HomeScreen';
 import SearchScreen from './src/screens/SearchScreen';
@@ -435,12 +436,12 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
   const [fontsLoaded, setFontsLoaded] = useState(false);
-  const toastRef = React.useRef(null);
-
-  // 设置 Toast 引用
-  useEffect(() => {
-    if (toastRef.current) {
-      setToastRef(toastRef.current);
+  
+  // 使用回调 ref 确保 Toast 引用在组件挂载时立即设置
+  const toastRef = React.useCallback((ref) => {
+    if (ref) {
+      setToastRef(ref);
+      console.log('✅ Toast ref 已设置');
     }
   }, []);
 
@@ -450,6 +451,10 @@ export default function App() {
       try {
         await Font.loadAsync({
           ...Ionicons.font,
+          // 预加载 Font Awesome 5 字体
+          'FontAwesome5_Solid': require('react-native-vector-icons/Fonts/FontAwesome5_Solid.ttf'),
+          'FontAwesome5_Regular': require('react-native-vector-icons/Fonts/FontAwesome5_Regular.ttf'),
+          'FontAwesome5_Brands': require('react-native-vector-icons/Fonts/FontAwesome5_Brands.ttf'),
         });
         setFontsLoaded(true);
       } catch (error) {
@@ -727,6 +732,7 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
+      {/* <UpdateChecker /> */} {/* 临时注释：构建APK时不需要热更新功能 */}
       <NavigationContainer>
         <StatusBar style="dark" />
         <Stack.Navigator screenOptions={{ headerShown: false }}>

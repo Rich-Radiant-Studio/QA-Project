@@ -37,6 +37,9 @@ const API_MODE_CONFIG = {
   '/app/user/profile/username': 'real',   // 修改用户名
   '/app/user/profile/avatar': 'real',     // 上传头像
   
+  // 分类相关接口 ✅
+  '/app/content/category/list': 'real',   // 分类列表
+  
   // ========== 如需使用 Mock 的接口，在这里配置为 'mock' ==========
   // 例如：
   // '/questions': 'mock',
@@ -67,17 +70,21 @@ export const shouldUseMock = (url) => {
 // 环境配置
 const ENV = {
   dev: {
-    apiUrl: 'http://123.144.100.10:30560/qa-hero-app-user',
+    apiUrl: 'http://123.144.149.59:30560/qa-hero-app-user',
+    contentApiUrl: 'http://123.144.149.59:30560/qa-hero-content',  // 内容服务
   },
   staging: {
-    apiUrl: 'http://123.144.100.10:30560/qa-hero-app-user',
+    apiUrl: 'http://123.144.149.59:30560/qa-hero-app-user',
+    contentApiUrl: 'http://123.144.149.59:30560/qa-hero-content',  // 内容服务
   },
   prod: {
-    apiUrl: 'http://123.144.100.10:30560/qa-hero-app-user',
+    apiUrl: 'http://123.144.149.59:30560/qa-hero-app-user',
+    contentApiUrl: 'http://123.144.149.59:30560/qa-hero-content',  // 内容服务
   },
   // Apifox Mock 环境（用于前端独立开发和测试）
   mock: {
     apiUrl: 'https://m1.apifoxmock.com/m1/7857964-7606903-default',
+    contentApiUrl: 'https://m1.apifoxmock.com/m1/7857964-7606903-default',  // Mock环境使用同一个地址
   }
 };
 

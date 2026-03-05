@@ -31,6 +31,10 @@ local.properties
 *.keystore
 !debug.keystore
 
+# Android 签名配置（敏感信息）
+android/keystore.properties
+android/app/release.keystore
+
 # node.js
 node_modules/
 npm-debug.log
